@@ -4,7 +4,7 @@ import { fetchOGMetadata, OGMetadata } from '@/lib/og-api';
 export function useOGMetadata(url?: string) {
   return useQuery<OGMetadata | null, Error>({
     queryKey: ['og-metadata', url],
-    queryFn: () => (url ? fetchOGMetadata(url) : Promise.resolve(null)),
+    queryFn: ({ signal }) => (url ? fetchOGMetadata(url, signal) : Promise.resolve(null)),
     enabled: !!url,
     staleTime: 60 * 60 * 1000, // 1 hour - OG data rarely changes
     gcTime: 24 * 60 * 60 * 1000, // 24 hours
