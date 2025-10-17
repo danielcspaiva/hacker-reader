@@ -1,22 +1,22 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { getItem, HNItem } from '@/lib/hn-api';
+import { useComment, useStory } from '@/hooks/use-story';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function Comment({ commentId }: { commentId: number }) {
-  const [comment, setComment] = useState<HNItem | null>(null);
+  const { data: comment, isLoading } = useComment(commentId);
   const [showReplies, setShowReplies] = useState(true);
   const borderColor = useThemeColor({}, 'border');
   const tintColor = useThemeColor({}, 'tint');
 
-  useEffect(() => {
-    getItem(commentId).then(setComment);
-  }, [commentId]);
+  if (isLoading) {
+    return null;
+  }
 
   if (!comment || comment.deleted || comment.dead) {
     return null;
@@ -133,22 +133,13 @@ function Comment({ commentId }: { commentId: number }) {
 
 export default function StoryDetailScreen() {
   const { id } = useLocalSearchParams();
-  const [story, setStory] = useState<HNItem | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: story, isLoading } = useStory(Number(id));
 
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
   const borderColor = useThemeColor({}, 'border');
 
   const { bottom } = useSafeAreaInsets();
-
-  useEffect(() => {
-    if (id) {
-      getItem(Number(id))
-        .then(setStory)
-        .finally(() => setLoading(false));
-    }
-  }, [id]);
 
   const timeAgo = (timestamp: number) => {
     const now = Date.now() / 1000;
@@ -163,7 +154,7 @@ export default function StoryDetailScreen() {
     await WebBrowser.openBrowserAsync(url);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         <Stack.Screen options={{ title: 'Loading...', headerShown: true, headerTransparent: true }} />

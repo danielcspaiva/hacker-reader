@@ -3,6 +3,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
@@ -13,24 +14,38 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{
-          headerTransparent: true,
-          headerBackButtonDisplayMode: "minimal",
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack
+          screenOptions={{
+            headerTransparent: true,
+            headerBackButtonDisplayMode: "minimal",
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

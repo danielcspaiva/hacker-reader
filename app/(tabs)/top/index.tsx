@@ -1,10 +1,9 @@
 import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { useTopStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { getItems, getTopStories, HNItem } from "@/lib/hn-api";
 import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -16,37 +15,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TopStoriesScreen() {
-  const [stories, setStories] = useState<HNItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { data: stories = [], isLoading, isRefetching, refetch } = useTopStories(30);
 
   const { bottom } = useSafeAreaInsets();
-  const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
 
-  const loadStories = async () => {
-    try {
-      const ids = await getTopStories(30);
-      const items = await getItems(ids);
-      setStories(items);
-    } catch (error) {
-      console.error("Failed to load stories:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStories();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadStories();
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         <Stack.Screen options={{ title: "Top Stories", headerShown: true }} />
@@ -82,8 +56,8 @@ export default function TopStoriesScreen() {
           )}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
+              refreshing={isRefetching}
+              onRefresh={() => refetch()}
               tintColor={textColor}
             />
           }

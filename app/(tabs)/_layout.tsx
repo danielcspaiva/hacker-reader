@@ -4,17 +4,17 @@ import React from 'react';
 
 export default function TabLayout() {
   return (
-    <NativeTabs iconColor={useThemeColor({}, 'tint')}>
+    <NativeTabs tintColor={useThemeColor({}, 'tint')}>
       <NativeTabs.Trigger name="top">
         <Icon sf="flame.fill" />
         <Label>Top</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="new">
-        <Icon sf="clock.fill" />
+        <Icon sf="clock" />
         <Label>New</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="ask">
-        <Icon sf="questionmark.circle.fill" />
+        <Icon sf="questionmark.bubble" />
         <Label>Ask</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="show">
@@ -22,7 +22,7 @@ export default function TabLayout() {
         <Label>Show</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="jobs">
-        <Icon sf="briefcase.fill" />
+        <Icon sf="briefcase" />
         <Label>Jobs</Label>
       </NativeTabs.Trigger>
     </NativeTabs>

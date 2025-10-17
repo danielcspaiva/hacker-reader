@@ -1,44 +1,19 @@
-import { useState, useEffect } from 'react';
 import { FlatList, StyleSheet, RefreshControl, ActivityIndicator, View, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { StoryCard } from '@/components/story-card';
-import { getShowStories, getItems, HNItem } from '@/lib/hn-api';
+import { useShowStories } from '@/hooks/use-stories';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ShowStoriesScreen() {
-  const [stories, setStories] = useState<HNItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { data: stories = [], isLoading, isRefetching, refetch } = useShowStories(30);
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, 'text');
 
-  const loadStories = async () => {
-    try {
-      const ids = await getShowStories(30);
-      const items = await getItems(ids);
-      setStories(items);
-    } catch (error) {
-      console.error('Failed to load stories:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStories();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadStories();
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         <Stack.Screen options={{ title: 'Show HN' }} />
@@ -66,8 +41,8 @@ export default function ShowStoriesScreen() {
             renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
+                refreshing={isRefetching}
+                onRefresh={() => refetch()}
                 tintColor={textColor}
               />
             }
