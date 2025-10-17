@@ -5,7 +5,7 @@ import { useComment, useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { parseHTMLWithLinks } from "@/lib/utils/html";
 import { timeAgo } from "@/lib/utils/time";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
 import {
@@ -85,6 +85,7 @@ function Comment({ commentId }: { commentId: number }) {
 export default function StoryDetailScreen() {
   const { id } = useLocalSearchParams();
   const { data: story, isLoading } = useStory(Number(id));
+  const isPreview = useIsPreview();
 
   const textColor = useThemeColor({}, "text");
   const tintColor = useThemeColor({}, "tint");
@@ -99,14 +100,7 @@ export default function StoryDetailScreen() {
   if (isLoading) {
     return (
       <>
-        <Stack.Screen
-          options={{
-            title: "",
-            headerShown: true,
-            headerTransparent: true,
-            headerBackButtonDisplayMode: "minimal",
-          }}
-        />
+        {!isPreview && <Stack.Screen options={{ title: "" }} />}
         <ThemedView style={styles.centered}>
           <ActivityIndicator size="large" color={textColor} />
         </ThemedView>
@@ -117,14 +111,7 @@ export default function StoryDetailScreen() {
   if (!story) {
     return (
       <>
-        <Stack.Screen
-          options={{
-            title: "Not Found",
-            headerShown: true,
-            headerTransparent: true,
-            headerBackButtonDisplayMode: "minimal",
-          }}
-        />
+        {!isPreview && <Stack.Screen options={{ title: "Not Found" }} />}
         <ThemedView style={styles.centered}>
           <ThemedText>Story not found</ThemedText>
         </ThemedView>
@@ -134,13 +121,7 @@ export default function StoryDetailScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: "",
-          headerTransparent: true,
-          headerBackButtonDisplayMode: "minimal",
-        }}
-      />
+      {!isPreview && <Stack.Screen options={{ title: "" }} />}
       <ThemedView style={styles.container}>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
