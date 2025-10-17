@@ -1,18 +1,24 @@
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { Stack } from "expo-router";
 
 export default function Layout() {
+  const textColor = useThemeColor({}, "tint");
   return (
     <Stack
       screenOptions={{
         headerTransparent: true,
         headerLargeTitle: true,
-        headerLargeTitleShadowVisible: true,
+        headerLargeTitleShadowVisible: false,
+        headerTintColor: textColor,
       }}
     >
       <Stack.Screen
         name="index"
         options={{
           title: "Ask HN",
+          headerLargeTitleStyle: {
+            color: textColor,
+          },
         }}
       />
     </Stack>

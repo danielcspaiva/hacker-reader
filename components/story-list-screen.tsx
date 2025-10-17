@@ -30,6 +30,7 @@ export function StoryListScreen({ title, useStoriesHook }: StoryListScreenProps)
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
 
   if (isLoading) {
     return (
@@ -57,6 +58,7 @@ export function StoryListScreen({ title, useStoriesHook }: StoryListScreenProps)
             android: 100 + bottom,
             default: 0,
           }),
+          backgroundColor,
         }}
         onRefresh={() => refetch()}
         refreshing={isRefetching}
