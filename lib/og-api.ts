@@ -6,6 +6,19 @@ export interface OGMetadata {
   siteName?: string;
 }
 
+/**
+ * Decodes HTML entities in meta tag content
+ */
+function decodeHTMLEntities(text: string): string {
+  return text
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&quot;/g, '"')
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/&amp;/g, '&');
+}
+
 function extractMetaTag(html: string, property: string): string | undefined {
   // Match both property="og:xxx" and name="xxx" formats
   const propertyRegex = new RegExp(
@@ -18,7 +31,7 @@ function extractMetaTag(html: string, property: string): string | undefined {
   );
 
   const match = html.match(propertyRegex) || html.match(contentRegex);
-  return match ? match[1] : undefined;
+  return match ? decodeHTMLEntities(match[1]) : undefined;
 }
 
 const TIMEOUT_MS = 5000; // 5 second timeout
