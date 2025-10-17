@@ -12,14 +12,20 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useMemo } from "react";
 
 export default function TopStoriesScreen() {
   const {
-    data: stories = [],
+    data,
     isLoading,
     isRefetching,
     refetch,
-  } = useTopStories(30);
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useTopStories();
+
+  const stories = useMemo(() => data?.pages.flatMap((page) => page) ?? [], [data]);
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
@@ -58,10 +64,23 @@ export default function TopStoriesScreen() {
         }}
         onRefresh={() => refetch()}
         refreshing={isRefetching}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
         ListEmptyComponent={
           <View style={styles.centered}>
             <ThemedText>No stories found</ThemedText>
           </View>
+        }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footer}>
+              <ActivityIndicator size="small" color={textColor} />
+            </View>
+          ) : null
         }
       />
     </>
@@ -75,6 +94,10 @@ const styles = StyleSheet.create({
   centered: {
     flex: 1,
     justifyContent: "center",
+    alignItems: "center",
+  },
+  footer: {
+    paddingVertical: 20,
     alignItems: "center",
   },
 });

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   getTopStories,
   getNewStories,
@@ -9,52 +9,79 @@ import {
   HNItem,
 } from '@/lib/hn-api';
 
-export function useTopStories(limit = 30) {
-  return useQuery<HNItem[], Error>({
-    queryKey: ['stories', 'top', limit],
-    queryFn: async () => {
-      const ids = await getTopStories(limit);
+const PAGE_SIZE = 30;
+
+export function useTopStories() {
+  return useInfiniteQuery<HNItem[], Error>({
+    queryKey: ['stories', 'top'],
+    queryFn: async ({ pageParam = 0 }) => {
+      const ids = await getTopStories(pageParam as number, PAGE_SIZE);
       return getItems(ids);
     },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length * PAGE_SIZE;
+    },
+    initialPageParam: 0,
   });
 }
 
-export function useNewStories(limit = 30) {
-  return useQuery<HNItem[], Error>({
-    queryKey: ['stories', 'new', limit],
-    queryFn: async () => {
-      const ids = await getNewStories(limit);
+export function useNewStories() {
+  return useInfiniteQuery<HNItem[], Error>({
+    queryKey: ['stories', 'new'],
+    queryFn: async ({ pageParam = 0 }) => {
+      const ids = await getNewStories(pageParam as number, PAGE_SIZE);
       return getItems(ids);
     },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length * PAGE_SIZE;
+    },
+    initialPageParam: 0,
   });
 }
 
-export function useAskStories(limit = 30) {
-  return useQuery<HNItem[], Error>({
-    queryKey: ['stories', 'ask', limit],
-    queryFn: async () => {
-      const ids = await getAskStories(limit);
+export function useAskStories() {
+  return useInfiniteQuery<HNItem[], Error>({
+    queryKey: ['stories', 'ask'],
+    queryFn: async ({ pageParam = 0 }) => {
+      const ids = await getAskStories(pageParam as number, PAGE_SIZE);
       return getItems(ids);
     },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length * PAGE_SIZE;
+    },
+    initialPageParam: 0,
   });
 }
 
-export function useShowStories(limit = 30) {
-  return useQuery<HNItem[], Error>({
-    queryKey: ['stories', 'show', limit],
-    queryFn: async () => {
-      const ids = await getShowStories(limit);
+export function useShowStories() {
+  return useInfiniteQuery<HNItem[], Error>({
+    queryKey: ['stories', 'show'],
+    queryFn: async ({ pageParam = 0 }) => {
+      const ids = await getShowStories(pageParam as number, PAGE_SIZE);
       return getItems(ids);
     },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length * PAGE_SIZE;
+    },
+    initialPageParam: 0,
   });
 }
 
-export function useJobStories(limit = 30) {
-  return useQuery<HNItem[], Error>({
-    queryKey: ['stories', 'jobs', limit],
-    queryFn: async () => {
-      const ids = await getJobStories(limit);
+export function useJobStories() {
+  return useInfiniteQuery<HNItem[], Error>({
+    queryKey: ['stories', 'jobs'],
+    queryFn: async ({ pageParam = 0 }) => {
+      const ids = await getJobStories(pageParam as number, PAGE_SIZE);
       return getItems(ids);
     },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length * PAGE_SIZE;
+    },
+    initialPageParam: 0,
   });
 }

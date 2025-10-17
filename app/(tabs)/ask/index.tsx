@@ -7,9 +7,20 @@ import { FlashList } from '@shopify/flash-list';
 import { Stack } from 'expo-router';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useMemo } from 'react';
 
 export default function AskStoriesScreen() {
-  const { data: stories = [], isLoading, isRefetching, refetch } = useAskStories(30);
+  const {
+    data,
+    isLoading,
+    isRefetching,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAskStories();
+
+  const stories = useMemo(() => data?.pages.flatMap((page) => page) ?? [], [data]);
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, 'text');
@@ -43,10 +54,23 @@ export default function AskStoriesScreen() {
         }}
         onRefresh={() => refetch()}
         refreshing={isRefetching}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
         ListEmptyComponent={
           <View style={styles.centered}>
             <ThemedText>No stories found</ThemedText>
           </View>
+        }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footer}>
+              <ActivityIndicator size="small" color={textColor} />
+            </View>
+          ) : null
         }
       />
     </>
@@ -60,6 +84,10 @@ const styles = StyleSheet.create({
   centered: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footer: {
+    paddingVertical: 20,
     alignItems: 'center',
   },
 });

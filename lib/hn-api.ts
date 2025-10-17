@@ -34,29 +34,29 @@ async function fetchJSON<T>(path: string): Promise<T> {
   return response.json();
 }
 
-export async function getTopStories(limit = 30): Promise<number[]> {
+export async function getTopStories(offset = 0, limit = 30): Promise<number[]> {
   const ids = await fetchJSON<number[]>('/topstories.json');
-  return ids.slice(0, limit);
+  return ids.slice(offset, offset + limit);
 }
 
-export async function getNewStories(limit = 30): Promise<number[]> {
+export async function getNewStories(offset = 0, limit = 30): Promise<number[]> {
   const ids = await fetchJSON<number[]>('/newstories.json');
-  return ids.slice(0, limit);
+  return ids.slice(offset, offset + limit);
 }
 
-export async function getAskStories(limit = 30): Promise<number[]> {
+export async function getAskStories(offset = 0, limit = 30): Promise<number[]> {
   const ids = await fetchJSON<number[]>('/askstories.json');
-  return ids.slice(0, limit);
+  return ids.slice(offset, offset + limit);
 }
 
-export async function getShowStories(limit = 30): Promise<number[]> {
+export async function getShowStories(offset = 0, limit = 30): Promise<number[]> {
   const ids = await fetchJSON<number[]>('/showstories.json');
-  return ids.slice(0, limit);
+  return ids.slice(offset, offset + limit);
 }
 
-export async function getJobStories(limit = 30): Promise<number[]> {
+export async function getJobStories(offset = 0, limit = 30): Promise<number[]> {
   const ids = await fetchJSON<number[]>('/jobstories.json');
-  return ids.slice(0, limit);
+  return ids.slice(offset, offset + limit);
 }
 
 export async function getItem(id: number): Promise<HNItem> {
