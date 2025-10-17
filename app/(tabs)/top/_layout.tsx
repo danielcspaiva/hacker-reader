@@ -5,6 +5,8 @@ export default function Layout() {
     <Stack
       screenOptions={{
         headerTransparent: true,
+        headerLargeTitle: true,
+        headerLargeTitleShadowVisible: false,
       }}
     >
       <Stack.Screen

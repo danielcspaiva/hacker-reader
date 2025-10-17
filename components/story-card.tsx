@@ -1,6 +1,7 @@
 import { TouchableOpacity, StyleSheet, View } from 'react-native';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
+import { LinkPreview } from './link-preview';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
 import { router } from 'expo-router';
@@ -61,6 +62,7 @@ export function StoryCard({ story, index }: StoryCardProps) {
               </ThemedText>
             </View>
           </View>
+          {story.url && <LinkPreview url={story.url} compact />}
         </View>
       </ThemedView>
     </TouchableOpacity>

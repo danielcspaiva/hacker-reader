@@ -1,10 +1,11 @@
-import { FlatList, StyleSheet, RefreshControl, ActivityIndicator, View, Platform } from 'react-native';
-import { Stack } from 'expo-router';
-import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
 import { StoryCard } from '@/components/story-card';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import { useNewStories } from '@/hooks/use-stories';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { FlashList } from '@shopify/flash-list';
+import { Stack } from 'expo-router';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NewStoriesScreen() {
@@ -27,32 +28,27 @@ export default function NewStoriesScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'New Stories' }} />
-      <ThemedView style={styles.container}>
-          <FlatList
-            data={stories}
-            keyExtractor={(item) => item.id.toString()}
-            contentInsetAdjustmentBehavior="automatic"
-            contentContainerStyle={{
-              paddingBottom: Platform.select({
-                android: 100 + bottom,
-                default: 0,
-              }),
-            }}
-            renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={() => refetch()}
-                tintColor={textColor}
-              />
-            }
-            ListEmptyComponent={
-              <View style={styles.centered}>
-                <ThemedText>No stories found</ThemedText>
-              </View>
-            }
-          />
-      </ThemedView>
+      <FlashList
+        data={stories}
+        renderItem={({ item, index }) => (
+          <StoryCard story={item} index={index + 1} />
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{
+          paddingBottom: Platform.select({
+            android: 100 + bottom,
+            default: 0,
+          }),
+        }}
+        onRefresh={() => refetch()}
+        refreshing={isRefetching}
+        ListEmptyComponent={
+          <View style={styles.centered}>
+            <ThemedText>No stories found</ThemedText>
+          </View>
+        }
+      />
     </>
   );
 }
