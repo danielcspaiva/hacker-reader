@@ -1,5 +1,7 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
+import { getDomain } from '@/lib/utils/url';
+import { timeAgo } from '@/lib/utils/time';
 import { router } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { LinkPreview } from './link-preview';
@@ -13,24 +15,6 @@ interface StoryCardProps {
 
 export function StoryCard({ story, index }: StoryCardProps) {
   const separatorColor = useThemeColor({}, 'border');
-
-  const timeAgo = (timestamp: number) => {
-    const now = Date.now() / 1000;
-    const diff = now - timestamp;
-
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
-
-  const getDomain = (url?: string) => {
-    if (!url) return null;
-    try {
-      return new URL(url).hostname.replace('www.', '');
-    } catch {
-      return null;
-    }
-  };
 
   const handlePress = () => {
     router.push(`/story/${story.id}`);

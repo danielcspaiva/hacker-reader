@@ -1,8 +1,10 @@
 # Extract Utility Functions
 
+**Status**: ✅ COMPLETED
 **Priority**: Immediate (High Impact, Low Effort)
 **Category**: Code Duplication
 **Estimated Time**: 20-30 minutes
+**Actual Time**: ~15 minutes
 
 ## Problem
 
@@ -162,13 +164,13 @@ import { parseHTMLWithLinks } from '@/lib/utils/html';
 // Update Comment component to use imported functions
 ```
 
-## Files to Modify
+## Files Modified
 
-- Create: `lib/utils/time.ts`
-- Create: `lib/utils/html.ts`
-- Create: `lib/utils/url.ts`
-- Modify: `components/story-card.tsx`
-- Modify: `app/story/[id].tsx`
+- ✅ Created: `lib/utils/time.ts`
+- ✅ Created: `lib/utils/html.ts`
+- ✅ Created: `lib/utils/url.ts`
+- ✅ Modified: `components/story-card.tsx`
+- ✅ Modified: `app/story/[id].tsx`
 
 ## Benefits
 
@@ -180,6 +182,8 @@ import { parseHTMLWithLinks } from '@/lib/utils/html';
 
 ## Testing Checklist
 
+**Note**: Manual testing recommended to verify all functionality still works correctly.
+
 - [ ] Story cards display correct time formatting
 - [ ] Story detail page displays correct time formatting
 - [ ] Comments display correct time formatting
@@ -187,3 +191,13 @@ import { parseHTMLWithLinks } from '@/lib/utils/html';
 - [ ] HTML entities decode correctly (&amp;, &quot;, etc.)
 - [ ] Domain extraction works for various URL formats
 - [ ] Edge cases handled (undefined/null inputs)
+
+## Implementation Summary
+
+Successfully extracted all duplicate utility functions into centralized modules:
+
+1. **`timeAgo`** - Now shared from `lib/utils/time.ts` (removed 3 duplicate implementations)
+2. **`parseHTMLWithLinks`** - Now shared from `lib/utils/html.ts` (removed 2 duplicate implementations, ~100 lines)
+3. **`getDomain`** - Extracted to `lib/utils/url.ts` for reusability
+
+Total code reduction: ~150 lines of duplicated code eliminated.

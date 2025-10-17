@@ -3,6 +3,8 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useComment, useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { parseHTMLWithLinks } from "@/lib/utils/html";
+import { timeAgo } from "@/lib/utils/time";
 import { Stack, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
@@ -29,74 +31,6 @@ function Comment({ commentId }: { commentId: number }) {
   if (!comment || comment.deleted || comment.dead) {
     return null;
   }
-
-  const timeAgo = (timestamp: number) => {
-    const now = Date.now() / 1000;
-    const diff = now - timestamp;
-
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
-
-  // Parse HTML and create clickable links
-  const parseHTMLWithLinks = (html?: string) => {
-    if (!html) return null;
-
-    const decodeEntities = (text: string) =>
-      text
-        .replace(/&#x2F;/g, "/")
-        .replace(/&#x27;/g, "'")
-        .replace(/&quot;/g, '"')
-        .replace(/&gt;/g, ">")
-        .replace(/&lt;/g, "<")
-        .replace(/&amp;/g, "&");
-
-    // Replace paragraph tags with newlines
-    let processed = html
-      .replace(/<p>/g, "\n\n")
-      .replace(/<\/p>/g, "")
-      .replace(/<i>/g, "")
-      .replace(/<\/i>/g, "");
-
-    // Match <a href="url">text</a> patterns
-    const linkRegex = /<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g;
-    const parts: { type: "text" | "link"; content: string; url?: string }[] =
-      [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = linkRegex.exec(processed)) !== null) {
-      // Add text before the link
-      if (match.index > lastIndex) {
-        const textBefore = decodeEntities(
-          processed.substring(lastIndex, match.index)
-        );
-        if (textBefore) {
-          parts.push({ type: "text", content: textBefore });
-        }
-      }
-
-      // Add the link
-      parts.push({
-        type: "link",
-        content: decodeEntities(match[2]),
-        url: decodeEntities(match[1]),
-      });
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < processed.length) {
-      const textAfter = decodeEntities(processed.substring(lastIndex));
-      if (textAfter) {
-        parts.push({ type: "text", content: textAfter });
-      }
-    }
-
-    return parts;
-  };
 
   return (
     <View style={[styles.comment, { borderLeftColor: borderColor }]}>
@@ -158,15 +92,6 @@ export default function StoryDetailScreen() {
 
   const { bottom } = useSafeAreaInsets();
 
-  const timeAgo = (timestamp: number) => {
-    const now = Date.now() / 1000;
-    const diff = now - timestamp;
-
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
-
   const openURL = async (url: string) => {
     await WebBrowser.openBrowserAsync(url);
   };
@@ -206,64 +131,6 @@ export default function StoryDetailScreen() {
       </>
     );
   }
-
-  const parseHTMLWithLinks = (html?: string) => {
-    if (!html) return null;
-
-    const decodeEntities = (text: string) =>
-      text
-        .replace(/&#x2F;/g, "/")
-        .replace(/&#x27;/g, "'")
-        .replace(/&quot;/g, '"')
-        .replace(/&gt;/g, ">")
-        .replace(/&lt;/g, "<")
-        .replace(/&amp;/g, "&");
-
-    // Replace paragraph tags with newlines
-    let processed = html
-      .replace(/<p>/g, "\n\n")
-      .replace(/<\/p>/g, "")
-      .replace(/<i>/g, "")
-      .replace(/<\/i>/g, "");
-
-    // Match <a href="url">text</a> patterns
-    const linkRegex = /<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g;
-    const parts: { type: "text" | "link"; content: string; url?: string }[] =
-      [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = linkRegex.exec(processed)) !== null) {
-      // Add text before the link
-      if (match.index > lastIndex) {
-        const textBefore = decodeEntities(
-          processed.substring(lastIndex, match.index)
-        );
-        if (textBefore) {
-          parts.push({ type: "text", content: textBefore });
-        }
-      }
-
-      // Add the link
-      parts.push({
-        type: "link",
-        content: decodeEntities(match[2]),
-        url: decodeEntities(match[1]),
-      });
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < processed.length) {
-      const textAfter = decodeEntities(processed.substring(lastIndex));
-      if (textAfter) {
-        parts.push({ type: "text", content: textAfter });
-      }
-    }
-
-    return parts;
-  };
 
   return (
     <>
