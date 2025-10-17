@@ -1,10 +1,10 @@
-import { TouchableOpacity, StyleSheet, View } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-import { LinkPreview } from './link-preview';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
 import { router } from 'expo-router';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { LinkPreview } from './link-preview';
+import { ThemedText } from './themed-text';
+import { ThemedView } from './themed-view';
 
 interface StoryCardProps {
   story: HNItem;
