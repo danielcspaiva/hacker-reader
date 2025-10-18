@@ -7,7 +7,6 @@ import { FlashList } from '@shopify/flash-list';
 import { Stack } from 'expo-router';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useMemo } from 'react';
 import { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
 
 interface StoryListScreenProps {
@@ -26,7 +25,7 @@ export function StoryListScreen({ title, useStoriesHook }: StoryListScreenProps)
     isFetchingNextPage,
   } = useStoriesHook();
 
-  const stories = useMemo(() => data?.pages.flatMap((page) => page) ?? [], [data]);
+  const stories = data?.pages.flatMap((page) => page) ?? [];
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, 'text');

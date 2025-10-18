@@ -1,6 +1,5 @@
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,10 +33,7 @@ export default function SearchScreen() {
     error,
   } = useSearchStories(trimmedQuery);
 
-  const stories = useMemo(
-    () => data?.pages.flatMap((page) => page.hits) ?? [],
-    [data]
-  );
+  const stories = data?.pages.flatMap((page) => page.hits) ?? [];
 
   if (isQueryEmpty) {
     return (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useRouter } from 'expo-router';
@@ -18,18 +18,15 @@ export default function Layout() {
     };
   }, []);
 
-  const handleSearchChange = useCallback(
-    (event: { nativeEvent: { text: string } }) => {
-      const value = event.nativeEvent.text ?? '';
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-      }
-      debounceTimeout.current = setTimeout(() => {
-        router.setParams({ q: value.trim().length > 0 ? value : undefined });
-      }, 300);
-    },
-    [router]
-  );
+  const handleSearchChange = (event: { nativeEvent: { text: string } }) => {
+    const value = event.nativeEvent.text ?? '';
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(() => {
+      router.setParams({ q: value.trim().length > 0 ? value : undefined });
+    }, 300);
+  };
 
   return (
     <Stack

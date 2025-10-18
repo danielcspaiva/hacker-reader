@@ -18,7 +18,7 @@ export function StoryCard({ story, index }: StoryCardProps) {
 
   return (
     <ThemedView style={[styles.container, { borderBottomColor: separatorColor }]}>
-      <Link href={`/story/${story.id}`}>
+      <Link href={`/story/${story.id}?title=${encodeURIComponent(story.title || '')}`}>
         <Link.Trigger>
           <View style={styles.header}>
             {/* <ThemedText style={styles.index}>{index}.</ThemedText> */}
@@ -27,7 +27,7 @@ export function StoryCard({ story, index }: StoryCardProps) {
                 {story.title}
               </ThemedText>
               {getDomain(story.url) && (
-                <ThemedText style={styles.domain}>({getDomain(story.url)})</ThemedText>
+                <ThemedText style={styles.domain}>{getDomain(story.url)}</ThemedText>
               )}
               <View style={styles.metadata}>
                 <ThemedText style={styles.metadataText}>

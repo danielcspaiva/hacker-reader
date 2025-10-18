@@ -54,7 +54,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={colorScheme === "dark" ? customDarkTheme : customLightTheme}>
+      <ThemeProvider
+        value={colorScheme === "dark" ? customDarkTheme : customLightTheme}
+      >
         <Stack
           screenOptions={{
             headerShown: false,
@@ -67,6 +69,15 @@ export default function RootLayout() {
               headerShown: true,
               headerTransparent: true,
               headerBackButtonDisplayMode: "minimal",
+              headerLargeTitle: true,
+              headerLargeTitleShadowVisible: false,
+              headerLargeTitleStyle: {
+                color:
+                  colorScheme === "dark"
+                    ? Colors.dark.background
+                    : Colors.light.background,
+                fontSize: 1,
+              },
             }}
           />
         </Stack>

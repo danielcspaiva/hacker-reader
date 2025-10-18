@@ -105,7 +105,8 @@ The comment tree is recursively rendered in `app/story/[id].tsx`:
 ### State Management
 - No global state management library (Redux, Zustand, etc.)
 - React Query handles all server state
-- Local UI state uses React hooks (useState, useMemo)
+- Local UI state uses React hooks (useState)
+- **React Compiler enabled** - automatic memoization, no manual `useMemo`, `useCallback`, or `React.memo` needed
 
 ### HTML Handling
 Comments and story text contain HTML that needs parsing:
@@ -151,7 +152,10 @@ constants/          # Theme and other constants
 ## Expo Configuration
 
 - New Architecture enabled (`newArchEnabled: true`)
-- Typed routes experimental feature enabled
-- React Compiler experimental feature enabled
+- Typed routes experimental feature enabled (`experiments.typedRoutes: true`)
+- **React Compiler enabled** (`experiments.reactCompiler: true`)
+  - SDK 54+ auto-configures Babel plugin
+  - Automatic memoization of components and hooks
+  - Do not use manual `useMemo`, `useCallback`, or `React.memo`
 - Edge-to-edge on Android with predictive back gesture disabled
 - Custom splash screen configuration with dark mode support
