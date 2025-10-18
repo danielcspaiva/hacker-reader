@@ -43,3 +43,35 @@ async function fetchJSON<T>(path: string): Promise<T> {
 export async function getStoryWithComments(id: number): Promise<AlgoliaStory> {
   return fetchJSON<AlgoliaStory>(`/items/${id}`);
 }
+
+export interface AlgoliaSearchHit {
+  objectID: string;
+  title: string | null;
+  url: string | null;
+  author: string | null;
+  points: number | null;
+  num_comments: number | null;
+  created_at_i: number;
+  story_text?: string | null;
+}
+
+export interface AlgoliaSearchResponse {
+  hits: AlgoliaSearchHit[];
+  page: number;
+  nbPages: number;
+  hitsPerPage: number;
+}
+
+export async function searchStories(
+  query: string,
+  page = 0,
+  hitsPerPage = 30
+): Promise<AlgoliaSearchResponse> {
+  const params = new URLSearchParams({
+    query,
+    page: page.toString(),
+    hitsPerPage: hitsPerPage.toString(),
+    tags: 'story',
+  });
+  return fetchJSON<AlgoliaSearchResponse>(`/search?${params.toString()}`);
+}
