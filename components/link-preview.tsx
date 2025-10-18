@@ -45,7 +45,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
         {metadata.image && (
           <Image
             source={{ uri: metadata.image }}
-            style={[styles.thumbnail, { borderColor }]}
+            style={[styles.thumbnail, { borderColor, backgroundColor }]}
             contentFit="cover"
             transition={200}
           />
@@ -59,7 +59,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
       {metadata.image && (
         <Image
           source={{ uri: metadata.image }}
-          style={styles.image}
+          style={[styles.image, { backgroundColor }]}
           contentFit="cover"
           transition={200}
         />
@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 6,
-    backgroundColor: '#f0f0f0',
     borderWidth: 1,
   },
   thumbnailLoading: {
@@ -113,7 +112,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     aspectRatio: 2,
-    backgroundColor: '#f0f0f0',
   },
   loadingContainer: {
     width: '100%',
