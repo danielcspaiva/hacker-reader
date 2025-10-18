@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Stack, useRouter } from 'expo-router';
 
 export default function Layout() {
@@ -35,6 +36,7 @@ export default function Layout() {
         headerLargeTitle: true,
         headerLargeTitleShadowVisible: false,
         headerTintColor: tintColor,
+        headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
         headerSearchBarOptions: {
           headerIconColor: tintColor,
           tintColor,

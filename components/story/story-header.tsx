@@ -3,9 +3,14 @@ import { ThemedText } from "@/components/themed-text";
 import type { StoryWithComments } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/utils/time";
+import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
+
+// Negative margin needed for iOS 26+ header behavior to allow proper
+// large-to-regular title transitions with multi-line large titles
+const IOS_26_HEADER_MARGIN_OFFSET = -36;
 
 interface StoryHeaderProps {
   story: StoryWithComments;
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    marginTop: -36,
+    marginTop: isLiquidGlassAvailable() ? IOS_26_HEADER_MARGIN_OFFSET : 0,
   },
   title: {
     fontSize: 20,

@@ -5,6 +5,7 @@ import { useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { flattenComments } from "@/lib/utils/comments";
 import { FlashList } from "@shopify/flash-list";
+import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
@@ -54,29 +55,41 @@ export default function StoryDetailScreen() {
     });
   };
 
+  // Render Stack.Screen immediately to prevent header title flash
+  const screenOptions = !isInsidePreview && (
+    <Stack.Screen
+      options={{
+        title: (title as string) || story?.title || "",
+        headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
+      }}
+    />
+  );
+
   if (isLoading) {
     return (
-      <View style={[styles.centered, { backgroundColor }]}>
-        <ActivityIndicator size="large" color={textColor} />
-      </View>
+      <>
+        {screenOptions}
+        <View style={[styles.centered, { backgroundColor }]}>
+          <ActivityIndicator size="large" color={textColor} />
+        </View>
+      </>
     );
   }
 
   if (!story) {
     return (
-      <View style={[styles.centered, { backgroundColor }]}>
-        <ThemedText>Story not found</ThemedText>
-      </View>
+      <>
+        {screenOptions}
+        <View style={[styles.centered, { backgroundColor }]}>
+          <ThemedText>Story not found</ThemedText>
+        </View>
+      </>
     );
   }
 
   return (
     <>
-      {!isInsidePreview && (
-        <Stack.Screen
-          options={{ title: (title as string) || story?.title || "" }}
-        />
-      )}
+      {screenOptions}
       <FlashList
         data={flatComments}
         renderItem={({ item }) => (

@@ -1,4 +1,5 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Stack } from "expo-router";
 
 export default function Layout() {
@@ -10,6 +11,7 @@ export default function Layout() {
         headerLargeTitle: true,
         headerLargeTitleShadowVisible: false,
         headerTintColor: textColor,
+        headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
       }}
     >
       <Stack.Screen

@@ -4,6 +4,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
@@ -69,7 +70,7 @@ export default function RootLayout() {
               headerShown: true,
               headerTransparent: true,
               headerBackButtonDisplayMode: "minimal",
-              headerLargeTitle: true,
+              headerLargeTitle: isLiquidGlassAvailable() ? true : false,
               headerLargeTitleShadowVisible: false,
               headerLargeTitleStyle: {
                 color:
