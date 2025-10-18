@@ -5,7 +5,7 @@ import { useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { flattenComments } from "@/lib/utils/comments";
 import { FlashList } from "@shopify/flash-list";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,9 +23,16 @@ export default function StoryDetailScreen() {
   const { data: story, isLoading } = useStory(Number(id));
 
   const textColor = useThemeColor({}, "text");
-  const backgroundColor = useThemeColor({}, "background");
+  
+  const isInsidePreview = useIsPreview();
 
+  const regularBackgroundColor = useThemeColor({}, "background");
+
+  const previewBackgroundColor = useThemeColor({}, "previewBackground");
+  
   const { bottom } = useSafeAreaInsets();
+
+  const backgroundColor = isInsidePreview ? previewBackgroundColor : regularBackgroundColor;
 
   // Centralized collapse state
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
@@ -65,9 +72,11 @@ export default function StoryDetailScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{ title: (title as string) || story?.title || "" }}
-      />
+      {!isInsidePreview && (
+        <Stack.Screen
+          options={{ title: (title as string) || story?.title || "" }}
+        />
+      )}
       <FlashList
         data={flatComments}
         renderItem={({ item }) => (
