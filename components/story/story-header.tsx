@@ -7,6 +7,7 @@ import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
+import { useIsPreview } from "expo-router";
 
 // Negative margin needed for iOS 26+ header behavior to allow proper
 // large-to-regular title transitions with multi-line large titles
@@ -18,6 +19,7 @@ interface StoryHeaderProps {
 
 export function StoryHeader({ story }: StoryHeaderProps) {
   const tintColor = useThemeColor({}, "tint");
+  const isInsidePreview = useIsPreview();
 
   const openURL = async (url: string) => {
     await WebBrowser.openBrowserAsync(url);
@@ -25,7 +27,14 @@ export function StoryHeader({ story }: StoryHeaderProps) {
 
   return (
     <>
-      <View style={styles.container}>
+      <View style={[
+        styles.container,
+        {
+          marginTop: isLiquidGlassAvailable() && !isInsidePreview
+            ? IOS_26_HEADER_MARGIN_OFFSET
+            : 0,
+        },
+      ]}>
         <ThemedText style={styles.title}>{story.title}</ThemedText>
         <View style={styles.metadata}>
           <ThemedText style={styles.metadataText}>
@@ -75,7 +84,6 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    marginTop: isLiquidGlassAvailable() ? IOS_26_HEADER_MARGIN_OFFSET : 0,
   },
   title: {
     fontSize: 20,
