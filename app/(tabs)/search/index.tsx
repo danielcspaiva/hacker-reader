@@ -84,11 +84,12 @@ export default function SearchScreen() {
             backgroundColor,
           },
         ]}
+        keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
           <View style={styles.helperContainer}>
             <ThemedText style={styles.helperText}>
-              Showing Algolia results for{' '}
+              Showing results for{' '}
               <ThemedText style={styles.helperHighlight}>{trimmedQuery}</ThemedText>
             </ThemedText>
           </View>
@@ -115,6 +116,7 @@ export default function SearchScreen() {
         onEndReachedThreshold={0.5}
         onRefresh={() => refetch()}
         refreshing={isRefetching}
+        // onScrollBeginDrag={() => Keyboard.dismiss()}
       />
     </ThemedView>
   );
