@@ -10,13 +10,14 @@
       "layers" : [
         {
           "glass" : false,
+          "hidden" : false,
           "image-name" : "newspaper.png",
-          "name" : "output-onlinepngtools",
+          "name" : "newspaper",
           "position" : {
-            "scale" : 1.2,
+            "scale" : 1.17,
             "translation-in-points" : [
-              -2.984375,
-              11.8515625
+              0.0625,
+              20.890625
             ]
           }
         }
