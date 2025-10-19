@@ -3,11 +3,6 @@ import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/utils/time";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  LinearTransition,
-} from "react-native-reanimated";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -29,11 +24,14 @@ export function CommentItem({
     return null;
   }
 
-  // Build the innermost comment content
   let content = (
-    <Animated.View
-      style={[styles.comment, { borderLeftColor: borderColor }]}
-      layout={LinearTransition.duration(200)}
+    <View
+      style={[
+        styles.comment,
+        {
+          borderLeftColor: borderColor,
+        },
+      ]}
     >
       <View style={styles.header}>
         <ThemedText style={styles.author}>{comment.by}</ThemedText>
@@ -42,7 +40,11 @@ export function CommentItem({
           • {timeAgo(comment.time)}
         </ThemedText>
         {comment.children && comment.children.length > 0 && (
-          <TouchableOpacity onPress={() => onToggleCollapse(comment.id)}>
+          <TouchableOpacity
+            onPress={() => onToggleCollapse(comment.id)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <ThemedText style={styles.collapseButton}>
               {" "}
               [{isCollapsed ? `+${comment.children.length}` : "−"}]
@@ -50,27 +52,19 @@ export function CommentItem({
           </TouchableOpacity>
         )}
       </View>
-      {!isCollapsed && (
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(150)}
-        >
-          <HTMLText html={comment.text} style={styles.text} />
-        </Animated.View>
-      )}
-    </Animated.View>
+      {!isCollapsed && <HTMLText html={comment.text} style={styles.text} />}
+    </View>
   );
 
   // Wrap with nested borders for each depth level
   for (let i = depth - 1; i >= 0; i--) {
     content = (
-      <Animated.View
+      <View
         key={i}
         style={[styles.nestedBorder, { borderLeftColor: borderColor }]}
-        layout={LinearTransition.duration(200)}
       >
         {content}
-      </Animated.View>
+      </View>
     );
   }
 

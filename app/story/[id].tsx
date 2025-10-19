@@ -101,6 +101,10 @@ export default function StoryDetailScreen() {
           />
         )}
         keyExtractor={(item) => item.comment.id.toString()}
+        getItemType={(item) => {
+          const isCollapsed = collapsedIds.has(item.comment.id);
+          return `comment-depth-${item.depth}-${isCollapsed ? 'collapsed' : 'expanded'}`;
+        }}
         ListHeaderComponent={<StoryHeader story={story} />}
         ListEmptyComponent={<EmptyComments />}
         contentInsetAdjustmentBehavior="automatic"

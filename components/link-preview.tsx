@@ -1,9 +1,9 @@
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { useOGMetadata } from '@/hooks/use-og-metadata';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { Image } from 'expo-image';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useOGMetadata } from '@/hooks/use-og-metadata';
 
 interface LinkPreviewProps {
   url: string;

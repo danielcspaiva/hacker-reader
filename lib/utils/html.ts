@@ -1,5 +1,5 @@
 interface ParsedHTMLPart {
-  type: 'text' | 'link';
+  type: 'text' | 'link' | 'code';
   content: string;
   url?: string;
 }
@@ -33,27 +33,42 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
     .replace(/<i>/g, '')
     .replace(/<\/i>/g, '');
 
-  // Match <a href="url">text</a> patterns
-  const linkRegex = /<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g;
+  // Process all elements (links, code blocks, and text) in order
+  const combinedRegex = /(<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>)|(<pre><code>([\s\S]*?)<\/code><\/pre>)|(<code>(.*?)<\/code>)/g;
   const parts: ParsedHTMLPart[] = [];
   let lastIndex = 0;
   let match;
 
-  while ((match = linkRegex.exec(processed)) !== null) {
-    // Add text before the link
+  while ((match = combinedRegex.exec(processed)) !== null) {
+    // Add text before this element
     if (match.index > lastIndex) {
       const textBefore = decodeEntities(processed.substring(lastIndex, match.index));
-      if (textBefore) {
+      if (textBefore.trim()) {
         parts.push({ type: 'text', content: textBefore });
       }
     }
 
-    // Add the link
-    parts.push({
-      type: 'link',
-      content: decodeEntities(match[2]),
-      url: decodeEntities(match[1]),
-    });
+    // Check which pattern matched
+    if (match[1]) {
+      // Link matched: <a href="url">text</a>
+      parts.push({
+        type: 'link',
+        content: decodeEntities(match[3]),
+        url: decodeEntities(match[2]),
+      });
+    } else if (match[4]) {
+      // Pre/code block matched: <pre><code>...</code></pre>
+      parts.push({
+        type: 'code',
+        content: decodeEntities(match[5]),
+      });
+    } else if (match[6]) {
+      // Inline code matched: <code>...</code>
+      parts.push({
+        type: 'code',
+        content: decodeEntities(match[7]),
+      });
+    }
 
     lastIndex = match.index + match[0].length;
   }
@@ -61,7 +76,7 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
   // Add remaining text
   if (lastIndex < processed.length) {
     const textAfter = decodeEntities(processed.substring(lastIndex));
-    if (textAfter) {
+    if (textAfter.trim()) {
       parts.push({ type: 'text', content: textAfter });
     }
   }

@@ -3,6 +3,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { parseHTMLWithLinks } from "@/lib/utils/html";
 import * as WebBrowser from "expo-web-browser";
 import type { StyleProp, TextStyle } from "react-native";
+import { View } from "react-native";
 
 interface HTMLTextProps {
   html?: string;
@@ -11,6 +12,7 @@ interface HTMLTextProps {
 
 export function HTMLText({ html, style }: HTMLTextProps) {
   const tintColor = useThemeColor({}, "tint");
+  const backgroundColor = useThemeColor({}, "codeBackground");
 
   if (!html) return null;
 
@@ -30,6 +32,30 @@ export function HTMLText({ html, style }: HTMLTextProps) {
             >
               {part.content}
             </ThemedText>
+          );
+        }
+        if (part.type === "code") {
+          return (
+            <View
+              key={index}
+              style={{
+                backgroundColor,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 4,
+                alignSelf: "flex-start",
+                marginVertical: 2,
+              }}
+            >
+              <ThemedText
+                style={{
+                  fontFamily: "monospace",
+                  fontSize: 13,
+                }}
+              >
+                {part.content}
+              </ThemedText>
+            </View>
           );
         }
         return <ThemedText key={index}>{part.content}</ThemedText>;

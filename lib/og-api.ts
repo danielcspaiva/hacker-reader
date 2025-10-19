@@ -112,7 +112,7 @@ export async function fetchOGMetadata(
     const metaTags = extractAllMetaTags(headContent);
 
     // Get OG tags with Twitter fallbacks
-    const image = metaTags['og:image'] || metaTags['twitter:image'];
+    let image = metaTags['og:image'] || metaTags['twitter:image'];
     const title = metaTags['og:title'] || metaTags['twitter:title'];
     const description = metaTags['og:description'] || metaTags['twitter:description'] || metaTags['description'];
     const siteName = metaTags['og:site_name'];
@@ -120,6 +120,11 @@ export async function fetchOGMetadata(
     // Only return if we have at least an image
     if (!image) {
       return null;
+    }
+
+    // Upgrade HTTP image URLs to HTTPS for ATS/cleartext compatibility
+    if (image.startsWith('http://')) {
+      image = image.replace('http://', 'https://');
     }
 
     const result: OGMetadata = { url, image };
