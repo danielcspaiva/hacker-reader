@@ -4,7 +4,7 @@
     "slug": "hn-client",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/splash-icon.png",
+    "icon": "./assets/images/newspaper.png",
     "scheme": "hnclient",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,7 +14,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "icon": "./assets/hacker-news.icon"
+      "icon": "./assets/newspaper.icon"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,12 +36,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/newspaper.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#f6f6f6",
           "dark": {
-            "image": "./assets/images/splash-icon.png",
+            "image": "./assets/images/newspaper.png",
             "backgroundColor": "#0f0f0f"
           }
         }
