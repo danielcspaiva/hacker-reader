@@ -1,16 +1,32 @@
 {
-  "fill" : "automatic",
+  "fill" : {
+    "linear-gradient" : [
+      "extended-srgb:1.00000,0.55294,0.15686,1.00000",
+      "display-p3:0.84619,0.45801,0.18542,1.00000"
+    ]
+  },
   "groups" : [
     {
       "layers" : [
         {
+          "blend-mode" : "normal",
+          "fill" : "none",
+          "glass-specializations" : [
+            {
+              "value" : false
+            },
+            {
+              "appearance" : "light",
+              "value" : false
+            }
+          ],
           "image-name" : "newspaper.png",
           "name" : "newspaper",
           "position" : {
-            "scale" : 1.1,
+            "scale" : 1.15,
             "translation-in-points" : [
-              0,
-              0
+              1.2734375,
+              14
             ]
           }
         }
