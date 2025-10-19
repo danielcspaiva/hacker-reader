@@ -14,7 +14,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "icon": "./assets/images/icon.png"
+      "icon": "./assets/hacker-news.icon"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,6 +41,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#f6f6f6",
           "dark": {
+            "image": "./assets/images/icon-dark.png"
             "backgroundColor": "#0f0f0f"
           }
         }
