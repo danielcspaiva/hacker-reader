@@ -9,24 +9,14 @@
     {
       "layers" : [
         {
-          "blend-mode" : "normal",
-          "fill" : "none",
-          "glass-specializations" : [
-            {
-              "value" : false
-            },
-            {
-              "appearance" : "light",
-              "value" : false
-            }
-          ],
-          "image-name" : "newspaper.png",
-          "name" : "newspaper",
+          "glass" : false,
+          "image-name" : "output-onlinepngtools.png",
+          "name" : "output-onlinepngtools",
           "position" : {
-            "scale" : 1.15,
+            "scale" : 1.2,
             "translation-in-points" : [
-              1.2734375,
-              14
+              -2.984375,
+              11.8515625
             ]
           }
         }
