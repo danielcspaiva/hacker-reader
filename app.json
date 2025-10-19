@@ -14,11 +14,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "icon": {
-        "light": "./assets/images/icon.png",
-        "dark": "./assets/images/icon-dark.png",
-        "tinted": "./assets/images/icon-tinted.png"
-      }
+      "icon": "./assets/images/icon.png"
     },
     "android": {
       "adaptiveIcon": {
