@@ -21,9 +21,13 @@ export default function TabLayout() {
         <Icon sf="eye.fill" />
         <Label>Show</Label>
       </NativeTabs.Trigger>
+      {/* <NativeTabs.Trigger name="jobs">
+        <Icon sf="eye.fill" />
+        <Label>Jobs</Label>
+      </NativeTabs.Trigger> */}
       <NativeTabs.Trigger name="search" role="search">
         <Icon sf="magnifyingglass" />
-        <Label>Jobs</Label>
+        <Label>Search</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
