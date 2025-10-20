@@ -2,6 +2,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
 import { timeAgo } from '@/lib/utils/time';
 import { getDomain } from '@/lib/utils/url';
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { LinkPreview } from './link-preview';
@@ -27,7 +28,14 @@ export function StoryCard({ story, index }: StoryCardProps) {
                 {story.title}
               </ThemedText>
               {getDomain(story.url) && (
-                <ThemedText style={styles.domain}>{getDomain(story.url)}</ThemedText>
+                <View style={styles.domainContainer}>
+                  <Image
+                    source={{ uri: `https://www.google.com/s2/favicons?domain=${getDomain(story.url)}&sz=16` }}
+                    style={styles.favicon}
+                    contentFit="contain"
+                  />
+                  <ThemedText style={styles.domain}>{getDomain(story.url)}</ThemedText>
+                </View>
               )}
               <View style={styles.metadata}>
                 <ThemedText style={styles.metadataText}>
@@ -76,10 +84,19 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: 4,
   },
+  domainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  favicon: {
+    width: 16,
+    height: 16,
+  },
   domain: {
     fontSize: 13,
     opacity: 0.5,
-    marginBottom: 4,
   },
   metadata: {
     flexDirection: 'row',
