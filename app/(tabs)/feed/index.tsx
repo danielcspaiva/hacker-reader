@@ -1,6 +1,5 @@
 import { StoryCard } from '@/components/story-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import {
   useAskStories,
   useJobStories,
@@ -69,7 +68,6 @@ export default function FeedScreen() {
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
   const tintColor = useThemeColor({}, 'tint');
 
   if (isLoading) {
@@ -82,9 +80,9 @@ export default function FeedScreen() {
             headerRight: () => <CategoryMenu category={category} onSelect={setCategory} />,
           }}
         />
-        <ThemedView style={styles.centered}>
+        <View style={styles.centered}>
           <ActivityIndicator size="large" color={textColor} />
-        </ThemedView>
+        </View>
       </>
     );
   }
@@ -108,7 +106,6 @@ export default function FeedScreen() {
             android: 100 + bottom,
             default: 0,
           }),
-          backgroundColor,
         }}
         onRefresh={() => refetch()}
         refreshing={isRefetching}

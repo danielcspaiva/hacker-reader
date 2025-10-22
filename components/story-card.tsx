@@ -8,7 +8,6 @@ import { Link } from 'expo-router';
 import { Platform, Share, StyleSheet, View } from 'react-native';
 import { LinkPreview } from './link-preview';
 import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
 import { IconSymbol } from './ui/icon-symbol';
 
 interface StoryCardProps {
@@ -41,7 +40,7 @@ export function StoryCard({ story, index }: StoryCardProps) {
   };
 
   return (
-    <ThemedView style={[styles.container, { borderBottomColor: separatorColor }]}>
+    <View style={[styles.container, { borderBottomColor: separatorColor }]}>
       <Link href={`/story/${story.id}?title=${encodeURIComponent(story.title || '')}`}>
         <Link.Trigger>
           <View style={styles.header}>
@@ -117,7 +116,7 @@ export function StoryCard({ story, index }: StoryCardProps) {
         </Link.Menu>
         <Link.Preview />
       </Link>
-    </ThemedView>
+    </View>
   );
 }
 

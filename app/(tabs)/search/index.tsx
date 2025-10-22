@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StoryCard } from '@/components/story-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { useSearchStories } from '@/hooks/use-search-stories';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import type { HNItem } from '@/lib/hn-api';
@@ -13,7 +12,6 @@ import type { HNItem } from '@/lib/hn-api';
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
   const { bottom } = useSafeAreaInsets();
-  const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
 
   const queryParam = params?.q;
@@ -37,34 +35,34 @@ export default function SearchScreen() {
 
   if (isQueryEmpty) {
     return (
-      <ThemedView style={[styles.centered, styles.placeholder]}>
+      <View style={[styles.centered, styles.placeholder]}>
         <ThemedText type="title">Search Hacker News</ThemedText>
         <ThemedText style={styles.placeholderText}>
           Use the search bar above to find stories.
         </ThemedText>
-      </ThemedView>
+      </View>
     );
   }
 
   if (isLoading) {
     return (
-      <ThemedView style={styles.centered}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color={textColor} />
-      </ThemedView>
+      </View>
     );
   }
 
   if (isError) {
     return (
-      <ThemedView style={styles.centered}>
+      <View style={styles.centered}>
         <ThemedText>Something went wrong while searching.</ThemedText>
         <ThemedText style={styles.helperText}>{error?.message}</ThemedText>
-      </ThemedView>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <FlashList<HNItem>
         data={stories}
         renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
@@ -77,7 +75,6 @@ export default function SearchScreen() {
               android: 100 + bottom,
               default: bottom,
             }),
-            backgroundColor,
           },
         ]}
         keyboardDismissMode="on-drag"
@@ -114,7 +111,7 @@ export default function SearchScreen() {
         refreshing={isRefetching}
         // onScrollBeginDrag={() => Keyboard.dismiss()}
       />
-    </ThemedView>
+    </View>
   );
 }
 

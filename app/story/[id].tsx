@@ -33,18 +33,11 @@ export default function StoryDetailScreen() {
   const { data: story, isLoading } = useStory(Number(id));
 
   const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
 
   const isInsidePreview = useIsPreview();
 
-  const regularBackgroundColor = useThemeColor({}, "background");
-
-  const previewBackgroundColor = useThemeColor({}, "previewBackground");
-
   const { bottom } = useSafeAreaInsets();
-
-  const backgroundColor = isInsidePreview
-    ? previewBackgroundColor
-    : regularBackgroundColor;
 
   // Bookmark state and mutation
   const { data: isBookmarked } = useIsBookmarked(Number(id));
@@ -127,8 +120,10 @@ export default function StoryDetailScreen() {
     return (
       <>
         {screenOptions}
-        <View style={[styles.centered, { backgroundColor }]}>
-          <ActivityIndicator size="large" color={textColor} />
+        <View style={[styles.container, { backgroundColor }]}>
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color={textColor} />
+          </View>
         </View>
       </>
     );
@@ -138,8 +133,10 @@ export default function StoryDetailScreen() {
     return (
       <>
         {screenOptions}
-        <View style={[styles.centered, { backgroundColor }]}>
-          <ThemedText>Story not found</ThemedText>
+        <View style={[styles.container, { backgroundColor }]}>
+          <View style={styles.centered}>
+            <ThemedText>Story not found</ThemedText>
+          </View>
         </View>
       </>
     );
@@ -148,40 +145,44 @@ export default function StoryDetailScreen() {
   return (
     <>
       {screenOptions}
-      <FlashList
-        data={flatComments}
-        renderItem={({ item }) => (
-          <CommentItem
-            comment={item.comment}
-            depth={item.depth}
-            isCollapsed={collapsedIds.has(item.comment.id)}
-            onToggleCollapse={toggleCollapse}
-          />
-        )}
-        keyExtractor={(item) => item.comment.id.toString()}
-        getItemType={(item) => {
-          const isCollapsed = collapsedIds.has(item.comment.id);
-          return `comment-depth-${item.depth}-${
-            isCollapsed ? "collapsed" : "expanded"
-          }`;
-        }}
-        ListHeaderComponent={<StoryHeader story={story} />}
-        ListEmptyComponent={<EmptyComments />}
-        contentInsetAdjustmentBehavior="automatic"
-        automaticallyAdjustContentInsets={true}
-        contentContainerStyle={{
-          paddingBottom: Platform.select({
-            android: 100 + bottom,
-            default: 0,
-          }),
-          backgroundColor,
-        }}
-      />
+      <View style={[styles.container, { backgroundColor }]}>
+        <FlashList
+          data={flatComments}
+          renderItem={({ item }) => (
+            <CommentItem
+              comment={item.comment}
+              depth={item.depth}
+              isCollapsed={collapsedIds.has(item.comment.id)}
+              onToggleCollapse={toggleCollapse}
+            />
+          )}
+          keyExtractor={(item) => item.comment.id.toString()}
+          getItemType={(item) => {
+            const isCollapsed = collapsedIds.has(item.comment.id);
+            return `comment-depth-${item.depth}-${
+              isCollapsed ? "collapsed" : "expanded"
+            }`;
+          }}
+          ListHeaderComponent={<StoryHeader story={story} />}
+          ListEmptyComponent={<EmptyComments />}
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets={true}
+          contentContainerStyle={{
+            paddingBottom: Platform.select({
+              android: 100 + bottom,
+              default: 0,
+            }),
+          }}
+        />
+      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   centered: {
     flex: 1,
     justifyContent: "center",

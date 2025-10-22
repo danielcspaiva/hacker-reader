@@ -1,6 +1,5 @@
 import { StoryCard } from '@/components/story-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { useBookmarks } from '@/hooks/use-bookmarks';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
@@ -22,7 +21,6 @@ function EmptyState() {
 
 export default function BookmarksScreen() {
   const { data: stories = [], isLoading, refetch, isRefetching } = useBookmarks();
-  const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const { bottom } = useSafeAreaInsets();
   const listRef = useRef<FlashListRef<HNItem>>(null);
@@ -39,17 +37,17 @@ export default function BookmarksScreen() {
 
   if (isLoading) {
     return (
-      <ThemedView style={styles.centered}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color={textColor} />
-      </ThemedView>
+      </View>
     );
   }
 
   if (stories.length === 0) {
     return (
-      <ThemedView style={styles.container}>
+      <View style={styles.container}>
         <EmptyState />
-      </ThemedView>
+      </View>
     );
   }
 
@@ -65,7 +63,6 @@ export default function BookmarksScreen() {
           android: 100 + bottom,
           default: 0,
         }),
-        backgroundColor,
       }}
       onRefresh={() => refetch()}
       refreshing={isRefetching}
