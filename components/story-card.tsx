@@ -2,11 +2,14 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
 import { timeAgo } from '@/lib/utils/time';
 import { getDomain } from '@/lib/utils/url';
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { LinkPreview } from './link-preview';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
+import { IconSymbol } from './ui/icon-symbol';
+
 
 interface StoryCardProps {
   story: HNItem;
@@ -15,6 +18,7 @@ interface StoryCardProps {
 
 export function StoryCard({ story, index }: StoryCardProps) {
   const separatorColor = useThemeColor({}, 'border');
+  const iconColor = useThemeColor({}, 'icon');
 
   return (
     <ThemedView style={[styles.container, { borderBottomColor: separatorColor }]}>
@@ -27,20 +31,43 @@ export function StoryCard({ story, index }: StoryCardProps) {
                 {story.title}
               </ThemedText>
               {getDomain(story.url) && (
-                <ThemedText style={styles.domain}>{getDomain(story.url)}</ThemedText>
+                <View style={styles.domainContainer}>
+                  <Image
+                    source={{ uri: `https://www.google.com/s2/favicons?domain=${getDomain(story.url)}&sz=16` }}
+                    style={styles.favicon}
+                    contentFit="contain"
+                  />
+                  <ThemedText style={styles.domain}>{getDomain(story.url)}</ThemedText>
+                </View>
               )}
               <View style={styles.metadata}>
-                <ThemedText style={styles.metadataText}>
-                  {story.score} points by {story.by}
-                </ThemedText>
+                <View style={styles.metadataItem}>
+                  <IconSymbol name="arrowtriangle.up" size={12} color={iconColor} />
+                  <ThemedText style={styles.metadataText}>
+                    {story.score}
+                  </ThemedText>
+                </View>
                 <ThemedText style={styles.metadataText}> • </ThemedText>
-                <ThemedText style={styles.metadataText}>
-                  {timeAgo(story.time || 0)}
-                </ThemedText>
+                <View style={styles.metadataItem}>
+                  <IconSymbol name="person" size={12} color={iconColor} />
+                  <ThemedText style={styles.metadataText}>
+                    {story.by}
+                  </ThemedText>
+                </View>
                 <ThemedText style={styles.metadataText}> • </ThemedText>
-                <ThemedText style={styles.metadataText}>
-                  {story.descendants || 0} comments
-                </ThemedText>
+                <View style={styles.metadataItem}>
+                  <IconSymbol name="clock" size={12} color={iconColor} />
+                  <ThemedText style={styles.metadataText}>
+                    {timeAgo(story.time || 0)}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.metadataText}> • </ThemedText>
+                <View style={styles.metadataItem}>
+                  <IconSymbol name="bubble.left.and.bubble.right" size={12} color={iconColor} />
+                  <ThemedText style={styles.metadataText}>
+                    {story.descendants || 0}
+                  </ThemedText>
+                </View>
               </View>
             </View>
             {story.url && <LinkPreview url={story.url} compact />}
@@ -76,14 +103,30 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: 4,
   },
+  domainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: -4,
+    marginBottom: 4,
+  },
+  favicon: {
+    width: 10,
+    height: 10,
+  },
   domain: {
     fontSize: 13,
     opacity: 0.5,
-    marginBottom: 4,
   },
   metadata: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  metadataItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   metadataText: {
     fontSize: 13,
