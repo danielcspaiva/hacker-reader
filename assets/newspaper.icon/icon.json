@@ -14,7 +14,7 @@
           "image-name" : "newspaper.png",
           "name" : "newspaper",
           "position" : {
-            "scale" : 1.17,
+            "scale" : 1.1,
             "translation-in-points" : [
               0.0625,
               20.890625
