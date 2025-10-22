@@ -10,7 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ColorSchemeProvider, useColorSchemeContext } from "@/contexts/color-scheme-context";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -28,17 +28,17 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootLayoutContent() {
+  const { colorScheme, colorPalette } = useColorSchemeContext();
 
   const customDarkTheme = {
     ...DarkTheme,
     colors: {
       ...DarkTheme.colors,
-      background: Colors.dark.background,
-      card: Colors.dark.background,
-      text: Colors.dark.text,
-      border: Colors.dark.border,
+      background: Colors.dark[colorPalette].background,
+      card: Colors.dark[colorPalette].background,
+      text: Colors.dark[colorPalette].text,
+      border: Colors.dark[colorPalette].border,
     },
   };
 
@@ -46,47 +46,55 @@ export default function RootLayout() {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      background: Colors.light.background,
-      card: Colors.light.background,
-      text: Colors.light.text,
-      border: Colors.light.border,
+      background: Colors.light[colorPalette].background,
+      card: Colors.light[colorPalette].background,
+      text: Colors.light[colorPalette].text,
+      border: Colors.light[colorPalette].border,
     },
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider
-        value={colorScheme === "dark" ? customDarkTheme : customLightTheme}
+    <ThemeProvider
+      value={colorScheme === "dark" ? customDarkTheme : customLightTheme}
+    >
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: colorScheme === "dark" ? Colors.dark[colorPalette].background : Colors.light[colorPalette].background,
+          },
+        }}
       >
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: colorScheme === "dark" ? Colors.dark.background : Colors.light.background,
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="story/[id]"
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerBackButtonDisplayMode: "minimal",
+            headerLargeTitle: isLiquidGlassAvailable() ? true : false,
+            headerLargeTitleShadowVisible: false,
+            headerLargeTitleStyle: {
+              color:
+                colorScheme === "dark"
+                  ? Colors.dark[colorPalette].background
+                  : Colors.light[colorPalette].background,
+              fontSize: 1,
             },
           }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="story/[id]"
-            options={{
-              headerShown: true,
-              headerTransparent: true,
-              headerBackButtonDisplayMode: "minimal",
-              headerLargeTitle: isLiquidGlassAvailable() ? true : false,
-              headerLargeTitleShadowVisible: false,
-              headerLargeTitleStyle: {
-                color:
-                  colorScheme === "dark"
-                    ? Colors.dark.background
-                    : Colors.light.background,
-                fontSize: 1,
-              },
-            }}
-          />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+        />
+      </Stack>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ColorSchemeProvider>
+        <RootLayoutContent />
+      </ColorSchemeProvider>
     </QueryClientProvider>
   );
 }

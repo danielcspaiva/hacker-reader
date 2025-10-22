@@ -17,7 +17,7 @@ export default function Layout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Top Stories",
+          title: "Bookmarks",
           headerLargeTitleStyle: {
             color: textColor,
           },

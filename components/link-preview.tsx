@@ -3,7 +3,6 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { Image } from 'expo-image';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
 
 interface LinkPreviewProps {
   url: string;
@@ -55,7 +54,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
   }
 
   return (
-    <ThemedView style={[styles.container, { borderColor }]}>
+    <View style={[styles.container, { borderColor }]}>
       {metadata.image && (
         <Image
           source={{ uri: metadata.image }}
@@ -81,7 +80,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
           )}
         </View>
       )}
-    </ThemedView>
+    </View>
   );
 }
 
