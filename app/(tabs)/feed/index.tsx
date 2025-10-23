@@ -1,42 +1,28 @@
-import { StoryCard } from '@/components/story-card';
-import { ThemedText } from '@/components/themed-text';
+import { CategoryFilter, type Category } from "@/components/category-filter";
+import { StoryCard } from "@/components/story-card";
+import { ThemedText } from "@/components/themed-text";
 import {
   useAskStories,
   useJobStories,
   useNewStories,
   useShowStories,
   useTopStories,
-} from '@/hooks/use-stories';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { HNItem } from '@/lib/hn-api';
-import { Button, ContextMenu, Host } from '@expo/ui/swift-ui';
-import { FlashList } from '@shopify/flash-list';
-import { Stack } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SFSymbol } from 'sf-symbols-typescript';
-
-type Category = 'top' | 'new' | 'ask' | 'show' | 'jobs';
-
-const CATEGORY_LABELS: Record<Category, string> = {
-  top: 'Top Stories',
-  new: 'New Stories',
-  ask: 'Ask HN',
-  show: 'Show HN',
-  jobs: 'Jobs',
-};
-
-const CATEGORY_ICONS: Record<Category, SFSymbol> = {
-  top: 'flame.fill',
-  new: 'clock.fill',
-  ask: 'questionmark.circle.fill',
-  show: 'eye.fill',
-  jobs: 'briefcase.fill',
-};
+} from "@/hooks/use-stories";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { HNItem } from "@/lib/hn-api";
+import { FlashList } from "@shopify/flash-list";
+import { Stack } from "expo-router";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FeedScreen() {
-  const [category, setCategory] = useState<Category>('top');
+  const [category, setCategory] = useState<Category>("top");
 
   // Call all hooks unconditionally at the top level
   const topStories = useTopStories();
@@ -67,17 +53,16 @@ export default function FeedScreen() {
   const stories = data?.pages.flatMap((page) => page) ?? [];
 
   const { bottom } = useSafeAreaInsets();
-  const textColor = useThemeColor({}, 'text');
-  const tintColor = useThemeColor({}, 'tint');
+  const textColor = useThemeColor({}, "text");
 
   if (isLoading) {
     return (
       <>
         <Stack.Screen
           options={{
-            title: CATEGORY_LABELS[category],
+            title: "Stories",
             headerShown: true,
-            headerRight: () => <CategoryMenu category={category} onSelect={setCategory} />,
+            headerLargeTitle: true,
           }}
         />
         <View style={styles.centered}>
@@ -91,16 +76,24 @@ export default function FeedScreen() {
     <>
       <Stack.Screen
         options={{
-          title: CATEGORY_LABELS[category],
+          title: "Stories",
           headerShown: true,
-          headerRight: () => <CategoryMenu category={category} onSelect={setCategory} />,
+          headerLargeTitle: true,
         }}
       />
       <FlashList<HNItem>
         data={stories}
-        renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
+        renderItem={({ item, index }) => (
+          <StoryCard story={item} index={index + 1} />
+        )}
         keyExtractor={(item) => item.id.toString()}
         contentInsetAdjustmentBehavior="automatic"
+        ListHeaderComponent={
+          <CategoryFilter
+            category={category}
+            onSelectCategory={setCategory}
+          />
+        }
         contentContainerStyle={{
           paddingBottom: Platform.select({
             android: 100 + bottom,
@@ -132,49 +125,14 @@ export default function FeedScreen() {
   );
 }
 
-function CategoryMenu({
-  category,
-  onSelect,
-}: {
-  category: Category;
-  onSelect: (category: Category) => void;
-}) {
-  const categories = Object.keys(CATEGORY_LABELS) as Category[];
-
-  return (
-    <Host style={{ width: 36, height: 36 }}>
-      <ContextMenu>
-        <ContextMenu.Items>
-          {categories.map((cat) => (
-            <Button
-              key={cat}
-              systemImage={cat === category ? 'checkmark' : CATEGORY_ICONS[cat]}
-              onPress={() => onSelect(cat)}
-            >
-              {CATEGORY_LABELS[cat]}
-            </Button>
-          ))}
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <Button variant="plain" systemImage={CATEGORY_ICONS[category]} />
-        </ContextMenu.Trigger>
-      </ContextMenu>
-    </Host>
-  );
-}
-
 const styles = StyleSheet.create({
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   footer: {
     paddingVertical: 20,
-    alignItems: 'center',
-  },
-  menuButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    alignItems: "center",
   },
 });
