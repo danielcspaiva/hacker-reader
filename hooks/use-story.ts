@@ -72,12 +72,50 @@ export function useStory(id: number) {
       const algoliaStory = await getStoryWithComments(id);
       const story = convertAlgoliaStory(algoliaStory);
 
-      // Invalidate the list cache entry so it refetches with fresh data
-      queryClient.invalidateQueries({ queryKey: ['item', id] });
+      // Update the story data in all infinite query caches (top, new, ask, show, jobs)
+      const categories = ['top', 'new', 'ask', 'show', 'jobs'] as const;
+
+      categories.forEach((category) => {
+        queryClient.setQueriesData(
+          { queryKey: ['stories', category] },
+          (oldData: any) => {
+            if (!oldData?.pages) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any[]) =>
+                page.map((item: any) =>
+                  item.id === id
+                    ? {
+                        ...item,
+                        descendants: story.descendants,
+                        score: story.score,
+                        title: story.title,
+                      }
+                    : item
+                )
+              ),
+            };
+          }
+        );
+      });
+
+      // Also update the individual item cache
+      queryClient.setQueryData(['item', id], {
+        id: story.id,
+        title: story.title,
+        url: story.url,
+        by: story.by,
+        time: story.time,
+        score: story.score,
+        descendants: story.descendants,
+        type: 'story' as const,
+      });
 
       return story;
     },
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes - stories don't change often
+    staleTime: 2 * 60 * 1000, // 2 minutes - matches global config
+    refetchOnWindowFocus: true, // Refresh when returning to the app
   });
 }

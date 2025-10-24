@@ -30,7 +30,7 @@ function EmptyComments() {
 
 export default function StoryDetailScreen() {
   const { id, title } = useLocalSearchParams();
-  const { data: story, isLoading } = useStory(Number(id));
+  const { data: story, isLoading, refetch, isRefetching } = useStory(Number(id));
 
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
@@ -90,7 +90,7 @@ export default function StoryDetailScreen() {
   const screenOptions = !isInsidePreview && (
     <Stack.Screen
       options={{
-        title: (title as string) || story?.title || "",
+        title: title as string,
         headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
         headerRight: () => (
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -145,36 +145,42 @@ export default function StoryDetailScreen() {
   return (
     <>
       {screenOptions}
-      <View style={[styles.container, { backgroundColor }]}>
-        <FlashList
-          data={flatComments}
-          renderItem={({ item }) => (
-            <CommentItem
-              comment={item.comment}
-              depth={item.depth}
-              isCollapsed={collapsedIds.has(item.comment.id)}
-              onToggleCollapse={toggleCollapse}
-            />
-          )}
-          keyExtractor={(item) => item.comment.id.toString()}
-          getItemType={(item) => {
-            const isCollapsed = collapsedIds.has(item.comment.id);
-            return `comment-depth-${item.depth}-${
-              isCollapsed ? "collapsed" : "expanded"
-            }`;
-          }}
-          ListHeaderComponent={<StoryHeader story={story} />}
-          ListEmptyComponent={<EmptyComments />}
-          contentInsetAdjustmentBehavior="automatic"
-          automaticallyAdjustContentInsets={true}
-          contentContainerStyle={{
-            paddingBottom: Platform.select({
-              android: 100 + bottom,
-              default: 0,
-            }),
-          }}
-        />
-      </View>
+      <FlashList
+        data={flatComments}
+        renderItem={({ item }) => (
+          <CommentItem
+            comment={item.comment}
+            depth={item.depth}
+            isCollapsed={collapsedIds.has(item.comment.id)}
+            onToggleCollapse={toggleCollapse}
+          />
+        )}
+        keyExtractor={(item) => item.comment.id.toString()}
+        getItemType={(item) => {
+          const isCollapsed = collapsedIds.has(item.comment.id);
+          return `comment-depth-${item.depth}-${
+            isCollapsed ? "collapsed" : "expanded"
+          }`;
+        }}
+        ListHeaderComponent={<StoryHeader story={story} />}
+        ListEmptyComponent={<EmptyComments />}
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets={true}
+        onRefresh={() => {
+          // Only trigger refetch if not already loading or refetching
+          if (!isLoading && !isRefetching) {
+            refetch();
+          }
+        }}
+        refreshing={isRefetching}
+        contentContainerStyle={{
+          backgroundColor,
+          paddingBottom: Platform.select({
+            android: 100 + bottom,
+            default: 0,
+          }),
+        }}
+      />
     </>
   );
 }

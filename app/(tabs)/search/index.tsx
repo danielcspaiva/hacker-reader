@@ -107,7 +107,12 @@ export default function SearchScreen() {
           }
         }}
         onEndReachedThreshold={0.5}
-        onRefresh={() => refetch()}
+        onRefresh={() => {
+          // Only trigger refetch if not already loading or refetching
+          if (!isLoading && !isRefetching) {
+            refetch();
+          }
+        }}
         refreshing={isRefetching}
         // onScrollBeginDrag={() => Keyboard.dismiss()}
       />
