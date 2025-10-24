@@ -1,7 +1,6 @@
 import { CommentItem } from "@/components/story/comment-item";
 import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useBookmarkMutation, useIsBookmarked } from "@/hooks/use-bookmarks";
 import { useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -13,7 +12,6 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Platform,
-  Pressable,
   Share,
   StyleSheet,
   View,
@@ -92,26 +90,26 @@ export default function StoryDetailScreen() {
       options={{
         title: (title as string) || story?.title || "",
         headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
-        headerRight: () => (
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            <Pressable onPress={handleBookmark} style={styles.shareButton}>
-              <IconSymbol
-                name={isBookmarked ? "bookmark.fill" : "bookmark"}
-                size={22}
-                color={textColor}
-                weight={"medium"}
-              />
-            </Pressable>
-            <Pressable onPress={handleShare} style={styles.shareButton}>
-              <IconSymbol
-                name="square.and.arrow.up"
-                size={22}
-                color={textColor}
-                weight={"medium"}
-              />
-            </Pressable>
-          </View>
-        ),
+        unstable_headerRightItems: () => [
+          {
+            type: "button",
+            label: "Bookmark",
+            icon: {
+              type: "sfSymbol",
+              name: isBookmarked ? "bookmark.fill" : "bookmark",
+            },
+            onPress: handleBookmark,
+          },
+          {
+            type: "button",
+            label: "Share",
+            icon: {
+              type: "sfSymbol",
+              name: "square.and.arrow.up",
+            },
+            onPress: handleShare,
+          },
+        ],
       }}
     />
   );
@@ -192,11 +190,5 @@ const styles = StyleSheet.create({
   },
   noComments: {
     opacity: 0.5,
-  },
-  shareButton: {
-    height: 36,
-    width: 36,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });

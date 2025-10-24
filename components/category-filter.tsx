@@ -1,6 +1,6 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { Button, Host, HStack, Text } from "@expo/ui/swift-ui";
+import { Button, HStack, Host, Text } from "@expo/ui/swift-ui";
 import { StyleSheet, View } from "react-native";
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
 
@@ -73,10 +73,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: "flex-start",
+    borderWidth: 1,
+    borderColor: "red",
+    backgroundColor: "red",
   },
   hostContainer: {
     flex: 1,
-    height: 40,
-    width: "100%",
+    height: 80,
+    width: "80%",
+    borderWidth: 1,
+    borderColor: "blue",
+    backgroundColor: "blue",
   },
 });

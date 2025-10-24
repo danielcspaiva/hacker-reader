@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     paddingVertical: 12,
     paddingHorizontal: 16,
+    backgroundColor: 'red',
   },
   header: {
     flexDirection: 'row',

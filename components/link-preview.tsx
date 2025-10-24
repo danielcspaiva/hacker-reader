@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   thumbnailContainer: {
-    marginLeft: 8,
+    // No margin - positioning handled by parent
   },
   thumbnail: {
     width: 80,
