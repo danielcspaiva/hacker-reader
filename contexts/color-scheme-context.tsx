@@ -24,7 +24,7 @@ const PALETTE_STORAGE_KEY = '@hn_client_color_palette';
 export function ColorSchemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useSystemColorScheme();
   const [preference, setPreferenceState] = useState<ColorSchemePreference>('system');
-  const [colorPalette, setColorPaletteState] = useState<ColorPalette>('pale');
+  const [colorPalette, setColorPaletteState] = useState<ColorPalette>('lights-out');
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load preferences from storage on mount
