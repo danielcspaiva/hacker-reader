@@ -1,1 +1,0 @@
-lets implement link previews with the latest expo router. check the docs here: https://docs.expo.dev/router/reference/link-preview/

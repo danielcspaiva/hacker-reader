@@ -42,7 +42,10 @@ The app uses a **React Query + HN API** architecture:
    - All functions return Promises with typed HNItem/HNUser interfaces
 
 2. **React Query Hooks** (`hooks/use-stories.ts`, `hooks/use-story.ts`):
-   - `useTopStories()`, `useNewStories()`, `useAskStories()`, `useShowStories()`, `useJobStories()` - All use `useInfiniteQuery` for paginated data
+   - `useStories(category)` - Single hook accepting category parameter ('top' | 'new' | 'ask' | 'show' | 'jobs')
+     - Uses `useInfiniteQuery` with dynamic query key `['stories', category]`
+     - Maps category to appropriate API fetcher (getTopStories, getNewStories, etc.)
+     - Only one query active at a time - switching categories reuses cached data instantly
    - `useStory(id)`, `useComment(id)` - Use `useQuery` for individual items
    - Global QueryClient configured in `app/_layout.tsx` with:
      - 5 minute staleTime
@@ -51,10 +54,11 @@ The app uses a **React Query + HN API** architecture:
      - refetchOnWindowFocus disabled
 
 3. **Infinite Scrolling Pattern**:
-   - Each story hook uses `useInfiniteQuery` with `pageParam` tracking offset
+   - `useStories(category)` uses `useInfiniteQuery` with `pageParam` tracking offset
    - Page size: 30 items
    - `getNextPageParam` returns next offset or undefined when done
    - Stories are flattened from pages in components: `data?.pages.flatMap(page => page)`
+   - Automatic caching by React Query - switching between categories is instant after first load
 
 ### UI Components
 
@@ -135,7 +139,7 @@ constants/          # Theme and other constants
 
 ## Important Implementation Notes
 
-1. **Infinite Query Data Structure**: Story hooks return paginated data. Always flatten with `data?.pages.flatMap(page => page)` before rendering.
+1. **Infinite Query Data Structure**: The `useStories(category)` hook returns paginated data. Always flatten with `data?.pages.flatMap(page => page)` before rendering.
 
 2. **HN API Behavior**: The API returns story IDs first, then requires individual item fetches. The `getItems()` helper parallelizes these fetches.
 

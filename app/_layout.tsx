@@ -20,10 +20,10 @@ export const unstable_settings = {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 2 * 60 * 1000, // 2 minutes - shorter to ensure fresher data
       gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
       retry: 2,
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true, // Always refetch when app comes to foreground
     },
   },
 });

@@ -23,13 +23,10 @@ export function CategoryFilter({
 }: CategoryFilterProps) {
   const categories = Object.keys(CATEGORY_LABELS) as Category[];
   const { colorScheme } = useColorSchemeContext();
-  const backgroundColor = useThemeColor({}, "background");
   const tintColor = useThemeColor({}, "tint");
 
-  console.log("colorScheme", colorScheme);
-
   return (
-    <View style={[styles.filterContainer, { backgroundColor }]}>
+    <View style={[styles.filterContainer]}>
       <Host
         style={styles.hostContainer}
         matchContents
@@ -42,10 +39,15 @@ export function CategoryFilter({
               <Button
                 key={cat}
                 variant={"glassProminent"}
-                onPress={() => onSelectCategory(cat)}
+                onPress={() => {
+                  // Defer state update to allow press animation to complete
+                  requestAnimationFrame(() => {
+                    onSelectCategory(cat);
+                  });
+                }}
                 controlSize="regular"
                 color={isSelected ? tintColor : "transparent"}
-                role="default"
+                // role="default"
               >
                 <Text
                   color={

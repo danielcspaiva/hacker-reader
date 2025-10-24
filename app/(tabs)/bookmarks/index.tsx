@@ -64,7 +64,12 @@ export default function BookmarksScreen() {
           default: 0,
         }),
       }}
-      onRefresh={() => refetch()}
+      onRefresh={() => {
+        // Only trigger refetch if not already loading or refetching
+        if (!isLoading && !isRefetching) {
+          refetch();
+        }
+      }}
       refreshing={isRefetching}
     />
   );

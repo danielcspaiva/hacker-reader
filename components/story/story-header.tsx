@@ -4,14 +4,14 @@ import type { StoryWithComments } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/utils/time";
 import { isLiquidGlassAvailable } from 'expo-glass-effect';
+import { useIsPreview } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
-import { useIsPreview } from "expo-router";
 
 // Negative margin needed for iOS 26+ header behavior to allow proper
 // large-to-regular title transitions with multi-line large titles
-const IOS_26_HEADER_MARGIN_OFFSET = -36;
+const IOS_26_HEADER_MARGIN_OFFSET = -56;
 
 interface StoryHeaderProps {
   story: StoryWithComments;
