@@ -101,9 +101,10 @@ export function HNLoginModal({ visible, onLoginSuccess, onCancel }: HNLoginModal
     }
   };
 
-  // Fallback: inject JS to extract cookies
+  // Inject custom styling and cookie extraction with dark mode support
   const injectedJS = `
     (function() {
+      // Cookie extraction
       if (window.__hnCookieInterval) {
         clearInterval(window.__hnCookieInterval);
       }
@@ -112,6 +113,210 @@ export function HNLoginModal({ visible, onLoginSuccess, onCancel }: HNLoginModal
       };
       postCookies();
       window.__hnCookieInterval = setInterval(postCookies, 1500);
+
+      // Detect dark mode
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      // Move labels to placeholders for cleaner look
+      const usernameInputs = document.querySelectorAll('input[name="acct"]');
+      const passwordInputs = document.querySelectorAll('input[name="pw"]');
+
+      usernameInputs.forEach(input => {
+        input.placeholder = 'Username';
+      });
+
+      passwordInputs.forEach(input => {
+        input.placeholder = 'Password';
+      });
+
+      // Hide label cells
+      const labelCells = document.querySelectorAll('td');
+      labelCells.forEach(cell => {
+        if (cell.textContent.trim() === 'username:' || cell.textContent.trim() === 'password:') {
+          cell.style.display = 'none';
+        }
+      });
+
+      // Inject custom CSS with dark mode support and HN orange theme
+      const style = document.createElement('style');
+      style.textContent = \`
+        /* CSS Variables for theming */
+        :root {
+          --bg-primary: \${isDarkMode ? '#000' : '#fff'};
+          --bg-secondary: \${isDarkMode ? '#1c1c1e' : '#f9f9f9'};
+          --border-color: \${isDarkMode ? '#38383a' : '#e0e0e0'};
+          --border-focus: #ff6600;
+          --text-primary: \${isDarkMode ? '#fff' : '#000'};
+          --text-secondary: \${isDarkMode ? '#8e8e93' : '#666'};
+          --input-text: \${isDarkMode ? '#fff' : '#000'};
+          --button-bg: #ff6600;
+          --button-bg-active: #cc5200;
+          --link-color: #ff6600;
+        }
+
+        /* Hide HN header and unnecessary elements */
+        body > center > table:first-child,
+        body > center > table > tbody > tr:first-child {
+          display: none !important;
+        }
+
+        /* Main container styling */
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+          background: var(--bg-primary) !important;
+          padding: 20px !important;
+          margin: 0 !important;
+          color: var(--text-primary) !important;
+        }
+
+        /* Login container */
+        body > center {
+          width: 100% !important;
+          max-width: 100% !important;
+          display: block !important;
+        }
+
+        body > center > table {
+          width: 100% !important;
+          border: none !important;
+          background: var(--bg-primary) !important;
+        }
+
+        /* Form sections */
+        form {
+          margin: 20px 0 !important;
+        }
+
+        /* Table layout adjustments - ensure proper alignment */
+        table {
+          border-spacing: 0 !important;
+          border-collapse: separate !important;
+          width: 100% !important;
+        }
+
+        tr {
+          display: block !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        td {
+          padding: 0 !important;
+        }
+
+        /* Hide label cells (we use placeholders now) */
+        td:first-child {
+          display: none !important;
+        }
+
+        /* Make input cells full width */
+        td:last-child {
+          display: block !important;
+          width: 100% !important;
+          padding: 0 !important;
+        }
+
+        /* Input fields */
+        input[type="text"],
+        input[type="password"] {
+          display: block !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          padding: 14px 16px !important;
+          font-size: 17px !important;
+          border: 1px solid var(--border-color) !important;
+          border-radius: 10px !important;
+          background: var(--bg-secondary) !important;
+          color: var(--input-text) !important;
+          margin: 8px 0 !important;
+          box-sizing: border-box !important;
+          -webkit-appearance: none !important;
+          transition: all 0.2s ease !important;
+        }
+
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder {
+          color: var(--text-secondary) !important;
+          opacity: 1 !important;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+          outline: none !important;
+          border-color: var(--border-focus) !important;
+          background: var(--bg-primary) !important;
+          \${isDarkMode ? 'box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.1) !important;' : ''}
+        }
+
+        /* Submit buttons */
+        input[type="submit"] {
+          display: block !important;
+          width: 100% !important;
+          padding: 15px !important;
+          font-size: 17px !important;
+          font-weight: 600 !important;
+          color: #fff !important;
+          background: var(--button-bg) !important;
+          border: none !important;
+          border-radius: 10px !important;
+          margin: 16px 0 !important;
+          cursor: pointer !important;
+          -webkit-appearance: none !important;
+          transition: all 0.2s ease !important;
+          box-sizing: border-box !important;
+        }
+
+        input[type="submit"]:active {
+          background: var(--button-bg-active) !important;
+          transform: scale(0.98) !important;
+        }
+
+        /* Section headers (Login, Create Account) */
+        b {
+          font-size: 28px !important;
+          font-weight: 700 !important;
+          color: var(--text-primary) !important;
+          display: block !important;
+          margin: 32px 0 20px 0 !important;
+        }
+
+        /* First section header */
+        b:first-of-type {
+          margin-top: 0 !important;
+        }
+
+        /* Links */
+        a {
+          color: var(--link-color) !important;
+          text-decoration: none !important;
+          font-size: 16px !important;
+          display: inline-block !important;
+          margin: 16px 0 !important;
+        }
+
+        /* Remove unnecessary spacing */
+        br {
+          display: none !important;
+        }
+
+        /* Center alignment override */
+        center {
+          text-align: left !important;
+        }
+
+        /* Spacer adjustments */
+        tr[style*="height"] {
+          height: 8px !important;
+        }
+
+        /* Separator between sections */
+        form + b {
+          border-top: 1px solid var(--border-color) !important;
+          padding-top: 32px !important;
+        }
+      \`;
+      document.head.appendChild(style);
     })();
   `;
 
@@ -208,8 +413,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
   },
   title: {
     fontSize: 18,
@@ -233,5 +436,6 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
 });
