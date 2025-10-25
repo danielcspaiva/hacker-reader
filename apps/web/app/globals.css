@@ -3,25 +3,82 @@
 @tailwind utilities;
 
 :root {
+  /* HN Brand Colors */
+  --hn-orange: #ff6600;
+  --hn-orange-hover: #ff7700;
+  
+  /* Light Theme */
   --background: #ffffff;
-  --foreground: #171717;
+  --background-secondary: #f5f0e8;
+  --foreground: #1a1410;
+  --foreground-secondary: #665c4f;
+  --foreground-muted: #8a7f6d;
+  --border: #e5ddd0;
+  --card-bg: #ffffff;
+  
+  /* Semantic Colors */
+  --accent: var(--hn-orange);
+  --accent-hover: var(--hn-orange-hover);
 }
 
+/* Dark theme using class selector (for next-themes) */
+.dark {
+  /* Dark Theme */
+  --background: #0a0a0a;
+  --background-secondary: #0f0f0f;
+  --foreground: #f0f0f0;
+  --foreground-secondary: #a8a8a8;
+  --foreground-muted: #8a8a8a;
+  --border: #333333;
+  --card-bg: #1a1a1a;
+}
+
+/* Also support system preference for better compatibility */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
+    /* Dark Theme */
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --background-secondary: #0f0f0f;
+    --foreground: #f0f0f0;
+    --foreground-secondary: #a8a8a8;
+    --foreground-muted: #8a8a8a;
+    --border: #333333;
+    --card-bg: #1a1a1a;
   }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* HN-specific utilities */
+  .gradient-hn {
+    background: linear-gradient(135deg, var(--hn-orange) 0%, #ff8833 100%);
+  }
+  
+  .shadow-hn {
+    box-shadow: 0 4px 20px rgba(255, 102, 0, 0.1);
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better focus styles */
+:focus-visible {
+  outline: 2px solid var(--hn-orange);
+  outline-offset: 2px;
 }

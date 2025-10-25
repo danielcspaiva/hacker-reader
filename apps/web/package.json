@@ -13,6 +13,7 @@
     "@hn/shared": "workspace:*",
     "@tanstack/react-query": "^5.90.5",
     "next": "^15.1.6",
+    "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
