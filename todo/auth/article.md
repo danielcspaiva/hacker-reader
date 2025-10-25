@@ -1,0 +1,1 @@
+this is a good article to read: https://swizec.com/blog/how-i-reverseengineered-hacker-news/
