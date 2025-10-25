@@ -80,3 +80,71 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+/**
+ * Typography scale - semantic font sizes for consistent hierarchy
+ */
+export const Typography = {
+  /** 28px - Large headings */
+  headline: {
+    fontSize: 28,
+    lineHeight: 36,
+    fontWeight: '700' as const,
+  },
+  /** 20px - Section titles */
+  title: {
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '600' as const,
+  },
+  /** 17px - Primary content, story titles */
+  bodyLarge: {
+    fontSize: 17,
+    lineHeight: 24,
+    fontWeight: '400' as const,
+  },
+  /** 15px - Standard body text */
+  body: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '400' as const,
+  },
+  /** 14px - Emphasized metadata */
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500' as const,
+  },
+  /** 13px - Secondary body text */
+  bodySmall: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '400' as const,
+  },
+  /** 12px - Tertiary text, fine print */
+  caption: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '400' as const,
+  },
+} as const;
+
+/**
+ * Spacing scale - 8px grid system for consistent vertical rhythm
+ */
+export const Spacing = {
+  /** 4px - Tight spacing within grouped elements */
+  xs: 4,
+  /** 8px - Related elements */
+  sm: 8,
+  /** 12px - Component internal spacing */
+  md: 12,
+  /** 16px - Standard padding and gaps */
+  lg: 16,
+  /** 20px - Generous spacing */
+  xl: 20,
+  /** 24px - Section separation */
+  '2xl': 24,
+  /** 32px - Major section breaks */
+  '3xl': 32,
+} as const;

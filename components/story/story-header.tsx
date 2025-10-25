@@ -1,7 +1,9 @@
 import { LinkPreview } from "@/components/link-preview";
 import { ThemedText } from "@/components/themed-text";
 import type { StoryWithComments } from "@/hooks/use-story";
+import { useOGMetadata } from "@/hooks/use-og-metadata";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Spacing } from "@/constants/theme";
 import { timeAgo } from "@/lib/utils/time";
 import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useIsPreview } from "expo-router";
@@ -18,12 +20,16 @@ interface StoryHeaderProps {
 }
 
 export function StoryHeader({ story }: StoryHeaderProps) {
-  const tintColor = useThemeColor({}, "tint");
   const isInsidePreview = useIsPreview();
+  const tintColor = useThemeColor({}, "tint");
+  const { data: metadata, isLoading } = useOGMetadata(story.url || "");
 
   const openURL = async (url: string) => {
     await WebBrowser.openBrowserAsync(url);
   };
+
+  // Show URL text as fallback when no OG preview available
+  const hasPreview = !isLoading && metadata && metadata.image;
 
   return (
     <>
@@ -35,19 +41,19 @@ export function StoryHeader({ story }: StoryHeaderProps) {
             : 0,
         },
       ]}>
-        <ThemedText style={styles.title}>{story.title}</ThemedText>
+        <ThemedText type="title" style={styles.title}>{story.title}</ThemedText>
         <View style={styles.metadata}>
-          <ThemedText style={styles.metadataText}>
+          <ThemedText type="bodySmall" style={styles.metadataText}>
             {story.score} points by {story.by}
           </ThemedText>
-          <ThemedText style={styles.metadataText}> • </ThemedText>
-          <ThemedText style={styles.metadataText}>
+          <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
+          <ThemedText type="bodySmall" style={styles.metadataText}>
             {timeAgo(story.time || 0)}
           </ThemedText>
           {story.descendants !== undefined && (
             <>
-              <ThemedText style={styles.metadataText}> • </ThemedText>
-              <ThemedText style={styles.metadataText}>
+              <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
+              <ThemedText type="bodySmall" style={styles.metadataText}>
                 {story.descendants} comments
               </ThemedText>
             </>
@@ -55,11 +61,13 @@ export function StoryHeader({ story }: StoryHeaderProps) {
         </View>
         {story.url && (
           <>
-            <TouchableOpacity onPress={() => openURL(story.url!)}>
-              <ThemedText style={[styles.url, { color: tintColor }]}>
-                {story.url}
-              </ThemedText>
-            </TouchableOpacity>
+            {!hasPreview && (
+              <TouchableOpacity onPress={() => openURL(story.url!)}>
+                <ThemedText type="bodySmall" style={[styles.url, { color: tintColor }]}>
+                  {story.url}
+                </ThemedText>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={() => openURL(story.url!)}
               accessibilityRole="link"
@@ -72,7 +80,7 @@ export function StoryHeader({ story }: StoryHeaderProps) {
         {story.text && <HTMLText html={story.text} style={styles.storyText} />}
       </View>
       <View style={styles.commentsHeader}>
-        <ThemedText style={styles.commentsTitle}>
+        <ThemedText type="bodyLarge" style={styles.commentsTitle}>
           Comments {story.descendants ? `(${story.descendants})` : ""}
         </ThemedText>
       </View>
@@ -82,40 +90,32 @@ export function StoryHeader({ story }: StoryHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "600",
-    lineHeight: 28,
-    marginBottom: 8,
+    marginBottom: Spacing.md,
   },
   metadata: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: 8,
+    marginBottom: Spacing.md,
   },
   metadataText: {
-    fontSize: 13,
-    opacity: 0.5,
+    opacity: 0.6,
   },
   url: {
-    fontSize: 14,
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   storyText: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: 8,
+    marginTop: Spacing.md,
   },
   commentsHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    paddingBottom: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing['2xl'],
+    paddingBottom: Spacing.lg,
   },
   commentsTitle: {
-    fontSize: 17,
     fontWeight: "600",
     opacity: 0.8,
   },

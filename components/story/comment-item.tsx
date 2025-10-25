@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Spacing } from "@/constants/theme";
 import { timeAgo } from "@/lib/utils/time";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
@@ -34,8 +35,8 @@ export function CommentItem({
       ]}
     >
       <View style={styles.header}>
-        <ThemedText style={styles.author}>{comment.by}</ThemedText>
-        <ThemedText style={styles.time}>
+        <ThemedText type="bodySmall" style={styles.author}>{comment.by}</ThemedText>
+        <ThemedText type="caption" style={styles.time}>
           {" "}
           • {timeAgo(comment.time)}
         </ThemedText>
@@ -45,7 +46,7 @@ export function CommentItem({
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <ThemedText style={styles.collapseButton}>
+            <ThemedText type="caption" style={styles.collapseButton}>
               {" "}
               [{isCollapsed ? `+${comment.children.length}` : "−"}]
             </ThemedText>
@@ -73,37 +74,32 @@ export function CommentItem({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.lg,
   },
   nestedBorder: {
-    paddingLeft: 12,
+    paddingLeft: Spacing.md,
     borderLeftWidth: 2,
   },
   comment: {
-    marginBottom: 16,
-    paddingLeft: 12,
+    marginBottom: Spacing.lg,
+    paddingLeft: Spacing.md,
     borderLeftWidth: 2,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: Spacing.sm,
   },
   author: {
-    fontSize: 13,
     fontWeight: "600",
   },
   time: {
-    fontSize: 12,
-    opacity: 0.5,
+    opacity: 0.6,
   },
   collapseButton: {
-    fontSize: 12,
-    opacity: 0.5,
+    opacity: 0.6,
   },
   text: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
 });

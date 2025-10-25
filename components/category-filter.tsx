@@ -1,5 +1,6 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Spacing } from "@/constants/theme";
 import { Button, Host, HStack, Text } from "@expo/ui/swift-ui";
 import { StyleSheet, View } from "react-native";
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
@@ -72,8 +73,9 @@ export function CategoryFilter({
 
 const styles = StyleSheet.create({
   filterContainer: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
     alignItems: "flex-start",
   },
   hostContainer: {

@@ -3,6 +3,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { HNItem } from '@/lib/hn-api';
 import { timeAgo } from '@/lib/utils/time';
 import { getDomain } from '@/lib/utils/url';
+import { Spacing } from '@/constants/theme';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { Platform, Share, StyleSheet, View } from 'react-native';
@@ -44,10 +45,9 @@ export function StoryCard({ story, index }: StoryCardProps) {
       <Link href={`/story/${story.id}?title=${encodeURIComponent(story.title || '')}`}>
         <Link.Trigger>
           <View style={styles.header}>
-            {/* <ThemedText style={styles.index}>{index}.</ThemedText> */}
             <View style={styles.content}>
               <View style={styles.titleRow}>
-                <ThemedText style={styles.title} numberOfLines={3}>
+                <ThemedText type="bodyLarge" style={styles.title} numberOfLines={3}>
                   {story.title}
                 </ThemedText>
                 {isBookmarked && (
@@ -66,34 +66,35 @@ export function StoryCard({ story, index }: StoryCardProps) {
                     style={styles.favicon}
                     contentFit="contain"
                   />
-                  <ThemedText style={styles.domain}>{getDomain(story.url)}</ThemedText>
+                  <ThemedText type="caption" style={styles.domain}>{getDomain(story.url)}</ThemedText>
                 </View>
               )}
+              {/* Metadata: all on one line */}
               <View style={styles.metadata}>
                 <View style={styles.metadataItem}>
-                  <IconSymbol name="arrowtriangle.up" size={12} color={iconColor} />
-                  <ThemedText style={styles.metadataText}>
+                  <IconSymbol name="arrowtriangle.up" size={13} color={iconColor} />
+                  <ThemedText type="bodySmall" style={styles.metadataText}>
                     {story.score}
                   </ThemedText>
                 </View>
-                <ThemedText style={styles.metadataText}> • </ThemedText>
+                <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
                 <View style={styles.metadataItem}>
-                  <IconSymbol name="person" size={12} color={iconColor} />
-                  <ThemedText style={styles.metadataText}>
+                  <IconSymbol name="person" size={13} color={iconColor} />
+                  <ThemedText type="bodySmall" style={styles.metadataText}>
                     {story.by}
                   </ThemedText>
                 </View>
-                <ThemedText style={styles.metadataText}> • </ThemedText>
+                <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
                 <View style={styles.metadataItem}>
-                  <IconSymbol name="clock" size={12} color={iconColor} />
-                  <ThemedText style={styles.metadataText}>
+                  <IconSymbol name="clock" size={13} color={iconColor} />
+                  <ThemedText type="bodySmall" style={styles.metadataText}>
                     {timeAgo(story.time || 0)}
                   </ThemedText>
                 </View>
-                <ThemedText style={styles.metadataText}> • </ThemedText>
+                <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
                 <View style={styles.metadataItem}>
-                  <IconSymbol name="bubble.left.and.bubble.right" size={12} color={iconColor} />
-                  <ThemedText style={styles.metadataText}>
+                  <IconSymbol name="bubble.left.and.bubble.right" size={13} color={iconColor} />
+                  <ThemedText type="bodySmall" style={styles.metadataText}>
                     {story.descendants || 0}
                   </ThemedText>
                 </View>
@@ -123,17 +124,12 @@ export function StoryCard({ story, index }: StoryCardProps) {
 const styles = StyleSheet.create({
   container: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
   },
   header: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  index: {
-    fontSize: 14,
-    opacity: 0.5,
-    marginTop: 2,
+    gap: Spacing.md,
   },
   content: {
     flex: 1,
@@ -141,14 +137,11 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 6,
+    gap: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   title: {
     flex: 1,
-    fontSize: 16,
-    lineHeight: 22,
-    fontWeight: '400',
-    marginBottom: 4,
   },
   bookmarkIndicator: {
     opacity: 0.6,
@@ -158,16 +151,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: -4,
-    marginBottom: 4,
+    marginBottom: Spacing.sm,
   },
   favicon: {
-    width: 10,
-    height: 10,
+    width: 12,
+    height: 12,
   },
   domain: {
-    fontSize: 13,
-    opacity: 0.5,
+    opacity: 0.6,
   },
   metadata: {
     flexDirection: 'row',
@@ -180,7 +171,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   metadataText: {
-    fontSize: 13,
-    opacity: 0.5,
+    opacity: 0.6,
   },
 });
