@@ -1,14 +1,13 @@
+import { HNLoginModal } from "@/components/auth";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { clearBookmarks } from "@/lib/bookmarks";
 import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
 import { useQueryClient } from "@tanstack/react-query";
 // import Constants from "expo-constants";
-import {
-  foregroundStyle,
-  frame
-} from "@expo/ui/swift-ui/modifiers";
+import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import * as WebBrowser from "expo-web-browser";
 import { useMemo, useState } from "react";
 import { Alert, Platform, StyleSheet, View } from "react-native";
@@ -31,11 +30,9 @@ const ANDROID_PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.danielcspaiva.hnclient";
 
 export default function SettingsScreen() {
-  const {
-    preference,
-    setPreference,
-    colorScheme,
-  } = useColorSchemeContext();
+  const { preference, setPreference, colorScheme } = useColorSchemeContext();
+  const { session, login, logout, isAuthenticated } = useHNAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const textColor = useThemeColor({}, "text");
   const queryClient = useQueryClient();
   const { data: bookmarkIds = [] } = useBookmarkIds();
@@ -147,6 +144,30 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleLoginSuccess = async (cookies: Record<string, string>) => {
+    await login(cookies);
+    setShowLoginModal(false);
+    Alert.alert("Success", "Logged in to Hacker News successfully!");
+  };
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout from Hacker News?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          Alert.alert("Success", "Logged out successfully");
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <Host
@@ -164,6 +185,27 @@ export default function SettingsScreen() {
             }),
           ]}
         >
+          <Section title="Account">
+            {isAuthenticated ? (
+              <Button
+                onPress={handleLogout}
+                role="destructive"
+                systemImage="rectangle.portrait.and.arrow.right"
+                modifiers={[foregroundStyle("red")]}
+              >
+                Logout from Hacker News
+              </Button>
+            ) : (
+              <Button
+                onPress={handleLogin}
+                systemImage="person.badge.key"
+                modifiers={[foregroundStyle(textColor)]}
+              >
+                Login to Hacker News
+              </Button>
+            )}
+          </Section>
+
           <Section title="Appearance">
             <Picker
               options={APPEARANCE_OPTIONS.map((opt) => opt.label)}
@@ -210,9 +252,7 @@ export default function SettingsScreen() {
           </Section>
 
           <Section title="About">
-            <Text size={12} >
-              Built by dcsp.dev
-            </Text>
+            <Text size={12}>Built by dcsp.dev</Text>
             <Text
               size={12}
               // modifiers={[
@@ -228,6 +268,12 @@ export default function SettingsScreen() {
           </Section>
         </Form>
       </Host>
+
+      <HNLoginModal
+        visible={showLoginModal}
+        onLoginSuccess={handleLoginSuccess}
+        onCancel={() => setShowLoginModal(false)}
+      />
     </View>
   );
 }

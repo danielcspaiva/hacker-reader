@@ -11,6 +11,7 @@ import "react-native-reanimated";
 
 import { Colors } from "@/constants/theme";
 import { ColorSchemeProvider, useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { HNAuthProvider } from "@/contexts/hn-auth-context";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -93,7 +94,9 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ColorSchemeProvider>
-        <RootLayoutContent />
+        <HNAuthProvider>
+          <RootLayoutContent />
+        </HNAuthProvider>
       </ColorSchemeProvider>
     </QueryClientProvider>
   );

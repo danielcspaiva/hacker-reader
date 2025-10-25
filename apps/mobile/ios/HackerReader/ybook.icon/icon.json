@@ -12,7 +12,9 @@
     {
       "layers" : [
         {
+          "blend-mode" : "normal",
           "glass" : false,
+          "hidden" : false,
           "image-name" : "ybook.png",
           "name" : "ybook",
           "position" : {

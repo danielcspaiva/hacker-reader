@@ -1,4 +1,5 @@
 import { CommentItem } from "@/components/story/comment-item";
+import { StoryCommentInput } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -69,6 +70,12 @@ export default function StoryDetailScreen() {
   // Centralized collapse state
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
 
+  // Reply state
+  const [replyTarget, setReplyTarget] = useState<{
+    commentId: number;
+    username: string;
+  } | null>(null);
+
   // Flatten comments when story or collapse state changes
   const flatComments = !story?.comments
     ? []
@@ -84,6 +91,14 @@ export default function StoryDetailScreen() {
       }
       return next;
     });
+  };
+
+  const handleReply = (commentId: number, username: string) => {
+    setReplyTarget({ commentId, username });
+  };
+
+  const handleCancelReply = () => {
+    setReplyTarget(null);
   };
 
   // Render Stack.Screen immediately to prevent header title flash
@@ -145,42 +160,54 @@ export default function StoryDetailScreen() {
   return (
     <>
       {screenOptions}
-      <FlashList
-        data={flatComments}
-        renderItem={({ item }) => (
-          <CommentItem
-            comment={item.comment}
-            depth={item.depth}
-            isCollapsed={collapsedIds.has(item.comment.id)}
-            onToggleCollapse={toggleCollapse}
-          />
-        )}
-        keyExtractor={(item) => item.comment.id.toString()}
-        getItemType={(item) => {
-          const isCollapsed = collapsedIds.has(item.comment.id);
-          return `comment-depth-${item.depth}-${
-            isCollapsed ? "collapsed" : "expanded"
-          }`;
-        }}
-        ListHeaderComponent={<StoryHeader story={story} />}
-        ListEmptyComponent={<EmptyComments />}
-        contentInsetAdjustmentBehavior="automatic"
-        automaticallyAdjustContentInsets={true}
-        onRefresh={() => {
-          // Only trigger refetch if not already loading or refetching
-          if (!isLoading && !isRefetching) {
-            refetch();
-          }
-        }}
-        refreshing={isRefetching}
-        contentContainerStyle={{
-          backgroundColor,
-          paddingBottom: Platform.select({
-            android: 100 + bottom,
-            default: 0,
-          }),
-        }}
-      />
+      <View style={styles.container}>
+        <FlashList
+          data={flatComments}
+          renderItem={({ item }) => (
+            <CommentItem
+              comment={item.comment}
+              depth={item.depth}
+              isCollapsed={collapsedIds.has(item.comment.id)}
+              onToggleCollapse={toggleCollapse}
+              onReply={handleReply}
+            />
+          )}
+          keyExtractor={(item) => item.comment.id.toString()}
+          getItemType={(item) => {
+            const isCollapsed = collapsedIds.has(item.comment.id);
+            return `comment-depth-${item.depth}-${
+              isCollapsed ? "collapsed" : "expanded"
+            }`;
+          }}
+          ListHeaderComponent={<StoryHeader story={story} />}
+          ListEmptyComponent={<EmptyComments />}
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets={true}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          onRefresh={() => {
+            // Only trigger refetch if not already loading or refetching
+            if (!isLoading && !isRefetching) {
+              refetch();
+            }
+          }}
+          refreshing={isRefetching}
+          contentContainerStyle={{
+            backgroundColor,
+            paddingBottom: Platform.select({
+              android: 100 + bottom,
+              default: 0,
+            }),
+          }}
+        />
+
+        {/* Story Comment Input */}
+        <StoryCommentInput
+          storyId={Number(id)}
+          replyTarget={replyTarget}
+          onCancelReply={handleCancelReply}
+        />
+      </View>
     </>
   );
 }

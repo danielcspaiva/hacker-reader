@@ -7,6 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./api": "./src/api/index.ts",
+    "./auth": "./src/auth/index.ts",
     "./utils": "./src/utils/index.ts",
     "./types": "./src/types/index.ts"
   },

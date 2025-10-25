@@ -1,4 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Spacing } from "@/constants/theme";
@@ -11,6 +13,7 @@ interface CommentItemProps {
   depth: number;
   isCollapsed: boolean;
   onToggleCollapse: (id: number) => void;
+  onReply: (commentId: number, username: string) => void;
 }
 
 export function CommentItem({
@@ -18,8 +21,11 @@ export function CommentItem({
   depth,
   isCollapsed,
   onToggleCollapse,
+  onReply,
 }: CommentItemProps) {
   const borderColor = useThemeColor({}, "border");
+  const textColor = useThemeColor({}, "text");
+  const { isAuthenticated } = useHNAuth();
 
   if (!comment.text) {
     return null;
@@ -53,7 +59,28 @@ export function CommentItem({
           </TouchableOpacity>
         )}
       </View>
-      {!isCollapsed && <HTMLText html={comment.text} style={styles.text} />}
+      {!isCollapsed && (
+        <>
+          <HTMLText html={comment.text} style={styles.text} />
+          {isAuthenticated && (
+            <TouchableOpacity
+              onPress={() => onReply(comment.id, comment.by)}
+              style={styles.replyButton}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <IconSymbol
+                name="arrowshape.turn.up.left"
+                size={14}
+                color={textColor}
+                weight="medium"
+              />
+              <ThemedText type="caption" style={styles.replyButtonText}>
+                Reply
+              </ThemedText>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
     </View>
   );
 
@@ -101,5 +128,15 @@ const styles = StyleSheet.create({
   },
   text: {
     marginBottom: Spacing.sm,
+  },
+  replyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  replyButtonText: {
+    opacity: 0.6,
   },
 });
