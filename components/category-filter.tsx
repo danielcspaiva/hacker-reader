@@ -1,8 +1,10 @@
+import { Spacing } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { Spacing } from "@/constants/theme";
-import { Button, Host, HStack, Text } from "@expo/ui/swift-ui";
+import { Host, Picker } from "@expo/ui/swift-ui";
+import { GlassView } from "expo-glass-effect";
 import { StyleSheet, View } from "react-native";
+
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -25,48 +27,34 @@ export function CategoryFilter({
   const categories = Object.keys(CATEGORY_LABELS) as Category[];
   const { colorScheme } = useColorSchemeContext();
   const tintColor = useThemeColor({}, "tint");
+  const selectedIndex = categories.findIndex((cat) => cat === category);
+
+  const handleOptionSelected = (event: { nativeEvent: { index: number } }) => {
+    const nextCategory = categories[event.nativeEvent.index];
+    if (nextCategory && nextCategory !== category) {
+      requestAnimationFrame(() => {
+        onSelectCategory(nextCategory);
+      });
+    }
+  };
 
   return (
-    <View style={[styles.filterContainer]}>
-      <Host
-        style={styles.hostContainer}
-        matchContents
-        colorScheme={colorScheme}
+    <View>
+      <GlassView
+        style={styles.glassView}
       >
-        <HStack spacing={10}>
-          {categories.map((cat) => {
-            const isSelected = cat === category;
-            return (
-              <Button
-                key={cat}
-                variant={"glassProminent"}
-                onPress={() => {
-                  // Defer state update to allow press animation to complete
-                  requestAnimationFrame(() => {
-                    onSelectCategory(cat);
-                  });
-                }}
-                controlSize="regular"
-                color={isSelected ? tintColor : "transparent"}
-                // role="default"
-              >
-                <Text
-                  color={
-                    isSelected
-                      ? colorScheme === "light"
-                        ? "white"
-                        : "black"
-                      : tintColor
-                  }
-                  weight="medium"
-                >
-                  {CATEGORY_LABELS[cat]}
-                </Text>
-              </Button>
-            );
-          })}
-        </HStack>
-      </Host>
+        <Host
+          matchContents
+          colorScheme={colorScheme}
+        >
+          <Picker
+            options={categories.map((cat) => CATEGORY_LABELS[cat])}
+            selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
+            onOptionSelected={handleOptionSelected}
+            variant="segmented"
+          />
+        </Host>
+      </GlassView>
     </View>
   );
 }
@@ -78,9 +66,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     alignItems: "flex-start",
   },
-  hostContainer: {
-    flex: 1,
-    height: 40,
-    width: "100%",
+  glassView: {
+    borderRadius: 80,
+    height: 32,
+    marginHorizontal: 16,
+    marginTop: 16,
+    width: "auto",
+    marginBottom: 16,
   },
 });

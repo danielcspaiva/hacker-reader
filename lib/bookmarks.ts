@@ -41,8 +41,8 @@ export async function addBookmark(storyId: number): Promise<void> {
       bookmarkedAt: Date.now(),
     };
 
-    bookmarks.push(newBookmark);
-    await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+    const updatedBookmarks = [newBookmark, ...bookmarks];
+    await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(updatedBookmarks));
   } catch (error) {
     console.error('Error adding bookmark:', error);
     throw error;
@@ -59,6 +59,18 @@ export async function removeBookmark(storyId: number): Promise<void> {
     await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(filtered));
   } catch (error) {
     console.error('Error removing bookmark:', error);
+    throw error;
+  }
+}
+
+/**
+ * Remove all bookmarks
+ */
+export async function clearBookmarks(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(BOOKMARKS_KEY);
+  } catch (error) {
+    console.error('Error clearing bookmarks:', error);
     throw error;
   }
 }
