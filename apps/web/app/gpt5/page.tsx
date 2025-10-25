@@ -193,7 +193,7 @@ export default function Home() {
                   The icon, reimagined.
                 </h2>
                 <p className="text-lg leading-relaxed text-[#5d5146] dark:text-[#bdbdbd]">
-                  A timeless nod to the original Hacker News "Y"—reshaped into a
+                  A timeless nod to the original Hacker News &quot;Y&quot;—reshaped into a
                   reader&apos;s mark. Light and dark pairings bring warmth to
                   every surface you launch from.
                 </p>
@@ -228,9 +228,9 @@ export default function Home() {
             <div className="mt-16 grid gap-6 md:grid-cols-2">
               <blockquote className="space-y-4 rounded-3xl bg-white/5 p-8 text-[#f0e5da] shadow-[0_25px_60px_rgba(0,0,0,0.45)]">
                 <p className="text-lg leading-relaxed">
-                  “Finally, a Hacker News client that feels built for humans,
+                  &ldquo;Finally, a Hacker News client that feels built for humans,
                   not just headlines. The typography alone makes me want to read
-                  more.”
+                  more.&rdquo;
                 </p>
                 <footer className="text-sm uppercase tracking-[0.25em] text-[#ff9d5c]">
                   Product designer, SF
@@ -238,8 +238,8 @@ export default function Home() {
               </blockquote>
               <blockquote className="space-y-4 rounded-3xl bg-white/5 p-8 text-[#f0e5da] shadow-[0_25px_60px_rgba(0,0,0,0.45)]">
                 <p className="text-lg leading-relaxed">
-                  “Perfect blend of simplicity and polish. Launching it on the
-                  desktop web during my morning coffee has become a ritual.”
+                  &ldquo;Perfect blend of simplicity and polish. Launching it on the
+                  desktop web during my morning coffee has become a ritual.&rdquo;
                 </p>
                 <footer className="text-sm uppercase tracking-[0.25em] text-[#ff9d5c]">
                   Indie iOS dev, Berlin
