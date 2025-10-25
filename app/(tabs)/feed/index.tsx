@@ -4,18 +4,30 @@ import { ThemedText } from "@/components/themed-text";
 import { usePrefetchCategories, useStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { HNItem } from "@/lib/hn-api";
-import { FlashList } from "@shopify/flash-list";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
   Platform,
   StyleSheet,
   View,
 } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { StoryCard } from "@/components/story-card";
+
+const AnimatedFlatList = Animated.FlatList;
+
+const HEADER_SCROLL_OFFSET = isLiquidGlassAvailable() ? 100 : 90;
 
 export default function FeedScreen() {
   const [category, setCategory] = useState<Category>("top");
@@ -38,6 +50,41 @@ export default function FeedScreen() {
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
 
+  // Animation setup for sticky header
+  const flatListRef = useRef<FlatList>(null);
+  const animatedTranslateY = useSharedValue(0);
+  const backgroundColor = useThemeColor({}, "background");
+  const isLiquidGlass = isLiquidGlassAvailable();
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    animatedTranslateY.value = interpolate(
+      event.contentOffset.y,
+      [-HEADER_SCROLL_OFFSET, 0],
+      [0, HEADER_SCROLL_OFFSET],
+      Extrapolation.CLAMP
+    );
+  });
+
+  const stickyHeaderStyle = useAnimatedStyle(() => {
+    if (Platform.OS !== "ios") {
+      return {};
+    }
+
+    return {
+      transform: [{ translateY: animatedTranslateY.value }],
+      backgroundColor: isLiquidGlass ? "transparent" : backgroundColor,
+    };
+  });
+
+  const renderStickyHeader = useMemo(
+    () => (
+      <Animated.View style={stickyHeaderStyle}>
+        <CategoryFilter category={category} onSelectCategory={setCategory} />
+      </Animated.View>
+    ),
+    [category, stickyHeaderStyle]
+  );
+
   return (
     <>
       <Stack.Screen
@@ -47,7 +94,8 @@ export default function FeedScreen() {
           headerLargeTitle: true,
         }}
       />
-      <FlashList<HNItem | null>
+      <AnimatedFlatList<HNItem | null>
+        ref={flatListRef}
         data={isPending ? Array(10).fill(null) : stories}
         renderItem={({ item, index }) =>
           item ? (
@@ -60,12 +108,11 @@ export default function FeedScreen() {
           item ? item.id.toString() : `skeleton-${index}`
         }
         contentInsetAdjustmentBehavior="automatic"
-        ListHeaderComponent={
-          <CategoryFilter
-            category={category}
-            onSelectCategory={setCategory}
-          />
-        }
+        scrollToOverflowEnabled
+        ListHeaderComponent={renderStickyHeader}
+        stickyHeaderIndices={[0]}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         contentContainerStyle={{
           paddingBottom: Platform.select({
             android: 100 + bottom,
