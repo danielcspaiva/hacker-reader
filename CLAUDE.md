@@ -26,6 +26,48 @@ This project uses **pnpm** as its package manager (specified in `package.json`).
 
 ## Architecture
 
+### Authentication (Mobile Only)
+
+The mobile app supports HN authentication via WebView login:
+
+1. **Login Flow**:
+   - Users log in through official HN website in WebView (no credential handling in app)
+   - Cookies extracted using `@react-native-cookies/cookies` + JavaScript injection fallback
+   - Cookies stored securely in `expo-secure-store` (device keychain/keystore)
+
+2. **Auth Module** (`packages/shared/src/auth/`):
+   - **SecureSession** - Wrapper preventing accidental cookie exposure
+   - **Error Taxonomy** - Typed errors (NOT_LOGGED_IN, RATE_LIMITED, etc.)
+   - **Rate Limiter** - Client-side throttling (30 actions/min)
+   - **HTML Parsers** - Extract auth tokens from HN pages using cheerio
+
+3. **Write API** (`packages/shared/src/api/hn-write-api.ts`):
+   - `vote(itemId, session)` - Upvote stories/comments
+   - `unvote(itemId, session)` - Remove upvote
+   - `comment(parentId, text, session)` - Post comments
+   - `favorite(itemId, session)` - Favorite items
+   - All operations require `SecureSession` with HN cookies
+   - HTTPS enforced, automatic rate limiting, smart error handling
+
+4. **Auth Context** (`apps/mobile/contexts/hn-auth-context.tsx`):
+   - Global auth state via React Context
+   - Session persistence across app restarts
+   - `useHNAuth()` hook provides: `session`, `login()`, `logout()`, `isAuthenticated`
+
+5. **UI Integration**:
+   - Login modal: `components/auth/login-modal.tsx` - WebView with cookie extraction
+   - Settings screen: Shows login status, login/logout buttons
+   - Story cards: Upvote/unvote in context menu (when authenticated)
+   - Optimistic updates with automatic rollback on error
+
+6. **Security**:
+   - Never log cookies (SecureSession prevents exposure)
+   - Session expiration auto-detected → logout + re-login prompt
+   - Rate limiting warnings shown to users
+   - All requests use HTTPS only
+
+**Note**: Web app remains read-only (no authentication). Comment posting API is ready but UI not yet implemented.
+
 ### Routing & Navigation
 - **File-based routing** using Expo Router (expo-router v6)
 - Routes are defined in the `app/` directory structure

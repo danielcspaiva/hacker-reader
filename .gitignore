@@ -2,12 +2,22 @@
 
 # dependencies
 node_modules/
+**/node_modules/
 
 # Expo
 .expo/
-dist/
+**/dist/
 web-build/
 expo-env.d.ts
+**/expo-env.d.ts
+
+# Next.js
+.next/
+**/.next/
+out/
+**/out/
+next-env.d.ts
+**/next-env.d.ts
 
 # Native
 .kotlin/
@@ -35,12 +45,24 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+**/*.tsbuildinfo
 
 app-example
 
-# generated native folders
+# Environment variables
+.env
+.env.local
+.env*.local
+
+# generated native folders (keep apps/mobile/ios and apps/mobile/android)
 /ios
 /android
 
+# Build outputs
+**/dist/
+**/.turbo/
+
+# Vercel
+.vercel
 
 ignore
