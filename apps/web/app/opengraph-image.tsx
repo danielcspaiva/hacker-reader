@@ -12,6 +12,15 @@ export default async function Image() {
   // Fetch the icon
   const iconUrl = new URL("/ios-light.png", process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
   
+  // Fetch Inter font from correct CDN
+  const interBold = fetch(
+    'https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/files/inter-latin-700-normal.woff'
+  ).then((res) => res.arrayBuffer());
+
+  const interSemiBold = fetch(
+    'https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/files/inter-latin-600-normal.woff'
+  ).then((res) => res.arrayBuffer());
+  
   return new ImageResponse(
     (
       <div
@@ -25,6 +34,7 @@ export default async function Image() {
           backgroundColor: "#f5f0e8",
           background:
             "linear-gradient(to bottom, #f5f0e8 0%, #ffffff 100%)",
+          fontFamily: '"Inter", system-ui, -apple-system, sans-serif',
         }}
       >
         {/* Icon */}
@@ -33,17 +43,17 @@ export default async function Image() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            marginBottom: 40,
+            marginBottom: 48,
           }}
         >
           <img
             src={iconUrl.toString()}
             alt="Hacker Reader Icon"
-            width={120}
-            height={120}
+            width={140}
+            height={140}
             style={{
-              borderRadius: 24,
-              boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
+              borderRadius: 28,
+              boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)",
             }}
           />
         </div>
@@ -54,26 +64,27 @@ export default async function Image() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 16,
+            gap: 8,
           }}
         >
           <div
             style={{
-              fontSize: 72,
-              fontWeight: "bold",
+              fontSize: 80,
+              fontWeight: 700,
               color: "#1a1410",
               display: "flex",
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.04em",
             }}
           >
             Hacker Reader
           </div>
           <div
             style={{
-              fontSize: 56,
-              fontWeight: "bold",
+              fontSize: 64,
+              fontWeight: 700,
               color: "#ff6600",
               display: "flex",
+              letterSpacing: "-0.02em",
             }}
           >
             Reimagined
@@ -83,52 +94,36 @@ export default async function Image() {
         {/* Description */}
         <div
           style={{
-            fontSize: 28,
+            fontSize: 30,
+            fontWeight: 600,
             color: "#665c4f",
-            marginTop: 32,
-            maxWidth: 800,
+            marginTop: 40,
+            maxWidth: 900,
             textAlign: "center",
             display: "flex",
-            lineHeight: 1.4,
+            lineHeight: 1.5,
           }}
         >
           A beautiful, native mobile experience for Hacker News
-        </div>
-
-        {/* Features badges */}
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            marginTop: 48,
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
-        >
-          {["React Native", "Expo", "TypeScript", "iOS & Android"].map(
-            (tech) => (
-              <div
-                key={tech}
-                style={{
-                  padding: "12px 24px",
-                  backgroundColor: "white",
-                  borderRadius: 24,
-                  fontSize: 20,
-                  color: "#1a1410",
-                  fontWeight: 600,
-                  display: "flex",
-                  border: "2px solid #e5ddd0",
-                }}
-              >
-                {tech}
-              </div>
-            )
-          )}
         </div>
       </div>
     ),
     {
       ...size,
+      fonts: [
+        {
+          name: 'Inter',
+          data: await interBold,
+          style: 'normal',
+          weight: 700,
+        },
+        {
+          name: 'Inter',
+          data: await interSemiBold,
+          style: 'normal',
+          weight: 600,
+        },
+      ],
     }
   );
 }
