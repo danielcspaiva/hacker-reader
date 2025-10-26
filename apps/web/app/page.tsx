@@ -537,6 +537,17 @@ export default function Home() {
         <div className="mt-8 text-center text-xs text-[#8f806d] dark:text-[#7a7a7a]">
           Not affiliated with Y Combinator or Hacker News
         </div>
+        <div className="mt-4 text-center text-xs text-[#8f806d] dark:text-[#7a7a7a]">
+          Built by{" "}
+          <a
+            href="https://dcsp.dev/en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[#5d5146] transition hover:text-[#ff6600] dark:text-[#b3b3b3] dark:hover:text-[#ff8c43]"
+          >
+            Daniel Paiva
+          </a>
+        </div>
       </footer>
     </div>
   );
