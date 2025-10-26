@@ -1,217 +1,135 @@
-# Hacker News Client - Monorepo
+# Hacker Reader
 
-A modern Hacker News client built as a **pnpm monorepo** with both a React Native (Expo) mobile app and a Next.js web app, sharing common code through workspace packages.
+> A polished Hacker News experience for mobile and web, powered by Expo, Next.js, and a shared TypeScript core.
 
-## 📁 Project Structure
+## Table of Contents
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Monorepo Layout](#monorepo-layout)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Apps](#running-the-apps)
+- [Development Workflow](#development-workflow)
+- [Workspace Packages](#workspace-packages)
+  - [@hn/mobile (Expo app)](#hnmobile-expo-app)
+  - [@hn/web (Next.js site)](#hnweb-nextjs-site)
+  - [@hn/shared](#hnshared)
+- [Architecture Notes](#architecture-notes)
+- [Docs & Roadmap](#docs--roadmap)
+- [License](#license)
+
+## Overview
+
+Hacker Reader is a cross-platform Hacker News client that ships a native-quality mobile app alongside a marketing and preview site. The codebase lives in a pnpm workspace so the apps can share API clients, authentication helpers, and utilities while keeping platform-specific UI separate. Everything is written in TypeScript and tuned for strict typings, fast feedback loops, and seamless contributor onboarding.
+
+## Key Features
+
+- **Native mobile experience** – Browse Top, New, Show HN, Ask HN, and Jobs feeds with FlashList, themed layouts, haptic feedback, and deep React Query caching.
+- **HN account support** – Log in inside the app, manage a secure session, vote, favorite, and comment through the hardened write API wrappers.
+- **Thoughtful reading tools** – Rich Open Graph link previews, nested comment threads with collapse controls, Algolia-powered search, and persistent bookmarks backed by AsyncStorage.
+- **Web preview & landing** – A Next.js App Router site that showcases the app, ships a dark/light marketing experience, and reuses shared clients for real data.
+- **Shared foundation** – One set of API clients, types, and utilities published from `@hn/shared`, plus a common base `tsconfig` and linting rules across every workspace.
+
+## Monorepo Layout
 
 ```
-hn-client/
+.
 ├── apps/
-│   ├── mobile/          # Expo React Native app (iOS/Android)
-│   └── web/             # Next.js web app
+│   ├── mobile/          # Expo + React Native app
+│   └── web/             # Next.js App Router marketing site
 ├── packages/
-│   └── shared/          # Shared utilities, types, and API clients
-├── package.json         # Root workspace configuration
+│   └── shared/          # Reusable API clients, auth helpers, types, utilities
+├── api-docs/            # Reference material and integration notes
+├── todo/                # Backlog experiments and follow-up tasks
+├── package.json         # Root scripts and tooling
 ├── pnpm-workspace.yaml  # Workspace definition
-└── tsconfig.base.json   # Shared TypeScript config
+└── tsconfig.base.json   # Shared TypeScript configuration
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and pnpm 8+
-- For mobile: Xcode (iOS) or Android Studio (Android)
+- Node.js 18 or newer
+- pnpm 8+
+- Xcode (for iOS simulators) and/or Android Studio (for emulators)
 
 ### Installation
 
 ```bash
-# Install all dependencies (runs in all workspaces)
 pnpm install
 ```
 
-## 📱 Mobile App (Expo)
-
-The mobile app is built with Expo Router and React Native.
-
-### Development
+### Running the Apps
 
 ```bash
-# Start Expo dev server
-pnpm mobile
+# Run mobile (Expo) and web (Next.js) dev servers together
+pnpm dev
 
-# Run on iOS simulator
-pnpm mobile:ios
+# Mobile targets
+pnpm mobile        # Expo dev server
+pnpm mobile:ios    # Launch iOS simulator
+pnpm mobile:android # Launch Android emulator
+pnpm mobile:lint   # Expo workspace linting
 
-# Run on Android emulator
-pnpm mobile:android
-
-# Lint mobile code
-pnpm mobile:lint
+# Web targets
+pnpm web           # Next.js dev server
+pnpm web:build     # Production build
+pnpm web:start     # Start production server
+pnpm web:lint      # Next.js workspace linting
 ```
 
-### Features
-- 📰 Browse Top, New, Ask, Show, and Jobs stories
-- 💬 View comments with collapsible threads
-- 🔖 Bookmark stories (persisted locally)
-- 🔍 Search stories via Algolia
-- 🎨 Dark mode support
-- ⚡️ Infinite scrolling with React Query
-- 🖼️ Link previews with Open Graph metadata
+## Development Workflow
 
-### Tech Stack
-- Expo SDK 54 with React Native 0.81
-- Expo Router for file-based navigation
-- React Query for data fetching
-- FlashList for performant lists
-- TypeScript
-
-## 🌐 Web App (Next.js)
-
-The web app is built with Next.js 15 (App Router) and Tailwind CSS.
-
-### Development
+- Prefer TypeScript everywhere with explicit return types on exported functions.
+- Default formatting is two-space indentation with trailing commas; the existing ESLint config enforces it.
+- Before opening a PR, run:
 
 ```bash
-# Start Next.js dev server
-pnpm web
-
-# Build for production
-pnpm web:build
-
-# Start production server
-pnpm web:start
-
-# Lint web code
-pnpm web:lint
-```
-
-### Features
-- 📰 Browse Hacker News stories
-- 🎨 Responsive design with Tailwind CSS
-- ⚡️ Server-side rendering and static generation
-- 📦 Uses shared API clients from `@hn/shared`
-
-### Tech Stack
-- Next.js 15 with App Router
-- React 19
-- Tailwind CSS
-- React Query
-- TypeScript
-
-## 📦 Shared Package
-
-The `@hn/shared` package contains code shared between mobile and web:
-
-### What's Included
-- **API Clients**: Hacker News API, Algolia search, Open Graph metadata
-- **Types**: HNItem, HNUser, AlgoliaStory, etc.
-- **Utilities**: HTML parsing, time formatting, URL extraction
-
-### Structure
-```
-packages/shared/src/
-├── api/          # API clients (hn-api, algolia-api, og-api)
-├── types/        # Shared TypeScript types
-├── utils/        # Utility functions
-└── index.ts      # Main entry point
-```
-
-### Usage
-
-```typescript
-// Import from the shared package in any app
-import { getTopStories, type HNItem, timeAgo } from '@hn/shared';
-```
-
-## 🛠️ Development Scripts
-
-### Root Commands
-```bash
-# Run type checking across all packages
 pnpm typecheck
-
-# Run linting across all packages
 pnpm lint
-
-# Clean all build artifacts and node_modules
-pnpm clean
-
-# Full reset (clean + reinstall)
-pnpm reset
+pnpm mobile    # smoke-test the Expo app
+pnpm web       # smoke-test the marketing site
 ```
 
-### Workspace Commands
-```bash
-# Run typecheck in shared package only
-pnpm shared:typecheck
+- For focused checks: `pnpm shared:typecheck` and `pnpm --filter <workspace> <command>`.
+- Track follow-up tasks in `todo/` rather than leaving `TODO` comments in code.
 
-# Filter commands to specific workspaces
-pnpm --filter @hn/mobile <command>
-pnpm --filter @hn/web <command>
-pnpm --filter @hn/shared <command>
-```
+## Workspace Packages
 
-## 🏗️ Architecture
+### @hn/mobile (Expo app)
 
-### Data Fetching Strategy
-Both apps use React Query with identical configuration:
-- 5-minute stale time
-- 10-minute garbage collection
-- No refetch on window focus
-- Shared cache keys for consistency
+- Expo SDK 54 with the React Compiler, Expo Router, and React Native 0.81.
+- FlashList-driven feeds, story detail screens, bookmarks, search, and threaded comments.
+- Secure Hacker News authentication via in-app login (WebView) plus vote/favorite/comment mutations using the shared write API.
+- System-aware theming with persisted preferences, custom color palettes, glass effect support, and subtle haptics.
 
-### Code Sharing Philosophy
-- ✅ **Shared**: API clients, types, utility functions, business logic
-- ❌ **Not Shared**: UI components (platform-specific)
-- 🔄 **Future**: Could add `@hn/ui` package for truly cross-platform components
+### @hn/web (Next.js site)
 
-### Monorepo Benefits
-- **Single source of truth** for API clients and types
-- **Consistent data fetching** across platforms
-- **Unified TypeScript configuration**
-- **Simplified dependency management**
-- **Atomic commits** across mobile and web
+- Next.js 15 App Router with Tailwind CSS and a fully themed landing page.
+- Showcases real screenshots, feature highlights, and links to TestFlight / web previews.
+- Shares API clients, types, and formatting helpers from `@hn/shared` for consistency.
 
-## 📝 Adding New Features
+### @hn/shared
 
-### To Add a New API Endpoint
+- REST and scraping clients for the Hacker News API, Algolia HN search, and Open Graph metadata.
+- Hardened authentication utilities: secure session wrapper, HTML parsers, rate limiting, and write operations (vote, unvote, favorite, comment).
+- Shared types (`HNItem`, `HNUser`, `AlgoliaStory`, etc.) plus utility helpers like HTML sanitizers and relative time formatters.
+- Ships a `tsconfig` and single entrypoint so both apps consume the same strongly typed surface.
 
-1. Add the function to `packages/shared/src/api/`
-2. Export it from `packages/shared/src/index.ts`
-3. Use it in mobile (`apps/mobile/`) or web (`apps/web/`)
+## Architecture Notes
 
-### To Add a New Shared Utility
+- React Query powers all data access with tuned stale/gc timings, optimistic updates for bookmarks, and cache hydration between shared clients.
+- Mobile theming, authentication state, and session management live in dedicated React Context providers to keep screens lightweight.
+- Write operations enforce HTTPS, rate limits, and HTML token parsing before hitting Hacker News, preventing leaked cookies and hard-to-debug failures.
+- Everything compiles against `tsconfig.base.json`, ensuring editor tooling, path aliases (`@/` and `@hn/`), and strict options stay in sync.
 
-1. Add the utility to `packages/shared/src/utils/`
-2. Export it from the utils index
-3. Use it across both apps
+## Docs & Roadmap
 
-## 🔧 Troubleshooting
+- `api-docs/` – in-progress reference material for Hacker News endpoints, Algolia search, and authentication flows.
+- `todo/` – backlog notes, prototypes, and follow-up tasks; add new ideas here instead of inline TODOs.
 
-### Workspace Dependencies Not Resolving
-```bash
-pnpm install
-```
-
-### Mobile App Build Issues
-```bash
-cd apps/mobile
-rm -rf node_modules .expo
-cd ../..
-pnpm install
-```
-
-### TypeScript Errors
-```bash
-pnpm typecheck
-```
-
-## 📄 License
+## License
 
 MIT
-
-## 🙏 Acknowledgments
-
-- [Hacker News API](https://github.com/HackerNews/API)
-- [Algolia HN Search](https://hn.algolia.com/api)
