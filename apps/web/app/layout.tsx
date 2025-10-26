@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { QueryProvider } from "./query-provider";
 import { ThemeProvider } from "./theme-provider";
 
 export const metadata: Metadata = {
@@ -21,7 +20,9 @@ export const metadata: Metadata = {
     "Android",
   ],
   authors: [{ name: "Hacker Reader Team" }],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
   openGraph: {
     title: "Hacker Reader - A Beautiful Hacker News Client",
     description:
@@ -62,7 +63,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>{children}</QueryProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>
