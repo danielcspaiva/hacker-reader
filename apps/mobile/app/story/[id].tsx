@@ -4,6 +4,7 @@ import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useBookmarkMutation, useIsBookmarked } from "@/hooks/use-bookmarks";
+import { useShareStory } from "@/hooks/use-share-story";
 import { useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { flattenComments } from "@/lib/utils/comments";
@@ -15,7 +16,6 @@ import {
   ActivityIndicator,
   Platform,
   Pressable,
-  Share,
   StyleSheet,
   View,
 } from "react-native";
@@ -43,22 +43,7 @@ export default function StoryDetailScreen() {
   // Bookmark state and mutation
   const { data: isBookmarked } = useIsBookmarked(Number(id));
   const bookmarkMutation = useBookmarkMutation();
-
-  const handleShare = async () => {
-    if (!story) return;
-
-    try {
-      const url =
-        story.url || `https://news.ycombinator.com/item?id=${story.id}`;
-      await Share.share({
-        message: Platform.OS === "ios" ? story.title : `${story.title}\n${url}`,
-        url: Platform.OS === "ios" ? url : undefined,
-        title: story.title,
-      });
-    } catch (error) {
-      console.error("Error sharing:", error);
-    }
-  };
+  const shareStory = useShareStory();
 
   const handleBookmark = () => {
     bookmarkMutation.mutate({
@@ -117,7 +102,11 @@ export default function StoryDetailScreen() {
                 weight={"medium"}
               />
             </Pressable>
-            <Pressable onPress={handleShare} style={styles.shareButton}>
+            <Pressable
+              onPress={() => story && shareStory(story)}
+              disabled={!story}
+              style={styles.shareButton}
+            >
               <IconSymbol
                 name="square.and.arrow.up"
                 size={22}

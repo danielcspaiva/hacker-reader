@@ -38,8 +38,8 @@ export function Skeleton({ width = '100%', height = 20, borderRadius = 4, style 
       style={[
         styles.container,
         {
-          width,
-          height,
+          width: typeof width === 'number' ? width : Number(width),
+          height: typeof height === 'number' ? height : Number(height),
           borderRadius,
           backgroundColor: borderColor,
         },

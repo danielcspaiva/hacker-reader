@@ -1,4 +1,4 @@
-import { CommentInput } from "@/components/comment-input";
+import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
@@ -7,8 +7,17 @@ import { comment } from "@hn/shared/api";
 import { isAuthError } from "@hn/shared/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GlassView } from "expo-glass-effect";
-import { useEffect, useState } from "react";
-import { Alert, Platform, Pressable, StyleSheet } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ReplyTarget {
@@ -28,14 +37,15 @@ export function StoryCommentInput({
   onCancelReply,
 }: StoryCommentInputProps) {
   const textColor = useThemeColor({}, "text");
-  const tintColor = useThemeColor({}, "tint");
   const { colorScheme } = useColorSchemeContext();
   const { session, isAuthenticated, logout } = useHNAuth();
   const queryClient = useQueryClient();
   const { bottom } = useSafeAreaInsets();
+  const isDark = colorScheme === "dark";
 
   const [commentText, setCommentText] = useState("");
   const [isCommentInputVisible, setIsCommentInputVisible] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   // Auto-show input when a reply target is set
   useEffect(() => {
@@ -43,6 +53,15 @@ export function StoryCommentInput({
       setIsCommentInputVisible(true);
     }
   }, [replyTarget]);
+
+  // Auto-focus input when it becomes visible
+  useEffect(() => {
+    if (isCommentInputVisible) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isCommentInputVisible]);
 
   // Determine parent ID based on whether we're replying to a comment or the story
   const parentId = replyTarget ? replyTarget.commentId : storyId;
@@ -99,10 +118,10 @@ export function StoryCommentInput({
   });
 
   const handlePostComment = () => {
-    if (!commentText.trim()) {
-      Alert.alert("Error", "Please enter a comment");
+    if (!commentText.trim() || commentMutation.isPending) {
       return;
     }
+    Keyboard.dismiss();
     commentMutation.mutate(commentText);
   };
 
@@ -114,9 +133,18 @@ export function StoryCommentInput({
     }
   };
 
+  const handleCancelReply = () => {
+    onCancelReply();
+    setCommentText(""); // Clear text when canceling reply
+  };
+
   if (!isAuthenticated) {
     return null;
   }
+
+  const placeholder = replyTarget
+    ? `Reply to ${replyTarget.username}...`
+    : "Add a comment...";
 
   return (
     <>
@@ -151,25 +179,83 @@ export function StoryCommentInput({
       )}
 
       {/* Comment Input */}
-      <CommentInput
-        visible={isCommentInputVisible}
-        value={commentText}
-        onChangeText={setCommentText}
-        onSubmit={handlePostComment}
-        onClose={handleCloseCommentInput}
-        isSubmitting={commentMutation.isPending}
-        replyContext={
-          replyTarget
-            ? {
-                username: replyTarget.username,
-                onCancel: () => {
-                  onCancelReply();
-                  setCommentText(""); // Clear text when canceling reply
-                },
-              }
-            : null
-        }
-      />
+      {isCommentInputVisible && (
+        <KeyboardAvoidingView
+          behavior="position"
+          keyboardVerticalOffset={0}
+          contentContainerStyle={styles.keyboardAvoidingContainer}
+        >
+          <GlassView
+            glassEffectStyle="regular"
+            style={[
+              styles.inputContainer,
+              {
+                paddingBottom: Platform.select({
+                  ios: bottom || 8,
+                  android: 8,
+                  default: 8,
+                }),
+              },
+            ]}
+          >
+            {/* Reply Context Header */}
+            {replyTarget && (
+              <View style={styles.replyContextHeader}>
+                <ThemedText type="caption" style={styles.replyContextText}>
+                  Replying to {replyTarget.username}
+                </ThemedText>
+                <Pressable
+                  onPress={handleCancelReply}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <IconSymbol
+                    name="xmark.circle.fill"
+                    size={18}
+                    color={textColor}
+                    weight="medium"
+                  />
+                </Pressable>
+              </View>
+            )}
+
+            <View style={styles.inputRow}>
+              <TextInput
+                ref={inputRef}
+                style={[
+                  styles.input,
+                  {
+                    color: textColor,
+                  },
+                ]}
+                placeholder={placeholder}
+                placeholderTextColor={isDark ? "#8E8E93" : "#8E8E93"}
+                value={commentText}
+                onChangeText={setCommentText}
+                multiline
+                maxLength={5000}
+                editable={!commentMutation.isPending}
+                returnKeyType="default"
+              />
+
+              <Pressable
+                onPress={handlePostComment}
+                disabled={!commentText.trim() || commentMutation.isPending}
+                style={styles.sendButton}
+              >
+                {commentMutation.isPending ? (
+                  <ThemedText style={styles.sendButtonText}>...</ThemedText>
+                ) : (
+                  <IconSymbol
+                    name="paperplane.fill"
+                    size={20}
+                    color={!commentText.trim() ? `${textColor}40` : "#FF6600"}
+                  />
+                )}
+              </Pressable>
+            </View>
+          </GlassView>
+        </KeyboardAvoidingView>
+      )}
     </>
   );
 }
@@ -187,5 +273,56 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
+  },
+  keyboardAvoidingContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  inputContainer: {
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    marginHorizontal: 4,
+    marginBottom: 8,
+    borderRadius: 28,
+  },
+  replyContextHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 4,
+  },
+  replyContextText: {
+    opacity: 0.7,
+    fontWeight: "500",
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    paddingLeft: 12,
+    paddingRight: 4,
+    paddingVertical: 4,
+    gap: 8,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 4,
+    paddingVertical: 8,
+    fontSize: 17,
+    minHeight: 36,
+    maxHeight: 120,
+  },
+  sendButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 2,
+  },
+  sendButtonText: {
+    fontSize: 16,
   },
 });
