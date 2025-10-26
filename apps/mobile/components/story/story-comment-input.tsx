@@ -10,6 +10,7 @@ import { GlassView } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Animated,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -47,6 +48,12 @@ export function StoryCommentInput({
   const [isCommentInputVisible, setIsCommentInputVisible] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
+  // Animation values
+  const buttonOpacity = useRef(new Animated.Value(1)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+  const inputOpacity = useRef(new Animated.Value(0)).current;
+  const inputTranslateY = useRef(new Animated.Value(20)).current;
+
   // Auto-show input when a reply target is set
   useEffect(() => {
     if (replyTarget) {
@@ -54,14 +61,65 @@ export function StoryCommentInput({
     }
   }, [replyTarget]);
 
-  // Auto-focus input when it becomes visible
+  // Handle animations when input visibility changes
   useEffect(() => {
     if (isCommentInputVisible) {
+      // Animate button out and input in
+      Animated.parallel([
+        Animated.timing(buttonOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(buttonScale, {
+          toValue: 0.8,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(inputOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(inputTranslateY, {
+          toValue: 0,
+          tension: 80,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Focus input after animation starts
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
+    } else {
+      // Animate input out and button in
+      Animated.parallel([
+        Animated.timing(inputOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(inputTranslateY, {
+          toValue: 20,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(buttonOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(buttonScale, {
+          toValue: 1,
+          tension: 80,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }, [isCommentInputVisible]);
+  }, [isCommentInputVisible, buttonOpacity, buttonScale, inputOpacity, inputTranslateY]);
 
   // Determine parent ID based on whether we're replying to a comment or the story
   const parentId = replyTarget ? replyTarget.commentId : storyId;
@@ -133,11 +191,6 @@ export function StoryCommentInput({
     }
   };
 
-  const handleCancelReply = () => {
-    onCancelReply();
-    setCommentText(""); // Clear text when canceling reply
-  };
-
   if (!isAuthenticated) {
     return null;
   }
@@ -149,20 +202,25 @@ export function StoryCommentInput({
   return (
     <>
       {/* Floating comment button */}
-      {!isCommentInputVisible && (
+      <Animated.View
+        pointerEvents={isCommentInputVisible ? "none" : "auto"}
+        style={[
+          styles.floatingButtonContainer,
+          {
+            bottom: Platform.select({
+              ios: bottom + 16,
+              android: bottom + 16,
+              default: 16,
+            }),
+            opacity: buttonOpacity,
+            transform: [{ scale: buttonScale }],
+          },
+        ]}
+      >
         <GlassView
           glassEffectStyle="clear"
           isInteractive
-          style={[
-            styles.floatingButtonContainer,
-            {
-              bottom: Platform.select({
-                ios: bottom + 16,
-                android: bottom + 16,
-                default: 16,
-              }),
-            },
-          ]}
+          style={styles.floatingButtonGlass}
         >
           <Pressable
             onPress={() => setIsCommentInputVisible(true)}
@@ -176,14 +234,23 @@ export function StoryCommentInput({
             />
           </Pressable>
         </GlassView>
-      )}
+      </Animated.View>
 
       {/* Comment Input */}
-      {isCommentInputVisible && (
-        <KeyboardAvoidingView
-          behavior="position"
-          keyboardVerticalOffset={0}
-          contentContainerStyle={styles.keyboardAvoidingContainer}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={0}
+        style={styles.keyboardAvoidingContainer}
+      >
+        <Animated.View
+          pointerEvents={isCommentInputVisible ? "auto" : "none"}
+          style={[
+            styles.inputAnimatedContainer,
+            {
+              opacity: inputOpacity,
+              transform: [{ translateY: inputTranslateY }],
+            },
+          ]}
         >
           <GlassView
             glassEffectStyle="regular"
@@ -198,25 +265,28 @@ export function StoryCommentInput({
               },
             ]}
           >
-            {/* Reply Context Header */}
-            {replyTarget && (
-              <View style={styles.replyContextHeader}>
+            {/* Header with close button */}
+            <View style={styles.inputHeader}>
+              {replyTarget ? (
                 <ThemedText type="caption" style={styles.replyContextText}>
                   Replying to {replyTarget.username}
                 </ThemedText>
-                <Pressable
-                  onPress={handleCancelReply}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <IconSymbol
-                    name="xmark.circle.fill"
-                    size={18}
-                    color={textColor}
-                    weight="medium"
-                  />
-                </Pressable>
-              </View>
-            )}
+              ) : (
+                <View style={styles.spacer} />
+              )}
+              <Pressable
+                onPress={handleCloseCommentInput}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={styles.closeButton}
+              >
+                <IconSymbol
+                  name="xmark"
+                  size={16}
+                  color={`${textColor}40`}
+                  weight="medium"
+                />
+              </Pressable>
+            </View>
 
             <View style={styles.inputRow}>
               <TextInput
@@ -254,8 +324,8 @@ export function StoryCommentInput({
               </Pressable>
             </View>
           </GlassView>
-        </KeyboardAvoidingView>
-      )}
+        </Animated.View>
+      </KeyboardAvoidingView>
     </>
   );
 }
@@ -265,6 +335,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 16,
     zIndex: 100,
+  },
+  floatingButtonGlass: {
     borderRadius: 28,
   },
   floatingButton: {
@@ -279,38 +351,49 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    zIndex: 99,
+  },
+  inputAnimatedContainer: {
+    width: "100%",
   },
   inputContainer: {
     paddingHorizontal: 8,
-    paddingTop: 8,
     marginHorizontal: 4,
-    marginBottom: 8,
     borderRadius: 28,
+    marginBottom: 6,
   },
-  replyContextHeader: {
+  inputHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    paddingLeft: 16,
+    paddingRight: 4,
     paddingVertical: 8,
     marginBottom: 4,
   },
   replyContextText: {
     opacity: 0.7,
     fontWeight: "500",
+    flex: 1,
+  },
+  spacer: {
+    flex: 1,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputRow: {
     flexDirection: "row",
     alignItems: "flex-end",
     paddingLeft: 12,
     paddingRight: 4,
-    paddingVertical: 4,
     gap: 8,
   },
   input: {
     flex: 1,
-    paddingHorizontal: 4,
-    paddingVertical: 8,
     fontSize: 17,
     minHeight: 36,
     maxHeight: 120,
