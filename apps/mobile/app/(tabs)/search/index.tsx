@@ -1,21 +1,21 @@
-import { FlashList } from '@shopify/flash-list';
-import { useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FlashList } from "@shopify/flash-list";
+import { useLocalSearchParams } from "expo-router";
+import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { StoryCard } from '@/components/story-card';
-import { ThemedText } from '@/components/themed-text';
-import { useSearchStories } from '@/hooks/use-search-stories';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import type { HNItem } from '@hn/shared';
+import { StoryCard } from "@/components/story-card";
+import { ThemedText } from "@/components/themed-text";
+import { useSearchStories } from "@/hooks/use-search-stories";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import type { HNItem } from "@hn/shared";
 
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
   const { bottom } = useSafeAreaInsets();
-  const textColor = useThemeColor({}, 'text');
+  const textColor = useThemeColor({}, "text");
 
   const queryParam = params?.q;
-  const rawQuery = Array.isArray(queryParam) ? queryParam[0] : queryParam ?? '';
+  const rawQuery = Array.isArray(queryParam) ? queryParam[0] : queryParam ?? "";
   const trimmedQuery = rawQuery.trim();
   const isQueryEmpty = trimmedQuery.length === 0;
 
@@ -62,61 +62,67 @@ export default function SearchScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <FlashList<HNItem>
-        data={stories}
-        renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
-        keyExtractor={(item) => item.id.toString()}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={[
-          styles.listContent,
-          {
-            paddingBottom: Platform.select({
-              android: 100 + bottom,
-              default: bottom,
-            }),
-          },
-        ]}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="handled"
-        ListHeaderComponent={
-          <View style={styles.helperContainer}>
-            <ThemedText style={styles.helperText}>
-              Showing results for{' '}
-              <ThemedText style={styles.helperHighlight}>{trimmedQuery}</ThemedText>
+    <FlashList<HNItem>
+      data={stories}
+      renderItem={({ item, index }) => (
+        <StoryCard story={item} index={index + 1} />
+      )}
+      keyExtractor={(item) => item.id.toString()}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[
+        styles.listContent,
+        {
+          paddingBottom: Platform.select({
+            android: 100 + bottom,
+            default: bottom,
+          }),
+        },
+      ]}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      ListHeaderComponent={
+        <View style={styles.helperContainer}>
+          <ThemedText style={styles.helperText}>
+            Showing results for{" "}
+            <ThemedText style={styles.helperHighlight}>
+              {trimmedQuery}
             </ThemedText>
-          </View>
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <ThemedText>
-              No stories match &quot;<ThemedText style={styles.helperHighlight}>{trimmedQuery}</ThemedText>&quot;.
+          </ThemedText>
+        </View>
+      }
+      ListEmptyComponent={
+        <View style={styles.emptyState}>
+          <ThemedText>
+            No stories match &quot;
+            <ThemedText style={styles.helperHighlight}>
+              {trimmedQuery}
             </ThemedText>
+            &quot;.
+          </ThemedText>
+        </View>
+      }
+      ListFooterComponent={
+        isFetchingNextPage ? (
+          <View style={styles.footer}>
+            <ActivityIndicator size="small" color={textColor} />
           </View>
+        ) : null
+      }
+      onEndReached={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
         }
-        ListFooterComponent={
-          isFetchingNextPage ? (
-            <View style={styles.footer}>
-              <ActivityIndicator size="small" color={textColor} />
-            </View>
-          ) : null
+      }}
+      onEndReachedThreshold={0.5}
+      onRefresh={() => {
+        // Only trigger refetch if not already loading or refetching
+        if (!isLoading && !isRefetching) {
+          refetch();
         }
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        onRefresh={() => {
-          // Only trigger refetch if not already loading or refetching
-          if (!isLoading && !isRefetching) {
-            refetch();
-          }
-        }}
-        refreshing={isRefetching}
-        // onScrollBeginDrag={() => Keyboard.dismiss()}
-      />
-    </View>
+      }}
+      refreshing={isRefetching}
+      // onScrollBeginDrag={() => Keyboard.dismiss()}
+    />
   );
 }
 
@@ -126,8 +132,8 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   listContent: {
     paddingTop: 12,
@@ -141,16 +147,16 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   helperHighlight: {
-    fontWeight: '600',
+    fontWeight: "600",
   },
   emptyState: {
     paddingHorizontal: 16,
     paddingVertical: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footer: {
     paddingVertical: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   placeholder: {
     paddingHorizontal: 24,
@@ -158,7 +164,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.7,
   },
 });

@@ -1,12 +1,13 @@
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { comment } from "@hn/shared/api";
 import { isAuthError } from "@hn/shared/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GlassView } from "expo-glass-effect";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -38,11 +39,20 @@ export function StoryCommentInput({
   onCancelReply,
 }: StoryCommentInputProps) {
   const textColor = useThemeColor({}, "text");
-  const { colorScheme } = useColorSchemeContext();
+  const { colorScheme, colorPalette } = useColorSchemeContext();
   const { session, isAuthenticated, logout } = useHNAuth();
   const queryClient = useQueryClient();
   const { bottom } = useSafeAreaInsets();
   const isDark = colorScheme === "dark";
+  const hasLiquidGlass = isLiquidGlassAvailable();
+  const backgroundColor =
+    colorScheme === "dark"
+      ? Colors.dark[colorPalette].background
+      : Colors.light[colorPalette].background;
+  const borderColor =
+    colorScheme === "dark"
+      ? Colors.dark[colorPalette].border
+      : Colors.light[colorPalette].border;
 
   const [commentText, setCommentText] = useState("");
   const [isCommentInputVisible, setIsCommentInputVisible] = useState(false);
@@ -220,7 +230,14 @@ export function StoryCommentInput({
         <GlassView
           glassEffectStyle="clear"
           isInteractive
-          style={styles.floatingButtonGlass}
+          style={[
+            styles.floatingButtonGlass,
+            !hasLiquidGlass && {
+              backgroundColor,
+              borderWidth: 1,
+              borderColor,
+            },
+          ]}
         >
           <Pressable
             onPress={() => setIsCommentInputVisible(true)}
@@ -262,6 +279,11 @@ export function StoryCommentInput({
                   android: 8,
                   default: 8,
                 }),
+              },
+              !hasLiquidGlass && {
+                backgroundColor,
+                borderWidth: 1,
+                borderColor,
               },
             ]}
           >

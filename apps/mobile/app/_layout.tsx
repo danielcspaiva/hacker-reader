@@ -4,14 +4,17 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { Colors } from "@/constants/theme";
-import { ColorSchemeProvider, useColorSchemeContext } from "@/contexts/color-scheme-context";
+import {
+  ColorSchemeProvider,
+  useColorSchemeContext,
+} from "@/contexts/color-scheme-context";
 import { HNAuthProvider } from "@/contexts/hn-auth-context";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -31,6 +34,8 @@ const queryClient = new QueryClient({
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
+  console.log("colorPalette", colorPalette);
+  console.log("colorScheme", colorScheme);
 
   const customDarkTheme = {
     ...DarkTheme,
@@ -62,7 +67,10 @@ function RootLayoutContent() {
         screenOptions={{
           headerShown: false,
           contentStyle: {
-            backgroundColor: colorScheme === "dark" ? Colors.dark[colorPalette].background : Colors.light[colorPalette].background,
+            backgroundColor:
+              colorScheme === "dark"
+                ? Colors.dark[colorPalette].background
+                : Colors.light[colorPalette].background,
           },
         }}
       >
@@ -73,14 +81,28 @@ function RootLayoutContent() {
             headerShown: true,
             headerTransparent: true,
             headerBackButtonDisplayMode: "minimal",
-            headerLargeTitle: isLiquidGlassAvailable() ? true : false,
+            headerLargeTitle: true,
             headerLargeTitleShadowVisible: false,
+            headerBlurEffect: isLiquidGlassAvailable()
+              ? "none"
+              : "systemMaterial",
             headerLargeTitleStyle: {
               color:
                 colorScheme === "dark"
                   ? Colors.dark[colorPalette].background
                   : Colors.light[colorPalette].background,
               fontSize: 1,
+            },
+            headerTintColor:
+              colorScheme === "dark"
+                ? Colors.dark[colorPalette].text
+                : Colors.light[colorPalette].text,
+            headerStyle: {
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : colorScheme === "dark"
+                ? Colors.dark[colorPalette].background
+                : Colors.light[colorPalette].background,
             },
           }}
         />
