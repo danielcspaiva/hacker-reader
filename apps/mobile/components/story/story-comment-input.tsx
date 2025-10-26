@@ -11,7 +11,6 @@ import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
-  Animated,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -58,12 +57,6 @@ export function StoryCommentInput({
   const [isCommentInputVisible, setIsCommentInputVisible] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  // Animation values
-  const buttonOpacity = useRef(new Animated.Value(1)).current;
-  const buttonScale = useRef(new Animated.Value(1)).current;
-  const inputOpacity = useRef(new Animated.Value(0)).current;
-  const inputTranslateY = useRef(new Animated.Value(20)).current;
-
   // Auto-show input when a reply target is set
   useEffect(() => {
     if (replyTarget) {
@@ -71,65 +64,14 @@ export function StoryCommentInput({
     }
   }, [replyTarget]);
 
-  // Handle animations when input visibility changes
+  // Focus input when it becomes visible
   useEffect(() => {
     if (isCommentInputVisible) {
-      // Animate button out and input in
-      Animated.parallel([
-        Animated.timing(buttonOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(buttonScale, {
-          toValue: 0.8,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(inputOpacity, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.spring(inputTranslateY, {
-          toValue: 0,
-          tension: 80,
-          friction: 10,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
-      // Focus input after animation starts
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
-    } else {
-      // Animate input out and button in
-      Animated.parallel([
-        Animated.timing(inputOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(inputTranslateY, {
-          toValue: 20,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(buttonOpacity, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.spring(buttonScale, {
-          toValue: 1,
-          tension: 80,
-          friction: 10,
-          useNativeDriver: true,
-        }),
-      ]).start();
     }
-  }, [isCommentInputVisible, buttonOpacity, buttonScale, inputOpacity, inputTranslateY]);
+  }, [isCommentInputVisible]);
 
   // Determine parent ID based on whether we're replying to a comment or the story
   const parentId = replyTarget ? replyTarget.commentId : storyId;
@@ -212,21 +154,19 @@ export function StoryCommentInput({
   return (
     <>
       {/* Floating comment button */}
-      <Animated.View
-        pointerEvents={isCommentInputVisible ? "none" : "auto"}
-        style={[
-          styles.floatingButtonContainer,
-          {
-            bottom: Platform.select({
-              ios: bottom + 16,
-              android: bottom + 16,
-              default: 16,
-            }),
-            opacity: buttonOpacity,
-            transform: [{ scale: buttonScale }],
-          },
-        ]}
-      >
+      {!isCommentInputVisible && (
+        <View
+          style={[
+            styles.floatingButtonContainer,
+            {
+              bottom: Platform.select({
+                ios: bottom + 16,
+                android: bottom + 16,
+                default: 16,
+              }),
+            },
+          ]}
+        >
         <GlassView
           glassEffectStyle="clear"
           isInteractive
@@ -251,23 +191,15 @@ export function StoryCommentInput({
             />
           </Pressable>
         </GlassView>
-      </Animated.View>
+        </View>
+      )}
 
       {/* Comment Input */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={0}
-        style={styles.keyboardAvoidingContainer}
-      >
-        <Animated.View
-          pointerEvents={isCommentInputVisible ? "auto" : "none"}
-          style={[
-            styles.inputAnimatedContainer,
-            {
-              opacity: inputOpacity,
-              transform: [{ translateY: inputTranslateY }],
-            },
-          ]}
+      {isCommentInputVisible && (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={0}
+          style={styles.keyboardAvoidingContainer}
         >
           <GlassView
             glassEffectStyle="regular"
@@ -327,6 +259,7 @@ export function StoryCommentInput({
                 maxLength={5000}
                 editable={!commentMutation.isPending}
                 returnKeyType="default"
+                keyboardAppearance={colorScheme}
               />
 
               <Pressable
@@ -346,8 +279,8 @@ export function StoryCommentInput({
               </Pressable>
             </View>
           </GlassView>
-        </Animated.View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      )}
     </>
   );
 }
@@ -374,9 +307,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 99,
-  },
-  inputAnimatedContainer: {
-    width: "100%",
   },
   inputContainer: {
     paddingHorizontal: 8,

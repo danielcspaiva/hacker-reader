@@ -1632,6 +1632,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - react-native-user-interface-style (1.0.8):
+    - React
   - react-native-webview (13.16.0):
     - hermes-engine
     - RCTRequired
@@ -2317,6 +2319,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../../../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - "react-native-cookies (from `../../../node_modules/@react-native-cookies/cookies`)"
   - react-native-safe-area-context (from `../../../node_modules/react-native-safe-area-context`)
+  - react-native-user-interface-style (from `../../../node_modules/react-native-user-interface-style`)
   - react-native-webview (from `../../../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../../../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../../../node_modules/react-native/ReactCommon/oscompat`)
@@ -2492,6 +2495,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/@react-native-cookies/cookies"
   react-native-safe-area-context:
     :path: "../../../node_modules/react-native-safe-area-context"
+  react-native-user-interface-style:
+    :path: "../../../node_modules/react-native-user-interface-style"
   react-native-webview:
     :path: "../../../node_modules/react-native-webview"
   React-NativeModulesApple:
@@ -2635,6 +2640,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 76905804171d8ccbe69329fc84c57eb7934add7f
   react-native-cookies: d648ab7025833b977c0b19e142503034f5f29411
   react-native-safe-area-context: 42a1b4f8774b577d03b53de7326e3d5757fe9513
+  react-native-user-interface-style: 645ece2219923e79f6f0a6cb4a50355b518fee1e
   react-native-webview: 3e303e80cadb5f17118c8c1502aa398e9287e415
   React-NativeModulesApple: a9464983ccc0f66f45e93558671f60fc7536e438
   React-oscompat: 73db7dbc80edef36a9d6ed3c6c4e1724ead4236d

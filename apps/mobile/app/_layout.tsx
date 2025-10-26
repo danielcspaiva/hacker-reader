@@ -34,8 +34,6 @@ const queryClient = new QueryClient({
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
-  console.log("colorPalette", colorPalette);
-  console.log("colorScheme", colorScheme);
 
   const customDarkTheme = {
     ...DarkTheme,
