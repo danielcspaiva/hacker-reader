@@ -23,16 +23,6 @@ export default function Layout() {
           },
         }}
       />
-      <Stack.Screen
-        name="login"
-        options={{
-          presentation: "formSheet",
-          title: "Login to Hacker News",
-          headerLargeTitle: false,
-          headerTransparent: false,
-          headerBlurEffect: "systemMaterial",
-        }}
-      />
     </Stack>
   );
 }

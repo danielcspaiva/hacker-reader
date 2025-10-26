@@ -70,6 +70,64 @@ function extractAllMetaTags(html: string): Record<string, string> {
   return metaTags;
 }
 
+function resolveImageUrl(baseUrl: string, imagePath: string): string | null {
+  try {
+    if (!imagePath) {
+      return null;
+    }
+
+    if (imagePath.startsWith('//')) {
+      return new URL(`https:${imagePath}`).toString();
+    }
+
+    return new URL(imagePath, baseUrl).toString();
+  } catch {
+    return null;
+  }
+}
+
+async function validateImageUrl(
+  imageUrl: string,
+  parentSignal?: AbortSignal
+): Promise<boolean> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+  const abortFromParent = () => controller.abort();
+  if (parentSignal) {
+    if (parentSignal.aborted) {
+      controller.abort();
+    } else {
+      parentSignal.addEventListener('abort', abortFromParent);
+    }
+  }
+
+  try {
+    const response = await fetch(imageUrl, {
+      method: 'HEAD',
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType) {
+      return false;
+    }
+
+    return contentType.startsWith('image/');
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+    if (parentSignal) {
+      parentSignal.removeEventListener('abort', abortFromParent);
+    }
+  }
+}
+
 export async function fetchOGMetadata(
   url: string,
   signal?: AbortSignal
@@ -112,19 +170,27 @@ export async function fetchOGMetadata(
     const metaTags = extractAllMetaTags(headContent);
 
     // Get OG tags with Twitter fallbacks
-    let image = metaTags['og:image'] || metaTags['twitter:image'];
+    const rawImage = metaTags['og:image'] || metaTags['twitter:image'];
     const title = metaTags['og:title'] || metaTags['twitter:title'];
     const description = metaTags['og:description'] || metaTags['twitter:description'] || metaTags['description'];
     const siteName = metaTags['og:site_name'];
 
-    // Only return if we have at least an image
-    if (!image) {
-      return null;
+    let image = rawImage ? resolveImageUrl(url, rawImage) : null;
+
+    // Ensure image URLs are absolute and HTTPS
+    if (image?.startsWith('http://')) {
+      image = image.replace('http://', 'https://');
     }
 
-    // Upgrade HTTP image URLs to HTTPS for ATS/cleartext compatibility
-    if (image.startsWith('http://')) {
-      image = image.replace('http://', 'https://');
+    if (image) {
+      const isValid = await validateImageUrl(image, signal);
+      if (!isValid) {
+        image = null;
+      }
+    }
+
+    if (!image) {
+      return null;
     }
 
     const result: OGMetadata = { url, image };
