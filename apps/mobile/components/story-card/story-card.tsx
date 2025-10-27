@@ -8,7 +8,6 @@ import { getDomain, type HNItem } from '@hn/shared';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import { StoryCardMenu } from './story-card-menu';
 import { StoryCardMetadata } from './story-card-metadata';
 import { useStoryActions } from './use-story-actions';
 
@@ -78,7 +77,28 @@ export function StoryCard({ story, index }: StoryCardProps) {
         </Link.Trigger>
 
         {/* Context menu */}
-        <StoryCardMenu story={story} actions={actions} />
+        <Link.Menu>
+          {/* Vote action */}
+          <Link.MenuAction
+            title={actions.hasVoted ? 'Unvote' : 'Upvote'}
+            icon={actions.hasVoted ? 'arrowtriangle.up.fill' : 'arrowtriangle.up'}
+            onPress={actions.handleVote}
+          />
+
+          {/* Bookmark action */}
+          <Link.MenuAction
+            title={isBookmarked ? 'Remove Bookmark' : 'Bookmark'}
+            icon={isBookmarked ? 'bookmark.fill' : 'bookmark'}
+            onPress={() => actions.handleBookmark(isBookmarked)}
+          />
+
+          {/* Share action */}
+          <Link.MenuAction
+            title="Share"
+            icon="square.and.arrow.up"
+            onPress={actions.handleShare}
+          />
+        </Link.Menu>
 
         {/* Preview modal */}
         <Link.Preview />
