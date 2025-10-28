@@ -6,6 +6,8 @@
  */
 
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { EVENTS, EVENT_PROPERTIES } from '@/constants/analytics-events';
 import {
   clearCookieIntervalScript,
   getLoginPageScript,
@@ -30,6 +32,7 @@ interface HNLoginModalProps {
 export function HNLoginModal({ visible, onLoginSuccess, onCancel }: HNLoginModalProps) {
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
+  const analytics = useAnalytics();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasCapturedSession = useRef(false);
@@ -90,16 +93,30 @@ export function HNLoginModal({ visible, onLoginSuccess, onCancel }: HNLoginModal
 
         // Validate we got session cookie
         if (!cookieRecord['user']) {
-          setError('Login succeeded but no session cookie found');
+          const errorMsg = 'Login succeeded but no session cookie found';
+          setError(errorMsg);
           setLoading(false);
+
+          // Track login failure
+          analytics.track(EVENTS.LOGIN_FAILED, {
+            [EVENT_PROPERTIES.ERROR_TYPE]: 'no_session_cookie',
+            [EVENT_PROPERTIES.ERROR_MESSAGE]: errorMsg,
+          });
           return;
         }
 
         await completeLogin(cookieRecord);
       } catch (err) {
-        setError('Failed to extract login cookies');
+        const errorMsg = 'Failed to extract login cookies';
+        setError(errorMsg);
         setLoading(false);
         console.error('Cookie extraction error:', err);
+
+        // Track login failure
+        analytics.track(EVENTS.LOGIN_FAILED, {
+          [EVENT_PROPERTIES.ERROR_TYPE]: 'cookie_extraction_failed',
+          [EVENT_PROPERTIES.ERROR_MESSAGE]: err instanceof Error ? err.message : errorMsg,
+        });
       }
     }
   };

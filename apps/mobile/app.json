@@ -46,7 +46,8 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "posthog-react-native"
     ],
     "experiments": {
       "typedRoutes": true,

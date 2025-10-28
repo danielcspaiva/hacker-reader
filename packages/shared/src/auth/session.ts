@@ -43,6 +43,16 @@ export class SecureSession {
   }
 
   /**
+   * Get a stable user identifier from the session cookie
+   * Returns the user cookie value which serves as a unique identifier
+   *
+   * @returns User ID string or null if no valid session
+   */
+  getUserId(): string | null {
+    return this.cookies['user'] || null;
+  }
+
+  /**
    * Prevent accidental JSON.stringify exposure
    */
   toJSON() {
