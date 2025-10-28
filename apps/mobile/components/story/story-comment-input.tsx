@@ -1,8 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { EVENTS, EVENT_PROPERTIES } from "@/constants/analytics-events";
 import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { comment } from "@hn/shared/api";
 import { isAuthError } from "@hn/shared/auth";
@@ -41,6 +43,7 @@ export function StoryCommentInput({
   const { colorScheme, colorPalette } = useColorSchemeContext();
   const { session, isAuthenticated, logout } = useHNAuth();
   const queryClient = useQueryClient();
+  const analytics = useAnalytics();
   const { bottom } = useSafeAreaInsets();
   const isDark = colorScheme === "dark";
   const hasLiquidGlass = isLiquidGlassAvailable();
@@ -83,6 +86,13 @@ export function StoryCommentInput({
       await comment(parentId, text, session);
     },
     onSuccess: async () => {
+      // Track successful comment
+      analytics.track(EVENTS.COMMENT_POSTED, {
+        [EVENT_PROPERTIES.STORY_ID]: storyId,
+        [EVENT_PROPERTIES.PARENT_ID]: parentId,
+        [EVENT_PROPERTIES.COMMENT_DEPTH]: replyTarget ? 1 : 0,
+      });
+
       setCommentText("");
       setIsCommentInputVisible(false);
       if (replyTarget) {
@@ -96,6 +106,14 @@ export function StoryCommentInput({
       queryClient.invalidateQueries({ queryKey: ["story", storyId] });
     },
     onError: (error) => {
+      // Track comment failure
+      analytics.track(EVENTS.COMMENT_FAILED, {
+        [EVENT_PROPERTIES.STORY_ID]: storyId,
+        [EVENT_PROPERTIES.PARENT_ID]: parentId,
+        [EVENT_PROPERTIES.ERROR_TYPE]: isAuthError(error) ? error.code : 'unknown',
+        [EVENT_PROPERTIES.ERROR_MESSAGE]: error instanceof Error ? error.message : 'Unknown error',
+      });
+
       if (isAuthError(error)) {
         switch (error.code) {
           case "NOT_LOGGED_IN":
@@ -103,6 +121,7 @@ export function StoryCommentInput({
             Alert.alert("Session Expired", "Please log in again to continue", [
               { text: "OK" },
             ]);
+            analytics.track(EVENTS.SESSION_EXPIRED);
             break;
           case "RATE_LIMITED":
             Alert.alert(

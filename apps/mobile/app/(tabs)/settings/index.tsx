@@ -1,6 +1,8 @@
 import { HNLoginModal } from "@/components/auth";
+import { EVENTS } from "@/constants/analytics-events";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useClearCache } from "@/hooks/use-clear-cache";
@@ -21,6 +23,7 @@ export default function SettingsScreen() {
   const { colorScheme } = useColorSchemeContext();
   const { isAuthenticated } = useHNAuth();
   const textColor = useThemeColor({}, "text");
+  const analytics = useAnalytics();
 
   // Custom hooks for all business logic
   const { options, selectedIndex, handleOptionSelected } =
@@ -37,14 +40,34 @@ export default function SettingsScreen() {
   } = useHNLogin();
   const openLink = useExternalLink();
 
-  const handleOpenRepository = () => openLink(REPO_URL);
+  const handleOpenRepository = () => {
+    analytics.track(EVENTS.SOURCE_CODE_VIEWED);
+    openLink(REPO_URL);
+  };
+
   const handleRateApp = () => {
+    analytics.track(EVENTS.APP_RATED);
     const rateUrl = Platform.select({
       ios: IOS_APP_STORE_URL,
       android: ANDROID_PLAY_STORE_URL,
       default: IOS_APP_STORE_URL,
     });
     if (rateUrl) openLink(rateUrl);
+  };
+
+  const handleLoginWithTracking = () => {
+    analytics.track(EVENTS.LOGIN_INITIATED);
+    handleLogin();
+  };
+
+  const handleClearCacheWithTracking = () => {
+    analytics.track(EVENTS.CACHE_CLEARED);
+    handleClearCache();
+  };
+
+  const handleClearBookmarksWithTracking = () => {
+    analytics.track(EVENTS.BOOKMARKS_CLEARED);
+    handleClearBookmarks();
   };
 
   return (
@@ -76,7 +99,7 @@ export default function SettingsScreen() {
               </Button>
             ) : (
               <Button
-                onPress={handleLogin}
+                onPress={handleLoginWithTracking}
                 systemImage="person.badge.key"
                 modifiers={[foregroundStyle(textColor)]}
               >
@@ -96,14 +119,14 @@ export default function SettingsScreen() {
 
           <Section title="Data">
             <Button
-              onPress={handleClearCache}
+              onPress={handleClearCacheWithTracking}
               systemImage="arrow.clockwise"
               modifiers={[foregroundStyle(textColor)]}
             >
               Clear Cache
             </Button>
             <Button
-              onPress={handleClearBookmarks}
+              onPress={handleClearBookmarksWithTracking}
               role="destructive"
               systemImage="trash"
               disabled={isClearing}

@@ -1,12 +1,14 @@
 import { CategoryFilter, type Category } from "@/components/category-filter";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { ThemedText } from "@/components/themed-text";
+import { EVENTS, EVENT_PROPERTIES } from "@/constants/analytics-events";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { usePrefetchCategories, useStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { type HNItem } from "@hn/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -31,6 +33,8 @@ const HEADER_SCROLL_OFFSET = isLiquidGlassAvailable() ? 100 : 90;
 
 export default function FeedScreen() {
   const [category, setCategory] = useState<Category>("top");
+  const [previousCategory, setPreviousCategory] = useState<Category | null>(null);
+  const analytics = useAnalytics();
 
   const {
     data,
@@ -49,6 +53,17 @@ export default function FeedScreen() {
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
+
+  // Track category changes
+  useEffect(() => {
+    if (previousCategory !== null && previousCategory !== category) {
+      analytics.track(EVENTS.CATEGORY_CHANGED, {
+        [EVENT_PROPERTIES.CATEGORY]: category,
+        [EVENT_PROPERTIES.PREVIOUS_CATEGORY]: previousCategory,
+      });
+    }
+    setPreviousCategory(category);
+  }, [category, previousCategory, analytics]);
 
   // Animation setup for sticky header
   const flatListRef = useRef<FlatList>(null);
@@ -128,6 +143,13 @@ export default function FeedScreen() {
         refreshing={isRefetching}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
+            // Track infinite scroll event
+            analytics.track(EVENTS.INFINITE_SCROLL_TRIGGERED, {
+              [EVENT_PROPERTIES.CATEGORY]: category,
+              [EVENT_PROPERTIES.PAGE]: data?.pages.length ?? 0,
+              [EVENT_PROPERTIES.TOTAL_ITEMS_LOADED]: stories.length,
+            });
+
             fetchNextPage();
           }
         }}

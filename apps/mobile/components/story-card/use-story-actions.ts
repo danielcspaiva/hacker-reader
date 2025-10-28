@@ -1,7 +1,9 @@
+import { EVENTS, EVENT_PROPERTIES } from '@/constants/analytics-events';
 import { useHNAuth } from '@/contexts/hn-auth-context';
+import { useAnalytics } from '@/hooks/use-analytics';
 import { useBookmarkMutation } from '@/hooks/use-bookmarks';
 import { useShareStory } from '@/hooks/use-share-story';
-import { isAuthError, unvote, vote, type HNItem } from '@hn/shared';
+import { getDomain, isAuthError, unvote, vote, type HNItem } from '@hn/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Alert } from 'react-native';
@@ -49,7 +51,21 @@ export function useStoryActions(story: HNItem): StoryActions {
   const { session, isAuthenticated, logout } = useHNAuth();
   const bookmarkMutation = useBookmarkMutation();
   const shareStory = useShareStory();
+  const analytics = useAnalytics();
   const [hasVoted, setHasVoted] = useState(false);
+
+  // Helper to build story event properties
+  const getStoryProperties = () => ({
+    [EVENT_PROPERTIES.STORY_ID]: story.id,
+    [EVENT_PROPERTIES.STORY_TITLE]: story.title,
+    [EVENT_PROPERTIES.STORY_URL]: story.url,
+    [EVENT_PROPERTIES.STORY_DOMAIN]: getDomain(story.url),
+    [EVENT_PROPERTIES.STORY_SCORE]: story.score,
+    [EVENT_PROPERTIES.STORY_COMMENTS_COUNT]: story.descendants,
+    [EVENT_PROPERTIES.STORY_AUTHOR]: story.by,
+    [EVENT_PROPERTIES.STORY_TYPE]: story.type,
+    [EVENT_PROPERTIES.HAS_URL]: Boolean(story.url),
+  });
 
   // Vote mutation with optimistic updates
   const voteMutation = useMutation<
@@ -82,13 +98,20 @@ export function useStoryActions(story: HNItem): StoryActions {
       return { previousHasVoted: wasVoted, previousItem };
     },
 
-    onError: (error, _variables, context) => {
+    onError: (error, wasVoted, context) => {
       // Rollback optimistic update
       setHasVoted(context?.previousHasVoted ?? false);
 
       if (context?.previousItem) {
         queryClient.setQueryData(['item', story.id], context.previousItem);
       }
+
+      // Track vote failure
+      analytics.track(EVENTS.VOTE_FAILED, {
+        ...getStoryProperties(),
+        [EVENT_PROPERTIES.ERROR_TYPE]: isAuthError(error) ? error.code : 'unknown',
+        [EVENT_PROPERTIES.ERROR_MESSAGE]: error instanceof Error ? error.message : 'Unknown error',
+      });
 
       // Show appropriate error message
       if (isAuthError(error)) {
@@ -99,6 +122,7 @@ export function useStoryActions(story: HNItem): StoryActions {
             'Please log in again to continue',
             [{ text: 'OK' }]
           );
+          analytics.track(EVENTS.SESSION_EXPIRED);
         } else if (error.code === 'RATE_LIMITED') {
           Alert.alert(
             'Slow Down',
@@ -130,10 +154,23 @@ export function useStoryActions(story: HNItem): StoryActions {
       return;
     }
 
-    voteMutation.mutate(hasVoted);
+    // Track vote event
+    const wasVoted = hasVoted;
+    analytics.track(
+      wasVoted ? EVENTS.STORY_UNVOTED : EVENTS.STORY_UPVOTED,
+      getStoryProperties()
+    );
+
+    voteMutation.mutate(wasVoted);
   };
 
   const handleBookmark = (isBookmarked: boolean) => {
+    // Track bookmark event
+    analytics.track(
+      isBookmarked ? EVENTS.STORY_UNBOOKMARKED : EVENTS.STORY_BOOKMARKED,
+      getStoryProperties()
+    );
+
     bookmarkMutation.mutate({
       storyId: story.id,
       add: !isBookmarked,
@@ -141,6 +178,9 @@ export function useStoryActions(story: HNItem): StoryActions {
   };
 
   const handleShare = () => {
+    // Track share event
+    analytics.track(EVENTS.STORY_SHARED, getStoryProperties());
+
     shareStory(story);
   };
 

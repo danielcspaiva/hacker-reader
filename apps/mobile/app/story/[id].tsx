@@ -3,15 +3,18 @@ import { StoryCommentInput } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { EVENTS, EVENT_PROPERTIES } from "@/constants/analytics-events";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { useBookmarkMutation, useIsBookmarked } from "@/hooks/use-bookmarks";
 import { useShareStory } from "@/hooks/use-share-story";
 import { useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { flattenComments } from "@/lib/utils/comments";
+import { getDomain } from "@hn/shared";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -35,6 +38,7 @@ export default function StoryDetailScreen() {
 
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
+  const analytics = useAnalytics();
 
   const isInsidePreview = useIsPreview();
 
@@ -45,7 +49,34 @@ export default function StoryDetailScreen() {
   const bookmarkMutation = useBookmarkMutation();
   const shareStory = useShareStory();
 
+  // Track story opened event when story data loads
+  useEffect(() => {
+    if (story) {
+      analytics.track(EVENTS.STORY_OPENED, {
+        [EVENT_PROPERTIES.STORY_ID]: story.id,
+        [EVENT_PROPERTIES.STORY_TITLE]: story.title,
+        [EVENT_PROPERTIES.STORY_URL]: story.url,
+        [EVENT_PROPERTIES.STORY_DOMAIN]: getDomain(story.url),
+        [EVENT_PROPERTIES.STORY_SCORE]: story.score,
+        [EVENT_PROPERTIES.STORY_COMMENTS_COUNT]: story.descendants,
+        [EVENT_PROPERTIES.STORY_AUTHOR]: story.by,
+      });
+    }
+  }, [story, analytics]);
+
   const handleBookmark = () => {
+    // Track bookmark event
+    if (story) {
+      analytics.track(
+        isBookmarked ? EVENTS.STORY_UNBOOKMARKED : EVENTS.STORY_BOOKMARKED,
+        {
+          [EVENT_PROPERTIES.STORY_ID]: story.id,
+          [EVENT_PROPERTIES.STORY_TITLE]: story.title,
+          [EVENT_PROPERTIES.SOURCE]: 'story_detail',
+        }
+      );
+    }
+
     bookmarkMutation.mutate({
       storyId: Number(id),
       add: !isBookmarked,
@@ -69,16 +100,35 @@ export default function StoryDetailScreen() {
   const toggleCollapse = (commentId: number) => {
     setCollapsedIds((prev) => {
       const next = new Set(prev);
+      const isCollapsing = !next.has(commentId);
+
       if (next.has(commentId)) {
         next.delete(commentId);
       } else {
         next.add(commentId);
       }
+
+      // Track collapse/expand event
+      analytics.track(
+        isCollapsing ? EVENTS.COMMENT_COLLAPSED : EVENTS.COMMENT_VIEWED,
+        {
+          [EVENT_PROPERTIES.COMMENT_ID]: commentId,
+          [EVENT_PROPERTIES.STORY_ID]: Number(id),
+        }
+      );
+
       return next;
     });
   };
 
   const handleReply = (commentId: number, username: string) => {
+    // Track reply started event
+    analytics.track(EVENTS.COMMENT_REPLY_STARTED, {
+      [EVENT_PROPERTIES.COMMENT_ID]: commentId,
+      [EVENT_PROPERTIES.COMMENT_AUTHOR]: username,
+      [EVENT_PROPERTIES.STORY_ID]: Number(id),
+    });
+
     setReplyTarget({ commentId, username });
   };
 

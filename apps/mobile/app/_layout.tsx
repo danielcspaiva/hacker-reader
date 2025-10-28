@@ -4,8 +4,9 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, usePathname, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 
 import { Colors } from "@/constants/theme";
@@ -14,6 +15,8 @@ import {
   useColorSchemeContext,
 } from "@/contexts/color-scheme-context";
 import { HNAuthProvider } from "@/contexts/hn-auth-context";
+import { PostHogProvider } from "@/contexts/posthog-context";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export const unstable_settings = {
@@ -34,6 +37,31 @@ const queryClient = new QueryClient({
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
+  const analytics = useAnalytics();
+  const pathname = usePathname();
+  const segments = useSegments();
+  const previousPathname = useRef<string | null>(null);
+
+  // Track screen views when pathname changes
+  useEffect(() => {
+    if (pathname && pathname !== previousPathname.current) {
+      // Format screen name from pathname
+      const screenName = pathname === '/'
+        ? 'Home'
+        : pathname
+            .split('/')
+            .filter(Boolean)
+            .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
+            .join(' / ');
+
+      analytics.screen(screenName, {
+        path: pathname,
+        segments: segments.join('/'),
+      });
+
+      previousPathname.current = pathname;
+    }
+  }, [pathname, segments, analytics]);
 
   const customDarkTheme = {
     ...DarkTheme,
@@ -112,12 +140,14 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ColorSchemeProvider>
-        <HNAuthProvider>
-          <RootLayoutContent />
-        </HNAuthProvider>
-      </ColorSchemeProvider>
-    </QueryClientProvider>
+    <PostHogProvider>
+      <QueryClientProvider client={queryClient}>
+        <ColorSchemeProvider>
+          <HNAuthProvider>
+            <RootLayoutContent />
+          </HNAuthProvider>
+        </ColorSchemeProvider>
+      </QueryClientProvider>
+    </PostHogProvider>
   );
 }
