@@ -1,11 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Spacing } from "@/constants/theme";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { Spacing } from "@/constants/theme";
 import { timeAgo } from "@hn/shared";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -41,7 +42,9 @@ export function CommentItem({
       ]}
     >
       <View style={styles.header}>
-        <ThemedText type="bodySmall" style={styles.author}>{comment.by}</ThemedText>
+        <ThemedText type="bodySmall" style={styles.author}>
+          {comment.by}
+        </ThemedText>
         <ThemedText type="caption" style={styles.time}>
           {" "}
           • {timeAgo(comment.time)}
@@ -63,21 +66,28 @@ export function CommentItem({
         <>
           <HTMLText html={comment.text} style={styles.text} />
           {isAuthenticated && (
-            <TouchableOpacity
+            <Pressable
               onPress={() => onReply(comment.id, comment.by)}
-              style={styles.replyButton}
+              style={styles.replyButtonContainer}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <IconSymbol
-                name="arrowshape.turn.up.left"
-                size={14}
-                color={textColor}
-                weight="medium"
-              />
-              <ThemedText type="caption" style={styles.replyButtonText}>
-                Reply
-              </ThemedText>
-            </TouchableOpacity>
+              <GlassView
+                glassEffectStyle="regular"
+                style={[styles.replyButton, { borderColor }]}
+                isInteractive
+              >
+                <IconSymbol
+                  name="arrowshape.turn.up.left"
+                  size={14}
+                  color={textColor}
+                  weight="medium"
+                  style={{ opacity: 0.6 }}
+                />
+                <ThemedText type="caption" style={styles.replyButtonText}>
+                  Reply
+                </ThemedText>
+              </GlassView>
+            </Pressable>
           )}
         </>
       )}
@@ -105,12 +115,12 @@ const styles = StyleSheet.create({
   },
   nestedBorder: {
     paddingLeft: Spacing.md,
-    borderLeftWidth: 2,
+    borderLeftWidth: 1,
   },
   comment: {
     marginBottom: Spacing.lg,
     paddingLeft: Spacing.md,
-    borderLeftWidth: 2,
+    borderLeftWidth: 1,
   },
   header: {
     flexDirection: "row",
@@ -130,11 +140,18 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   replyButton: {
+    alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     marginTop: Spacing.xs,
     marginBottom: Spacing.sm,
+    padding: Spacing.sm,
+    borderRadius: 10,
+    borderWidth: isLiquidGlassAvailable() ? 0 : 1,
+  },
+  replyButtonContainer: {
+    alignSelf: "flex-start",
   },
   replyButtonText: {
     opacity: 0.6,

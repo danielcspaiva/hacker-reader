@@ -1,8 +1,9 @@
-import { useOGMetadata } from '@/hooks/use-og-metadata';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { Image } from 'expo-image';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { ThemedText } from './themed-text';
+import { useOGMetadata } from "@/hooks/use-og-metadata";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { Image } from "expo-image";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ThemedText } from "./themed-text";
 
 interface LinkPreviewProps {
   url: string;
@@ -11,15 +12,17 @@ interface LinkPreviewProps {
 
 export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
   const { data: metadata, isLoading } = useOGMetadata(url);
-  const borderColor = useThemeColor({}, 'border');
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
+  const borderColor = useThemeColor({}, "border");
+  const backgroundColor = useThemeColor({}, "background");
+  const textColor = useThemeColor({}, "text");
 
   if (isLoading) {
     if (compact) {
       return (
         <View style={styles.thumbnailContainer}>
-          <View style={[styles.thumbnailLoading, { borderColor, backgroundColor }]}>
+          <View
+            style={[styles.thumbnailLoading, { borderColor, backgroundColor }]}
+          >
             <ActivityIndicator size="small" color={textColor} />
           </View>
         </View>
@@ -54,7 +57,11 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
   }
 
   return (
-    <View style={[styles.container, { borderColor }]}>
+    <GlassView
+      glassEffectStyle="regular"
+      isInteractive
+      style={[styles.container, { borderColor }]}
+    >
       {metadata.image && (
         <Image
           source={{ uri: metadata.image }}
@@ -80,15 +87,15 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
           )}
         </View>
       )}
-    </View>
+    </GlassView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 8,
-    borderWidth: 1,
-    overflow: 'hidden',
+    borderRadius: 16,
+    borderWidth: isLiquidGlassAvailable() ? 0 : 1,
+    overflow: "hidden",
     marginTop: 8,
   },
   thumbnailContainer: {
@@ -105,25 +112,25 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 6,
     borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   image: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 2,
   },
   loadingContainer: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   textContainer: {
     padding: 12,
   },
   title: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 4,
     lineHeight: 20,
   },

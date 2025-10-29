@@ -1,15 +1,16 @@
-import { LinkPreview } from '@/components/link-preview';
-import { ThemedText } from '@/components/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Spacing } from '@/constants/theme';
-import { useIsBookmarked } from '@/hooks/use-bookmarks';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { getDomain, type HNItem } from '@hn/shared';
-import { Image } from 'expo-image';
-import { Link } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
-import { StoryCardMetadata } from './story-card-metadata';
-import { useStoryActions } from './use-story-actions';
+import { LinkPreview } from "@/components/link-preview";
+import { ThemedText } from "@/components/themed-text";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Spacing } from "@/constants/theme";
+import { useIsBookmarked } from "@/hooks/use-bookmarks";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { getDomain, type HNItem } from "@hn/shared";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { Image } from "expo-image";
+import { Link } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { StoryCardMetadata } from "./story-card-metadata";
+import { useStoryActions } from "./use-story-actions";
 
 export interface StoryCardProps {
   story: HNItem;
@@ -25,20 +26,32 @@ export interface StoryCardProps {
 export function StoryCard({ story, index }: StoryCardProps) {
   const actions = useStoryActions(story);
   const { data: isBookmarked = false } = useIsBookmarked(story.id);
-  const borderColor = useThemeColor({}, 'border');
-  const textColor = useThemeColor({}, 'text');
+  const borderColor = useThemeColor({}, "border");
+  const textColor = useThemeColor({}, "text");
 
   const domain = getDomain(story.url);
 
   return (
-    <View style={[styles.container, { borderBottomColor: borderColor }]}>
-      <Link href={`/story/${story.id}?title=${encodeURIComponent(story.title || '')}`}>
+    <GlassView
+      glassEffectStyle="regular"
+      isInteractive
+      style={[styles.container, { borderColor }]}
+    >
+      <Link
+        href={`/story/${story.id}?title=${encodeURIComponent(
+          story.title || ""
+        )}`}
+      >
         <Link.Trigger>
           <View style={styles.header}>
             <View style={styles.content}>
               {/* Title with bookmark indicator */}
               <View style={styles.titleRow}>
-                <ThemedText type="bodyLarge" style={styles.title} numberOfLines={3}>
+                <ThemedText
+                  type="bodyLarge"
+                  style={styles.title}
+                  numberOfLines={3}
+                >
                   {story.title}
                 </ThemedText>
                 {isBookmarked && (
@@ -80,15 +93,17 @@ export function StoryCard({ story, index }: StoryCardProps) {
         <Link.Menu>
           {/* Vote action */}
           <Link.MenuAction
-            title={actions.hasVoted ? 'Unvote' : 'Upvote'}
-            icon={actions.hasVoted ? 'arrowtriangle.up.fill' : 'arrowtriangle.up'}
+            title={actions.hasVoted ? "Unvote" : "Upvote"}
+            icon={
+              actions.hasVoted ? "arrowtriangle.up.fill" : "arrowtriangle.up"
+            }
             onPress={actions.handleVote}
           />
 
           {/* Bookmark action */}
           <Link.MenuAction
-            title={isBookmarked ? 'Remove Bookmark' : 'Bookmark'}
-            icon={isBookmarked ? 'bookmark.fill' : 'bookmark'}
+            title={isBookmarked ? "Remove Bookmark" : "Bookmark"}
+            icon={isBookmarked ? "bookmark.fill" : "bookmark"}
             onPress={() => actions.handleBookmark(isBookmarked)}
           />
 
@@ -103,26 +118,33 @@ export function StoryCard({ story, index }: StoryCardProps) {
         {/* Preview modal */}
         <Link.Preview />
       </Link>
-    </View>
+    </GlassView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: Spacing.lg,
-    marginHorizontal: Spacing.lg,
-  },
+  container: isLiquidGlassAvailable()
+    ? {
+        borderRadius: 16,
+        padding: Spacing.lg,
+        marginHorizontal: Spacing.lg,
+        marginBottom: Spacing.lg,
+      }
+    : {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        paddingVertical: Spacing.lg,
+        marginHorizontal: Spacing.lg,
+      },
   header: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.md,
   },
   content: {
     flex: 1,
   },
   titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: Spacing.sm,
     marginBottom: Spacing.xs,
   },
@@ -134,8 +156,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   domainContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginBottom: Spacing.sm,
   },
@@ -147,4 +169,3 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
 });
-

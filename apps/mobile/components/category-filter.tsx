@@ -1,8 +1,6 @@
-import { Spacing } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { Host, Picker } from "@expo/ui/swift-ui";
-import { GlassView } from "expo-glass-effect";
+import { glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
@@ -26,7 +24,6 @@ export function CategoryFilter({
 }: CategoryFilterProps) {
   const categories = Object.keys(CATEGORY_LABELS) as Category[];
   const { colorScheme } = useColorSchemeContext();
-  const tintColor = useThemeColor({}, "tint");
   const selectedIndex = categories.findIndex((cat) => cat === category);
 
   const handleOptionSelected = (event: { nativeEvent: { index: number } }) => {
@@ -39,34 +36,26 @@ export function CategoryFilter({
   };
 
   return (
-    <View>
-      <GlassView
-        style={styles.glassView}
-      >
-        <Host
-          matchContents
-          colorScheme={colorScheme}
-        >
-          <Picker
-            options={categories.map((cat) => CATEGORY_LABELS[cat])}
-            selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
-            onOptionSelected={handleOptionSelected}
-            variant="segmented"
-          />
-        </Host>
-      </GlassView>
+    <View style={styles.container}>
+      <Host matchContents colorScheme={colorScheme}>
+        <Picker
+          options={categories.map((cat) => CATEGORY_LABELS[cat])}
+          selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
+          onOptionSelected={handleOptionSelected}
+          variant="segmented"
+          modifiers={[
+            glassEffect({
+              glass: { variant: "regular" },
+            }),
+          ]}
+        />
+      </Host>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  filterContainer: {
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
-    alignItems: "flex-start",
-  },
-  glassView: {
+  container: {
     borderRadius: 80,
     height: 32,
     marginHorizontal: 16,
