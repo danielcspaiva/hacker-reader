@@ -64,47 +64,38 @@ export default async function Image() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 8,
+            gap: 12,
           }}
         >
           <div
             style={{
-              fontSize: 80,
+              fontSize: 72,
               fontWeight: 700,
               color: "#1a1410",
               display: "flex",
-              letterSpacing: "-0.04em",
+              letterSpacing: "-0.03em",
+              textAlign: "center",
+              maxWidth: 1000,
             }}
           >
-            Hacker Reader
-          </div>
-          <div
-            style={{
-              fontSize: 64,
-              fontWeight: 700,
-              color: "#ff6600",
-              display: "flex",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Reimagined
+            Read Hacker News like it deserves.
           </div>
         </div>
 
         {/* Description */}
         <div
           style={{
-            fontSize: 30,
+            fontSize: 28,
             fontWeight: 600,
             color: "#665c4f",
-            marginTop: 40,
-            maxWidth: 900,
+            marginTop: 36,
+            maxWidth: 920,
             textAlign: "center",
             display: "flex",
             lineHeight: 1.5,
           }}
         >
-          A beautiful, native mobile experience for Hacker News
+          Browse stories, read comments, and stay up to date with the tech community.
         </div>
       </div>
     ),
