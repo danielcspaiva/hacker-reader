@@ -8,10 +8,10 @@ export function timeAgo(timestamp: number): string {
   const diff = now - timestamp;
 
   if (diff < 3600) {
-    return `${Math.floor(diff / 60)}m ago`;
+    return `${Math.floor(diff / 60)}m`;
   }
   if (diff < 86400) {
-    return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 3600)}h`;
   }
-  return `${Math.floor(diff / 86400)}d ago`;
+  return `${Math.floor(diff / 86400)}d`;
 }

@@ -1,8 +1,8 @@
-import { ThemedText } from '@/components/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { timeAgo, type HNItem } from '@hn/shared';
-import { StyleSheet, View } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { timeAgo, type HNItem } from "@hn/shared";
+import { StyleSheet, View } from "react-native";
 
 interface StoryCardMetadataProps {
   story: HNItem;
@@ -13,13 +13,13 @@ interface StoryCardMetadataProps {
  * Story metadata display (points, author, time, comments)
  */
 export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
-  const iconColor = useThemeColor({}, 'icon');
+  const iconColor = useThemeColor({}, "icon");
 
   return (
     <View style={styles.metadata}>
       <View style={styles.metadataItem}>
         <IconSymbol
-          name={hasVoted ? 'arrowtriangle.up.fill' : 'arrowtriangle.up'}
+          name={hasVoted ? "arrowtriangle.up.fill" : "arrowtriangle.up"}
           size={13}
           color={iconColor}
         />
@@ -29,8 +29,8 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
       </View>
 
       <ThemedText type="bodySmall" style={styles.metadataText}>
-        {' '}
-        •{' '}
+        {" "}
+        •{" "}
       </ThemedText>
 
       <View style={styles.metadataItem}>
@@ -41,8 +41,8 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
       </View>
 
       <ThemedText type="bodySmall" style={styles.metadataText}>
-        {' '}
-        •{' '}
+        {" "}
+        •{" "}
       </ThemedText>
 
       <View style={styles.metadataItem}>
@@ -53,8 +53,8 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
       </View>
 
       <ThemedText type="bodySmall" style={styles.metadataText}>
-        {' '}
-        •{' '}
+        {" "}
+        •{" "}
       </ThemedText>
 
       <View style={styles.metadataItem}>
@@ -73,17 +73,17 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
 
 const styles = StyleSheet.create({
   metadata: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
+    marginTop: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
   },
   metadataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   metadataText: {
     opacity: 0.6,
   },
 });
-

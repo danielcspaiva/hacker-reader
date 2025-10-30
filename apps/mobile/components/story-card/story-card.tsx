@@ -45,46 +45,48 @@ export function StoryCard({ story, index }: StoryCardProps) {
         <Link.Trigger>
           <View style={styles.header}>
             <View style={styles.content}>
-              {/* Title with bookmark indicator */}
-              <View style={styles.titleRow}>
-                <ThemedText
-                  type="bodyLarge"
-                  style={styles.title}
-                  numberOfLines={3}
-                >
-                  {story.title}
-                </ThemedText>
-                {isBookmarked && (
-                  <IconSymbol
-                    name="bookmark.fill"
-                    size={16}
-                    color={textColor}
-                    style={styles.bookmarkIndicator}
-                  />
+              <View style={styles.topSection}>
+                {/* Title with bookmark indicator */}
+                <View style={styles.titleRow}>
+                  <ThemedText
+                    type="bodyLarge"
+                    style={styles.title}
+                    numberOfLines={2}
+                  >
+                    {story.title}
+                  </ThemedText>
+                  {isBookmarked && (
+                    <IconSymbol
+                      name="bookmark.fill"
+                      size={16}
+                      color={textColor}
+                      style={styles.bookmarkIndicator}
+                    />
+                  )}
+                </View>
+
+                {/* Domain */}
+                {domain && (
+                  <View style={styles.domainContainer}>
+                    <Image
+                      source={{
+                        uri: `https://www.google.com/s2/favicons?domain=${domain}&sz=16`,
+                      }}
+                      style={styles.favicon}
+                      contentFit="contain"
+                    />
+                    <ThemedText type="caption" style={styles.domain}>
+                      {domain}
+                    </ThemedText>
+                  </View>
                 )}
               </View>
-
-              {/* Domain with favicon */}
-              {domain && (
-                <View style={styles.domainContainer}>
-                  <Image
-                    source={{
-                      uri: `https://www.google.com/s2/favicons?domain=${domain}&sz=16`,
-                    }}
-                    style={styles.favicon}
-                    contentFit="contain"
-                  />
-                  <ThemedText type="caption" style={styles.domain}>
-                    {domain}
-                  </ThemedText>
-                </View>
-              )}
 
               {/* Metadata */}
               <StoryCardMetadata story={story} hasVoted={actions.hasVoted} />
             </View>
 
-            {/* Link preview (if URL exists) */}
+            {/* Link preview */}
             {story.url && <LinkPreview url={story.url} compact />}
           </View>
         </Link.Trigger>
@@ -139,6 +141,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    justifyContent: "space-between",
+    minHeight: 70,
+  },
+  topSection: {
+    flexShrink: 1,
   },
   titleRow: {
     flexDirection: "row",
@@ -157,11 +164,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginBottom: Spacing.sm,
   },
   favicon: {
-    width: 12,
-    height: 12,
+    width: 11,
+    height: 11,
+    borderRadius: 5.5,
+    overflow: "hidden",
   },
   domain: {
     opacity: 0.6,

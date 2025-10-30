@@ -95,8 +95,8 @@ export const Typography = {
   },
   /** 13px - Secondary body text */
   bodySmall: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: '400' as const,
   },
   /** 12px - Tertiary text, fine print */

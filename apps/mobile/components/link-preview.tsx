@@ -129,9 +129,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 8,
     lineHeight: 20,
   },
   description: {
@@ -147,6 +147,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     borderRadius: 8,
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 16,
   },
 });
