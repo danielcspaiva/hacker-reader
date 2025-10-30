@@ -1,56 +1,104 @@
+import { Spacing } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { StyleSheet, View } from 'react-native';
 import { Skeleton } from './skeleton';
 
 export function StoryCardSkeleton() {
-  const separatorColor = useThemeColor({}, 'border');
+  const borderColor = useThemeColor({}, 'border');
 
   return (
-    <View style={[styles.container, { borderBottomColor: separatorColor }]}>
-      <View style={styles.content}>
-        {/* Title - 3 lines */}
-        <Skeleton width="100%" height={18} style={styles.titleLine} />
-        <Skeleton width="95%" height={18} style={styles.titleLine} />
-        {/* <Skeleton width="60%" height={20} style={styles.titleLine} /> */}
+    <GlassView
+      glassEffectStyle="regular"
+      isInteractive
+      style={[styles.container, { borderColor }]}
+    >
+      <View style={styles.header}>
+        <View style={styles.content}>
+          {/* Top section - title and domain */}
+          <View style={styles.topSection}>
+            {/* Title row with bookmark indicator */}
+            <View style={styles.titleRow}>
+              <View style={styles.titleContainer}>
+                {/* Title - 2 lines matching bodyLarge (17px) */}
+                <Skeleton width="100%" height={17} style={styles.titleLine} />
+                <Skeleton width="85%" height={17} />
+              </View>
+              {/* Bookmark indicator placeholder */}
+              <Skeleton width={16} height={16} borderRadius={4} style={styles.bookmarkIndicator} />
+            </View>
 
-        {/* Domain */}
-        <Skeleton width={120} height={12} style={styles.domain} />
+            {/* Domain with favicon */}
+            <View style={styles.domainContainer}>
+              <Skeleton width={11} height={11} borderRadius={5.5} />
+              <Skeleton width={100} height={12} borderRadius={4} />
+            </View>
+          </View>
 
-        {/* Metadata row */}
-        <View style={styles.metadata}>
-          <Skeleton width={40} height={14} />
-          <Skeleton width={60} height={14} />
-          <Skeleton width={50} height={14} />
-          <Skeleton width={35} height={14} />
+          {/* Metadata row */}
+          <View style={styles.metadata}>
+            <Skeleton width={50} height={14} borderRadius={4} />
+            <Skeleton width={60} height={14} borderRadius={4} />
+            <Skeleton width={45} height={14} borderRadius={4} />
+          </View>
+        </View>
+
+        {/* Link preview thumbnail - matches compact mode */}
+        <View style={styles.thumbnailContainer}>
+          <Skeleton width={80} height={80} borderRadius={8} />
         </View>
       </View>
-
-      {/* Link preview thumbnail */}
-      <Skeleton width={80} height={80} borderRadius={8} />
-    </View>
+    </GlassView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    marginHorizontal: Spacing.lg,
+    borderRadius: isLiquidGlassAvailable() ? 16 : 0,
+    borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
+    marginBottom: Spacing.lg,
+  },
+  header: {
     flexDirection: 'row',
-    gap: 8,
-    borderRadius: 50,
+    gap: Spacing.md,
+    paddingHorizontal: isLiquidGlassAvailable() ? Spacing.lg : 0,
+    paddingVertical: Spacing.lg,
   },
   content: {
     flex: 1,
+    justifyContent: 'space-between',
+    minHeight: 70,
+  },
+  topSection: {
+    flexShrink: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  titleContainer: {
+    flex: 1,
+    gap: 6,
   },
   titleLine: {
     marginBottom: 6,
   },
-  domain: {
-    marginBottom: 8,
+  bookmarkIndicator: {
+    marginTop: 2,
+  },
+  domainContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   metadata: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing.md,
+  },
+  thumbnailContainer: {
+    marginLeft: Spacing.sm,
   },
 });
