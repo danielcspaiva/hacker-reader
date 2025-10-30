@@ -113,6 +113,7 @@ export default function FeedScreen() {
         stickyHeaderIndices={[0]}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
+        style={{ backgroundColor }}
         contentContainerStyle={{
           paddingBottom: Platform.select({
             android: 100 + bottom,

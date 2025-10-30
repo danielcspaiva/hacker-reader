@@ -123,21 +123,19 @@ export function StoryCard({ story, index }: StoryCardProps) {
 }
 
 const styles = StyleSheet.create({
-  container: isLiquidGlassAvailable()
-    ? {
-        borderRadius: 16,
-        padding: Spacing.lg,
-        marginHorizontal: Spacing.lg,
-        marginBottom: Spacing.lg,
-      }
-    : {
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        paddingVertical: Spacing.lg,
-        marginHorizontal: Spacing.lg,
-      },
   header: {
     flexDirection: "row",
     gap: Spacing.md,
+    paddingHorizontal: isLiquidGlassAvailable() ? Spacing.lg : 0,
+    paddingVertical:  Spacing.lg,
+  },
+  container: {
+    flexDirection: "row",
+    gap: Spacing.md,
+    marginHorizontal: Spacing.lg,
+    borderRadius: isLiquidGlassAvailable() ? 16 : 0,
+    borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
+    marginBottom: Spacing.lg,
   },
   content: {
     flex: 1,

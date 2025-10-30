@@ -7,17 +7,6 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    pale: {
-      text: '#1a1410',
-      background: '#f5f0e8',
-      previewBackground: '#f5f0e8',
-      tint: '#ff6600',
-      icon: '#665c4f',
-      tabIconDefault: '#8a7f6d',
-      tabIconSelected: '#ff6600',
-      border: '#e5ddd0',
-      codeBackground: '#ebe4d8',
-    },
     'lights-out': {
       text: '#000000',
       background: '#ffffff',
@@ -31,21 +20,10 @@ export const Colors = {
     },
   },
   dark: {
-    pale: {
-      text: '#f0f0f0',
-      background: '#0f0f0f',
-      previewBackground: '#1a1a1a',
-      tint: '#ff6600',
-      icon: '#a8a8a8',
-      tabIconDefault: '#a8a8a8',
-      tabIconSelected: '#ff6600',
-      border: '#333333',
-      codeBackground: '#2a2a2a',
-    },
     'lights-out': {
       text: '#ffffff',
       background: '#000000',
-      previewBackground: '#000000',
+      previewBackground: '#111111',
       tint: '#ff6600',
       icon: '#cccccc',
       tabIconDefault: '#cccccc',

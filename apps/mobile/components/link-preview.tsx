@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 80,
     height: 80,
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: 1,
   },
   thumbnailLoading: {

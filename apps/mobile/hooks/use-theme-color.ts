@@ -8,7 +8,7 @@ import { useColorSchemeContext } from '@/contexts/color-scheme-context';
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light.pale & keyof typeof Colors.dark.pale
+  colorName: keyof typeof Colors.light['lights-out'] & keyof typeof Colors.dark['lights-out']
 ) {
   const { colorScheme, colorPalette } = useColorSchemeContext();
   const theme = colorScheme ?? 'light';

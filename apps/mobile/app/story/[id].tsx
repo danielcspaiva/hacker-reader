@@ -31,12 +31,19 @@ function EmptyComments() {
 
 export default function StoryDetailScreen() {
   const { id, title } = useLocalSearchParams();
-  const { data: story, isLoading, refetch, isRefetching } = useStory(Number(id));
+  const {
+    data: story,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useStory(Number(id));
 
   const textColor = useThemeColor({}, "text");
-  const backgroundColor = useThemeColor({}, "background");
 
   const isInsidePreview = useIsPreview();
+  const themeBackgroundColor = useThemeColor({}, "background");
+  const previewBackgroundColor = useThemeColor({}, "previewBackground");
+  const backgroundColor = isInsidePreview ? previewBackgroundColor : themeBackgroundColor;
 
   const { bottom } = useSafeAreaInsets();
 
@@ -149,7 +156,7 @@ export default function StoryDetailScreen() {
   return (
     <>
       {screenOptions}
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor }]}>
         <FlashList
           data={flatComments}
           renderItem={({ item }) => (
@@ -181,6 +188,7 @@ export default function StoryDetailScreen() {
             }
           }}
           refreshing={isRefetching}
+          style={{ backgroundColor }}
           contentContainerStyle={{
             backgroundColor,
             paddingBottom: Platform.select({
