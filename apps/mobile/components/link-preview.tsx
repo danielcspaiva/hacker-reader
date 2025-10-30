@@ -62,16 +62,18 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
       isInteractive
       style={[styles.container, { borderColor }]}
     >
-      {metadata.image && (
-        <Image
-          source={{ uri: metadata.image }}
-          style={[styles.image, { backgroundColor }]}
-          contentFit="cover"
-          transition={200}
-        />
-      )}
+      <View style={styles.imageContainer}>
+        {metadata.image && (
+          <Image
+            source={{ uri: metadata.image }}
+            style={[styles.image, { backgroundColor }]}
+            contentFit="cover"
+            transition={200}
+          />
+        )}
+      </View>
       {(metadata.title || metadata.description) && (
-        <View style={styles.textContainer}>
+        <View>
           {metadata.title && (
             <ThemedText style={styles.title} numberOfLines={2}>
               {metadata.title}
@@ -93,10 +95,11 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
+    borderRadius: 24,
     borderWidth: isLiquidGlassAvailable() ? 0 : 1,
     overflow: "hidden",
     marginTop: 8,
+    padding: 16,
   },
   thumbnailContainer: {
     marginLeft: 8,
@@ -117,16 +120,13 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    aspectRatio: 2,
+    aspectRatio: 1.91, // Standard OG image ratio (1200x630)
   },
   loadingContainer: {
     width: "100%",
-    aspectRatio: 2,
+    aspectRatio: 1.91, // Standard OG image ratio (1200x630)
     alignItems: "center",
     justifyContent: "center",
-  },
-  textContainer: {
-    padding: 12,
   },
   title: {
     fontSize: 15,
@@ -143,5 +143,10 @@ const styles = StyleSheet.create({
   siteName: {
     fontSize: 12,
     opacity: 0.5,
+  },
+  imageContainer: {
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 8,
   },
 });
