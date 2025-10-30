@@ -55,6 +55,7 @@ export default function BookmarksScreen() {
     <FlashList<HNItem>
       ref={listRef}
       data={stories}
+      ListHeaderComponent={<View style={{ paddingTop: 16 }} />}
       renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
       keyExtractor={(item) => item.id.toString()}
       contentInsetAdjustmentBehavior="automatic"
