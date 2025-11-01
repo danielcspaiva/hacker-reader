@@ -90,22 +90,24 @@ struct HNWidgetProvider: TimelineProvider {
 
     /// Fetch details for multiple story IDs
     private func fetchStoryDetails(ids: [Int], completion: @escaping ([HNStory]) -> Void) {
-        var stories: [HNStory] = []
+        var storiesWithIndex: [(story: HNStory, index: Int)] = []
         let group = DispatchGroup()
 
-        for id in ids {
+        for (index, id) in ids.enumerated() {
             group.enter()
             fetchStory(id: id) { story in
                 if let story = story {
-                    stories.append(story)
+                    storiesWithIndex.append((story, index))
                 }
                 group.leave()
             }
         }
 
         group.notify(queue: .main) {
-            // Sort by score (highest first) and return
-            let sortedStories = stories.sorted { $0.score > $1.score }
+            // Sort by original index to preserve HN API order
+            let sortedStories = storiesWithIndex
+                .sorted { $0.index < $1.index }
+                .map { $0.story }
             completion(sortedStories)
         }
     }
