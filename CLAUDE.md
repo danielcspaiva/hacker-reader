@@ -26,6 +26,59 @@ This project uses **pnpm** as its package manager (specified in `package.json`).
 
 ## Architecture
 
+### iOS Widgets (Mobile Only)
+
+The mobile app includes iOS home screen widgets that display Top Stories from Hacker News:
+
+1. **Widget Architecture**:
+   - Built with `react-native-widget-extension` Expo config plugin
+   - Three widget sizes: Small (3 stories), Medium (5 stories), Large (10 stories)
+   - Native Swift implementation using SwiftUI and WidgetKit
+   - All Swift code in `apps/mobile/widgets/` directory (CNG-compliant)
+   - Widget extension auto-generated during prebuild at `ios/HackerReaderWidgets/`
+
+2. **Widget Files** (`apps/mobile/widgets/`):
+   - **HNWidget.swift** - Main widget configuration and entry point
+   - **HNWidgetView.swift** - SwiftUI views for each widget size (small/medium/large)
+   - **HNWidgetEntry.swift** - Timeline entry data model
+   - **HNWidgetProvider.swift** - Timeline provider with HN API integration
+   - **Module.swift** - Expo native module for widget control (optional)
+   - **Attributes.swift** - Live activities placeholder (not used yet)
+
+3. **Data Fetching**:
+   - Widget directly fetches from HN API (https://hacker-news.firebaseio.com/v0/)
+   - Fetches top 10 story IDs, then individual story details
+   - Timeline updates every 30 minutes
+   - Cached data stored in App Group shared UserDefaults
+
+4. **App Group Data Sharing**:
+   - App Group ID: `group.com.danielcspaiva.hnclient`
+   - Shared UserDefaults key: `"cachedTopStories"`
+   - Widget caches stories for offline fallback
+   - Main app can optionally update shared cache (future enhancement)
+
+5. **Deep Linking**:
+   - Widget uses URL scheme: `hnclient://story/{id}`
+   - Tapping stories opens app to story detail page
+   - Small widget taps open main app feed
+   - Medium/Large widgets have per-story deep links
+
+6. **Styling**:
+   - Matches app theme (HN orange #ff6600, lights-out colors)
+   - Full dark mode support
+   - SF Symbols: `flame.fill`, `arrow.up`, `person.fill`, `clock.fill`
+   - Typography matches `constants/theme.ts`
+
+7. **Testing**:
+   - Run `npx expo prebuild --platform ios` to generate widget
+   - Test in iOS Simulator (Widget Gallery → Add Widget)
+   - Requires iOS 16.2+ for deployment
+   - Widget works offline using cached data
+
+**Note**: Widget is iOS-only and requires native build (not available in Expo Go).
+
+---
+
 ### Authentication (Mobile Only)
 
 The mobile app supports HN authentication via WebView login:

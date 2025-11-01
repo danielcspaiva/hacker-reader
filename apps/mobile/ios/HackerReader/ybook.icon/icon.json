@@ -12,16 +12,14 @@
     {
       "layers" : [
         {
-          "blend-mode" : "normal",
           "glass" : false,
-          "hidden" : false,
-          "image-name" : "ybook.png",
-          "name" : "ybook",
+          "image-name" : "ybook 3.png",
+          "name" : "ybook 3",
           "position" : {
-            "scale" : 1.48,
+            "scale" : 1.57,
             "translation-in-points" : [
-              0,
-              0
+              -0.1953125,
+              18.046875
             ]
           }
         }

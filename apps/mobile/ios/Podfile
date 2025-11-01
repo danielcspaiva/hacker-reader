@@ -58,3 +58,13 @@ target 'HackerReader' do
     )
   end
 end
+
+
+# >>> Inserted by react-native-widget-extension
+
+target 'HackerReaderWidgets' do
+  use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
+  use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
+end
+
+# >>> Inserted by react-native-widget-extension
