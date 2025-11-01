@@ -46,7 +46,16 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "react-native-widget-extension",
+        {
+          "widgetsFolder": "widgets",
+          "deploymentTarget": "16.2",
+          "groupIdentifier": "group.com.danielcspaiva.hnclient",
+          "frequentUpdates": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -2006,6 +2006,8 @@ PODS:
     - React-utils (= 0.81.4)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.81.4)
+  - ReactNativeWidgetExtension (0.2.0):
+    - ExpoModulesCore
   - RNCAsyncStorage (2.2.0):
     - hermes-engine
     - RCTRequired
@@ -2352,6 +2354,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../../../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../../../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - ReactNativeWidgetExtension (from `../../../node_modules/react-native-widget-extension/ios`)
   - "RNCAsyncStorage (from `../../../node_modules/@react-native-async-storage/async-storage`)"
   - RNGestureHandler (from `../../../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
@@ -2561,6 +2564,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../../../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  ReactNativeWidgetExtension:
+    :path: "../../../node_modules/react-native-widget-extension/ios"
   RNCAsyncStorage:
     :path: "../../../node_modules/@react-native-async-storage/async-storage"
   RNGestureHandler:
@@ -2673,6 +2678,7 @@ SPEC CHECKSUMS:
   ReactCodegen: f009f6e241a83810e5a1a07466d4e1889d249ab1
   ReactCommon: 149b6c05126f2e99f2ed0d3c63539369546f8cae
   ReactNativeDependencies: ed6d1e64802b150399f04f1d5728ec16b437251e
+  ReactNativeWidgetExtension: 373e304d35c3ce95ae410baffe3064a2a381b1e3
   RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
   RNGestureHandler: 2914750df066d89bf9d8f48a10ad5f0051108ac3
   RNReanimated: 3b235ceb296e5073416466a2fed70812a17a0213
@@ -2684,6 +2690,6 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   Yoga: 051f086b5ccf465ff2ed38a2cf5a558ae01aaaa1
 
-PODFILE CHECKSUM: 441aeb9a8b5507a8bfb2e26087e35dd6bdb83c7d
+PODFILE CHECKSUM: dbc57e2bb6bf7d69aa1c012380d04a198d113242
 
 COCOAPODS: 1.16.2
