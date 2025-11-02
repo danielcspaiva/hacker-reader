@@ -1,8 +1,8 @@
-import { useCallback } from 'react';
-import { Platform, Share, Alert } from 'react-native';
-import type { HNItem } from '@hn/shared';
+import { useCallback } from "react";
+import { Platform, Share, Alert } from "react-native";
+import type { HNItem } from "@/lib/shared";
 
-type ShareableStory = Pick<HNItem, 'id' | 'title' | 'url'>;
+type ShareableStory = Pick<HNItem, "id" | "title" | "url">;
 
 /**
  * Hook for sharing HN stories via native share sheet.
@@ -26,8 +26,9 @@ type ShareableStory = Pick<HNItem, 'id' | 'title' | 'url'>;
 export function useShareStory() {
   return useCallback(async (story: ShareableStory) => {
     try {
-      const url = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
-      const title = story.title || 'Hacker News Story';
+      const url =
+        story.url || `https://news.ycombinator.com/item?id=${story.id}`;
+      const title = story.title || "Hacker News Story";
 
       const result = await Share.share({
         // iOS: Native share sheet handles both title and URL
@@ -38,19 +39,19 @@ export function useShareStory() {
           default: `${title}\n\n${url}`,
         }),
         // iOS: URL shown separately in share sheet
-        url: Platform.OS === 'ios' ? url : undefined,
+        url: Platform.OS === "ios" ? url : undefined,
         title,
       });
 
       // Optional: Track successful shares
       if (result.action === Share.sharedAction) {
-        console.log('Story shared successfully');
+        console.log("Story shared successfully");
       }
     } catch (error) {
-      console.error('Error sharing story:', error);
+      console.error("Error sharing story:", error);
       Alert.alert(
-        'Share Failed',
-        'Could not share this story. Please try again.'
+        "Share Failed",
+        "Could not share this story. Please try again."
       );
     }
   }, []);

@@ -1,11 +1,11 @@
-import { Spacing } from '@/constants/theme';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-import { StyleSheet, View } from 'react-native';
-import { Skeleton } from './skeleton';
+import { Spacing } from "@/constants/theme";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { StyleSheet, View } from "react-native";
+import { Skeleton } from "./skeleton";
 
 export function StoryCardSkeleton() {
-  const borderColor = useThemeColor({}, 'border');
+  const borderColor = useThemeColor({}, "border");
 
   return (
     <GlassView
@@ -25,7 +25,12 @@ export function StoryCardSkeleton() {
                 <Skeleton width="85%" height={17} />
               </View>
               {/* Bookmark indicator placeholder */}
-              <Skeleton width={16} height={16} borderRadius={4} style={styles.bookmarkIndicator} />
+              <Skeleton
+                width={16}
+                height={16}
+                borderRadius={4}
+                style={styles.bookmarkIndicator}
+              />
             </View>
 
             {/* Domain with favicon */}
@@ -60,22 +65,22 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.md,
     paddingHorizontal: isLiquidGlassAvailable() ? Spacing.lg : 0,
     paddingVertical: Spacing.lg,
   },
   content: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     minHeight: 70,
   },
   topSection: {
     flexShrink: 1,
   },
   titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: Spacing.sm,
     marginBottom: Spacing.xs,
   },
@@ -90,12 +95,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   domainContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   metadata: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.md,
   },
   thumbnailContainer: {

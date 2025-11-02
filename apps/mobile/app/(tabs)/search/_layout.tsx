@@ -48,7 +48,9 @@ export default function Layout() {
         headerTintColor: tintColor,
         headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
         headerStyle: {
-          backgroundColor: isLiquidGlassAvailable() ? "transparent" : backgroundColor,
+          backgroundColor: isLiquidGlassAvailable()
+            ? "transparent"
+            : backgroundColor,
         },
         headerSearchBarOptions: {
           headerIconColor: tintColor,

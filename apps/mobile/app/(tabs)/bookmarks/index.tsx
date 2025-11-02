@@ -1,12 +1,12 @@
-import { StoryCard } from '@/components/story-card';
-import { ThemedText } from '@/components/themed-text';
-import { useBookmarks } from '@/hooks/use-bookmarks';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { type HNItem } from '@hn/shared';
-import { FlashList, FlashListRef } from '@shopify/flash-list';
-import { useEffect, useRef } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StoryCard } from "@/components/story-card";
+import { ThemedText } from "@/components/themed-text";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { type HNItem } from "@/lib/shared";
+import { FlashList, FlashListRef } from "@shopify/flash-list";
+import { useEffect, useRef } from "react";
+import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function EmptyState() {
   return (
@@ -20,8 +20,13 @@ function EmptyState() {
 }
 
 export default function BookmarksScreen() {
-  const { data: stories = [], isLoading, refetch, isRefetching } = useBookmarks();
-  const textColor = useThemeColor({}, 'text');
+  const {
+    data: stories = [],
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useBookmarks();
+  const textColor = useThemeColor({}, "text");
   const { bottom } = useSafeAreaInsets();
   const listRef = useRef<FlashListRef<HNItem>>(null);
   const previousCountRef = useRef(stories.length);
@@ -56,7 +61,9 @@ export default function BookmarksScreen() {
       ref={listRef}
       data={stories}
       ListHeaderComponent={<View style={{ paddingTop: 16 }} />}
-      renderItem={({ item, index }) => <StoryCard story={item} index={index + 1} />}
+      renderItem={({ item, index }) => (
+        <StoryCard story={item} index={index + 1} />
+      )}
       keyExtractor={(item) => item.id.toString()}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{
@@ -82,25 +89,25 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 32,
     paddingVertical: 64,
   },
   emptyText: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
     opacity: 0.7,
   },
   emptySubtext: {
     fontSize: 15,
     opacity: 0.5,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

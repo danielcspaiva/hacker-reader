@@ -5,9 +5,15 @@
  * Manages session persistence via expo-secure-store.
  */
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import * as SecureStore from 'expo-secure-store';
-import { SecureSession } from '@hn/shared/auth';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import * as SecureStore from "expo-secure-store";
+import { SecureSession } from "@/lib/shared/auth";
 
 interface HNAuthContextValue {
   session: SecureSession | null;
@@ -30,13 +36,13 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
 
   async function loadSession() {
     try {
-      const cookiesJson = await SecureStore.getItemAsync('hn_cookies');
+      const cookiesJson = await SecureStore.getItemAsync("hn_cookies");
       if (cookiesJson) {
         const cookies = JSON.parse(cookiesJson);
         setSession(new SecureSession(cookies));
       }
     } catch (error) {
-      console.error('Failed to load session:', error);
+      console.error("Failed to load session:", error);
     } finally {
       setIsLoading(false);
     }
@@ -45,12 +51,12 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
   async function login(cookies: Record<string, string>) {
     const newSession = new SecureSession(cookies);
     setSession(newSession);
-    await SecureStore.setItemAsync('hn_cookies', JSON.stringify(cookies));
+    await SecureStore.setItemAsync("hn_cookies", JSON.stringify(cookies));
   }
 
   async function logout() {
     setSession(null);
-    await SecureStore.deleteItemAsync('hn_cookies');
+    await SecureStore.deleteItemAsync("hn_cookies");
   }
 
   return (
@@ -71,7 +77,7 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
 export function useHNAuth() {
   const context = useContext(HNAuthContext);
   if (!context) {
-    throw new Error('useHNAuth must be used within HNAuthProvider');
+    throw new Error("useHNAuth must be used within HNAuthProvider");
   }
   return context;
 }

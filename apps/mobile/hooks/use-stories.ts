@@ -1,5 +1,5 @@
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   getTopStories,
   getNewStories,
@@ -9,8 +9,8 @@ import {
   getItems,
   fetchOGMetadata,
   type HNItem,
-} from '@hn/shared';
-import type { Category } from '@/components/category-filter';
+} from "@/lib/shared";
+import type { Category } from "@/components/category-filter";
 
 const PAGE_SIZE = 30;
 
@@ -25,33 +25,33 @@ const CATEGORY_FETCHERS = {
 
 // Predictive prefetching: which categories to prefetch based on current category
 const PREFETCH_STRATEGY: Record<Category, Category[]> = {
-  top: ['new'],           // Most common: Top → New
-  new: ['top', 'ask'],    // New → Top (back) or Ask
-  ask: ['show'],          // Ask → Show
-  show: ['jobs'],         // Show → Jobs
-  jobs: ['show'],         // Jobs → Show (back)
+  top: ["new"], // Most common: Top → New
+  new: ["top", "ask"], // New → Top (back) or Ask
+  ask: ["show"], // Ask → Show
+  show: ["jobs"], // Show → Jobs
+  jobs: ["show"], // Jobs → Show (back)
 };
 
 export function useStories(category: Category) {
   const queryClient = useQueryClient();
 
   return useInfiniteQuery<HNItem[], Error>({
-    queryKey: ['stories', category],
+    queryKey: ["stories", category],
     queryFn: async ({ pageParam = 0 }) => {
       const storyFetcher = CATEGORY_FETCHERS[category];
       const ids = await storyFetcher(pageParam as number, PAGE_SIZE);
       const items = await getItems(ids);
 
       // Populate individual item caches for reuse across different views
-      items.forEach(item => {
-        queryClient.setQueryData(['item', item.id], item);
+      items.forEach((item) => {
+        queryClient.setQueryData(["item", item.id], item);
       });
 
       // Prefetch OG metadata for stories with URLs to avoid waterfall
-      items.forEach(item => {
+      items.forEach((item) => {
         if (item.url) {
           queryClient.prefetchQuery({
-            queryKey: ['og-metadata', item.url],
+            queryKey: ["og-metadata", item.url],
             queryFn: ({ signal }) => fetchOGMetadata(item.url!, signal),
             staleTime: 60 * 60 * 1000, // 1 hour
           });
@@ -90,20 +90,20 @@ export function usePrefetchCategories(
     const predictiveTimer = setTimeout(() => {
       const categoriesToPrefetch = PREFETCH_STRATEGY[currentCategory];
 
-      categoriesToPrefetch.forEach(category => {
+      categoriesToPrefetch.forEach((category) => {
         // Check if already cached to avoid unnecessary requests
-        const existingData = queryClient.getQueryData(['stories', category]);
+        const existingData = queryClient.getQueryData(["stories", category]);
         if (!existingData) {
           queryClient.prefetchInfiniteQuery({
-            queryKey: ['stories', category],
+            queryKey: ["stories", category],
             queryFn: async ({ pageParam = 0 }) => {
               const storyFetcher = CATEGORY_FETCHERS[category];
               const ids = await storyFetcher(pageParam as number, PAGE_SIZE);
               const items = await getItems(ids);
 
               // Populate individual item caches
-              items.forEach(item => {
-                queryClient.setQueryData(['item', item.id], item);
+              items.forEach((item) => {
+                queryClient.setQueryData(["item", item.id], item);
               });
 
               // Skip OG prefetching for background-loaded categories to save bandwidth
@@ -124,24 +124,25 @@ export function usePrefetchCategories(
 
     // Step 2: Idle prefetching of all remaining categories (after 5s)
     const idleTimer = setTimeout(() => {
-      const allCategories: Category[] = ['top', 'new', 'ask', 'show', 'jobs'];
+      const allCategories: Category[] = ["top", "new", "ask", "show", "jobs"];
       const remainingCategories = allCategories.filter(
-        cat => cat !== currentCategory &&
-        !PREFETCH_STRATEGY[currentCategory].includes(cat)
+        (cat) =>
+          cat !== currentCategory &&
+          !PREFETCH_STRATEGY[currentCategory].includes(cat)
       );
 
-      remainingCategories.forEach(category => {
-        const existingData = queryClient.getQueryData(['stories', category]);
+      remainingCategories.forEach((category) => {
+        const existingData = queryClient.getQueryData(["stories", category]);
         if (!existingData) {
           queryClient.prefetchInfiniteQuery({
-            queryKey: ['stories', category],
+            queryKey: ["stories", category],
             queryFn: async ({ pageParam = 0 }) => {
               const storyFetcher = CATEGORY_FETCHERS[category];
               const ids = await storyFetcher(pageParam as number, PAGE_SIZE);
               const items = await getItems(ids);
 
-              items.forEach(item => {
-                queryClient.setQueryData(['item', item.id], item);
+              items.forEach((item) => {
+                queryClient.setQueryData(["item", item.id], item);
               });
 
               return items;

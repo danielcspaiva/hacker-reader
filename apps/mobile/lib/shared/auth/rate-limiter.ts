@@ -17,14 +17,18 @@ export class HNRateLimiter {
     const oneMinuteAgo = now - 60000;
 
     // Remove timestamps older than 1 minute
-    this.actionTimestamps = this.actionTimestamps.filter(t => t > oneMinuteAgo);
+    this.actionTimestamps = this.actionTimestamps.filter(
+      (t) => t > oneMinuteAgo
+    );
 
     if (this.actionTimestamps.length >= this.MAX_ACTIONS_PER_MINUTE) {
       const oldestAction = this.actionTimestamps[0];
       const waitTime = oldestAction + 60000 - now;
 
-      console.warn(`[HN Rate Limit] Waiting ${Math.ceil(waitTime / 1000)}s before next action`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      console.warn(
+        `[HN Rate Limit] Waiting ${Math.ceil(waitTime / 1000)}s before next action`
+      );
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
 
     this.actionTimestamps.push(now);

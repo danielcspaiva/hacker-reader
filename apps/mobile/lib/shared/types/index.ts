@@ -1,7 +1,7 @@
 export interface HNItem {
   id: number;
   deleted?: boolean;
-  type?: 'job' | 'story' | 'comment' | 'poll' | 'pollopt';
+  type?: "job" | "story" | "comment" | "poll" | "pollopt";
   by?: string;
   time?: number;
   text?: string;
@@ -24,4 +24,4 @@ export interface HNUser {
   submitted?: number[];
 }
 
-export type StoryCategory = 'top' | 'new' | 'ask' | 'show' | 'jobs';
+export type StoryCategory = "top" | "new" | "ask" | "show" | "jobs";

@@ -3,12 +3,12 @@
  */
 
 export type HNAuthErrorCode =
-  | 'NOT_LOGGED_IN'
-  | 'INSUFFICIENT_KARMA'
-  | 'RATE_LIMITED'
-  | 'PARSE_ERROR'
-  | 'CAPTCHA_REQUIRED'
-  | 'NETWORK_ERROR';
+  | "NOT_LOGGED_IN"
+  | "INSUFFICIENT_KARMA"
+  | "RATE_LIMITED"
+  | "PARSE_ERROR"
+  | "CAPTCHA_REQUIRED"
+  | "NETWORK_ERROR";
 
 export class HNAuthError extends Error {
   constructor(
@@ -16,7 +16,7 @@ export class HNAuthError extends Error {
     public code: HNAuthErrorCode
   ) {
     super(message);
-    this.name = 'HNAuthError';
+    this.name = "HNAuthError";
   }
 }
 

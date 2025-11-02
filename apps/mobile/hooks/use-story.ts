@@ -1,5 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getStoryWithComments, type AlgoliaStory, type AlgoliaComment } from '@hn/shared';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getStoryWithComments,
+  type AlgoliaStory,
+  type AlgoliaComment,
+} from "@/lib/shared";
 
 export interface StoryWithComments {
   id: number;
@@ -67,17 +71,17 @@ export function useStory(id: number) {
   const queryClient = useQueryClient();
 
   return useQuery<StoryWithComments, Error>({
-    queryKey: ['story', id],
+    queryKey: ["story", id],
     queryFn: async () => {
       const algoliaStory = await getStoryWithComments(id);
       const story = convertAlgoliaStory(algoliaStory);
 
       // Update the story data in all infinite query caches (top, new, ask, show, jobs)
-      const categories = ['top', 'new', 'ask', 'show', 'jobs'] as const;
+      const categories = ["top", "new", "ask", "show", "jobs"] as const;
 
       categories.forEach((category) => {
         queryClient.setQueriesData(
-          { queryKey: ['stories', category] },
+          { queryKey: ["stories", category] },
           (oldData: any) => {
             if (!oldData?.pages) return oldData;
 
@@ -101,7 +105,7 @@ export function useStory(id: number) {
       });
 
       // Also update the individual item cache
-      queryClient.setQueryData(['item', id], {
+      queryClient.setQueryData(["item", id], {
         id: story.id,
         title: story.title,
         url: story.url,
@@ -109,7 +113,7 @@ export function useStory(id: number) {
         time: story.time,
         score: story.score,
         descendants: story.descendants,
-        type: 'story' as const,
+        type: "story" as const,
       });
 
       return story;

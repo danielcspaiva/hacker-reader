@@ -52,7 +52,7 @@ export function ColorSchemeProvider({
 
   // Determine actual color scheme based on preference
   const colorScheme: ColorScheme =
-    preference === "system" ? systemColorScheme ?? "light" : preference;
+    preference === "system" ? (systemColorScheme ?? "light") : preference;
 
   // Sync iOS interface style with user's theme preference
   useEffect(() => {

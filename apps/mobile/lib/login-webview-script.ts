@@ -1,10 +1,10 @@
-import { getLoginPageStyles } from './login-webview-styles';
+import { getLoginPageStyles } from "./login-webview-styles";
 
 export const clearCookieIntervalScript =
-  'window.__hnCookieInterval && clearInterval(window.__hnCookieInterval); window.__hnCookieInterval = null; true;';
+  "window.__hnCookieInterval && clearInterval(window.__hnCookieInterval); window.__hnCookieInterval = null; true;";
 
 export interface CookieExtractionMessage {
-  type: 'COOKIES_EXTRACTED';
+  type: "COOKIES_EXTRACTED";
   cookies: string;
   cookieMap: Record<string, string>;
   user?: string;

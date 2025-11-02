@@ -2,6 +2,7 @@
   "name": "@hn/mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "MIT",
   "scripts": {
     "dev": "expo start",
     "start": "expo start",
@@ -12,12 +13,12 @@
     "prebuild:ios": "npx expo prebuild --platform ios",
     "prebuild:clean": "rm -rf ios && npx expo prebuild --platform ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@expo/ui": "0.2.0-beta.7",
     "@expo/vector-icons": "^15.0.2",
-    "@hn/shared": "workspace:*",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-cookies/cookies": "^6.2.1",
     "@react-navigation/bottom-tabs": "^7.4.9",

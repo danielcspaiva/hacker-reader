@@ -4,7 +4,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Spacing } from "@/constants/theme";
 import { useIsBookmarked } from "@/hooks/use-bookmarks";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { getDomain, type HNItem } from "@hn/shared";
+import { getDomain, type HNItem } from "@/lib/shared";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: Spacing.md,
     paddingHorizontal: isLiquidGlassAvailable() ? Spacing.lg : 0,
-    paddingVertical:  Spacing.lg,
+    paddingVertical: Spacing.lg,
   },
   container: {
     flexDirection: "row",

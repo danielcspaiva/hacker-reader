@@ -2,16 +2,15 @@
 
 ## Project Structure & Module Organization
 - Root uses a pnpm workspace; shared TypeScript config lives in `tsconfig.base.json`.
-- `apps/mobile/` runs Expo Router. Screens sit under `app/(tabs)/`, shared views in `components/`, and APIs in `lib/`.
-- `apps/web/` is a Next.js App Router app rooted in `app/` with Tailwind config in `tailwind.config.ts` and shared UI in `app/(components)/`.
-- `packages/shared/` exposes API clients, types, and utilities reused by both apps via the `@hn/shared` alias.
-- `api-docs/` hosts reference material; `todo/` tracks backlog notes and experiments.
+- `apps/mobile/` runs Expo Router. Screens sit under `app/(tabs)/`, shared views in `components/`, and APIs/utilities in `lib/shared/`.
+- `apps/web/` is a Next.js App Router app rooted in `app/` with Tailwind config in `tailwind.config.ts`. Future AI backend will live here.
+- `api-docs/` hosts reference material.
 
 ## Build, Test, and Development Commands
 - `pnpm install`: bootstrap all workspaces.
 - `pnpm dev`: run web and mobile dev servers concurrently (Expo + Next.js).
 - `pnpm mobile` / `pnpm web`: focus on a single app; pair with `mobile:ios`, `mobile:android`, or `web:build` as needed.
-- `pnpm typecheck` / `pnpm shared:typecheck`: run TypeScript validation across the monorepo or the shared package only.
+- `pnpm typecheck`: run TypeScript validation across the monorepo.
 - `pnpm lint` / `pnpm mobile:lint`: enforce ESLint rules on every workspace or the Expo app.
 - `pnpm clean` and `pnpm reset`: clear build caches or perform a full reinstall when dependencies drift.
 
@@ -19,7 +18,7 @@
 - TypeScript everywhere; keep strict typings and favor explicit return types on exported functions.
 - Follow the existing two-space indentation and trailing comma style enforced by ESLint.
 - Name React components with PascalCase, hooks with `use*`, files and directories with kebab-case (e.g., `story-card.tsx`).
-- Reuse shared logic via `@hn/shared` and Expo aliases like `@/components`; avoid relative import ladders.
+- Use path alias `@/` for imports (e.g., `@/lib/shared`, `@/components`); avoid relative import ladders.
 - Prefer functional React patterns—React Compiler is enabled, so skip manual memoization utilities.
 
 ## Testing Guidelines

@@ -4,19 +4,21 @@
  */
 export function getLoginPageStyles(isDarkMode: boolean): string {
   const colors = {
-    backgroundPrimary: isDarkMode ? '#000000' : '#ffffff',
-    backgroundSecondary: isDarkMode ? '#1c1c1e' : '#f9f9f9',
-    border: isDarkMode ? '#38383a' : '#e0e0e0',
-    focusBorder: '#ff6600',
-    textPrimary: isDarkMode ? '#ffffff' : '#000000',
-    textSecondary: isDarkMode ? '#8e8e93' : '#666666',
-    inputText: isDarkMode ? '#ffffff' : '#000000',
-    buttonBackground: '#ff6600',
-    buttonActive: '#cc5200',
-    link: '#ff6600',
+    backgroundPrimary: isDarkMode ? "#000000" : "#ffffff",
+    backgroundSecondary: isDarkMode ? "#1c1c1e" : "#f9f9f9",
+    border: isDarkMode ? "#38383a" : "#e0e0e0",
+    focusBorder: "#ff6600",
+    textPrimary: isDarkMode ? "#ffffff" : "#000000",
+    textSecondary: isDarkMode ? "#8e8e93" : "#666666",
+    inputText: isDarkMode ? "#ffffff" : "#000000",
+    buttonBackground: "#ff6600",
+    buttonActive: "#cc5200",
+    link: "#ff6600",
   };
 
-  const focusShadow = isDarkMode ? 'box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.1) !important;' : '';
+  const focusShadow = isDarkMode
+    ? "box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.1) !important;"
+    : "";
 
   return `
     :root {

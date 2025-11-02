@@ -1,6 +1,8 @@
 # Hacker Reader
 
-> A polished Hacker News experience for mobile and web, powered by Expo, Next.js, and a shared TypeScript core.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> A polished Hacker News experience for mobile and web, powered by Expo and Next.js.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -11,40 +13,40 @@
   - [Installation](#installation)
   - [Running the Apps](#running-the-apps)
 - [Development Workflow](#development-workflow)
-- [Workspace Packages](#workspace-packages)
-  - [@hn/mobile (Expo app)](#hnmobile-expo-app)
-  - [@hn/web (Next.js site)](#hnweb-nextjs-site)
-  - [@hn/shared](#hnshared)
+- [Apps](#apps)
+  - [Mobile App (Expo)](#mobile-app-expo)
+  - [Web App (Next.js)](#web-app-nextjs)
 - [Architecture Notes](#architecture-notes)
 - [Docs & Roadmap](#docs--roadmap)
 - [License](#license)
 
 ## Overview
 
-Hacker Reader is a cross-platform Hacker News client that ships a native-quality mobile app alongside a marketing and preview site. The codebase lives in a pnpm workspace so the apps can share API clients, authentication helpers, and utilities while keeping platform-specific UI separate. Everything is written in TypeScript and tuned for strict typings, fast feedback loops, and seamless contributor onboarding.
+Hacker Reader is a cross-platform Hacker News client that ships a native-quality mobile app alongside a marketing and preview site. The mobile app includes all HN API clients, authentication helpers, and utilities needed for a complete reading and interaction experience. Everything is written in TypeScript and tuned for strict typings, fast feedback loops, and seamless contributor onboarding.
 
 ## Key Features
 
 - **Native mobile experience** – Browse Top, New, Show HN, Ask HN, and Jobs feeds with FlashList, themed layouts, haptic feedback, and deep React Query caching.
 - **HN account support** – Log in inside the app, manage a secure session, vote, favorite, and comment through the hardened write API wrappers.
 - **Thoughtful reading tools** – Rich Open Graph link previews, nested comment threads with collapse controls, Algolia-powered search, and persistent bookmarks backed by AsyncStorage.
-- **Web preview & landing** – A Next.js App Router site that showcases the app, ships a dark/light marketing experience, and reuses shared clients for real data.
-- **Shared foundation** – One set of API clients, types, and utilities published from `@hn/shared`, plus a common base `tsconfig` and linting rules across every workspace.
+- **Web preview & landing** – A Next.js App Router site that showcases the app, ships a dark/light marketing experience. (AI backend features coming soon)
 
 ## Monorepo Layout
 
 ```
 .
 ├── apps/
-│   ├── mobile/          # Expo + React Native app
-│   └── web/             # Next.js App Router marketing site
-├── packages/
-│   └── shared/          # Reusable API clients, auth helpers, types, utilities
-├── api-docs/            # Reference material and integration notes
-├── todo/                # Backlog experiments and follow-up tasks
-├── package.json         # Root scripts and tooling
-├── pnpm-workspace.yaml  # Workspace definition
-└── tsconfig.base.json   # Shared TypeScript configuration
+│   ├── mobile/              # Expo + React Native app
+│   │   ├── lib/
+│   │   │   └── shared/      # HN API clients, auth, types, utilities
+│   │   ├── hooks/           # React Query hooks
+│   │   ├── components/      # UI components
+│   │   └── app/             # Expo Router screens
+│   └── web/                 # Next.js App Router marketing site (AI backend coming)
+├── api-docs/                # Reference material and integration notes
+├── package.json             # Root scripts and tooling
+├── pnpm-workspace.yaml      # Workspace definition
+└── tsconfig.base.json       # Shared TypeScript configuration
 ```
 
 ## Getting Started
@@ -93,37 +95,42 @@ pnpm mobile    # smoke-test the Expo app
 pnpm web       # smoke-test the marketing site
 ```
 
-- For focused checks: `pnpm shared:typecheck` and `pnpm --filter <workspace> <command>`.
+- For focused checks: `pnpm --filter <workspace> <command>`.
 - Track follow-up tasks in `todo/` rather than leaving `TODO` comments in code.
 
-## Workspace Packages
+## Apps
 
-### @hn/mobile (Expo app)
+### Mobile App (Expo)
 
-- Expo SDK 54 with the React Compiler, Expo Router, and React Native 0.81.
-- FlashList-driven feeds, story detail screens, bookmarks, search, and threaded comments.
-- Secure Hacker News authentication via in-app login (WebView) plus vote/favorite/comment mutations using the shared write API.
-- System-aware theming with persisted preferences, custom color palettes, glass effect support, and subtle haptics.
+**Package**: `@hn/mobile`
 
-### @hn/web (Next.js site)
+- **Framework**: Expo SDK 54 with React Compiler, Expo Router, and React Native 0.81
+- **Features**: FlashList-driven feeds, story detail screens, bookmarks, search, and threaded comments
+- **Authentication**: Secure HN account login via in-app WebView with vote/favorite/comment capabilities
+- **Theming**: System-aware dark mode with persisted preferences, custom color palettes, and glass effects
+- **iOS Widgets**: Three widget sizes (small/medium/large) with auto-updates and deep linking
 
-- Next.js 15 App Router with Tailwind CSS and a fully themed landing page.
-- Showcases real screenshots, feature highlights, and links to TestFlight / web previews.
-- Shares API clients, types, and formatting helpers from `@hn/shared` for consistency.
+**Core Libraries** (`apps/mobile/lib/shared/`):
+- **API Clients**: HN API, Algolia search, Open Graph metadata fetching
+- **Authentication**: Secure session wrapper, HTML parsers, rate limiting, write operations
+- **Types**: Fully typed interfaces for `HNItem`, `HNUser`, `AlgoliaStory`, etc.
+- **Utilities**: HTML sanitizers, relative time formatters, URL parsing
 
-### @hn/shared
+### Web App (Next.js)
 
-- REST and scraping clients for the Hacker News API, Algolia HN search, and Open Graph metadata.
-- Hardened authentication utilities: secure session wrapper, HTML parsers, rate limiting, and write operations (vote, unvote, favorite, comment).
-- Shared types (`HNItem`, `HNUser`, `AlgoliaStory`, etc.) plus utility helpers like HTML sanitizers and relative time formatters.
-- Ships a `tsconfig` and single entrypoint so both apps consume the same strongly typed surface.
+**Package**: `@hn/web`
+
+- **Framework**: Next.js 15 App Router with Tailwind CSS
+- **Purpose**: Marketing site showcasing the mobile app
+- **Features**: Dark/light themed landing page, screenshots, TestFlight links
+- **Future**: AI backend for premium features (story summaries, daily digest, smart notifications)
 
 ## Architecture Notes
 
-- React Query powers all data access with tuned stale/gc timings, optimistic updates for bookmarks, and cache hydration between shared clients.
+- React Query powers all data access with tuned stale/gc timings, optimistic updates for bookmarks, and intelligent caching.
 - Mobile theming, authentication state, and session management live in dedicated React Context providers to keep screens lightweight.
 - Write operations enforce HTTPS, rate limits, and HTML token parsing before hitting Hacker News, preventing leaked cookies and hard-to-debug failures.
-- Everything compiles against `tsconfig.base.json`, ensuring editor tooling, path aliases (`@/` and `@hn/`), and strict options stay in sync.
+- Everything compiles against `tsconfig.base.json`, ensuring editor tooling, path alias (`@/`), and strict options stay in sync.
 
 ## Docs & Roadmap
 
@@ -132,4 +139,43 @@ pnpm web       # smoke-test the marketing site
 
 ## License
 
-MIT
+This project is open source under the [MIT License](LICENSE).
+
+### Open Source + Premium Model
+
+**All code is MIT licensed** – you're free to use, modify, and distribute this codebase, including the AI backend (when implemented).
+
+**However,** the premium AI features require a backend server with OpenAI/Anthropic API access. You have two options:
+
+#### Option 1: Premium Subscription ($0.99/month)
+- ✅ We host the AI backend for you
+- ✅ No setup, configuration, or API keys needed
+- ✅ Optimized caching and cost-efficient infrastructure
+- ✅ Support ongoing development
+- ✅ 14-day free trial
+
+**Premium features include:**
+- 🤖 AI-powered story summaries (TL;DR + key points)
+- 🤖 AI daily digest (push notifications)
+- 🤖 AI comment thread summaries
+- 🤖 Smart keyword notifications with AI context
+- 🔓 Unlimited upvoting & interaction
+- 🔓 Comment posting
+- 🔓 Advanced widgets (medium + large sizes)
+- 🔓 Offline reading mode
+- 🔓 Reading history & analytics
+
+#### Option 2: Self-Hosting (Free)
+- 🛠️ Deploy your own AI backend (see `apps/web/api/` when available)
+- 🛠️ Bring your own OpenAI/Anthropic API keys
+- 🛠️ You pay AI providers directly (may cost more than subscription)
+- 🛠️ Full control over your data and infrastructure
+- 📚 See [Self-Hosting Guide](docs/self-hosting.md) (coming soon)
+
+**Why this model?**
+- The code teaches you how to build a modern HN client with AI features
+- Most users find the subscription more convenient than managing infrastructure
+- Self-hosting is perfect for learning, customization, or avoiding subscriptions
+- Your subscription supports active development and keeps the project sustainable
+
+**Philosophy:** Code is free, hosted services are paid. We believe in transparency, education, and giving users choice.

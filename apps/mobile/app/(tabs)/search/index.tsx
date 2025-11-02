@@ -7,7 +7,7 @@ import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
 import { useSearchStories } from "@/hooks/use-search-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import type { HNItem } from "@hn/shared";
+import type { HNItem } from "@/lib/shared";
 
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
@@ -15,7 +15,9 @@ export default function SearchScreen() {
   const textColor = useThemeColor({}, "text");
 
   const queryParam = params?.q;
-  const rawQuery = Array.isArray(queryParam) ? queryParam[0] : queryParam ?? "";
+  const rawQuery = Array.isArray(queryParam)
+    ? queryParam[0]
+    : (queryParam ?? "");
   const trimmedQuery = rawQuery.trim();
   const isQueryEmpty = trimmedQuery.length === 0;
 

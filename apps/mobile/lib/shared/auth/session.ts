@@ -22,7 +22,7 @@ export class SecureSession {
   dangerouslyGetRawCookiesForFetch(): string {
     return Object.entries(this.cookies)
       .map(([key, value]) => `${key}=${value}`)
-      .join('; ');
+      .join("; ");
   }
 
   /**
@@ -30,8 +30,8 @@ export class SecureSession {
    * Shows a truncated hash instead of actual cookie values
    */
   getDisplayToken(): string {
-    const userCookie = this.cookies['user'];
-    if (!userCookie) return 'No session';
+    const userCookie = this.cookies["user"];
+    if (!userCookie) return "No session";
     return `hn_session_${userCookie.slice(0, 8)}...`;
   }
 
@@ -39,7 +39,7 @@ export class SecureSession {
    * Check if the session has valid cookies
    */
   hasValidSession(): boolean {
-    return !!this.cookies['user'];
+    return !!this.cookies["user"];
   }
 
   /**

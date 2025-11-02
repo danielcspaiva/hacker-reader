@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BOOKMARKS_KEY = '@hn_bookmarks';
+const BOOKMARKS_KEY = "@hn_bookmarks";
 
 export interface BookmarkedStory {
   id: number;
@@ -19,7 +19,7 @@ export async function getBookmarks(): Promise<BookmarkedStory[]> {
     // Sort by most recently bookmarked first
     return bookmarks.sort((a, b) => b.bookmarkedAt - a.bookmarkedAt);
   } catch (error) {
-    console.error('Error getting bookmarks:', error);
+    console.error("Error getting bookmarks:", error);
     return [];
   }
 }
@@ -32,7 +32,7 @@ export async function addBookmark(storyId: number): Promise<void> {
     const bookmarks = await getBookmarks();
 
     // Check if already bookmarked
-    if (bookmarks.some(b => b.id === storyId)) {
+    if (bookmarks.some((b) => b.id === storyId)) {
       return;
     }
 
@@ -44,7 +44,7 @@ export async function addBookmark(storyId: number): Promise<void> {
     const updatedBookmarks = [newBookmark, ...bookmarks];
     await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(updatedBookmarks));
   } catch (error) {
-    console.error('Error adding bookmark:', error);
+    console.error("Error adding bookmark:", error);
     throw error;
   }
 }
@@ -55,10 +55,10 @@ export async function addBookmark(storyId: number): Promise<void> {
 export async function removeBookmark(storyId: number): Promise<void> {
   try {
     const bookmarks = await getBookmarks();
-    const filtered = bookmarks.filter(b => b.id !== storyId);
+    const filtered = bookmarks.filter((b) => b.id !== storyId);
     await AsyncStorage.setItem(BOOKMARKS_KEY, JSON.stringify(filtered));
   } catch (error) {
-    console.error('Error removing bookmark:', error);
+    console.error("Error removing bookmark:", error);
     throw error;
   }
 }
@@ -70,7 +70,7 @@ export async function clearBookmarks(): Promise<void> {
   try {
     await AsyncStorage.removeItem(BOOKMARKS_KEY);
   } catch (error) {
-    console.error('Error clearing bookmarks:', error);
+    console.error("Error clearing bookmarks:", error);
     throw error;
   }
 }
@@ -81,9 +81,9 @@ export async function clearBookmarks(): Promise<void> {
 export async function isBookmarked(storyId: number): Promise<boolean> {
   try {
     const bookmarks = await getBookmarks();
-    return bookmarks.some(b => b.id === storyId);
+    return bookmarks.some((b) => b.id === storyId);
   } catch (error) {
-    console.error('Error checking bookmark:', error);
+    console.error("Error checking bookmark:", error);
     return false;
   }
 }
@@ -93,5 +93,5 @@ export async function isBookmarked(storyId: number): Promise<boolean> {
  */
 export async function getBookmarkIds(): Promise<number[]> {
   const bookmarks = await getBookmarks();
-  return bookmarks.map(b => b.id);
+  return bookmarks.map((b) => b.id);
 }

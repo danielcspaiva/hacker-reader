@@ -1,4 +1,4 @@
-const ALGOLIA_BASE_URL = 'https://hn.algolia.com/api/v1';
+const ALGOLIA_BASE_URL = "https://hn.algolia.com/api/v1";
 
 export interface AlgoliaComment {
   id: number;
@@ -10,7 +10,7 @@ export interface AlgoliaComment {
   parent_id: number | null;
   story_id: number;
   children: AlgoliaComment[];
-  type: 'comment' | 'story' | 'job' | 'poll' | 'pollopt';
+  type: "comment" | "story" | "job" | "poll" | "pollopt";
   url: string | null;
   title: string | null;
   options?: any[];
@@ -28,7 +28,7 @@ export interface AlgoliaStory {
   parent_id: number | null;
   story_id: number | null;
   children: AlgoliaComment[];
-  type: 'story' | 'job' | 'poll' | 'comment';
+  type: "story" | "job" | "poll" | "comment";
   options?: any[];
 }
 
@@ -71,7 +71,7 @@ export async function searchStories(
     query,
     page: page.toString(),
     hitsPerPage: hitsPerPage.toString(),
-    tags: 'story',
+    tags: "story",
   });
   return fetchJSON<AlgoliaSearchResponse>(`/search?${params.toString()}`);
 }

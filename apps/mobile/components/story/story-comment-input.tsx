@@ -4,8 +4,8 @@ import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { comment } from "@hn/shared/api";
-import { isAuthError } from "@hn/shared/auth";
+import { comment } from "@/lib/shared/api";
+import { isAuthError } from "@/lib/shared/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
@@ -167,30 +167,30 @@ export function StoryCommentInput({
             },
           ]}
         >
-        <GlassView
-          glassEffectStyle="clear"
-          isInteractive
-          style={[
-            styles.floatingButtonGlass,
-            !hasLiquidGlass && {
-              backgroundColor,
-              borderWidth: 1,
-              borderColor,
-            },
-          ]}
-        >
-          <Pressable
-            onPress={() => setIsCommentInputVisible(true)}
-            style={[styles.floatingButton]}
+          <GlassView
+            glassEffectStyle="clear"
+            isInteractive
+            style={[
+              styles.floatingButtonGlass,
+              !hasLiquidGlass && {
+                backgroundColor,
+                borderWidth: 1,
+                borderColor,
+              },
+            ]}
           >
-            <IconSymbol
-              name="bubble.left"
-              size={24}
-              color={textColor}
-              weight="medium"
-            />
-          </Pressable>
-        </GlassView>
+            <Pressable
+              onPress={() => setIsCommentInputVisible(true)}
+              style={[styles.floatingButton]}
+            >
+              <IconSymbol
+                name="bubble.left"
+                size={24}
+                color={textColor}
+                weight="medium"
+              />
+            </Pressable>
+          </GlassView>
         </View>
       )}
 

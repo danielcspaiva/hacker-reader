@@ -6,7 +6,7 @@
   /* HN Brand Colors */
   --hn-orange: #ff6600;
   --hn-orange-hover: #ff7700;
-  
+
   /* Light Theme */
   --background: #ffffff;
   --background-secondary: #f5f0e8;
@@ -15,7 +15,7 @@
   --foreground-muted: #8a7f6d;
   --border: #e5ddd0;
   --card-bg: #ffffff;
-  
+
   /* Semantic Colors */
   --accent: var(--hn-orange);
   --accent-hover: var(--hn-orange-hover);
@@ -50,9 +50,9 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -61,12 +61,12 @@ body {
   .text-balance {
     text-wrap: balance;
   }
-  
+
   /* HN-specific utilities */
   .gradient-hn {
     background: linear-gradient(135deg, var(--hn-orange) 0%, #ff8833 100%);
   }
-  
+
   .shadow-hn {
     box-shadow: 0 4px 20px rgba(255, 102, 0, 0.1);
   }
