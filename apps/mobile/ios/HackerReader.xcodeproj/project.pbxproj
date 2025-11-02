@@ -7,41 +7,42 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0FCBB31C2ABE4350B9B73AAC /* HNWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93EDB478DD12420480F65A92 /* HNWidgetView.swift */; };
-		1305B2EB9A3041629C42A0C6 /* HNWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FA3019319846E5BFB381CA /* HNWidget.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		2FAE7CA6FFF21FEA9A798FE1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13C998EC28248EF07230C997 /* PrivacyInfo.xcprivacy */; };
-		35141B69387743B89A5C87B8 /* Attributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56DC141088A4085BE49F5DC /* Attributes.swift */; };
+		176A9CB8980F219F914F86C6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 42E094B39FD8E17DD7D6CD73 /* PrivacyInfo.xcprivacy */; };
+		1A1B4F1CCE09458C945C0BDB /* Attributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9734C9493D14CBEB8CCDF05 /* Attributes.swift */; };
+		206F326356856D598C236838 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1FFB870890FFAD64716EEE /* ExpoModulesProvider.swift */; };
+		2F80378E0ADB48DE97F141AD /* WidgetAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5317D22372A34B998D46D7C5 /* WidgetAssets.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4759B53B8983429784344DEC /* HNWidgetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12929FE0AD9D43558EC67E2E /* HNWidgetProvider.swift */; };
-		A376434A33289754ED05211C /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C8BFCCD087061AD42C2BCE /* ExpoModulesProvider.swift */; };
-		A81D067ACE4A4671A2ADAF32 /* ybook.icon in Resources */ = {isa = PBXBuildFile; fileRef = B3ACD528393046D8AF0CCAB0 /* ybook.icon */; };
+		5BD311C0E59636C8EA8C6ED1 /* libPods-HackerReader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F7E379C17F491E5C22D6BB8 /* libPods-HackerReader.a */; };
+		6BA4331413D549CA9834B9B5 /* libPods-HackerReaderWidgets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 736F724523C5DD6CD5FD041A /* libPods-HackerReaderWidgets.a */; };
+		83EBF0D0CEA94AA5A6176FCF /* HNWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6AF4F68A0154F1FA1DCDA37 /* HNWidgetEntry.swift */; };
+		A3157365BE83406CBC2CC9AB /* HNWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E92FB32815463B850AECB3 /* HNWidgetView.swift */; };
+		B76CE89351B6489583F71318 /* HNWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A563330DD843EE82FAF66E /* HNWidget.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		D4C3DED62B06427C82053E91 /* HackerReaderWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E4D929B7425743638D1D5CF6 /* HackerReaderWidgets.appex */; };
-		D510E2590586CCFCA86BC615 /* libPods-HackerReaderWidgets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C9E31B9B4273F89C03DC316 /* libPods-HackerReaderWidgets.a */; };
-		D5BB1BF8A5A1499D8FD24201 /* HNWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E339B0F6EC47008C1C298D /* HNWidgetEntry.swift */; };
+		C224612607BF487294635D36 /* ybook.icon in Resources */ = {isa = PBXBuildFile; fileRef = 9C4020BEA28440F598A1E076 /* ybook.icon */; };
+		EA5667B31A6F4151B2C776BA /* HackerReaderWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6F1825B21AA14F3A84D667DC /* HackerReaderWidgets.appex */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		FDF1CC7DD94C84A9FD167774 /* libPods-HackerReader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8338A6728C43660A603E0070 /* libPods-HackerReader.a */; };
+		F1C87C317631483CAB49DDA3 /* HNWidgetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B035457C682D4733ADA7B293 /* HNWidgetProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		7A84CDED670140B68DE1564A /* PBXContainerItemProxy */ = {
+		C9A2C3FFE3E44FCFBE99BBC6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 2EDDDD1DEBD14C489BFD3B0F;
+			remoteGlobalIDString = 9FF91B36ECA04DB0BBB11419;
 			remoteInfo = HackerReaderWidgets;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		F7A2079EB5BD40B0915D662F /* Embed Foundation Extensions */ = {
+		D45569E97AD14EFCB5C031A7 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D4C3DED62B06427C82053E91 /* HackerReaderWidgets.appex in Embed Foundation Extensions */,
+				EA5667B31A6F4151B2C776BA /* HackerReaderWidgets.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -49,33 +50,35 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		12929FE0AD9D43558EC67E2E /* HNWidgetProvider.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetProvider.swift; path = HNWidgetProvider.swift; sourceTree = "<group>"; };
+		0009FBB3B3B34F0C9B7D651F /* SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		0F7E379C17F491E5C22D6BB8 /* libPods-HackerReader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HackerReader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* HackerReader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerReader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HackerReader/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = HackerReader/Info.plist; sourceTree = "<group>"; };
-		13C998EC28248EF07230C997 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = HackerReader/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		3887FE9AAA88C04FB7FF1CD0 /* Pods-HackerReaderWidgets.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReaderWidgets.release.xcconfig"; path = "Target Support Files/Pods-HackerReaderWidgets/Pods-HackerReaderWidgets.release.xcconfig"; sourceTree = "<group>"; };
-		3C9E31B9B4273F89C03DC316 /* libPods-HackerReaderWidgets.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HackerReaderWidgets.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		51BE6FC3F5FAA218894CAC0E /* Pods-HackerReaderWidgets.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReaderWidgets.debug.xcconfig"; path = "Target Support Files/Pods-HackerReaderWidgets/Pods-HackerReaderWidgets.debug.xcconfig"; sourceTree = "<group>"; };
-		639C82D4D3C986C563DFBE32 /* Pods-HackerReader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReader.release.xcconfig"; path = "Target Support Files/Pods-HackerReader/Pods-HackerReader.release.xcconfig"; sourceTree = "<group>"; };
-		68184E79347C49FE8011EC2E /* WidgetKit.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		77C8BFCCD087061AD42C2BCE /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-HackerReader/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		8338A6728C43660A603E0070 /* libPods-HackerReader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HackerReader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9197FD3E2E9045259DFF45A6 /* SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		93EDB478DD12420480F65A92 /* HNWidgetView.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetView.swift; path = HNWidgetView.swift; sourceTree = "<group>"; };
-		951B86923D92417B9BC0847D /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "<group>"; };
-		A56DC141088A4085BE49F5DC /* Attributes.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = Attributes.swift; path = Attributes.swift; sourceTree = "<group>"; };
-		A68E9B8200784DAC9DC1D532 /* HackerReaderWidgets.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = HackerReaderWidgets.entitlements; path = HackerReaderWidgets.entitlements; sourceTree = "<group>"; };
+		3FC12E4B769D470C9075EA24 /* .DS_Store */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = .DS_Store; path = .DS_Store; sourceTree = "<group>"; };
+		42E094B39FD8E17DD7D6CD73 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = HackerReader/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		436DA8A5754448739202C4DC /* WidgetKit.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		5317D22372A34B998D46D7C5 /* WidgetAssets.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = WidgetAssets.xcassets; path = WidgetAssets.xcassets; sourceTree = "<group>"; };
+		5886F3B549C93916FE318074 /* Pods-HackerReaderWidgets.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReaderWidgets.release.xcconfig"; path = "Target Support Files/Pods-HackerReaderWidgets/Pods-HackerReaderWidgets.release.xcconfig"; sourceTree = "<group>"; };
+		6F1825B21AA14F3A84D667DC /* HackerReaderWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = HackerReaderWidgets.appex; path = HackerReaderWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		736F724523C5DD6CD5FD041A /* libPods-HackerReaderWidgets.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HackerReaderWidgets.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7D1FFB870890FFAD64716EEE /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-HackerReader/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		9B8E961669D84261A048A68A /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "<group>"; };
+		9C4020BEA28440F598A1E076 /* ybook.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ybook.icon; path = HackerReader/ybook.icon; sourceTree = "<group>"; };
+		A9734C9493D14CBEB8CCDF05 /* Attributes.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = Attributes.swift; path = Attributes.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = HackerReader/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B3ACD528393046D8AF0CCAB0 /* ybook.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ybook.icon; path = HackerReader/ybook.icon; sourceTree = "<group>"; };
+		B035457C682D4733ADA7B293 /* HNWidgetProvider.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetProvider.swift; path = HNWidgetProvider.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D092F5365FC625BC2AC481A5 /* Pods-HackerReader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReader.debug.xcconfig"; path = "Target Support Files/Pods-HackerReader/Pods-HackerReader.debug.xcconfig"; sourceTree = "<group>"; };
-		D5E339B0F6EC47008C1C298D /* HNWidgetEntry.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetEntry.swift; path = HNWidgetEntry.swift; sourceTree = "<group>"; };
-		E4D929B7425743638D1D5CF6 /* HackerReaderWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = HackerReaderWidgets.appex; path = HackerReaderWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3A563330DD843EE82FAF66E /* HNWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidget.swift; path = HNWidget.swift; sourceTree = "<group>"; };
+		D6D6A36D4D807D49D051CAF0 /* Pods-HackerReader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReader.release.xcconfig"; path = "Target Support Files/Pods-HackerReader/Pods-HackerReader.release.xcconfig"; sourceTree = "<group>"; };
+		E18D93B8A9415BA41735DE77 /* Pods-HackerReader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReader.debug.xcconfig"; path = "Target Support Files/Pods-HackerReader/Pods-HackerReader.debug.xcconfig"; sourceTree = "<group>"; };
+		E1E92FB32815463B850AECB3 /* HNWidgetView.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetView.swift; path = HNWidgetView.swift; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = HackerReader/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* HackerReader-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "HackerReader-Bridging-Header.h"; path = "HackerReader/HackerReader-Bridging-Header.h"; sourceTree = "<group>"; };
-		F2FA3019319846E5BFB381CA /* HNWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidget.swift; path = HNWidget.swift; sourceTree = "<group>"; };
+		F6AF4F68A0154F1FA1DCDA37 /* HNWidgetEntry.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetEntry.swift; path = HNWidgetEntry.swift; sourceTree = "<group>"; };
+		FA6595B2023DFD40787C1C7F /* Pods-HackerReaderWidgets.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReaderWidgets.debug.xcconfig"; path = "Target Support Files/Pods-HackerReaderWidgets/Pods-HackerReaderWidgets.debug.xcconfig"; sourceTree = "<group>"; };
+		FDA6CD288BFC4784B882A8A1 /* HackerReaderWidgets.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = HackerReaderWidgets.entitlements; path = HackerReaderWidgets.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,27 +86,36 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FDF1CC7DD94C84A9FD167774 /* libPods-HackerReader.a in Frameworks */,
+				5BD311C0E59636C8EA8C6ED1 /* libPods-HackerReader.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CFE9A503BDEE416EA4DFC4A8 /* Frameworks */ = {
+		CBCD53E3DA6A4ABEA3E6CDDC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D510E2590586CCFCA86BC615 /* libPods-HackerReaderWidgets.a in Frameworks */,
+				6BA4331413D549CA9834B9B5 /* libPods-HackerReaderWidgets.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		10B43D20C618CAA2DCAB3F03 /* ExpoModulesProviders */ = {
+		06427605429C4E10975EB39D /* HackerReaderWidgets */ = {
 			isa = PBXGroup;
 			children = (
-				2BFB0397882965BD6510F217 /* HackerReader */,
+				A9734C9493D14CBEB8CCDF05 /* Attributes.swift */,
+				D3A563330DD843EE82FAF66E /* HNWidget.swift */,
+				F6AF4F68A0154F1FA1DCDA37 /* HNWidgetEntry.swift */,
+				B035457C682D4733ADA7B293 /* HNWidgetProvider.swift */,
+				E1E92FB32815463B850AECB3 /* HNWidgetView.swift */,
+				3FC12E4B769D470C9075EA24 /* .DS_Store */,
+				9B8E961669D84261A048A68A /* Info.plist */,
+				5317D22372A34B998D46D7C5 /* WidgetAssets.xcassets */,
+				FDA6CD288BFC4784B882A8A1 /* HackerReaderWidgets.entitlements */,
 			);
-			name = ExpoModulesProviders;
+			name = HackerReaderWidgets;
+			path = HackerReaderWidgets;
 			sourceTree = "<group>";
 		};
 		13B07FAE1A68108700A75B9A /* HackerReader */ = {
@@ -115,16 +127,8 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				B3ACD528393046D8AF0CCAB0 /* ybook.icon */,
-				13C998EC28248EF07230C997 /* PrivacyInfo.xcprivacy */,
-			);
-			name = HackerReader;
-			sourceTree = "<group>";
-		};
-		2BFB0397882965BD6510F217 /* HackerReader */ = {
-			isa = PBXGroup;
-			children = (
-				77C8BFCCD087061AD42C2BCE /* ExpoModulesProvider.swift */,
+				9C4020BEA28440F598A1E076 /* ybook.icon */,
+				42E094B39FD8E17DD7D6CD73 /* PrivacyInfo.xcprivacy */,
 			);
 			name = HackerReader;
 			sourceTree = "<group>";
@@ -133,10 +137,10 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				68184E79347C49FE8011EC2E /* WidgetKit.framework */,
-				9197FD3E2E9045259DFF45A6 /* SwiftUI.framework */,
-				8338A6728C43660A603E0070 /* libPods-HackerReader.a */,
-				3C9E31B9B4273F89C03DC316 /* libPods-HackerReaderWidgets.a */,
+				436DA8A5754448739202C4DC /* WidgetKit.framework */,
+				0009FBB3B3B34F0C9B7D651F /* SwiftUI.framework */,
+				0F7E379C17F491E5C22D6BB8 /* libPods-HackerReader.a */,
+				736F724523C5DD6CD5FD041A /* libPods-HackerReaderWidgets.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -155,9 +159,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				929FFA6690634501BB0BD2E1 /* HackerReaderWidgets */,
-				9E8FE6537ACB690C0CE64C24 /* Pods */,
-				10B43D20C618CAA2DCAB3F03 /* ExpoModulesProviders */,
+				06427605429C4E10975EB39D /* HackerReaderWidgets */,
+				B4F7371772D3930C233E1D11 /* Pods */,
+				DA6C441AA7409DF07A9447B0 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -168,33 +172,18 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* HackerReader.app */,
-				E4D929B7425743638D1D5CF6 /* HackerReaderWidgets.appex */,
+				6F1825B21AA14F3A84D667DC /* HackerReaderWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		929FFA6690634501BB0BD2E1 /* HackerReaderWidgets */ = {
+		B4F7371772D3930C233E1D11 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				A56DC141088A4085BE49F5DC /* Attributes.swift */,
-				F2FA3019319846E5BFB381CA /* HNWidget.swift */,
-				D5E339B0F6EC47008C1C298D /* HNWidgetEntry.swift */,
-				12929FE0AD9D43558EC67E2E /* HNWidgetProvider.swift */,
-				93EDB478DD12420480F65A92 /* HNWidgetView.swift */,
-				951B86923D92417B9BC0847D /* Info.plist */,
-				A68E9B8200784DAC9DC1D532 /* HackerReaderWidgets.entitlements */,
-			);
-			name = HackerReaderWidgets;
-			path = HackerReaderWidgets;
-			sourceTree = "<group>";
-		};
-		9E8FE6537ACB690C0CE64C24 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				D092F5365FC625BC2AC481A5 /* Pods-HackerReader.debug.xcconfig */,
-				639C82D4D3C986C563DFBE32 /* Pods-HackerReader.release.xcconfig */,
-				51BE6FC3F5FAA218894CAC0E /* Pods-HackerReaderWidgets.debug.xcconfig */,
-				3887FE9AAA88C04FB7FF1CD0 /* Pods-HackerReaderWidgets.release.xcconfig */,
+				E18D93B8A9415BA41735DE77 /* Pods-HackerReader.debug.xcconfig */,
+				D6D6A36D4D807D49D051CAF0 /* Pods-HackerReader.release.xcconfig */,
+				FA6595B2023DFD40787C1C7F /* Pods-HackerReaderWidgets.debug.xcconfig */,
+				5886F3B549C93916FE318074 /* Pods-HackerReaderWidgets.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -209,6 +198,22 @@
 			path = HackerReader/Supporting;
 			sourceTree = "<group>";
 		};
+		C6B70AABE8196134BA58F6AD /* HackerReader */ = {
+			isa = PBXGroup;
+			children = (
+				7D1FFB870890FFAD64716EEE /* ExpoModulesProvider.swift */,
+			);
+			name = HackerReader;
+			sourceTree = "<group>";
+		};
+		DA6C441AA7409DF07A9447B0 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				C6B70AABE8196134BA58F6AD /* HackerReader */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -217,33 +222,33 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "HackerReader" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				4D01A1929C1ED208FADB320B /* [Expo] Configure project */,
+				575D590C39AFE57234D7126C /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				F7A2079EB5BD40B0915D662F /* Embed Foundation Extensions */,
-				D1189B9B9AFE352D55450511 /* [CP] Embed Pods Frameworks */,
+				D45569E97AD14EFCB5C031A7 /* Embed Foundation Extensions */,
+				8E0E9B2CE9DCBD3C6F6037F5 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7BFFF7C607D64D08BADBFED0 /* PBXTargetDependency */,
+				6DFE302377D047048773EC1D /* PBXTargetDependency */,
 			);
 			name = HackerReader;
 			productName = HackerReader;
 			productReference = 13B07F961A680F5B00A75B9A /* HackerReader.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2EDDDD1DEBD14C489BFD3B0F /* HackerReaderWidgets */ = {
+		9FF91B36ECA04DB0BBB11419 /* HackerReaderWidgets */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5EBD27EC5178471EBFFF8850 /* Build configuration list for PBXNativeTarget "HackerReaderWidgets" */;
+			buildConfigurationList = B855AD041C4244088BBDAF8D /* Build configuration list for PBXNativeTarget "HackerReaderWidgets" */;
 			buildPhases = (
-				064ABADD4EED7B5808DAE79F /* [CP] Check Pods Manifest.lock */,
-				B8299BE8174A4E86B3AF74BA /* Sources */,
-				CFE9A503BDEE416EA4DFC4A8 /* Frameworks */,
-				29223193D0224C73A6C8C52C /* Resources */,
+				6CA3D83567F50EBCF6E7A115 /* [CP] Check Pods Manifest.lock */,
+				6A40D6F1864B423289B347A7 /* Sources */,
+				CBCD53E3DA6A4ABEA3E6CDDC /* Frameworks */,
+				093A2255848A49B2AB45844A /* Resources */,
 			);
 			buildRules = (
 			);
@@ -251,7 +256,7 @@
 			);
 			name = HackerReaderWidgets;
 			productName = HackerReaderWidgets;
-			productReference = E4D929B7425743638D1D5CF6 /* HackerReaderWidgets.appex */;
+			productReference = 6F1825B21AA14F3A84D667DC /* HackerReaderWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -265,7 +270,7 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
 					};
-					2EDDDD1DEBD14C489BFD3B0F = {
+					9FF91B36ECA04DB0BBB11419 = {
 						LastSwiftMigration = 1250;
 					};
 				};
@@ -284,12 +289,20 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* HackerReader */,
-				2EDDDD1DEBD14C489BFD3B0F /* HackerReaderWidgets */,
+				9FF91B36ECA04DB0BBB11419 /* HackerReaderWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		093A2255848A49B2AB45844A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2F80378E0ADB48DE97F141AD /* WidgetAssets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -297,15 +310,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				A81D067ACE4A4671A2ADAF32 /* ybook.icon in Resources */,
-				2FAE7CA6FFF21FEA9A798FE1 /* PrivacyInfo.xcprivacy in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		29223193D0224C73A6C8C52C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				C224612607BF487294635D36 /* ybook.icon in Resources */,
+				176A9CB8980F219F914F86C6 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,28 +335,6 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\nif [[ \"$CONFIGURATION\" = *Debug* ]]; then\n  export SKIP_BUNDLING=1\nfi\nif [[ -z \"$ENTRY_FILE\" ]]; then\n  # Set the entry JS file using the bundler's entry resolution.\n  export ENTRY_FILE=\"$(\"$NODE_BINARY\" -e \"require('expo/scripts/resolveAppEntry')\" \"$PROJECT_ROOT\" ios absolute | tail -n 1)\"\nfi\n\nif [[ -z \"$CLI_PATH\" ]]; then\n  # Use Expo CLI\n  export CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })\")\"\nfi\nif [[ -z \"$BUNDLE_COMMAND\" ]]; then\n  # Default Expo CLI command for bundling\n  export BUNDLE_COMMAND=\"export:embed\"\nfi\n\n# Source .xcode.env.updates if it exists to allow\n# SKIP_BUNDLING to be unset if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.updates\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.updates\"\nfi\n# Source local changes to allow overrides\n# if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n`\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n\n";
 		};
-		064ABADD4EED7B5808DAE79F /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-HackerReaderWidgets-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -373,7 +357,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4D01A1929C1ED208FADB320B /* [Expo] Configure project */ = {
+		575D590C39AFE57234D7126C /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -396,6 +380,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-HackerReader/expo-configure-project.sh\"\n";
+		};
+		6CA3D83567F50EBCF6E7A115 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HackerReaderWidgets-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -433,7 +439,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HackerReader/Pods-HackerReader-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D1189B9B9AFE352D55450511 /* [CP] Embed Pods Frameworks */ = {
+		8E0E9B2CE9DCBD3C6F6037F5 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -463,36 +469,36 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				A376434A33289754ED05211C /* ExpoModulesProvider.swift in Sources */,
+				206F326356856D598C236838 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B8299BE8174A4E86B3AF74BA /* Sources */ = {
+		6A40D6F1864B423289B347A7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				35141B69387743B89A5C87B8 /* Attributes.swift in Sources */,
-				1305B2EB9A3041629C42A0C6 /* HNWidget.swift in Sources */,
-				D5BB1BF8A5A1499D8FD24201 /* HNWidgetEntry.swift in Sources */,
-				4759B53B8983429784344DEC /* HNWidgetProvider.swift in Sources */,
-				0FCBB31C2ABE4350B9B73AAC /* HNWidgetView.swift in Sources */,
+				1A1B4F1CCE09458C945C0BDB /* Attributes.swift in Sources */,
+				B76CE89351B6489583F71318 /* HNWidget.swift in Sources */,
+				83EBF0D0CEA94AA5A6176FCF /* HNWidgetEntry.swift in Sources */,
+				F1C87C317631483CAB49DDA3 /* HNWidgetProvider.swift in Sources */,
+				A3157365BE83406CBC2CC9AB /* HNWidgetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		7BFFF7C607D64D08BADBFED0 /* PBXTargetDependency */ = {
+		6DFE302377D047048773EC1D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2EDDDD1DEBD14C489BFD3B0F /* HackerReaderWidgets */;
-			targetProxy = 7A84CDED670140B68DE1564A /* PBXContainerItemProxy */;
+			target = 9FF91B36ECA04DB0BBB11419 /* HackerReaderWidgets */;
+			targetProxy = C9A2C3FFE3E44FCFBE99BBC6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D092F5365FC625BC2AC481A5 /* Pods-HackerReader.debug.xcconfig */;
+			baseConfigurationReference = E18D93B8A9415BA41735DE77 /* Pods-HackerReader.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = ybook;
 				CLANG_ENABLE_MODULES = YES;
@@ -528,7 +534,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 639C82D4D3C986C563DFBE32 /* Pods-HackerReader.release.xcconfig */;
+			baseConfigurationReference = D6D6A36D4D807D49D051CAF0 /* Pods-HackerReader.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = ybook;
 				CLANG_ENABLE_MODULES = YES;
@@ -556,30 +562,9 @@
 			};
 			name = Release;
 		};
-		413A5F2DF0F74DD791C34FD2 /* Debug */ = {
+		589D4F32186F42DEB4C02B8E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 51BE6FC3F5FAA218894CAC0E /* Pods-HackerReaderWidgets.debug.xcconfig */;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = HackerReaderWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = HackerReaderWidgets;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				MARKETING_VERSION = 1.0.0;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.danielcspaiva.hnclient.HackerReaderWidgets;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		7361968CC1E34F56837B4E33 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3887FE9AAA88C04FB7FF1CD0 /* Pods-HackerReaderWidgets.release.xcconfig */;
+			baseConfigurationReference = 5886F3B549C93916FE318074 /* Pods-HackerReaderWidgets.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
@@ -718,6 +703,27 @@
 			};
 			name = Release;
 		};
+		E5AEE40F972E44068C316D26 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FA6595B2023DFD40787C1C7F /* Pods-HackerReaderWidgets.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HackerReaderWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HackerReaderWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.danielcspaiva.hnclient.HackerReaderWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -730,20 +736,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5EBD27EC5178471EBFFF8850 /* Build configuration list for PBXNativeTarget "HackerReaderWidgets" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				413A5F2DF0F74DD791C34FD2 /* Debug */,
-				7361968CC1E34F56837B4E33 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "HackerReader" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B855AD041C4244088BBDAF8D /* Build configuration list for PBXNativeTarget "HackerReaderWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E5AEE40F972E44068C316D26 /* Debug */,
+				589D4F32186F42DEB4C02B8E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

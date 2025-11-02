@@ -26,6 +26,44 @@ extension Color {
     }
 }
 
+func timeAgoString(from timestamp: Int, includeSuffix: Bool = true) -> String {
+    let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+    let now = Date()
+    let interval = max(now.timeIntervalSince(date), 0)
+
+    let minutes = Int(interval / 60)
+    let hours = Int(interval / 3600)
+    let days = Int(interval / 86400)
+
+    let suffix = includeSuffix ? " ago" : ""
+
+    if days > 0 {
+        return "\(days)d" + suffix
+    } else if hours > 0 {
+        return "\(hours)h" + suffix
+    } else {
+        return "\(max(minutes, 1))m" + suffix
+    }
+}
+
+/// Extracts the domain from a URL string, removing 'www.' prefix
+/// - Parameter urlString: Full URL string
+/// - Returns: Domain name or nil if invalid URL
+func extractDomain(from urlString: String?) -> String? {
+    guard let urlString = urlString,
+          let url = URL(string: urlString),
+          let host = url.host else {
+        return nil
+    }
+
+    // Remove 'www.' prefix
+    if host.hasPrefix("www.") {
+        return String(host.dropFirst(4))
+    }
+
+    return host
+}
+
 // MARK: - Widget Styling Helpers
 extension View {
     @ViewBuilder
@@ -42,11 +80,11 @@ extension View {
 
 // MARK: - Layout Constants
 enum WidgetLayout {
-    static let horizontalPaddingSmall: CGFloat = 5
+    static let horizontalPaddingSmall: CGFloat = 3
     static let horizontalPaddingMedium: CGFloat = 6
     static let horizontalPaddingLarge: CGFloat = 8
 
-    static let verticalPaddingTight: CGFloat = 4
+    static let verticalPaddingTight: CGFloat = 2
     static let verticalPaddingRegular: CGFloat = 6
 
     static let rowSpacingTight: CGFloat = 3
@@ -54,24 +92,53 @@ enum WidgetLayout {
 }
 
 // MARK: - Shared Subviews
+enum WidgetHeaderStyle {
+    case leadingAppIcon
+    case trailingYBookWithFlame
+}
+
 struct WidgetHeaderView: View {
     let textColor: Color
     let iconSize: CGFloat
     let fontSize: CGFloat
+    let style: WidgetHeaderStyle
 
     var body: some View {
-        HStack(spacing: 5) {
-            Image(systemName: "flame.fill")
-                .font(.system(size: iconSize, weight: .semibold))
-                .foregroundColor(.hnOrange)
+        let spacing: CGFloat = style == .leadingAppIcon ? 5 : 6
+
+        HStack(spacing: spacing) {
+            if style == .leadingAppIcon {
+                Image("ybook")
+                    .resizable()
+                    .renderingMode(.original)
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: iconSize, height: iconSize)
+                    .clipShape(RoundedRectangle(cornerRadius: iconSize * 0.2))
+            }
+
+            if style == .trailingYBookWithFlame {
+                Image(systemName: "flame")
+                    .font(.system(size: fontSize, weight: .semibold))
+                    .foregroundColor(.hnOrange)
+            }
 
             Text("Top Stories")
                 .font(.system(size: fontSize, weight: .semibold))
                 .foregroundColor(textColor)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer(minLength: 0)
+            if style == .trailingYBookWithFlame {
+                Image("ybook")
+                    .resizable()
+                    .renderingMode(.original)
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: iconSize, height: iconSize)
+                    .clipShape(RoundedRectangle(cornerRadius: iconSize * 0.2))
+            }
         }
     }
 }
@@ -87,6 +154,13 @@ struct CompactStoryRow: View {
                 .foregroundColor(textColor)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
+
+            if let domain = extractDomain(from: story.url) {
+                Text(domain)
+                    .font(.system(size: 10))
+                    .foregroundColor(textColor.opacity(0.6))
+                    .lineLimit(1)
+            }
 
             HStack(spacing: 4) {
                 Image(systemName: "arrow.up")
@@ -107,33 +181,41 @@ struct DetailedStoryRow: View {
     let secondaryTextColor: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        let commentCount = story.descendants ?? 0
+        let timeText = timeAgoString(from: story.time)
+
+        VStack(alignment: .leading, spacing: 4) {
             Text(story.title)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(textColor)
                 .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.leading)
 
             HStack(spacing: 6) {
                 HStack(spacing: 3) {
                     Image(systemName: "arrow.up")
-                        .font(.system(size: 9, weight: .semibold))
                     Text("\(story.score)")
-                        .font(.system(size: 11, weight: .semibold))
                 }
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.hnOrange)
 
-                Text("•")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(secondaryTextColor)
-
                 HStack(spacing: 3) {
-                    Image(systemName: "person.fill")
-                    Text(story.by)
+                    Image(systemName: "bubble.left.and.bubble.right")
+                    Text("\(commentCount)")
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
-                .font(.system(size: 11))
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(secondaryTextColor)
+
+                HStack(spacing: 3) {
+                    Image(systemName: "clock")
+                    Text(timeText)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(secondaryTextColor)
 
                 Spacer(minLength: 0)
@@ -150,12 +232,21 @@ struct ExtendedStoryRow: View {
     let timeAgo: String
 
     var body: some View {
+        let commentCount = story.descendants ?? 0
+
         VStack(alignment: .leading, spacing: 3) {
             Text(story.title)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(textColor)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
+
+            if let domain = extractDomain(from: story.url) {
+                Text(domain)
+                    .font(.system(size: 11))
+                    .foregroundColor(textColor.opacity(0.6))
+                    .lineLimit(1)
+            }
 
             HStack(spacing: 6) {
                 HStack(spacing: 3) {
@@ -165,25 +256,17 @@ struct ExtendedStoryRow: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.hnOrange)
 
-                Text("•")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(secondaryTextColor)
-
                 HStack(spacing: 3) {
-                    Image(systemName: "person.fill")
-                    Text(story.by)
+                    Image(systemName: "bubble.left.and.bubble.right")
+                    Text("\(commentCount)")
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
-                .font(.system(size: 11))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(secondaryTextColor)
 
-                Text("•")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(secondaryTextColor)
-
                 HStack(spacing: 3) {
-                    Image(systemName: "clock.fill")
+                    Image(systemName: "clock")
                     Text(timeAgo)
                 }
                 .font(.system(size: 11))
@@ -193,6 +276,66 @@ struct ExtendedStoryRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct HighlightStoryView: View {
+    let story: HNStory
+    let textColor: Color
+    let secondaryTextColor: Color
+
+    var body: some View {
+        let commentCount = story.descendants ?? 0
+
+        VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(story.title)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(textColor)
+                    .lineLimit(4)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                if let domain = extractDomain(from: story.url) {
+                    Text(domain)
+                        .font(.system(size: 11))
+                        .foregroundColor(textColor.opacity(0.6))
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                HStack(spacing: 3) {
+                    Image(systemName: "arrow.up")
+                    Text("\(story.score)")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.hnOrange)
+
+                HStack(spacing: 3) {
+                    Image(systemName: "bubble.left.and.bubble.right")
+                    Text("\(commentCount)")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(secondaryTextColor)
+
+                HStack(spacing: 3) {
+                    Image(systemName: "clock")
+                    Text(timeAgoString(from: story.time, includeSuffix: false))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .font(.system(size: 11))
+                .foregroundColor(secondaryTextColor)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
@@ -218,7 +361,7 @@ struct HNWidgetView: View {
 }
 
 // MARK: - Small Widget View
-/// Shows top 3 stories in compact format
+/// Shows top story in compact format
 struct SmallWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
     var entry: HNWidgetEntry
@@ -231,36 +374,37 @@ struct SmallWidgetView: View {
         colorScheme == .dark ? .darkText : .lightText
     }
 
+    var secondaryTextColor: Color {
+        colorScheme == .dark ? Color.gray : Color(white: 0.4)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingRegular) {
-            WidgetHeaderView(textColor: textColor, iconSize: 15, fontSize: 13)
-
-            Divider()
-                .background(colorScheme == .dark ? Color.darkBorder : Color.lightBorder)
-
-            VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingTight) {
-                ForEach(Array(entry.stories.prefix(3))) { story in
-                    CompactStoryRow(story: story, textColor: textColor)
-
-                    if story.id != entry.stories.prefix(3).last?.id {
-                        Divider()
-                            .background(colorScheme == .dark ? Color.darkBorder : Color.lightBorder)
-                    }
+            if let topStory = entry.stories.first {
+                Link(destination: URL(string: "hnclient://story/\(topStory.id)")!) {
+                    HighlightStoryView(
+                        story: topStory,
+                        textColor: textColor,
+                        secondaryTextColor: secondaryTextColor
+                    )
+                    .contentShape(Rectangle())
                 }
+            } else {
+                Text("No stories available")
+                    .font(.system(size: 13))
+                    .foregroundColor(textColor.opacity(0.7))
             }
 
-            Spacer(minLength: 0)
         }
         .padding(.vertical, WidgetLayout.verticalPaddingTight)
         .padding(.horizontal, WidgetLayout.horizontalPaddingSmall)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .widgetSurfaceBackground(backgroundColor)
-        .widgetURL(URL(string: "hnclient://"))
     }
 }
 
 // MARK: - Medium Widget View
-/// Shows 3 stories with more details
+/// Shows 2 stories with more details
 struct MediumWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
     var entry: HNWidgetEntry
@@ -279,13 +423,18 @@ struct MediumWidgetView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingRegular) {
-            WidgetHeaderView(textColor: textColor, iconSize: 16, fontSize: 15)
+            WidgetHeaderView(
+                textColor: textColor,
+                iconSize: 20,
+                fontSize: 15,
+                style: .trailingYBookWithFlame
+            )
 
             Divider()
                 .background(colorScheme == .dark ? Color.darkBorder : Color.lightBorder)
 
-            VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingRegular) {
-                ForEach(Array(entry.stories.prefix(3))) { story in
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(entry.stories.prefix(2).enumerated()), id: \.element.id) { index, story in
                     Link(destination: URL(string: "hnclient://story/\(story.id)")!) {
                         DetailedStoryRow(
                             story: story,
@@ -294,14 +443,15 @@ struct MediumWidgetView: View {
                         )
                     }
 
-                    if story.id != entry.stories.prefix(3).last?.id {
+                    if index < entry.stories.prefix(2).count - 1 {
+                        Spacer()
                         Divider()
                             .background(colorScheme == .dark ? Color.darkBorder : Color.lightBorder)
+                        Spacer()
                     }
                 }
             }
-
-            Spacer(minLength: 0)
+            .frame(maxHeight: .infinity)
         }
         .padding(.vertical, WidgetLayout.verticalPaddingRegular)
         .padding(.horizontal, WidgetLayout.horizontalPaddingMedium)
@@ -311,7 +461,7 @@ struct MediumWidgetView: View {
 }
 
 // MARK: - Large Widget View
-/// Shows 6 stories with full details
+/// Shows 4 stories with full details
 struct LargeWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
     var entry: HNWidgetEntry
@@ -330,39 +480,36 @@ struct LargeWidgetView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingRegular) {
-            WidgetHeaderView(textColor: textColor, iconSize: 17, fontSize: 15)
+            WidgetHeaderView(
+                textColor: textColor,
+                iconSize: 20,
+                fontSize: 15,
+                style: .trailingYBookWithFlame
+            )
 
             Divider()
                 .background(colorScheme == .dark ? Color.darkBorder : Color.lightBorder)
 
-            VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingRegular) {
-                ForEach(Array(entry.stories.prefix(6))) { story in
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(entry.stories.prefix(4).enumerated()), id: \.element.id) { index, story in
                     Link(destination: URL(string: "hnclient://story/\(story.id)")!) {
                         ExtendedStoryRow(
                             story: story,
                             textColor: textColor,
                             secondaryTextColor: secondaryTextColor,
-                            timeAgo: timeAgo(from: story.time)
+                            timeAgo: timeAgoString(from: story.time)
                         )
                     }
 
-                    if story.id != entry.stories.prefix(6).last?.id {
+                    if index < entry.stories.prefix(4).count - 1 {
+                        Spacer()
                         Divider()
                             .background(colorScheme == .dark ? Color.darkBorder : Color.lightBorder)
+                        Spacer()
                     }
                 }
             }
-
-            Spacer(minLength: 0)
-
-            HStack(spacing: 4) {
-                Spacer()
-                Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 10))
-                Text("Updated \(timeAgo(from: Int(entry.date.timeIntervalSince1970)))")
-                    .font(.system(size: 11))
-                    .foregroundColor(secondaryTextColor)
-            }
+            .frame(maxHeight: .infinity)
         }
         .padding(.vertical, WidgetLayout.verticalPaddingRegular)
         .padding(.horizontal, WidgetLayout.horizontalPaddingLarge)
@@ -370,24 +517,6 @@ struct LargeWidgetView: View {
         .widgetSurfaceBackground(backgroundColor)
     }
 
-    /// Convert Unix timestamp to "time ago" format
-    private func timeAgo(from timestamp: Int) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let now = Date()
-        let interval = now.timeIntervalSince(date)
-
-        let hours = Int(interval / 3600)
-        let days = Int(interval / 86400)
-
-        if days > 0 {
-            return "\(days)d ago"
-        } else if hours > 0 {
-            return "\(hours)h ago"
-        } else {
-            let minutes = Int(interval / 60)
-            return "\(minutes)m ago"
-        }
-    }
 }
 
 // MARK: - Preview
