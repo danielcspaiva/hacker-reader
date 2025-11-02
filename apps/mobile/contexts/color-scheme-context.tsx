@@ -1,7 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { useColorScheme as useSystemColorScheme } from "react-native";
 import UserInterfaceStyle from "react-native-user-interface-style";
+import { usePostHog } from "posthog-react-native";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { trackEvent } from "@/lib/analytics/tracking";
 
 type ColorSchemePreference = "system" | "light" | "dark";
 type ColorScheme = "light" | "dark";
@@ -30,6 +33,8 @@ export function ColorSchemeProvider({
     useState<ColorSchemePreference>("system");
   const [isLoaded, setIsLoaded] = useState(false);
   const colorPalette: ColorPalette = "lights-out";
+  const posthog = usePostHog();
+  const isFirstLoad = useRef(true);
 
   // Load preferences from storage on mount
   useEffect(() => {
@@ -46,6 +51,15 @@ export function ColorSchemeProvider({
   }, []);
 
   const setPreference = (newPreference: ColorSchemePreference) => {
+    // Track theme change (skip tracking on first load)
+    if (!isFirstLoad.current) {
+      trackEvent(posthog, AnalyticsEvent.THEME_CHANGED, {
+        from_theme: preference,
+        to_theme: newPreference,
+      });
+    }
+    isFirstLoad.current = false;
+
     setPreferenceState(newPreference);
     AsyncStorage.setItem(STORAGE_KEY, newPreference);
   };

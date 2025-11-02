@@ -7,11 +7,14 @@ import { useBookmarkMutation, useIsBookmarked } from "@/hooks/use-bookmarks";
 import { useShareStory } from "@/hooks/use-share-story";
 import { useStory } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { flattenComments } from "@/lib/utils/comments";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -31,6 +34,7 @@ function EmptyComments() {
 
 export default function StoryDetailScreen() {
   const { id, title } = useLocalSearchParams();
+  const analytics = useAnalytics();
   const {
     data: story,
     isLoading,
@@ -53,6 +57,19 @@ export default function StoryDetailScreen() {
   const { data: isBookmarked } = useIsBookmarked(Number(id));
   const bookmarkMutation = useBookmarkMutation();
   const shareStory = useShareStory();
+
+  // Track story viewed
+  useEffect(() => {
+    if (story && !isLoading && !isInsidePreview) {
+      analytics.track(AnalyticsEvent.STORY_VIEWED, {
+        [AnalyticsProperty.STORY_ID]: story.id,
+        [AnalyticsProperty.STORY_TITLE]: story.title,
+        [AnalyticsProperty.STORY_SCORE]: story.score,
+        [AnalyticsProperty.HAS_URL]: !!story.url,
+        [AnalyticsProperty.COMMENT_COUNT]: story.descendants || 0,
+      });
+    }
+  }, [story, isLoading, isInsidePreview, analytics]);
 
   const handleBookmark = () => {
     bookmarkMutation.mutate({
@@ -78,10 +95,31 @@ export default function StoryDetailScreen() {
   const toggleCollapse = (commentId: number) => {
     setCollapsedIds((prev) => {
       const next = new Set(prev);
+
       if (next.has(commentId)) {
         next.delete(commentId);
       } else {
         next.add(commentId);
+
+        // Track comment collapse - find comment recursively in tree
+        if (story?.comments) {
+          const findComment = (comments: typeof story.comments): typeof story.comments[0] | undefined => {
+            for (const comment of comments) {
+              if (comment.id === commentId) return comment;
+              const found = findComment(comment.children);
+              if (found) return found;
+            }
+            return undefined;
+          };
+
+          const comment = findComment(story.comments);
+          if (comment) {
+            analytics.track(AnalyticsEvent.COMMENT_COLLAPSED, {
+              [AnalyticsProperty.COMMENT_ID]: commentId,
+              [AnalyticsProperty.CHILD_COUNT]: comment.children?.length || 0,
+            });
+          }
+        }
       }
       return next;
     });

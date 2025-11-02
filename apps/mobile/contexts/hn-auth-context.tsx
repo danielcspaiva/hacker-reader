@@ -13,7 +13,10 @@ import {
   ReactNode,
 } from "react";
 import * as SecureStore from "expo-secure-store";
+import { usePostHog } from "posthog-react-native";
 import { SecureSession } from "@/lib/shared/auth";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { trackEvent, identifyUser, resetUser } from "@/lib/analytics/tracking";
 
 interface HNAuthContextValue {
   session: SecureSession | null;
@@ -28,6 +31,7 @@ const HNAuthContext = createContext<HNAuthContextValue | null>(null);
 export function HNAuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SecureSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const posthog = usePostHog();
 
   // Load session on mount
   useEffect(() => {
@@ -52,9 +56,23 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     const newSession = new SecureSession(cookies);
     setSession(newSession);
     await SecureStore.setItemAsync("hn_cookies", JSON.stringify(cookies));
+
+    // Track login and identify user
+    trackEvent(posthog, AnalyticsEvent.LOGIN_COMPLETED, {});
+
+    // Try to extract username from cookies for identification
+    // The username is typically stored in the 'acct' cookie
+    const username = cookies.acct;
+    if (username) {
+      identifyUser(posthog, username);
+    }
   }
 
   async function logout() {
+    // Track logout before clearing session
+    trackEvent(posthog, AnalyticsEvent.LOGOUT_TRIGGERED, {});
+    resetUser(posthog);
+
     setSession(null);
     await SecureStore.deleteItemAsync("hn_cookies");
   }

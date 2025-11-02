@@ -63,7 +63,8 @@
           "project": "app",
           "organization": "hacker-reader"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

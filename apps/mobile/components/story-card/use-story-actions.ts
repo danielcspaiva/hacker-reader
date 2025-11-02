@@ -1,6 +1,9 @@
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useBookmarkMutation } from "@/hooks/use-bookmarks";
 import { useShareStory } from "@/hooks/use-share-story";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { isAuthError, unvote, vote, type HNItem } from "@/lib/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -49,6 +52,7 @@ export function useStoryActions(story: HNItem): StoryActions {
   const { session, isAuthenticated, logout } = useHNAuth();
   const bookmarkMutation = useBookmarkMutation();
   const shareStory = useShareStory();
+  const analytics = useAnalytics();
   const [hasVoted, setHasVoted] = useState(false);
 
   // Vote mutation with optimistic updates
@@ -111,6 +115,19 @@ export function useStoryActions(story: HNItem): StoryActions {
       }
     },
 
+    onSuccess: (_data, wasVoted) => {
+      // Track vote analytics
+      if (wasVoted) {
+        analytics.track(AnalyticsEvent.STORY_UNVOTED, {
+          [AnalyticsProperty.STORY_ID]: story.id,
+        });
+      } else {
+        analytics.track(AnalyticsEvent.STORY_UPVOTED, {
+          [AnalyticsProperty.STORY_ID]: story.id,
+        });
+      }
+    },
+
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["item", story.id] });
     },
@@ -134,10 +151,27 @@ export function useStoryActions(story: HNItem): StoryActions {
       storyId: story.id,
       add: !isBookmarked,
     });
+
+    // Track bookmark analytics
+    if (isBookmarked) {
+      analytics.track(AnalyticsEvent.BOOKMARK_REMOVED, {
+        [AnalyticsProperty.STORY_ID]: story.id,
+      });
+    } else {
+      analytics.track(AnalyticsEvent.STORY_BOOKMARKED, {
+        [AnalyticsProperty.STORY_ID]: story.id,
+      });
+    }
   };
 
   const handleShare = () => {
     shareStory(story);
+
+    // Track share analytics
+    analytics.track(AnalyticsEvent.STORY_SHARED, {
+      [AnalyticsProperty.STORY_ID]: story.id,
+      [AnalyticsProperty.SHARE_METHOD]: "native",
+    });
   };
 
   return {
