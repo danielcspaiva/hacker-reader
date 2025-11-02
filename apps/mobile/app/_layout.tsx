@@ -15,6 +15,27 @@ import {
 } from "@/contexts/color-scheme-context";
 import { HNAuthProvider } from "@/contexts/hn-auth-context";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
+import * as Sentry from '@sentry/react-native';
+
+// Only initialize Sentry in production builds
+if (!__DEV__) {
+  Sentry.init({
+    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+
+    // Adds more context data to events (IP address, cookies, user, etc.)
+    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+    sendDefaultPii: true,
+
+    // Enable Logs in production
+    enableLogs: true,
+
+    // Set environment
+    environment: __DEV__ ? 'development' : 'production',
+
+    // Only send errors in production
+    enabled: !__DEV__,
+  });
+}
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -110,7 +131,7 @@ function RootLayoutContent() {
   );
 }
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ColorSchemeProvider>
@@ -120,4 +141,4 @@ export default function RootLayout() {
       </ColorSchemeProvider>
     </QueryClientProvider>
   );
-}
+});

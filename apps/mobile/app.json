@@ -55,6 +55,14 @@
           "groupIdentifier": "group.com.danielcspaiva.hnclient",
           "frequentUpdates": false
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "app",
+          "organization": "hacker-reader"
+        }
       ]
     ],
     "experiments": {
