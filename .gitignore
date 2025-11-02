@@ -1,8 +1,12 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+# Claude Code local settings
+.claude/
+
 # dependencies
 node_modules/
 **/node_modules/
+.pnpm-store/
 
 # Expo
 .expo/
@@ -27,6 +31,7 @@ next-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+.xcode.env.local
 
 # Metro
 .metro-health-check*
@@ -35,6 +40,8 @@ next-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.log*
+*.log
 
 # macOS
 .DS_Store
@@ -64,5 +71,8 @@ app-example
 
 # Vercel
 .vercel
+
+# Testing artifacts
+.playwright-mcp/
 
 ignore
