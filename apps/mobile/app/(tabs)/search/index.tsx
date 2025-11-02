@@ -2,17 +2,22 @@ import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useEffect } from "react";
 
 import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
 import { useSearchStories } from "@/hooks/use-search-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import type { HNItem } from "@/lib/shared";
 
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
+  const analytics = useAnalytics();
 
   const queryParam = params?.q;
   const rawQuery = Array.isArray(queryParam)
@@ -34,6 +39,16 @@ export default function SearchScreen() {
   } = useSearchStories(trimmedQuery);
 
   const stories = data?.pages.flatMap((page) => page.hits) ?? [];
+
+  // Track search performed
+  useEffect(() => {
+    if (!isQueryEmpty && !isLoading && data) {
+      analytics.track(AnalyticsEvent.SEARCH_PERFORMED, {
+        [AnalyticsProperty.QUERY]: trimmedQuery,
+        [AnalyticsProperty.RESULTS_COUNT]: stories.length,
+      });
+    }
+  }, [trimmedQuery, isLoading, data, analytics, stories.length, isQueryEmpty]);
 
   if (isQueryEmpty) {
     return (

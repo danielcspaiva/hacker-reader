@@ -6,6 +6,8 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { PostHogProvider, usePostHog } from "posthog-react-native";
+import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { Colors } from "@/constants/theme";
@@ -13,29 +15,30 @@ import {
   ColorSchemeProvider,
   useColorSchemeContext,
 } from "@/contexts/color-scheme-context";
-import { HNAuthProvider } from "@/contexts/hn-auth-context";
+import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
+import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
+import { getAppMetadata } from "@/lib/analytics/tracking";
+import * as Sentry from "@sentry/react-native";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import * as Sentry from '@sentry/react-native';
 
-// Only initialize Sentry in production builds
-if (!__DEV__) {
-  Sentry.init({
-    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+// Initialize Sentry (but only send data in production via `enabled` flag)
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
 
-    // Adds more context data to events (IP address, cookies, user, etc.)
-    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-    sendDefaultPii: true,
+  // Adds more context data to events (IP address, cookies, user, etc.)
+  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+  sendDefaultPii: true,
 
-    // Enable Logs in production
-    enableLogs: true,
+  // Enable Logs in production
+  enableLogs: true,
 
-    // Set environment
-    environment: __DEV__ ? 'development' : 'production',
+  // Set environment
+  environment: __DEV__ ? "development" : "production",
 
-    // Only send errors in production
-    enabled: !__DEV__,
-  });
-}
+  // Only send errors in production
+  enabled: !__DEV__,
+});
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -55,6 +58,22 @@ const queryClient = new QueryClient({
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
+  const { isAuthenticated } = useHNAuth();
+  const posthog = usePostHog();
+  useWidgetAnalytics();
+
+  // Register super properties when app state changes
+  useEffect(() => {
+    if (posthog) {
+      const metadata = getAppMetadata();
+
+      posthog.register({
+        ...metadata,
+        [AnalyticsProperty.COLOR_SCHEME]: colorScheme,
+        [AnalyticsProperty.IS_AUTHENTICATED]: isAuthenticated,
+      });
+    }
+  }, [posthog, colorScheme, isAuthenticated]);
 
   const customDarkTheme = {
     ...DarkTheme,
@@ -133,12 +152,21 @@ function RootLayoutContent() {
 
 export default Sentry.wrap(function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ColorSchemeProvider>
-        <HNAuthProvider>
-          <RootLayoutContent />
-        </HNAuthProvider>
-      </ColorSchemeProvider>
-    </QueryClientProvider>
+    <PostHogProvider
+      apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
+      options={{
+        host: process.env.EXPO_PUBLIC_POSTHOG_HOST!,
+        enableSessionReplay: true,
+      }}
+      autocapture
+    >
+      <QueryClientProvider client={queryClient}>
+        <ColorSchemeProvider>
+          <HNAuthProvider>
+            <RootLayoutContent />
+          </HNAuthProvider>
+        </ColorSchemeProvider>
+      </QueryClientProvider>
+    </PostHogProvider>
   );
 });

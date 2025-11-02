@@ -1,12 +1,15 @@
 import { CategoryFilter, type Category } from "@/components/category-filter";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { ThemedText } from "@/components/themed-text";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { usePrefetchCategories, useStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { type HNItem } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -31,6 +34,7 @@ const HEADER_SCROLL_OFFSET = isLiquidGlassAvailable() ? 100 : 90;
 
 export default function FeedScreen() {
   const [category, setCategory] = useState<Category>("top");
+  const analytics = useAnalytics();
 
   const {
     data,
@@ -49,6 +53,28 @@ export default function FeedScreen() {
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
+
+  // Track category changes
+  const handleCategoryChange = (newCategory: Category) => {
+    analytics.track(AnalyticsEvent.CATEGORY_CHANGED, {
+      [AnalyticsProperty.FROM_CATEGORY]: category,
+      [AnalyticsProperty.TO_CATEGORY]: newCategory,
+    });
+    setCategory(newCategory);
+  };
+
+  // Track infinite scroll
+  const currentPage = useRef(0);
+  useEffect(() => {
+    const newPageCount = data?.pages.length ?? 0;
+    if (newPageCount > currentPage.current && currentPage.current > 0) {
+      analytics.track(AnalyticsEvent.INFINITE_SCROLL_TRIGGERED, {
+        [AnalyticsProperty.CATEGORY]: category,
+        [AnalyticsProperty.PAGE_NUMBER]: newPageCount,
+      });
+    }
+    currentPage.current = newPageCount;
+  }, [data?.pages.length, category, analytics]);
 
   // Animation setup for sticky header
   const flatListRef = useRef<FlatList>(null);
@@ -76,13 +102,13 @@ export default function FeedScreen() {
     };
   });
 
-  const renderStickyHeader = useMemo(
-    () => (
-      <Animated.View style={stickyHeaderStyle}>
-        <CategoryFilter category={category} onSelectCategory={setCategory} />
-      </Animated.View>
-    ),
-    [category, stickyHeaderStyle]
+  const renderStickyHeader = () => (
+    <Animated.View style={stickyHeaderStyle}>
+      <CategoryFilter
+        category={category}
+        onSelectCategory={handleCategoryChange}
+      />
+    </Animated.View>
   );
 
   return (

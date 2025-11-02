@@ -1,4 +1,6 @@
 PODS:
+  - EXApplication (7.0.7):
+    - ExpoModulesCore
   - EXConstants (18.0.9):
     - ExpoModulesCore
   - EXJSONUtils (0.15.0)
@@ -202,6 +204,8 @@ PODS:
     - Yoga
   - ExpoAsset (12.0.9):
     - ExpoModulesCore
+  - ExpoDevice (8.0.9):
+    - ExpoModulesCore
   - ExpoFileSystem (19.0.17):
     - ExpoModulesCore
   - ExpoFont (14.0.9):
@@ -223,6 +227,8 @@ PODS:
   - ExpoKeepAwake (15.0.7):
     - ExpoModulesCore
   - ExpoLinking (8.0.8):
+    - ExpoModulesCore
+  - ExpoLocalization (17.0.7):
     - ExpoModulesCore
   - ExpoModulesCore (3.0.21):
     - hermes-engine
@@ -282,6 +288,30 @@ PODS:
   - libwebp/sharpyuv (1.5.0)
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
+  - PostHog (3.34.0)
+  - posthog-react-native-session-replay (1.2.1):
+    - hermes-engine
+    - PostHog (~> 3.21)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RCTDeprecation (0.81.4)
   - RCTRequired (0.81.4)
   - RCTTypeSafety (0.81.4):
@@ -2197,6 +2227,51 @@ PODS:
     - ReactNativeDependencies
     - Sentry/HybridSDK (= 8.57.0)
     - Yoga
+  - RNSVG (15.14.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNSVG/common (= 15.14.0)
+    - Yoga
+  - RNSVG/common (15.14.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNWorklets (0.5.1):
     - hermes-engine
     - RCTRequired
@@ -2283,6 +2358,7 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
+  - EXApplication (from `../../../node_modules/expo-application/ios`)
   - EXConstants (from `../../../node_modules/expo-constants/ios`)
   - EXJSONUtils (from `../../../node_modules/expo-json-utils/ios`)
   - EXManifests (from `../../../node_modules/expo-manifests/ios`)
@@ -2292,6 +2368,7 @@ DEPENDENCIES:
   - expo-dev-menu (from `../../../node_modules/expo-dev-menu`)
   - expo-dev-menu-interface (from `../../../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../../../node_modules/expo-asset/ios`)
+  - ExpoDevice (from `../../../node_modules/expo-device/ios`)
   - ExpoFileSystem (from `../../../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../../../node_modules/expo-font/ios`)
   - ExpoGlassEffect (from `../../../node_modules/expo-glass-effect/ios`)
@@ -2300,6 +2377,7 @@ DEPENDENCIES:
   - ExpoImage (from `../../../node_modules/expo-image/ios`)
   - ExpoKeepAwake (from `../../../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../../../node_modules/expo-linking/ios`)
+  - ExpoLocalization (from `../../../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../../../node_modules/expo-modules-core`)
   - ExpoSecureStore (from `../../../node_modules/expo-secure-store/ios`)
   - ExpoSplashScreen (from `../../../node_modules/expo-splash-screen/ios`)
@@ -2310,6 +2388,7 @@ DEPENDENCIES:
   - EXUpdatesInterface (from `../../../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../../../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../../../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - posthog-react-native-session-replay (from `../../../node_modules/posthog-react-native-session-replay`)
   - RCTDeprecation (from `../../../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../../../node_modules/react-native/Libraries/Required`)
   - RCTTypeSafety (from `../../../node_modules/react-native/Libraries/TypeSafety`)
@@ -2385,6 +2464,7 @@ DEPENDENCIES:
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../../node_modules/react-native-screens`)
   - "RNSentry (from `../../../node_modules/@sentry/react-native`)"
+  - RNSVG (from `../../../node_modules/react-native-svg`)
   - RNWorklets (from `../../../node_modules/react-native-worklets`)
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2393,6 +2473,7 @@ SPEC REPOS:
     - libavif
     - libdav1d
     - libwebp
+    - PostHog
     - SDWebImage
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
@@ -2400,6 +2481,8 @@ SPEC REPOS:
     - Sentry
 
 EXTERNAL SOURCES:
+  EXApplication:
+    :path: "../../../node_modules/expo-application/ios"
   EXConstants:
     :path: "../../../node_modules/expo-constants/ios"
   EXJSONUtils:
@@ -2418,6 +2501,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-dev-menu-interface/ios"
   ExpoAsset:
     :path: "../../../node_modules/expo-asset/ios"
+  ExpoDevice:
+    :path: "../../../node_modules/expo-device/ios"
   ExpoFileSystem:
     :path: "../../../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -2434,6 +2519,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-keep-awake/ios"
   ExpoLinking:
     :path: "../../../node_modules/expo-linking/ios"
+  ExpoLocalization:
+    :path: "../../../node_modules/expo-localization/ios"
   ExpoModulesCore:
     :path: "../../../node_modules/expo-modules-core"
   ExpoSecureStore:
@@ -2455,6 +2542,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../../../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-07-07-RNv0.81.0-e0fc67142ec0763c6b6153ca2bf96df815539782
+  posthog-react-native-session-replay:
+    :path: "../../../node_modules/posthog-react-native-session-replay"
   RCTDeprecation:
     :path: "../../../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation"
   RCTRequired:
@@ -2603,12 +2692,15 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native-screens"
   RNSentry:
     :path: "../../../node_modules/@sentry/react-native"
+  RNSVG:
+    :path: "../../../node_modules/react-native-svg"
   RNWorklets:
     :path: "../../../node_modules/react-native-worklets"
   Yoga:
     :path: "../../../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  EXApplication: 296622817d459f46b6c5fe8691f4aac44d2b79e7
   EXConstants: a95804601ee4a6aa7800645f9b070d753b1142b3
   EXJSONUtils: 1d3e4590438c3ee593684186007028a14b3686cd
   EXManifests: 224345a575fca389073c416297b6348163f28d1a
@@ -2618,6 +2710,7 @@ SPEC CHECKSUMS:
   expo-dev-menu: 6db57f4d3001fe3992d84a0c2e285de381e4b51b
   expo-dev-menu-interface: 600df12ea01efecdd822daaf13cc0ac091775533
   ExpoAsset: 9ba6fbd677fb8e241a3899ac00fa735bc911eadf
+  ExpoDevice: 148accb4071873d19fba80a2506c58ffa433d620
   ExpoFileSystem: b79eadbda7b7f285f378f95f959cc9313a1c9c61
   ExpoFont: cf9d90ec1d3b97c4f513211905724c8171f82961
   ExpoGlassEffect: 744bf0c58c26a1b0212dff92856be07b98d01d8c
@@ -2626,6 +2719,7 @@ SPEC CHECKSUMS:
   ExpoImage: 6356eb13d3a076a991cf191e4bb22cca91a8f317
   ExpoKeepAwake: 1a2e820692e933c94a565ec3fbbe38ac31658ffe
   ExpoLinking: f051f28e50ea9269ff539317c166adec81d9342d
+  ExpoLocalization: b852a5d8ec14c5349c1593eca87896b5b3ebfcca
   ExpoModulesCore: 3a6eb12a5f4d67b2f5fc7d0bc4777b18348f2d7a
   ExpoSecureStore: 9c6571fe3fcb045a671c4011c451546eaaab98fd
   ExpoSplashScreen: cbb839de72110dea1851dd3e85080b7923af2540
@@ -2639,6 +2733,8 @@ SPEC CHECKSUMS:
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
+  PostHog: bbb7eaecb2f5a286d9da3c833cbb18ae08799655
+  posthog-react-native-session-replay: fa8e121b6135110f0dc7b81181515f684bdab429
   RCTDeprecation: 7487d6dda857ccd4cb3dd6ecfccdc3170e85dcbc
   RCTRequired: 54128b7df8be566881d48c7234724a78cb9b6157
   RCTTypeSafety: d2b07797a79e45d7b19e1cd2f53c79ab419fe217
@@ -2713,6 +2809,7 @@ SPEC CHECKSUMS:
   RNReanimated: 3b235ceb296e5073416466a2fed70812a17a0213
   RNScreens: d8d6f1792f6e7ac12b0190d33d8d390efc0c1845
   RNSentry: e78a3261af399234a1bd78663ffa73e89cf5087d
+  RNSVG: 6c534e37eaaefe882b3f55294d0d607de20562dc
   RNWorklets: 28c00d83c8869fe000d9995c8caa2ff02ba30b81
   SDWebImage: 16309af6d214ba3f77a7c6f6fdda888cb313a50a
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57

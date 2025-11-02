@@ -64,6 +64,41 @@ func extractDomain(from urlString: String?) -> String? {
     return host
 }
 
+private let widgetKindIdentifier = "HNTopStoriesWidget"
+
+private func widgetSizeParameter(for family: WidgetFamily) -> String? {
+    switch family {
+    case .systemSmall:
+        return "small"
+    case .systemMedium:
+        return "medium"
+    case .systemLarge:
+        return "large"
+    default:
+        return nil
+    }
+}
+
+private func widgetDeepLinkURL(for storyId: Int, family: WidgetFamily) -> URL {
+    var components = URLComponents()
+    components.scheme = "hnclient"
+    components.host = "story"
+    components.path = "/\(storyId)"
+
+    var queryItems: [URLQueryItem] = [
+        URLQueryItem(name: "source", value: "widget"),
+        URLQueryItem(name: "widgetKind", value: widgetKindIdentifier)
+    ]
+
+    if let size = widgetSizeParameter(for: family) {
+        queryItems.append(URLQueryItem(name: "widgetSize", value: size))
+    }
+
+    components.queryItems = queryItems
+
+    return components.url ?? URL(string: "hnclient://story/\(storyId)")!
+}
+
 // MARK: - Widget Styling Helpers
 extension View {
     @ViewBuilder
@@ -364,6 +399,7 @@ struct HNWidgetView: View {
 /// Shows top story in compact format
 struct SmallWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.widgetFamily) var widgetFamily
     var entry: HNWidgetEntry
 
     var backgroundColor: Color {
@@ -381,7 +417,7 @@ struct SmallWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: WidgetLayout.rowSpacingRegular) {
             if let topStory = entry.stories.first {
-                Link(destination: URL(string: "hnclient://story/\(topStory.id)")!) {
+                Link(destination: widgetDeepLinkURL(for: topStory.id, family: widgetFamily)) {
                     HighlightStoryView(
                         story: topStory,
                         textColor: textColor,
@@ -407,6 +443,7 @@ struct SmallWidgetView: View {
 /// Shows 2 stories with more details
 struct MediumWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.widgetFamily) var widgetFamily
     var entry: HNWidgetEntry
 
     var backgroundColor: Color {
@@ -435,7 +472,7 @@ struct MediumWidgetView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(entry.stories.prefix(2).enumerated()), id: \.element.id) { index, story in
-                    Link(destination: URL(string: "hnclient://story/\(story.id)")!) {
+                    Link(destination: widgetDeepLinkURL(for: story.id, family: widgetFamily)) {
                         DetailedStoryRow(
                             story: story,
                             textColor: textColor,
@@ -464,6 +501,7 @@ struct MediumWidgetView: View {
 /// Shows 4 stories with full details
 struct LargeWidgetView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.widgetFamily) var widgetFamily
     var entry: HNWidgetEntry
 
     var backgroundColor: Color {
@@ -492,7 +530,7 @@ struct LargeWidgetView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(entry.stories.prefix(4).enumerated()), id: \.element.id) { index, story in
-                    Link(destination: URL(string: "hnclient://story/\(story.id)")!) {
+                    Link(destination: widgetDeepLinkURL(for: story.id, family: widgetFamily)) {
                         ExtendedStoryRow(
                             story: story,
                             textColor: textColor,
