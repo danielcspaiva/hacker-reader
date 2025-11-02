@@ -10,8 +10,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "ios:widgets": "npx expo prebuild --platform ios && pnpm ios",
-    "prebuild:ios": "npx expo prebuild --platform ios",
-    "prebuild:clean": "rm -rf ios && npx expo prebuild --platform ios",
+    "prebuild:ios": "npx expo prebuild --platform ios && pnpm sync-xcode-env",
+    "prebuild:clean": "rm -rf ios && npx expo prebuild --platform ios && pnpm sync-xcode-env",
+    "sync-xcode-env": "node ./scripts/sync-xcode-env.js",
     "web": "expo start --web",
     "lint": "expo lint",
     "format": "prettier --write ."
