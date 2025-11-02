@@ -5,7 +5,7 @@
  * (vote links, comment form HMACs, etc.)
  */
 
-import { HNAuthError } from './errors';
+import { HNAuthError } from "./errors";
 
 /**
  * Strip HTML tags and collapse whitespace to approximate visible text.
@@ -14,32 +14,35 @@ function extractTextContent(html: string): string {
   return (
     html
       // Remove script and style contents entirely.
-      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
       // Drop the remaining tags.
-      .replace(/<[^>]+>/g, ' ')
+      .replace(/<[^>]+>/g, " ")
       // Decode a couple of common entities we rely on for keyword checks.
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/&amp;/gi, '&')
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
       .replace(/&#39;|&apos;/gi, "'")
       .replace(/&quot;/gi, '"')
       // Collapse whitespace for easier includes() checks.
-      .replace(/\s+/g, ' ')
+      .replace(/\s+/g, " ")
       .trim()
   );
 }
 
 function escapeForRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
  * Extract a single attribute from an HTML tag fragment.
  */
-function getAttributeValue(fragment: string, attributeName: string): string | null {
+function getAttributeValue(
+  fragment: string,
+  attributeName: string
+): string | null {
   const attributeRegex = new RegExp(
     `(?:^|\\s)${escapeForRegex(attributeName)}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`,
-    'i'
+    "i"
   );
 
   const match = attributeRegex.exec(fragment);
@@ -70,7 +73,7 @@ function findTagByAttribute(
       return null;
     }
 
-    const tagEnd = lowerHtml.indexOf('>', tagStart);
+    const tagEnd = lowerHtml.indexOf(">", tagStart);
     if (tagEnd === -1) {
       return null;
     }
@@ -80,7 +83,10 @@ function findTagByAttribute(
 
     if (value) {
       const lowerValue = value.toLowerCase();
-      if (lowerValue === expectedValue || lowerValue.startsWith(`${expectedValue}_`)) {
+      if (
+        lowerValue === expectedValue ||
+        lowerValue.startsWith(`${expectedValue}_`)
+      ) {
         return fragment;
       }
     }
@@ -101,7 +107,12 @@ function extractAttributeFromTag(
   locatorValue: string,
   targetAttribute: string
 ): string | null {
-  const fragment = findTagByAttribute(html, tagName, locatorAttribute, locatorValue);
+  const fragment = findTagByAttribute(
+    html,
+    tagName,
+    locatorAttribute,
+    locatorValue
+  );
   if (!fragment) {
     return null;
   }
@@ -111,17 +122,21 @@ function extractAttributeFromTag(
 
 function decodeHTMLEntities(value: string): string {
   return value
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&apos;/gi, "'");
 }
 
-function findVotePath(html: string, itemId: number, how: 'up' | 'un' | 'fav' | 'unfav'): string | null {
+function findVotePath(
+  html: string,
+  itemId: number,
+  how: "up" | "un" | "fav" | "unfav"
+): string | null {
   const pattern = new RegExp(
     `vote\\?[^"'<>\\s]*(?:id|for)=${itemId}[^"'<>\\s]*how=${how}[^"'<>\\s]*`,
-    'i'
+    "i"
   );
   const match = pattern.exec(html);
   if (!match) {
@@ -141,28 +156,40 @@ function findVotePath(html: string, itemId: number, how: 'up' | 'un' | 'fav' | '
  * @throws HNAuthError with appropriate code if parsing fails
  */
 export function parseVoteLink(html: string, itemId: number): string {
-  const voteLink = extractAttributeFromTag(html, 'a', 'id', `up_${itemId}`, 'href');
-  const fallbackVoteLink = voteLink ?? findVotePath(html, itemId, 'up');
+  const voteLink = extractAttributeFromTag(
+    html,
+    "a",
+    "id",
+    `up_${itemId}`,
+    "href"
+  );
+  const fallbackVoteLink = voteLink ?? findVotePath(html, itemId, "up");
   if (!fallbackVoteLink) {
     // Smart error detection
     const text = extractTextContent(html).toLowerCase();
 
-    if (text.includes('login')) {
-      throw new HNAuthError('Session expired - please log in again', 'NOT_LOGGED_IN');
+    if (text.includes("login")) {
+      throw new HNAuthError(
+        "Session expired - please log in again",
+        "NOT_LOGGED_IN"
+      );
     }
-    if (text.includes('karma')) {
-      throw new HNAuthError('Insufficient karma to vote', 'INSUFFICIENT_KARMA');
+    if (text.includes("karma")) {
+      throw new HNAuthError("Insufficient karma to vote", "INSUFFICIENT_KARMA");
     }
-    if (text.includes('slow down') || text.includes('too fast')) {
-      throw new HNAuthError('Rate limited - please wait', 'RATE_LIMITED');
+    if (text.includes("slow down") || text.includes("too fast")) {
+      throw new HNAuthError("Rate limited - please wait", "RATE_LIMITED");
     }
-    if (text.includes('captcha') || text.includes('verify')) {
-      throw new HNAuthError('CAPTCHA required - cannot proceed', 'CAPTCHA_REQUIRED');
+    if (text.includes("captcha") || text.includes("verify")) {
+      throw new HNAuthError(
+        "CAPTCHA required - cannot proceed",
+        "CAPTCHA_REQUIRED"
+      );
     }
 
     throw new HNAuthError(
       `Vote link not found for item ${itemId} - HN HTML may have changed`,
-      'PARSE_ERROR'
+      "PARSE_ERROR"
     );
   }
 
@@ -179,13 +206,13 @@ export function parseVoteLink(html: string, itemId: number): string {
  */
 export function parseUnvoteLink(html: string, itemId: number): string {
   const unvoteLink =
-    extractAttributeFromTag(html, 'a', 'id', `un_${itemId}`, 'href') ??
-    findVotePath(html, itemId, 'un');
+    extractAttributeFromTag(html, "a", "id", `un_${itemId}`, "href") ??
+    findVotePath(html, itemId, "un");
 
   if (!unvoteLink) {
     throw new HNAuthError(
       `Unvote link not found for item ${itemId}`,
-      'PARSE_ERROR'
+      "PARSE_ERROR"
     );
   }
 
@@ -200,16 +227,19 @@ export function parseUnvoteLink(html: string, itemId: number): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseCommentFormHmac(html: string): string {
-  const hmac = extractAttributeFromTag(html, 'input', 'name', 'hmac', 'value');
+  const hmac = extractAttributeFromTag(html, "input", "name", "hmac", "value");
 
   if (!hmac) {
     const text = extractTextContent(html).toLowerCase();
 
-    if (text.includes('login')) {
-      throw new HNAuthError('Session expired - please log in again', 'NOT_LOGGED_IN');
+    if (text.includes("login")) {
+      throw new HNAuthError(
+        "Session expired - please log in again",
+        "NOT_LOGGED_IN"
+      );
     }
 
-    throw new HNAuthError('Comment form HMAC not found', 'PARSE_ERROR');
+    throw new HNAuthError("Comment form HMAC not found", "PARSE_ERROR");
   }
 
   return hmac;
@@ -224,10 +254,16 @@ export function parseCommentFormHmac(html: string): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseFavoriteLink(html: string, itemId: number): string {
-  const favLink = extractAttributeFromTag(html, 'a', 'id', `fave_${itemId}`, 'href');
+  const favLink = extractAttributeFromTag(
+    html,
+    "a",
+    "id",
+    `fave_${itemId}`,
+    "href"
+  );
 
   if (!favLink) {
-    throw new HNAuthError('Favorite link not found', 'PARSE_ERROR');
+    throw new HNAuthError("Favorite link not found", "PARSE_ERROR");
   }
 
   return favLink;
@@ -242,10 +278,16 @@ export function parseFavoriteLink(html: string, itemId: number): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseUnfavoriteLink(html: string, itemId: number): string {
-  const unfavLink = extractAttributeFromTag(html, 'a', 'id', `unfave_${itemId}`, 'href');
+  const unfavLink = extractAttributeFromTag(
+    html,
+    "a",
+    "id",
+    `unfave_${itemId}`,
+    "href"
+  );
 
   if (!unfavLink) {
-    throw new HNAuthError('Unfavorite link not found', 'PARSE_ERROR');
+    throw new HNAuthError("Unfavorite link not found", "PARSE_ERROR");
   }
 
   return unfavLink;

@@ -12,38 +12,45 @@ export interface OGMetadata {
 function decodeHTMLEntities(text: string): string {
   // Named entity lookup map for common entities
   const namedEntities: Record<string, string> = {
-    'quot': '"',
-    'amp': '&',
-    'lt': '<',
-    'gt': '>',
-    'apos': "'",
-    'nbsp': ' ',
-    'mdash': '—',
-    'ndash': '–',
-    'hellip': '…',
-    'lsquo': '\u2018',
-    'rsquo': '\u2019',
-    'ldquo': '\u201C',
-    'rdquo': '\u201D',
-    'copy': '©',
-    'reg': '®',
-    'trade': '™',
-    'bull': '•',
-    'deg': '°',
-    'euro': '€',
-    'pound': '£',
-    'times': '×',
-    'divide': '÷',
-    'minus': '−',
+    quot: '"',
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    apos: "'",
+    nbsp: " ",
+    mdash: "—",
+    ndash: "–",
+    hellip: "…",
+    lsquo: "\u2018",
+    rsquo: "\u2019",
+    ldquo: "\u201C",
+    rdquo: "\u201D",
+    copy: "©",
+    reg: "®",
+    trade: "™",
+    bull: "•",
+    deg: "°",
+    euro: "€",
+    pound: "£",
+    times: "×",
+    divide: "÷",
+    minus: "−",
   };
 
-  return text
-    // Decode numeric entities (decimal: &#39;)
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
-    // Decode hex entities (hex: &#x27; or &#X27;)
-    .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-    // Decode named entities (&quot;, &mdash;, etc.)
-    .replace(/&([a-z]+);/gi, (match, name) => namedEntities[name.toLowerCase()] || match);
+  return (
+    text
+      // Decode numeric entities (decimal: &#39;)
+      .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+      // Decode hex entities (hex: &#x27; or &#X27;)
+      .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16))
+      )
+      // Decode named entities (&quot;, &mdash;, etc.)
+      .replace(
+        /&([a-z]+);/gi,
+        (match, name) => namedEntities[name.toLowerCase()] || match
+      )
+  );
 }
 
 const TIMEOUT_MS = 5000; // 5 second timeout
@@ -56,7 +63,8 @@ function extractAllMetaTags(html: string): Record<string, string> {
   const metaTags: Record<string, string> = {};
 
   // Single regex to capture all meta tags with property/name and content
-  const metaRegex = /<meta[^>]*(?:property|name)=["']([^"']*)["'][^>]*content=["']([^"']*)["'][^>]*>|<meta[^>]*content=["']([^"']*)["'][^>]*(?:property|name)=["']([^"']*)["'][^>]*>/gi;
+  const metaRegex =
+    /<meta[^>]*(?:property|name)=["']([^"']*)["'][^>]*content=["']([^"']*)["'][^>]*>|<meta[^>]*content=["']([^"']*)["'][^>]*(?:property|name)=["']([^"']*)["'][^>]*>/gi;
 
   let match;
   while ((match = metaRegex.exec(html)) !== null) {
@@ -76,7 +84,7 @@ function resolveImageUrl(baseUrl: string, imagePath: string): string | null {
       return null;
     }
 
-    if (imagePath.startsWith('//')) {
+    if (imagePath.startsWith("//")) {
       return new URL(`https:${imagePath}`).toString();
     }
 
@@ -98,13 +106,13 @@ async function validateImageUrl(
     if (parentSignal.aborted) {
       controller.abort();
     } else {
-      parentSignal.addEventListener('abort', abortFromParent);
+      parentSignal.addEventListener("abort", abortFromParent);
     }
   }
 
   try {
     const response = await fetch(imageUrl, {
-      method: 'HEAD',
+      method: "HEAD",
       signal: controller.signal,
     });
 
@@ -112,18 +120,18 @@ async function validateImageUrl(
       return false;
     }
 
-    const contentType = response.headers.get('content-type');
+    const contentType = response.headers.get("content-type");
     if (!contentType) {
       return false;
     }
 
-    return contentType.startsWith('image/');
+    return contentType.startsWith("image/");
   } catch {
     return false;
   } finally {
     clearTimeout(timeoutId);
     if (parentSignal) {
-      parentSignal.removeEventListener('abort', abortFromParent);
+      parentSignal.removeEventListener("abort", abortFromParent);
     }
   }
 }
@@ -138,7 +146,7 @@ export async function fetchOGMetadata(
   // Chain the abort signals
   const abortHandler = () => controller.abort();
   if (signal) {
-    signal.addEventListener('abort', abortHandler);
+    signal.addEventListener("abort", abortHandler);
   }
 
   try {
@@ -146,7 +154,7 @@ export async function fetchOGMetadata(
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; HNClient/1.0)',
+        "User-Agent": "Mozilla/5.0 (compatible; HNClient/1.0)",
       },
     });
 
@@ -158,9 +166,10 @@ export async function fetchOGMetadata(
     const fullText = await response.text();
 
     // Truncate to HEAD_SIZE_LIMIT if needed (meta tags are in <head>)
-    const text = fullText.length > HEAD_SIZE_LIMIT
-      ? fullText.substring(0, HEAD_SIZE_LIMIT)
-      : fullText;
+    const text =
+      fullText.length > HEAD_SIZE_LIMIT
+        ? fullText.substring(0, HEAD_SIZE_LIMIT)
+        : fullText;
 
     // Extract just the head section for better performance
     const headMatch = text.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
@@ -170,16 +179,19 @@ export async function fetchOGMetadata(
     const metaTags = extractAllMetaTags(headContent);
 
     // Get OG tags with Twitter fallbacks
-    const rawImage = metaTags['og:image'] || metaTags['twitter:image'];
-    const title = metaTags['og:title'] || metaTags['twitter:title'];
-    const description = metaTags['og:description'] || metaTags['twitter:description'] || metaTags['description'];
-    const siteName = metaTags['og:site_name'];
+    const rawImage = metaTags["og:image"] || metaTags["twitter:image"];
+    const title = metaTags["og:title"] || metaTags["twitter:title"];
+    const description =
+      metaTags["og:description"] ||
+      metaTags["twitter:description"] ||
+      metaTags["description"];
+    const siteName = metaTags["og:site_name"];
 
     let image = rawImage ? resolveImageUrl(url, rawImage) : null;
 
     // Ensure image URLs are absolute and HTTPS
-    if (image?.startsWith('http://')) {
-      image = image.replace('http://', 'https://');
+    if (image?.startsWith("http://")) {
+      image = image.replace("http://", "https://");
     }
 
     if (image) {
@@ -200,14 +212,14 @@ export async function fetchOGMetadata(
 
     return result;
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof Error && error.name === "AbortError") {
       return null;
     }
     return null;
   } finally {
     clearTimeout(timeoutId);
     if (signal) {
-      signal.removeEventListener('abort', abortHandler);
+      signal.removeEventListener("abort", abortHandler);
     }
   }
 }

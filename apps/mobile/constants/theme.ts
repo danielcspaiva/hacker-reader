@@ -3,33 +3,33 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
 export const Colors = {
   light: {
-    'lights-out': {
-      text: '#000000',
-      background: '#ffffff',
-      previewBackground: '#ffffff',
-      tint: '#ff6600',
-      icon: '#666666',
-      tabIconDefault: '#999999',
-      tabIconSelected: '#ff6600',
-      border: '#e0e0e0',
-      codeBackground: '#f5f5f5',
+    "lights-out": {
+      text: "#000000",
+      background: "#ffffff",
+      previewBackground: "#ffffff",
+      tint: "#ff6600",
+      icon: "#666666",
+      tabIconDefault: "#999999",
+      tabIconSelected: "#ff6600",
+      border: "#e0e0e0",
+      codeBackground: "#f5f5f5",
     },
   },
   dark: {
-    'lights-out': {
-      text: '#ffffff',
-      background: '#000000',
-      previewBackground: '#111111',
-      tint: '#ff6600',
-      icon: '#cccccc',
-      tabIconDefault: '#cccccc',
-      tabIconSelected: '#ff6600',
-      border: '#1a1a1a',
-      codeBackground: '#0a0a0a',
+    "lights-out": {
+      text: "#ffffff",
+      background: "#000000",
+      previewBackground: "#111111",
+      tint: "#ff6600",
+      icon: "#cccccc",
+      tabIconDefault: "#cccccc",
+      tabIconSelected: "#ff6600",
+      border: "#1a1a1a",
+      codeBackground: "#0a0a0a",
     },
   },
 };
@@ -37,24 +37,25 @@ export const Colors = {
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
+    sans: "system-ui",
     /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
+    serif: "ui-serif",
     /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
+    rounded: "ui-rounded",
     /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    mono: "ui-monospace",
   },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: "normal",
+    serif: "serif",
+    rounded: "normal",
+    mono: "monospace",
   },
   web: {
     sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
+    rounded:
+      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
@@ -67,43 +68,43 @@ export const Typography = {
   headline: {
     fontSize: 28,
     lineHeight: 36,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
   },
   /** 20px - Section titles */
   title: {
     fontSize: 20,
     lineHeight: 26,
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
   },
   /** 17px - Primary content, story titles */
   bodyLarge: {
     fontSize: 17,
     lineHeight: 24,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
   },
   /** 15px - Standard body text */
   body: {
     fontSize: 15,
     lineHeight: 22,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
   },
   /** 14px - Emphasized metadata */
   label: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '500' as const,
+    fontWeight: "500" as const,
   },
   /** 13px - Secondary body text */
   bodySmall: {
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
   },
   /** 12px - Tertiary text, fine print */
   caption: {
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
   },
 } as const;
 
@@ -122,7 +123,7 @@ export const Spacing = {
   /** 20px - Generous spacing */
   xl: 20,
   /** 24px - Section separation */
-  '2xl': 24,
+  "2xl": 24,
   /** 32px - Major section breaks */
-  '3xl': 32,
+  "3xl": 32,
 } as const;

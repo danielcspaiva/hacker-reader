@@ -21,7 +21,9 @@ export default function Layout() {
         headerTintColor: textColor,
         headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
         headerStyle: {
-          backgroundColor: isLiquidGlassAvailable() ? "transparent" : backgroundColor,
+          backgroundColor: isLiquidGlassAvailable()
+            ? "transparent"
+            : backgroundColor,
         },
       }}
     >

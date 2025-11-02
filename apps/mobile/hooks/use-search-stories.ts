@@ -1,5 +1,5 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { searchStories, type HNItem } from '@hn/shared';
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { searchStories, type HNItem } from "@/lib/shared";
 
 const HITS_PER_PAGE = 30;
 
@@ -9,7 +9,9 @@ interface SearchStoriesPage {
   nbPages: number;
 }
 
-function mapHitToHNItem(hit: Awaited<ReturnType<typeof searchStories>>['hits'][number]): HNItem {
+function mapHitToHNItem(
+  hit: Awaited<ReturnType<typeof searchStories>>["hits"][number]
+): HNItem {
   const parsedId = Number.parseInt(hit.objectID, 10);
   const id = Number.isNaN(parsedId) ? hit.created_at_i : parsedId;
 
@@ -22,7 +24,7 @@ function mapHitToHNItem(hit: Awaited<ReturnType<typeof searchStories>>['hits'][n
     descendants: hit.num_comments ?? undefined,
     time: hit.created_at_i ?? undefined,
     text: hit.story_text ?? undefined,
-    type: 'story',
+    type: "story",
   };
 }
 
@@ -30,10 +32,14 @@ export function useSearchStories(query: string) {
   const trimmedQuery = query.trim();
 
   return useInfiniteQuery<SearchStoriesPage, Error>({
-    queryKey: ['algolia-search', trimmedQuery],
+    queryKey: ["algolia-search", trimmedQuery],
     queryFn: async ({ pageParam = 0 }) => {
-      const currentPage = typeof pageParam === 'number' ? pageParam : 0;
-      const response = await searchStories(trimmedQuery, currentPage, HITS_PER_PAGE);
+      const currentPage = typeof pageParam === "number" ? pageParam : 0;
+      const response = await searchStories(
+        trimmedQuery,
+        currentPage,
+        HITS_PER_PAGE
+      );
 
       return {
         hits: response.hits.map(mapHitToHNItem),

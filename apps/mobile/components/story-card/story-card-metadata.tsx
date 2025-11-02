@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { timeAgo, type HNItem } from "@hn/shared";
+import { timeAgo, type HNItem } from "@/lib/shared";
 import { StyleSheet, View } from "react-native";
 
 interface StoryCardMetadataProps {

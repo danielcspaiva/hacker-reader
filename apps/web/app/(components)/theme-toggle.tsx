@@ -80,7 +80,9 @@ export function ThemeToggle() {
     <div className="fixed top-6 right-6 z-50">
       <button
         onClick={() => {
-          const currentIndex = themes.findIndex((t) => t.value === currentTheme);
+          const currentIndex = themes.findIndex(
+            (t) => t.value === currentTheme
+          );
           const nextIndex = (currentIndex + 1) % themes.length;
           setTheme(themes[nextIndex].value);
         }}
@@ -93,4 +95,3 @@ export function ThemeToggle() {
     </div>
   );
 }
-

@@ -99,8 +99,8 @@ function RootLayoutContent() {
               backgroundColor: isLiquidGlassAvailable()
                 ? "transparent"
                 : colorScheme === "dark"
-                ? Colors.dark[colorPalette].background
-                : Colors.light[colorPalette].background,
+                  ? Colors.dark[colorPalette].background
+                  : Colors.light[colorPalette].background,
             },
           }}
         />

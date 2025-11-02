@@ -4,8 +4,8 @@ import type { StoryWithComments } from "@/hooks/use-story";
 import { useOGMetadata } from "@/hooks/use-og-metadata";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Spacing } from "@/constants/theme";
-import { timeAgo } from "@hn/shared";
-import { isLiquidGlassAvailable } from 'expo-glass-effect';
+import { timeAgo } from "@/lib/shared";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { useIsPreview } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -33,26 +33,37 @@ export function StoryHeader({ story }: StoryHeaderProps) {
 
   return (
     <>
-      <View style={[
-        styles.container,
-        {
-          marginTop: isLiquidGlassAvailable() && !isInsidePreview
-            ? IOS_26_HEADER_MARGIN_OFFSET
-            : 0,
-        },
-      ]}>
-        <ThemedText type="title" style={styles.title}>{story.title}</ThemedText>
+      <View
+        style={[
+          styles.container,
+          {
+            marginTop:
+              isLiquidGlassAvailable() && !isInsidePreview
+                ? IOS_26_HEADER_MARGIN_OFFSET
+                : 0,
+          },
+        ]}
+      >
+        <ThemedText type="title" style={styles.title}>
+          {story.title}
+        </ThemedText>
         <View style={styles.metadata}>
           <ThemedText type="bodySmall" style={styles.metadataText}>
             {story.score} points by {story.by}
           </ThemedText>
-          <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
+          <ThemedText type="bodySmall" style={styles.metadataText}>
+            {" "}
+            •{" "}
+          </ThemedText>
           <ThemedText type="bodySmall" style={styles.metadataText}>
             {timeAgo(story.time || 0)}
           </ThemedText>
           {story.descendants !== undefined && (
             <>
-              <ThemedText type="bodySmall" style={styles.metadataText}> • </ThemedText>
+              <ThemedText type="bodySmall" style={styles.metadataText}>
+                {" "}
+                •{" "}
+              </ThemedText>
               <ThemedText type="bodySmall" style={styles.metadataText}>
                 {story.descendants} comments
               </ThemedText>
@@ -63,7 +74,10 @@ export function StoryHeader({ story }: StoryHeaderProps) {
           <>
             {!hasPreview && (
               <TouchableOpacity onPress={() => openURL(story.url!)}>
-                <ThemedText type="bodySmall" style={[styles.url, { color: tintColor }]}>
+                <ThemedText
+                  type="bodySmall"
+                  style={[styles.url, { color: tintColor }]}
+                >
                   {story.url}
                 </ThemedText>
               </TouchableOpacity>
@@ -112,7 +126,7 @@ const styles = StyleSheet.create({
   },
   commentsHeader: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing['2xl'],
+    paddingTop: Spacing["2xl"],
     paddingBottom: Spacing.lg,
   },
   commentsTitle: {

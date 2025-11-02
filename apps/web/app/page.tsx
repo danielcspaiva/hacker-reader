@@ -32,9 +32,9 @@ export default function Home() {
                     Read Hacker News like it deserves.
                   </h1>
                   <p className="mt-6 text-xl leading-relaxed text-[#5d5146] dark:text-[#c4c4c4] sm:text-2xl">
-                    A beautiful, native mobile experience for Hacker News. Browse
-                    stories, read comments, and stay up to date with the tech
-                    community.
+                    A beautiful, native mobile experience for Hacker News.
+                    Browse stories, read comments, and stay up to date with the
+                    tech community.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -432,7 +432,9 @@ export default function Home() {
                   <h3 className="text-2xl font-semibold">Open Source</h3>
                 </div>
                 <p className="text-base leading-relaxed text-[#5d5146] dark:text-[#c2c2c2]">
-                  Hacker Reader is built in the open. Explore the code, contribute features, or fork it to create your own version. Transparency and community are at the heart of this project.
+                  Hacker Reader is built in the open. Explore the code,
+                  contribute features, or fork it to create your own version.
+                  Transparency and community are at the heart of this project.
                 </p>
                 <a
                   href="https://github.com/danielcspaiva/hacker-reader"
@@ -484,7 +486,8 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-6 text-sm text-[#8f806d] dark:text-[#979797]">
-              Works great on iOS, web, and Android. Coming soon to all platforms.
+              Works great on iOS, web, and Android. Coming soon to all
+              platforms.
             </p>
           </div>
         </section>

@@ -88,13 +88,13 @@ The mobile app supports HN authentication via WebView login:
    - Cookies extracted using `@react-native-cookies/cookies` + JavaScript injection fallback
    - Cookies stored securely in `expo-secure-store` (device keychain/keystore)
 
-2. **Auth Module** (`packages/shared/src/auth/`):
+2. **Auth Module** (`apps/mobile/lib/shared/auth/`):
    - **SecureSession** - Wrapper preventing accidental cookie exposure
    - **Error Taxonomy** - Typed errors (NOT_LOGGED_IN, RATE_LIMITED, etc.)
    - **Rate Limiter** - Client-side throttling (30 actions/min)
    - **HTML Parsers** - Extract auth tokens from HN pages using cheerio
 
-3. **Write API** (`packages/shared/src/api/hn-write-api.ts`):
+3. **Write API** (`apps/mobile/lib/shared/api/hn-write-api.ts`):
    - `vote(itemId, session)` - Upvote stories/comments
    - `unvote(itemId, session)` - Remove upvote
    - `comment(parentId, text, session)` - Post comments

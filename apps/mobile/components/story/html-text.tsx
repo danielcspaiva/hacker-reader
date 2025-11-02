@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { parseHTMLWithLinks } from "@hn/shared";
+import { parseHTMLWithLinks } from "@/lib/shared";
 import * as WebBrowser from "expo-web-browser";
 import type { StyleProp, TextStyle } from "react-native";
 import { View } from "react-native";

@@ -1,0 +1,51 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build outputs
+dist
+build
+.next
+out
+
+# Expo
+.expo
+.expo-shared
+
+# iOS
+ios/Pods
+ios/build
+*.xcworkspace
+*.xcodeproj
+
+# Android
+android/app/build
+android/build
+*.gradle
+*.properties
+
+# Cache
+.cache
+.turbo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+*.pem
+
+# IDE
+.vscode
+.idea
+
+# Generated files
+*.pbxproj
+*.xcscheme
+

@@ -1,5 +1,5 @@
 interface ParsedHTMLPart {
-  type: 'text' | 'link' | 'code';
+  type: "text" | "link" | "code";
   content: string;
   url?: string;
 }
@@ -9,12 +9,12 @@ interface ParsedHTMLPart {
  */
 function decodeEntities(text: string): string {
   return text
-    .replace(/&#x2F;/g, '/')
+    .replace(/&#x2F;/g, "/")
     .replace(/&#x27;/g, "'")
     .replace(/&quot;/g, '"')
-    .replace(/&gt;/g, '>')
-    .replace(/&lt;/g, '<')
-    .replace(/&amp;/g, '&');
+    .replace(/&gt;/g, ">")
+    .replace(/&lt;/g, "<")
+    .replace(/&amp;/g, "&");
 }
 
 /**
@@ -28,13 +28,14 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
 
   // Replace paragraph tags with newlines
   let processed = html
-    .replace(/<p>/g, '\n\n')
-    .replace(/<\/p>/g, '')
-    .replace(/<i>/g, '')
-    .replace(/<\/i>/g, '');
+    .replace(/<p>/g, "\n\n")
+    .replace(/<\/p>/g, "")
+    .replace(/<i>/g, "")
+    .replace(/<\/i>/g, "");
 
   // Process all elements (links, code blocks, and text) in order
-  const combinedRegex = /(<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>)|(<pre><code>([\s\S]*?)<\/code><\/pre>)|(<code>(.*?)<\/code>)/g;
+  const combinedRegex =
+    /(<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>)|(<pre><code>([\s\S]*?)<\/code><\/pre>)|(<code>(.*?)<\/code>)/g;
   const parts: ParsedHTMLPart[] = [];
   let lastIndex = 0;
   let match;
@@ -42,9 +43,11 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
   while ((match = combinedRegex.exec(processed)) !== null) {
     // Add text before this element
     if (match.index > lastIndex) {
-      const textBefore = decodeEntities(processed.substring(lastIndex, match.index));
+      const textBefore = decodeEntities(
+        processed.substring(lastIndex, match.index)
+      );
       if (textBefore.trim()) {
-        parts.push({ type: 'text', content: textBefore });
+        parts.push({ type: "text", content: textBefore });
       }
     }
 
@@ -52,20 +55,20 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
     if (match[1]) {
       // Link matched: <a href="url">text</a>
       parts.push({
-        type: 'link',
+        type: "link",
         content: decodeEntities(match[3]),
         url: decodeEntities(match[2]),
       });
     } else if (match[4]) {
       // Pre/code block matched: <pre><code>...</code></pre>
       parts.push({
-        type: 'code',
+        type: "code",
         content: decodeEntities(match[5]),
       });
     } else if (match[6]) {
       // Inline code matched: <code>...</code>
       parts.push({
-        type: 'code',
+        type: "code",
         content: decodeEntities(match[7]),
       });
     }
@@ -77,7 +80,7 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
   if (lastIndex < processed.length) {
     const textAfter = decodeEntities(processed.substring(lastIndex));
     if (textAfter.trim()) {
-      parts.push({ type: 'text', content: textAfter });
+      parts.push({ type: "text", content: textAfter });
     }
   }
 

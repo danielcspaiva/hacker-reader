@@ -3,7 +3,7 @@ import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { usePrefetchCategories, useStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { type HNItem } from "@hn/shared";
+import { type HNItem } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
 import { useMemo, useRef, useState } from "react";

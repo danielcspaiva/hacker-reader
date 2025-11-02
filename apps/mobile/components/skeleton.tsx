@@ -1,6 +1,6 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View, ViewStyle } from 'react-native';
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { useEffect, useRef } from "react";
+import { Animated, StyleSheet, View, ViewStyle } from "react-native";
 
 interface SkeletonProps {
   width?: number | string;
@@ -9,9 +9,14 @@ interface SkeletonProps {
   style?: ViewStyle;
 }
 
-export function Skeleton({ width = '100%', height = 20, borderRadius = 4, style }: SkeletonProps) {
-  const backgroundColor = useThemeColor({}, 'background');
-  const borderColor = useThemeColor({}, 'border');
+export function Skeleton({
+  width = "100%",
+  height = 20,
+  borderRadius = 4,
+  style,
+}: SkeletonProps) {
+  const backgroundColor = useThemeColor({}, "background");
+  const borderColor = useThemeColor({}, "border");
   const shimmerOpacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
@@ -38,8 +43,8 @@ export function Skeleton({ width = '100%', height = 20, borderRadius = 4, style 
       style={[
         styles.container,
         {
-          width: typeof width === 'number' ? width : Number(width),
-          height: typeof height === 'number' ? height : Number(height),
+          width: typeof width === "number" ? width : Number(width),
+          height: typeof height === "number" ? height : Number(height),
           borderRadius,
           backgroundColor: borderColor,
         },
@@ -62,6 +67,6 @@ export function Skeleton({ width = '100%', height = 20, borderRadius = 4, style 
 
 const styles = StyleSheet.create({
   container: {
-    overflow: 'hidden',
+    overflow: "hidden",
   },
 });

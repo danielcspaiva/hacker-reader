@@ -7,25 +7,25 @@
  * All operations require a valid SecureSession with HN cookies.
  */
 
-import { HNAuthError } from '../auth/errors';
+import { HNAuthError } from "../auth/errors";
 import {
-    parseCommentFormHmac,
-    parseFavoriteLink,
-    parseUnfavoriteLink,
-    parseUnvoteLink,
-    parseVoteLink,
-} from '../auth/parsers';
-import { hnRateLimiter } from '../auth/rate-limiter';
-import { SecureSession } from '../auth/session';
+  parseCommentFormHmac,
+  parseFavoriteLink,
+  parseUnfavoriteLink,
+  parseUnvoteLink,
+  parseVoteLink,
+} from "../auth/parsers";
+import { hnRateLimiter } from "../auth/rate-limiter";
+import { SecureSession } from "../auth/session";
 
-const HN_BASE_URL = 'https://news.ycombinator.com';
+const HN_BASE_URL = "https://news.ycombinator.com";
 
 /**
  * Validate that a URL uses HTTPS
  */
 function validateHTTPS(url: string): void {
-  if (!url.startsWith('https://')) {
-    throw new Error('HTTPS required for all HN requests');
+  if (!url.startsWith("https://")) {
+    throw new Error("HTTPS required for all HN requests");
   }
 }
 
@@ -47,15 +47,15 @@ async function fetchHN(
     ...options,
     headers: {
       ...options.headers,
-      'Cookie': session.dangerouslyGetRawCookiesForFetch(),
-      'User-Agent': 'HN-Client/1.0 (Mobile)',
+      Cookie: session.dangerouslyGetRawCookiesForFetch(),
+      "User-Agent": "HN-Client/1.0 (Mobile)",
     },
   });
 
   if (!response.ok) {
     throw new HNAuthError(
       `HN request failed: ${response.status} ${response.statusText}`,
-      'NETWORK_ERROR'
+      "NETWORK_ERROR"
     );
   }
 
@@ -114,7 +114,7 @@ export async function comment(
   text: string,
   session: SecureSession
 ): Promise<void> {
-  console.log('[HN Write API] Starting comment post:', {
+  console.log("[HN Write API] Starting comment post:", {
     parentId,
     textLength: text.length,
     hasSession: session.hasValidSession(),
@@ -124,8 +124,8 @@ export async function comment(
   const itemPage = await fetchHN(`/item?id=${parentId}`, session);
   const html = await itemPage.text();
   const hmac = parseCommentFormHmac(html);
-  
-  console.log('[HN Write API] Got HMAC:', hmac.slice(0, 10) + '...');
+
+  console.log("[HN Write API] Got HMAC:", hmac.slice(0, 10) + "...");
 
   // Step 2: POST comment
   // HN requires 'goto' parameter for redirect after successful comment
@@ -136,22 +136,22 @@ export async function comment(
     text: text,
   });
 
-  console.log('[HN Write API] Posting comment with form data:', {
+  console.log("[HN Write API] Posting comment with form data:", {
     parent: parentId,
     goto: `item?id=${parentId}`,
     hmacLength: hmac.length,
     textLength: text.length,
   });
 
-  const response = await fetchHN('/comment', session, {
-    method: 'POST',
+  const response = await fetchHN("/comment", session, {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: formData.toString(),
   });
 
-  console.log('[HN Write API] Comment response:', {
+  console.log("[HN Write API] Comment response:", {
     status: response.status,
     url: response.url,
     redirected: response.redirected,
@@ -162,45 +162,75 @@ export async function comment(
   const lowerHtml = responseHtml.toLowerCase();
 
   // Check for common error messages
-  if (lowerHtml.includes('unknown or expired') || lowerHtml.includes('bad login')) {
-    throw new HNAuthError('Session expired - please log in again', 'NOT_LOGGED_IN');
+  if (
+    lowerHtml.includes("unknown or expired") ||
+    lowerHtml.includes("bad login")
+  ) {
+    throw new HNAuthError(
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
+    );
   }
-  if (lowerHtml.includes('submitting too fast') || lowerHtml.includes('slow down')) {
-    throw new HNAuthError('You are posting too fast. Please wait.', 'RATE_LIMITED');
+  if (
+    lowerHtml.includes("submitting too fast") ||
+    lowerHtml.includes("slow down")
+  ) {
+    throw new HNAuthError(
+      "You are posting too fast. Please wait.",
+      "RATE_LIMITED"
+    );
   }
-  if (lowerHtml.includes('insufficient karma') || lowerHtml.includes("can't comment")) {
-    throw new HNAuthError('Insufficient karma to comment', 'INSUFFICIENT_KARMA');
+  if (
+    lowerHtml.includes("insufficient karma") ||
+    lowerHtml.includes("can't comment")
+  ) {
+    throw new HNAuthError(
+      "Insufficient karma to comment",
+      "INSUFFICIENT_KARMA"
+    );
   }
-  if (lowerHtml.includes('blank') || lowerHtml.includes('empty comment')) {
-    throw new HNAuthError('Comment cannot be blank', 'PARSE_ERROR');
+  if (lowerHtml.includes("blank") || lowerHtml.includes("empty comment")) {
+    throw new HNAuthError("Comment cannot be blank", "PARSE_ERROR");
   }
 
   // Check for validation errors (HN shows * in orange next to invalid fields)
   // Look for <textarea> with a preceding error indicator
-  const hasTextareaError = responseHtml.match(/<font color="#ff6600">\s*\*\s*<\/font>\s*<textarea name="text"/i);
-  
+  const hasTextareaError = responseHtml.match(
+    /<font color="#ff6600">\s*\*\s*<\/font>\s*<textarea name="text"/i
+  );
+
   if (hasTextareaError) {
-    console.error('[HN Write API] Validation error detected - HN rejected the comment');
-    
+    console.error(
+      "[HN Write API] Validation error detected - HN rejected the comment"
+    );
+
     // Try to extract any additional error message
-    const errorMatch = responseHtml.match(/<font color="#ff6600">\s*([^<]+)\s*<\/font>/i);
+    const errorMatch = responseHtml.match(
+      /<font color="#ff6600">\s*([^<]+)\s*<\/font>/i
+    );
     const errorMessage = errorMatch ? errorMatch[1].trim() : null;
-    
-    if (errorMessage && errorMessage !== '*') {
-      console.error('[HN Write API] Error message from HN:', errorMessage);
-      throw new HNAuthError(`HN rejected comment: ${errorMessage}`, 'PARSE_ERROR');
+
+    if (errorMessage && errorMessage !== "*") {
+      console.error("[HN Write API] Error message from HN:", errorMessage);
+      throw new HNAuthError(
+        `HN rejected comment: ${errorMessage}`,
+        "PARSE_ERROR"
+      );
     }
-    
+
     // Generic validation error
-    console.error('[HN Write API] Response HTML snippet:', responseHtml.slice(0, 1000));
+    console.error(
+      "[HN Write API] Response HTML snippet:",
+      responseHtml.slice(0, 1000)
+    );
     throw new HNAuthError(
-      'HN rejected your comment. Possible reasons: comment too short, contains invalid characters, or account restrictions. Please try posting directly on news.ycombinator.com to see the specific error.',
-      'PARSE_ERROR'
+      "HN rejected your comment. Possible reasons: comment too short, contains invalid characters, or account restrictions. Please try posting directly on news.ycombinator.com to see the specific error.",
+      "PARSE_ERROR"
     );
   }
 
   // Success if we get here - HN redirected to item page without errors
-  console.log('[HN Write API] Comment posted successfully');
+  console.log("[HN Write API] Comment posted successfully");
 }
 
 /**

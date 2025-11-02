@@ -1,10 +1,10 @@
-import { useHNAuth } from '@/contexts/hn-auth-context';
-import { useBookmarkMutation } from '@/hooks/use-bookmarks';
-import { useShareStory } from '@/hooks/use-share-story';
-import { isAuthError, unvote, vote, type HNItem } from '@hn/shared';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { Alert } from 'react-native';
+import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useBookmarkMutation } from "@/hooks/use-bookmarks";
+import { useShareStory } from "@/hooks/use-share-story";
+import { isAuthError, unvote, vote, type HNItem } from "@/lib/shared";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Alert } from "react-native";
 
 export interface StoryActions {
   // State
@@ -60,20 +60,20 @@ export function useStoryActions(story: HNItem): StoryActions {
   >({
     mutationFn: async (wasVoted: boolean) => {
       if (!isAuthenticated || !session) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
       return wasVoted ? unvote(story.id, session) : vote(story.id, session);
     },
 
     onMutate: async (wasVoted) => {
       const newHasVoted = !wasVoted;
-      const previousItem = queryClient.getQueryData<HNItem>(['item', story.id]);
+      const previousItem = queryClient.getQueryData<HNItem>(["item", story.id]);
 
       // Optimistic update
       setHasVoted(newHasVoted);
 
       if (previousItem) {
-        queryClient.setQueryData(['item', story.id], {
+        queryClient.setQueryData(["item", story.id], {
           ...previousItem,
           score: (previousItem.score ?? 0) + (newHasVoted ? 1 : -1),
         });
@@ -87,45 +87,41 @@ export function useStoryActions(story: HNItem): StoryActions {
       setHasVoted(context?.previousHasVoted ?? false);
 
       if (context?.previousItem) {
-        queryClient.setQueryData(['item', story.id], context.previousItem);
+        queryClient.setQueryData(["item", story.id], context.previousItem);
       }
 
       // Show appropriate error message
       if (isAuthError(error)) {
-        if (error.code === 'NOT_LOGGED_IN') {
+        if (error.code === "NOT_LOGGED_IN") {
           logout();
+          Alert.alert("Session Expired", "Please log in again to continue", [
+            { text: "OK" },
+          ]);
+        } else if (error.code === "RATE_LIMITED") {
           Alert.alert(
-            'Session Expired',
-            'Please log in again to continue',
-            [{ text: 'OK' }]
-          );
-        } else if (error.code === 'RATE_LIMITED') {
-          Alert.alert(
-            'Slow Down',
+            "Slow Down",
             "You're performing actions too quickly. Please wait a moment.",
-            [{ text: 'OK' }]
+            [{ text: "OK" }]
           );
         }
       } else {
-        Alert.alert(
-          'Error',
-          'Failed to vote. Please try again.',
-          [{ text: 'OK' }]
-        );
+        Alert.alert("Error", "Failed to vote. Please try again.", [
+          { text: "OK" },
+        ]);
       }
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['item', story.id] });
+      queryClient.invalidateQueries({ queryKey: ["item", story.id] });
     },
   });
 
   const handleVote = () => {
     if (!isAuthenticated) {
       Alert.alert(
-        'Login Required',
-        'Please login to Hacker News in Settings to vote on stories.',
-        [{ text: 'OK' }]
+        "Login Required",
+        "Please login to Hacker News in Settings to vote on stories.",
+        [{ text: "OK" }]
       );
       return;
     }
@@ -153,4 +149,3 @@ export function useStoryActions(story: HNItem): StoryActions {
     handleShare,
   };
 }
-

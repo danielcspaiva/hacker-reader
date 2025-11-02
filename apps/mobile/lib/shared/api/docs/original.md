@@ -12,7 +12,7 @@ Please email api@ycombinator.com if you find any bugs.
 
 We hope to improve the API over time. The changes won't always be backward compatible, so we're going to use versioning. This first iteration will have URIs prefixed with `https://hacker-news.firebaseio.com/v0/` and is structured as described below. There is currently no rate limit.
 
-For versioning purposes, only removal of a non-optional field or alteration of an existing field will be considered incompatible changes. *Clients should gracefully handle additional fields they don't expect, and simply ignore them.*
+For versioning purposes, only removal of a non-optional field or alteration of an existing field will be considered incompatible changes. _Clients should gracefully handle additional fields they don't expect, and simply ignore them._
 
 ## Design
 
@@ -26,23 +26,23 @@ Stories, comments, jobs, Ask HNs and even polls are just items. They're identifi
 
 All items have some of the following properties, with required properties in bold:
 
-Field | Description
-------|------------
-**id** | The item's unique id.
-deleted | `true` if the item is deleted.
-type | The type of item. One of "job", "story", "comment", "poll", or "pollopt".
-by | The username of the item's author.
-time | Creation date of the item, in [Unix Time](http://en.wikipedia.org/wiki/Unix_time).
-text | The comment, story or poll text. HTML.
-dead | `true` if the item is dead.
-parent | The comment's parent: either another comment or the relevant story.
-poll | The pollopt's associated poll.
-kids | The ids of the item's comments, in ranked display order.
-url | The URL of the story.
-score | The story's score, or the votes for a pollopt.
-title | The title of the story, poll or job. HTML.
-parts | A list of related pollopts, in display order.
-descendants | In the case of stories or polls, the total comment count.
+| Field       | Description                                                                        |
+| ----------- | ---------------------------------------------------------------------------------- |
+| **id**      | The item's unique id.                                                              |
+| deleted     | `true` if the item is deleted.                                                     |
+| type        | The type of item. One of "job", "story", "comment", "poll", or "pollopt".          |
+| by          | The username of the item's author.                                                 |
+| time        | Creation date of the item, in [Unix Time](http://en.wikipedia.org/wiki/Unix_time). |
+| text        | The comment, story or poll text. HTML.                                             |
+| dead        | `true` if the item is dead.                                                        |
+| parent      | The comment's parent: either another comment or the relevant story.                |
+| poll        | The pollopt's associated poll.                                                     |
+| kids        | The ids of the item's comments, in ranked display order.                           |
+| url         | The URL of the story.                                                              |
+| score       | The story's score, or the votes for a pollopt.                                     |
+| title       | The title of the story, poll or job. HTML.                                         |
+| parts       | A list of related pollopts, in display order.                                      |
+| descendants | In the case of stories or polls, the total comment count.                          |
 
 For example, a story: https://hacker-news.firebaseio.com/v0/item/8863.json?print=pretty
 
@@ -140,13 +140,13 @@ and one of its parts: https://hacker-news.firebaseio.com/v0/item/160705.json?pri
 
 Users are identified by case-sensitive ids, and live under `/v0/user/`. Only users that have public activity (comments or story submissions) on the site are available through the API.
 
-Field | Description
-------|------------
-**id** | The user's unique username. Case-sensitive. Required.
-**created** | Creation date of the user, in [Unix Time](http://en.wikipedia.org/wiki/Unix_time).
-**karma** | The user's karma.
-about | The user's optional self-description. HTML.
-submitted | List of the user's stories, polls and comments.
+| Field       | Description                                                                        |
+| ----------- | ---------------------------------------------------------------------------------- |
+| **id**      | The user's unique username. Case-sensitive. Required.                              |
+| **created** | Creation date of the user, in [Unix Time](http://en.wikipedia.org/wiki/Unix_time). |
+| **karma**   | The user's karma.                                                                  |
+| about       | The user's optional self-description. HTML.                                        |
+| submitted   | List of the user's stories, polls and comments.                                    |
 
 For example: https://hacker-news.firebaseio.com/v0/user/jl.json?print=pretty
 
@@ -171,7 +171,7 @@ The current largest item id is at `/v0/maxitem`. You can walk backward from here
 Example: https://hacker-news.firebaseio.com/v0/maxitem.json?print=pretty
 
 ```javascript
-9130260
+9130260;
 ```
 
 ### New, Top and Best Stories

@@ -4,7 +4,7 @@ import { Spacing } from "@/constants/theme";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { timeAgo } from "@hn/shared";
+import { timeAgo } from "@/lib/shared";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
