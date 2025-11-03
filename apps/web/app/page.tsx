@@ -111,10 +111,10 @@ export default function Home() {
                   />
                 </div>
                 <p className="mt-4 text-center text-lg font-medium text-[#1a1410] dark:text-[#f0f0f0]">
-                  Browse Stories
+                  Stay Current with Hacker News
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Infinite scrolling feed with link previews
+                  Browse top stories with rich link previews, vote counts, and comment threads.
                 </p>
               </div>
 
@@ -129,10 +129,10 @@ export default function Home() {
                   />
                 </div>
                 <p className="mt-4 text-center text-lg font-medium text-[#1a1410] dark:text-[#f0f0f0]">
-                  Read Discussions
+                  Join the Conversation
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Nested comments with collapse/expand
+                  Read and post comments with collapsible threads that stay organized.
                 </p>
               </div>
 
@@ -147,10 +147,10 @@ export default function Home() {
                   />
                 </div>
                 <p className="mt-4 text-center text-lg font-medium text-[#1a1410] dark:text-[#f0f0f0]">
-                  Rich Previews
+                  Immersive Reading Experience
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Beautiful link previews with images
+                  Full article previews with Open Graph images so you can dive in instantly.
                 </p>
               </div>
 
@@ -168,7 +168,25 @@ export default function Home() {
                   Save for Later
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Bookmark stories to read anytime
+                  Bookmark stories to read when you have time, all saved in one place.
+                </p>
+              </div>
+
+              {/* Widgets Screen */}
+              <div className="group relative">
+                <div className="relative aspect-[9/19.5] rounded-3xl overflow-hidden shadow-2xl border border-[#e5ddd0] dark:border-[#333333] bg-white dark:bg-[#0f0f0f] transition-transform group-hover:-translate-y-2 group-hover:rotate-0 -rotate-2">
+                  <Image
+                    src="/screenshots/widgets.png"
+                    alt="Home screen widgets"
+                    fill
+                    className="object-cover object-top"
+                  />
+                </div>
+                <p className="mt-4 text-center text-lg font-medium text-[#1a1410] dark:text-[#f0f0f0]">
+                  Widgets on Your Home Screen
+                </p>
+                <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
+                  Stay updated with live Top Stories widgets available in three sizes.
                 </p>
               </div>
 
@@ -183,30 +201,13 @@ export default function Home() {
                   />
                 </div>
                 <p className="mt-4 text-center text-lg font-medium text-[#1a1410] dark:text-[#f0f0f0]">
-                  Light & Dark Modes
+                  Beautiful in Any Theme
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Seamless theme switching
+                  Automatic dark and light modes match your system preference.
                 </p>
               </div>
 
-              {/* Settings Screen */}
-              <div className="group relative">
-                <div className="relative aspect-[9/19.5] rounded-3xl overflow-hidden shadow-2xl border border-[#e5ddd0] dark:border-[#333333] bg-[#f5f0e8] dark:bg-[#1a1a1a] transition-transform group-hover:-translate-y-2 group-hover:rotate-0 rotate-1">
-                  <Image
-                    src="/screenshots/settings.png"
-                    alt="Settings and authentication"
-                    fill
-                    className="object-cover object-top"
-                  />
-                </div>
-                <p className="mt-4 text-center text-lg font-medium text-[#1a1410] dark:text-[#f0f0f0]">
-                  HN Authentication
-                </p>
-                <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Login to vote and comment
-                </p>
-              </div>
             </div>
           </div>
         </section>
