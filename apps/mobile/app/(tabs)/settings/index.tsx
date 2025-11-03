@@ -1,4 +1,11 @@
 import { HNLoginModal } from "@/components/auth";
+import {
+  ANDROID_PLAY_STORE_URL,
+  APP_NAME,
+  APP_VERSION,
+  IOS_APP_STORE_URL,
+  REPO_URL,
+} from "@/constants/app-config";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
@@ -10,12 +17,6 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
 import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { Platform, StyleSheet, View } from "react-native";
-
-const APP_NAME = "Hacker Reader";
-const APP_VERSION = "1.0.0";
-const REPO_URL = "https://github.com/danielcspaiva/hacker-reader";
-const IOS_APP_STORE_URL = "https://github.com/danielcspaiva/hacker-reader";
-const ANDROID_PLAY_STORE_URL = "https://github.com/danielcspaiva/hacker-reader";
 
 export default function SettingsScreen() {
   const { colorScheme } = useColorSchemeContext();

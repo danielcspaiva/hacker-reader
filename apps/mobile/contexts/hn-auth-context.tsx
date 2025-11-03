@@ -16,7 +16,7 @@ import * as SecureStore from "expo-secure-store";
 import { usePostHog } from "posthog-react-native";
 import { SecureSession } from "@/lib/shared/auth";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
-import { trackEvent, identifyUser, resetUser } from "@/lib/analytics/tracking";
+import { trackEvent, resetUser } from "@/lib/analytics/tracking";
 
 interface HNAuthContextValue {
   session: SecureSession | null;
@@ -57,15 +57,10 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     setSession(newSession);
     await SecureStore.setItemAsync("hn_cookies", JSON.stringify(cookies));
 
-    // Track login and identify user
+    // Track login completion (fully anonymous)
+    // Note: is_authenticated super property is automatically set in _layout.tsx
+    // This allows us to track logged in vs. logged out behavior without identifying users
     trackEvent(posthog, AnalyticsEvent.LOGIN_COMPLETED, {});
-
-    // Try to extract username from cookies for identification
-    // The username is typically stored in the 'acct' cookie
-    const username = cookies.acct;
-    if (username) {
-      identifyUser(posthog, username);
-    }
   }
 
   async function logout() {

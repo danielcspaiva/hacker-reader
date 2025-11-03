@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     creator: "@hackerreader",
   },
   icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
+    icon: "/ios-light.png",
+    apple: "/ios-light.png",
   },
 };
 

@@ -103,7 +103,9 @@ export default function StoryDetailScreen() {
 
         // Track comment collapse - find comment recursively in tree
         if (story?.comments) {
-          const findComment = (comments: typeof story.comments): typeof story.comments[0] | undefined => {
+          const findComment = (
+            comments: typeof story.comments
+          ): (typeof story.comments)[0] | undefined => {
             for (const comment of comments) {
               if (comment.id === commentId) return comment;
               const found = findComment(comment.children);

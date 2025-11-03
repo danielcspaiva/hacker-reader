@@ -513,6 +513,9 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col gap-3 text-sm text-[#5d5146] dark:text-[#b3b3b3] sm:flex-row sm:items-center sm:gap-6">
+            <Link className="transition hover:text-[#ff6600]" href="/privacy">
+              Privacy Policy
+            </Link>
             <a
               className="transition hover:text-[#ff6600]"
               href="https://news.ycombinator.com"
