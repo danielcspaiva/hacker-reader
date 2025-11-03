@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![Hacker Reader Cover](assets/repo/cover-light.png)
+
 > A polished Hacker News experience for mobile and web, powered by Expo and Next.js.
 
 ## Table of Contents
