@@ -14,7 +14,7 @@ import { useClearCache } from "@/hooks/use-clear-cache";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHNLogin } from "@/hooks/use-hn-login";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
+import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
 import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { Platform, StyleSheet, View } from "react-native";
 
@@ -47,6 +47,7 @@ export default function SettingsScreen() {
     });
     if (rateUrl) openLink(rateUrl);
   };
+  const handleOpenWebsite = () => openLink("https://dcsp.dev");
 
   return (
     <View style={styles.container}>
@@ -132,8 +133,19 @@ export default function SettingsScreen() {
           </Section>
 
           <Section title="About">
-            <Text size={12}>Built by dcsp.dev</Text>
-            <Text>{`${APP_NAME} v${APP_VERSION}`}</Text>
+            <Button
+              onPress={handleOpenWebsite}
+              systemImage="globe"
+              modifiers={[foregroundStyle(textColor)]}
+            >
+              Built by dcsp.dev
+            </Button>
+            <Button
+              systemImage="info.circle"
+              modifiers={[foregroundStyle(textColor)]}
+            >
+              {`${APP_NAME} v${APP_VERSION}`}
+            </Button>
           </Section>
         </Form>
       </Host>
