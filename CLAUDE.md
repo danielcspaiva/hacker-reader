@@ -22,7 +22,6 @@ This project uses **pnpm** as its package manager (specified in `package.json`).
 - `pnpm lint` - Run ESLint for code linting
 
 ### Reset
-- `pnpm reset-project` - Reset project to blank state (moves starter code to app-example)
 
 ## Architecture
 

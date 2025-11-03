@@ -98,11 +98,15 @@ This project is fully open source. You can:
 - **Purpose**: Monitor crashes and errors
 - **Privacy Policy**: https://sentry.io/privacy/
 - **Compliance**: GDPR, SOC 2 certified
+- **Data captured**: Stack traces, device model, OS version, and Sentry's default PII (IP address, locale) in production builds to help debug issues.
+- **How to disable for self-hosted builds**: Leave `EXPO_PUBLIC_SENTRY_DSN` and `SENTRY_AUTH_TOKEN` unset (or remove them from `.env`) before building; the app skips initializing Sentry when those values are absent.
 
 ### PostHog (Analytics)
 - **Purpose**: Understand feature usage
 - **Privacy Policy**: https://posthog.com/privacy
 - **Compliance**: GDPR compliant
+- **Data captured**: Anonymous usage events (screen views, taps) with generated device identifiers; no raw Hacker News credentials are transmitted.
+- **How to disable for self-hosted builds**: Do not supply `EXPO_PUBLIC_POSTHOG_API_KEY` or `EXPO_PUBLIC_POSTHOG_HOST`. The open-source app automatically skips PostHog when these variables are missing.
 
 ---
 

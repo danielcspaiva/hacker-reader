@@ -18,6 +18,10 @@ import {
 import { hnRateLimiter } from "../auth/rate-limiter";
 import { SecureSession } from "../auth/session";
 
+const isDebugLoggingEnabled =
+  (typeof __DEV__ !== "undefined" && __DEV__) ||
+  process.env.NODE_ENV !== "production";
+
 const HN_BASE_URL = "https://news.ycombinator.com";
 
 /**
@@ -114,18 +118,22 @@ export async function comment(
   text: string,
   session: SecureSession
 ): Promise<void> {
-  console.log("[HN Write API] Starting comment post:", {
-    parentId,
-    textLength: text.length,
-    hasSession: session.hasValidSession(),
-  });
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Starting comment post:", {
+      parentId,
+      textLength: text.length,
+      hasSession: session.hasValidSession(),
+    });
+  }
 
   // Step 1: Fetch parent item page to get HMAC
   const itemPage = await fetchHN(`/item?id=${parentId}`, session);
   const html = await itemPage.text();
   const hmac = parseCommentFormHmac(html);
 
-  console.log("[HN Write API] Got HMAC:", hmac.slice(0, 10) + "...");
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Got HMAC:", hmac.slice(0, 10) + "...");
+  }
 
   // Step 2: POST comment
   // HN requires 'goto' parameter for redirect after successful comment
@@ -136,12 +144,14 @@ export async function comment(
     text: text,
   });
 
-  console.log("[HN Write API] Posting comment with form data:", {
-    parent: parentId,
-    goto: `item?id=${parentId}`,
-    hmacLength: hmac.length,
-    textLength: text.length,
-  });
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Posting comment with form data:", {
+      parent: parentId,
+      goto: `item?id=${parentId}`,
+      hmacLength: hmac.length,
+      textLength: text.length,
+    });
+  }
 
   const response = await fetchHN("/comment", session, {
     method: "POST",
@@ -151,11 +161,13 @@ export async function comment(
     body: formData.toString(),
   });
 
-  console.log("[HN Write API] Comment response:", {
-    status: response.status,
-    url: response.url,
-    redirected: response.redirected,
-  });
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Comment response:", {
+      status: response.status,
+      url: response.url,
+      redirected: response.redirected,
+    });
+  }
 
   // Step 3: Verify the comment was accepted
   const responseHtml = await response.text();

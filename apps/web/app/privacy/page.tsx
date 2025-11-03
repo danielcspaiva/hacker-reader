@@ -51,9 +51,10 @@ export default function PrivacyPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-semibold mb-4">Overview</h2>
             <p className="text-[#5d5146] dark:text-[#c4c4c4] leading-relaxed">
-              Hacker Reader (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the app&rdquo;) is a third-party iOS
-              client for Hacker News. We are committed to protecting your
-              privacy and being transparent about our data practices.
+              Hacker Reader (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the
+              app&rdquo;) is a third-party iOS client for Hacker News. We are
+              committed to protecting your privacy and being transparent about
+              our data practices.
             </p>
           </section>
 
@@ -306,8 +307,8 @@ export default function PrivacyPage() {
               <li>• No content specifically for children</li>
               <li>• No data knowingly collected from children under 13</li>
               <li>
-                • If we learn a child under 13 has provided information, we&apos;ll
-                delete it
+                • If we learn a child under 13 has provided information,
+                we&apos;ll delete it
               </li>
             </ul>
             <p className="mt-3 text-sm text-[#665c4f] dark:text-[#a8a8a8]">
