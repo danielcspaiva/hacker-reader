@@ -16,15 +16,18 @@ This project uses [Sentry](https://sentry.io) for error tracking and performance
 ### 1. Get Your Sentry Credentials
 
 If you don't have a Sentry account yet:
+
 1. Sign up at [sentry.io](https://sentry.io)
 2. Create a new project for your React Native app
 3. Note down your organization and project names
 
 #### Get Your DSN
+
 1. Go to **Settings** → **Projects** → **[Your Project]** → **Client Keys (DSN)**
 2. Copy the DSN (looks like: `https://xxxxx@xxxxx.ingest.sentry.io/xxxxx`)
 
 #### Get Your Auth Token
+
 1. Go to **Settings** → **Account** → **API** → **Auth Tokens**
 2. Click **Create New Token**
 3. Required scopes:
@@ -35,11 +38,13 @@ If you don't have a Sentry account yet:
 ### 2. Configure Environment Variables
 
 Copy the example environment file:
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edit `.env.local` and replace the placeholder values:
+
 ```bash
 EXPO_PUBLIC_SENTRY_DSN=https://your-public-key@your-sentry-instance.ingest.sentry.io/your-project-id
 SENTRY_AUTH_TOKEN=sntrys_your_actual_token_here
@@ -50,11 +55,13 @@ SENTRY_AUTH_TOKEN=sntrys_your_actual_token_here
 ### 3. Configure Sentry Properties (iOS & Android)
 
 For **iOS**:
+
 ```bash
 cp ios/sentry.properties.example ios/sentry.properties
 ```
 
 For **Android**:
+
 ```bash
 cp android/sentry.properties.example android/sentry.properties
 ```
@@ -75,11 +82,13 @@ defaults.project=your-project-name
 ## How It Works
 
 ### Runtime Error Tracking
+
 - The app uses `EXPO_PUBLIC_SENTRY_DSN` from environment variables
 - Errors are automatically sent to Sentry in production builds
 - The DSN is embedded in the client bundle (this is expected and safe)
 
 ### Build-Time Source Map Upload
+
 - During native builds, the Sentry CLI reads `sentry.properties`
 - Source maps are uploaded so you can see readable stack traces in Sentry
 - The auth token is only used during build time, never in the app
@@ -89,10 +98,10 @@ defaults.project=your-project-name
 To verify Sentry is working:
 
 ```typescript
-import * as Sentry from '@sentry/react-native';
+import * as Sentry from "@sentry/react-native";
 
 // Trigger a test error
-Sentry.captureException(new Error('Test error from development'));
+Sentry.captureException(new Error("Test error from development"));
 ```
 
 Check your Sentry dashboard to see if the error appears.
@@ -100,11 +109,13 @@ Check your Sentry dashboard to see if the error appears.
 ## Security Best Practices
 
 ✅ **DO**:
+
 - Keep `.env.local` and `sentry.properties` files local only
 - Rotate your auth token if it's ever exposed
 - Use different Sentry projects for development/staging/production
 
 ❌ **DON'T**:
+
 - Commit `.env.local` or `sentry.properties` to version control
 - Share your auth token in Slack, Discord, or other chat platforms
 - Include auth tokens in screenshots or screen recordings
@@ -112,11 +123,13 @@ Check your Sentry dashboard to see if the error appears.
 ## Troubleshooting
 
 ### Source maps not uploading
+
 - Verify `sentry.properties` exists in both `ios/` and `android/`
 - Check that your auth token has the correct scopes
 - Look for Sentry CLI output during the build process
 
 ### Errors not appearing in Sentry
+
 - Confirm `EXPO_PUBLIC_SENTRY_DSN` is set in `.env.local`
 - Restart the Metro bundler after changing environment variables
 - Check that Sentry is initialized before other code runs (it's in `app/_layout.tsx`)

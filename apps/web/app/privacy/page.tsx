@@ -51,7 +51,7 @@ export default function PrivacyPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-semibold mb-4">Overview</h2>
             <p className="text-[#5d5146] dark:text-[#c4c4c4] leading-relaxed">
-              Hacker Reader ("we", "our", or "the app") is a third-party iOS
+              Hacker Reader (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;the app&rdquo;) is a third-party iOS
               client for Hacker News. We are committed to protecting your
               privacy and being transparent about our data practices.
             </p>
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
                   No Tracking
                 </h3>
                 <p className="text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  We don't track you across apps or websites
+                  We don&apos;t track you across apps or websites
                 </p>
               </div>
               <div className="p-6 rounded-xl border border-[#e5ddd0] dark:border-[#333333] bg-[#fefaf4] dark:bg-[#0c0c0c]">
@@ -132,7 +132,7 @@ export default function PrivacyPage() {
 
           <section className="mb-12">
             <h2 className="text-3xl font-semibold mb-4">
-              Data We Don't Collect
+              Data We Don&apos;t Collect
             </h2>
             <div className="bg-[#f5f0e8] dark:bg-[#0a0a0a] rounded-xl p-8">
               <p className="text-[#5d5146] dark:text-[#c4c4c4] mb-4">
@@ -219,8 +219,8 @@ export default function PrivacyPage() {
                   PostHog (Analytics)
                 </h3>
                 <p className="text-[#5d5146] dark:text-[#c4c4c4] mb-3">
-                  We use PostHog to understand feature usage and improve the app.
-                  All analytics are fully anonymous.
+                  We use PostHog to understand feature usage and improve the
+                  app. All analytics are fully anonymous.
                 </p>
                 <a
                   href="https://posthog.com/privacy"
@@ -284,7 +284,7 @@ export default function PrivacyPage() {
                   </li>
                   <li>
                     • <strong>Right to Opt-Out</strong>: Opt out of data sale
-                    (we don't sell data)
+                    (we don&apos;t sell data)
                   </li>
                 </ul>
                 <p className="mt-3 font-semibold text-[#5d5146] dark:text-[#c4c4c4]">
@@ -296,17 +296,17 @@ export default function PrivacyPage() {
 
           <section className="mb-12">
             <h2 className="text-3xl font-semibold mb-4">
-              Children's Privacy (COPPA)
+              Children&apos;s Privacy (COPPA)
             </h2>
             <p className="text-[#5d5146] dark:text-[#c4c4c4] mb-3">
-              Hacker Reader is <strong>not directed at children under 13</strong>
-              .
+              Hacker Reader is{" "}
+              <strong>not directed at children under 13</strong>.
             </p>
             <ul className="space-y-1 text-[#5d5146] dark:text-[#c4c4c4] ml-4">
               <li>• No content specifically for children</li>
               <li>• No data knowingly collected from children under 13</li>
               <li>
-                • If we learn a child under 13 has provided information, we'll
+                • If we learn a child under 13 has provided information, we&apos;ll
                 delete it
               </li>
             </ul>
@@ -347,7 +347,7 @@ export default function PrivacyPage() {
                 </a>
               </p>
               <p className="text-sm text-[#665c4f] dark:text-[#a8a8a8] mt-2">
-                We'll respond within 30 days
+                We&apos;ll respond within 30 days
               </p>
             </div>
           </section>

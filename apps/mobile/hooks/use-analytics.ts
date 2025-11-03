@@ -78,10 +78,7 @@ export function useAnalytics(): Analytics {
   const posthog = usePostHog();
 
   const track = useCallback(
-    <E extends AnalyticsEvent>(
-      event: E,
-      properties?: EventProperties[E]
-    ) => {
+    <E extends AnalyticsEvent>(event: E, properties?: EventProperties[E]) => {
       trackEvent(posthog, event, properties);
     },
     [posthog]

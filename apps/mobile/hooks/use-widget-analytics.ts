@@ -50,8 +50,8 @@ const ReactNativeWidgetExtension: {
   Platform.OS === "ios"
     ? (() => {
         try {
-           
-          const module = require("react-native-widget-extension/build/ReactNativeWidgetExtensionModule").default;
+          const module =
+            require("react-native-widget-extension/build/ReactNativeWidgetExtensionModule").default;
           logWidgetAnalytics("Loaded native widget module.");
           return module;
         } catch (error) {
@@ -175,7 +175,10 @@ export function useWidgetAnalytics() {
           ? (configurationsRaw as NativeWidgetConfiguration[])
           : [];
 
-        logWidgetAnalytics("Fetched native widget configurations:", configurations);
+        logWidgetAnalytics(
+          "Fetched native widget configurations:",
+          configurations
+        );
 
         const normalized = configurations
           .map(normalizeConfiguration)
@@ -183,7 +186,10 @@ export function useWidgetAnalytics() {
             (config): config is NormalizedWidgetConfiguration => config !== null
           );
 
-        const uniqueConfigMap = new Map<string, NormalizedWidgetConfiguration>();
+        const uniqueConfigMap = new Map<
+          string,
+          NormalizedWidgetConfiguration
+        >();
         normalized.forEach((config) => {
           if (!uniqueConfigMap.has(config.key)) {
             uniqueConfigMap.set(config.key, config);
@@ -191,12 +197,13 @@ export function useWidgetAnalytics() {
         });
         const uniqueConfigurations = Array.from(uniqueConfigMap.values());
 
-        logWidgetAnalytics("Normalized widget configurations:", uniqueConfigurations);
+        logWidgetAnalytics(
+          "Normalized widget configurations:",
+          uniqueConfigurations
+        );
 
         const currentKeys = uniqueConfigurations.map((config) => config.key);
-        const storedRaw = await AsyncStorage.getItem(
-          WIDGET_CONFIG_STORAGE_KEY
-        );
+        const storedRaw = await AsyncStorage.getItem(WIDGET_CONFIG_STORAGE_KEY);
         let storedKeys: StoredWidgetKey[] = [];
         if (storedRaw) {
           try {
@@ -243,7 +250,10 @@ export function useWidgetAnalytics() {
           JSON.stringify(Array.from(currentSet))
         );
 
-        logWidgetAnalytics("Updated stored widget keys:", Array.from(currentSet));
+        logWidgetAnalytics(
+          "Updated stored widget keys:",
+          Array.from(currentSet)
+        );
 
         registerSuper({
           [AnalyticsProperty.HAS_WIDGET_INSTALLED]: currentSet.size > 0,
@@ -253,7 +263,10 @@ export function useWidgetAnalytics() {
           currentSet.size > 0
         );
       } catch (error) {
-        console.warn("[Analytics] Failed to sync widget configurations:", error);
+        console.warn(
+          "[Analytics] Failed to sync widget configurations:",
+          error
+        );
       } finally {
         syncInFlight = false;
       }
