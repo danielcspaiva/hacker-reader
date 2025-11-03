@@ -18,7 +18,6 @@
     "web:build": "pnpm --filter @hn/web build",
     "web:start": "pnpm --filter @hn/web start",
     "web:lint": "pnpm --filter @hn/web lint",
-    "shared:typecheck": "pnpm --filter @hn/shared typecheck",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",

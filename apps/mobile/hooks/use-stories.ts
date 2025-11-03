@@ -1,16 +1,16 @@
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import type { Category } from "@/components/category-filter";
 import {
-  getTopStories,
-  getNewStories,
-  getAskStories,
-  getShowStories,
-  getJobStories,
-  getItems,
   fetchOGMetadata,
+  getAskStories,
+  getItems,
+  getJobStories,
+  getNewStories,
+  getShowStories,
+  getTopStories,
   type HNItem,
 } from "@/lib/shared";
-import type { Category } from "@/components/category-filter";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 const PAGE_SIZE = 30;
 

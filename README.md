@@ -45,7 +45,6 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 │   │   ├── components/      # UI components
 │   │   └── app/             # Expo Router screens
 │   └── web/                 # Next.js App Router marketing site (AI backend coming)
-├── api-docs/                # Reference material and integration notes
 ├── package.json             # Root scripts and tooling
 ├── pnpm-workspace.yaml      # Workspace definition
 └── tsconfig.base.json       # Shared TypeScript configuration
@@ -82,6 +81,11 @@ pnpm web:build     # Production build
 pnpm web:start     # Start production server
 pnpm web:lint      # Next.js workspace linting
 ```
+
+### Environment Setup
+
+- Duplicate `apps/mobile/.env.example` to `.env.local` and populate Sentry/PostHog keys (or leave blank to disable those integrations when developing).
+- Duplicate `apps/web/.env.example` to `.env.local` to set `NEXT_PUBLIC_SITE_URL` for metadata when running the marketing site.
 
 ## Development Workflow
 
@@ -135,7 +139,6 @@ pnpm web       # smoke-test the marketing site
 
 ## Docs & Roadmap
 
-- `api-docs/` – in-progress reference material for Hacker News endpoints, Algolia search, and authentication flows.
 - `todo/` – backlog notes, prototypes, and follow-up tasks; add new ideas here instead of inline TODOs.
 
 ## License

@@ -114,7 +114,8 @@ export default function Home() {
                   Stay Current with Hacker News
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Browse top stories with rich link previews, vote counts, and comment threads.
+                  Browse top stories with rich link previews, vote counts, and
+                  comment threads.
                 </p>
               </div>
 
@@ -132,7 +133,8 @@ export default function Home() {
                   Join the Conversation
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Read and post comments with collapsible threads that stay organized.
+                  Read and post comments with collapsible threads that stay
+                  organized.
                 </p>
               </div>
 
@@ -150,7 +152,8 @@ export default function Home() {
                   Immersive Reading Experience
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Full article previews with Open Graph images so you can dive in instantly.
+                  Full article previews with Open Graph images so you can dive
+                  in instantly.
                 </p>
               </div>
 
@@ -168,7 +171,8 @@ export default function Home() {
                   Save for Later
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Bookmark stories to read when you have time, all saved in one place.
+                  Bookmark stories to read when you have time, all saved in one
+                  place.
                 </p>
               </div>
 
@@ -186,7 +190,8 @@ export default function Home() {
                   Widgets on Your Home Screen
                 </p>
                 <p className="text-center text-sm text-[#665c4f] dark:text-[#a8a8a8]">
-                  Stay updated with live Top Stories widgets available in three sizes.
+                  Stay updated with live Top Stories widgets available in three
+                  sizes.
                 </p>
               </div>
 
@@ -207,7 +212,6 @@ export default function Home() {
                   Automatic dark and light modes match your system preference.
                 </p>
               </div>
-
             </div>
           </div>
         </section>

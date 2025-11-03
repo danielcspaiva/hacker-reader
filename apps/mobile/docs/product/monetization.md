@@ -111,100 +111,100 @@
 
 ## Feature Tiers
 
-### <� Free Tier
+### Free Tier
 
 #### Core Reading (Always Free)
 
--  Browse all 5 categories (Top, New, Ask, Show, Jobs)
--  Infinite scrolling with FlashList optimization
--  View stories and full comment threads
--  Collapsible comment trees
--  Link previews (Open Graph metadata)
--  Time-ago timestamps
--  External link opening (in-app browser)
--  Deep linking support
+- Browse all 5 categories (Top, New, Ask, Show, Jobs)
+- Infinite scrolling with FlashList optimization
+- View stories and full comment threads
+- Collapsible comment trees
+- Link previews (Open Graph metadata)
+- Time-ago timestamps
+- External link opening (in-app browser)
+- Deep linking support
 
 #### Basic UI Features
 
--  Dark mode (auto-switching)
--  Native iOS design with SF Symbols
--  Pull to refresh
--  Safe area handling
--  Smooth animations
+- Dark mode (auto-switching)
+- Native iOS design with SF Symbols
+- Pull to refresh
+- Safe area handling
+- Smooth animations
 
-#### Basic Authentication (Free Trial � Paid)
+#### Basic Authentication (Trial vs. Premium)
 
-- � **14-day trial** - Full auth features
-- = After trial: View-only (requires Premium)
-  - Upvoting � Premium required
-  - Commenting � Premium required
-  - Favoriting � Premium required
+- **14-day trial** – Full auth features unlocked
+- After trial: view-only mode (premium required for interactions)
+  - Upvoting requires premium
+  - Commenting requires premium
+  - Favoriting requires premium
 
 #### Basic Widget (Free)
 
--  **Small widget only** (3 stories)
--  Auto-updates every 30 minutes
--  Basic deep linking
--  Dark mode support
+- Small widget (3 stories)
+- Auto-updates every 30 minutes
+- Basic deep linking
+- Dark mode support
 
-### =� Premium Tier
+### Premium Tier
 
-#### Authentication & Interactions (Paid)
+#### Authentication & Interactions
 
-- = **Unlimited Upvoting** - Upvote stories and comments
-- = **Unvote** - Remove upvotes
-- = **Comment Posting** - Reply to stories and comments
-- = **Favoriting** - Save stories to HN favorites
-- = **Session Persistence** - Stay logged in forever
-- = **Multiple Accounts** - Switch between HN accounts (future)
+- Unlimited upvoting for stories and comments
+- Unvote support
+- Comment posting
+- Favoriting stories
+- Persistent sessions
+- Multiple accounts (planned)
 
-#### Advanced Widgets (Paid)
+#### Advanced Widgets
 
-- = **Medium Widget** (5 stories)
-- = **Large Widget** (10 stories)
-- = **Widget Customization** (future)
+- Medium widget (5 stories)
+- Large widget (10 stories)
+- Widget customization roadmap:
   - Choose category (Top/New/Ask/Show/Jobs)
   - Refresh interval preferences
   - Color theme customization
 
-#### AI-Powered Features (Paid) =�
+#### AI-Powered Features
 
-- >  **AI Daily Digest** (push notification)
+- **AI Daily Digest** (push notification)
   - Smart summary of top stories
-  - Personalized to your interests
+  - Personalized to user interests
   - Delivered at preferred time
-- >  **AI Story Summaries**
+- **AI Story Summaries**
   - TL;DR for long articles
   - Key points extraction
   - Sentiment analysis
-- >  **AI Comment Summaries**
+- **AI Comment Summaries**
   - Thread sentiment overview
-  - Key arguments/viewpoints
+  - Key arguments and viewpoints
   - Controversy detection
-- >  **Smart Notifications**
+- **Smart Notifications**
   - Keyword tracking (e.g., "AI", "Rust", "YC")
   - Topic alerts with AI context
   - Trending detection
 
-#### Power User Features (Paid)
+#### Power User Features
 
-- = **Offline Reading Mode**
+- **Offline Reading Mode**
   - Save stories for offline access
   - Pre-download articles
   - Sync queue management
-- = **Reading History**
+- **Reading History**
   - Track viewed stories
   - Reading time analytics
   - Activity heatmap
-- = **Advanced Filters**
-  - Hide by keyword/domain
+- **Advanced Filters**
+  - Hide by keyword or domain
   - Show only specific point thresholds
   - Custom sorting options
-- = **Custom Themes**
+- **Custom Themes**
   - Additional color schemes
   - Font size customization
   - Density settings
-- = **Export & Backup**
+- **Export & Backup**
   - Export favorites as JSON/Markdown
   - Reading history export
   - Data portability

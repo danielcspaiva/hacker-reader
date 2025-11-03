@@ -4,7 +4,6 @@
 - Root uses a pnpm workspace; shared TypeScript config lives in `tsconfig.base.json`.
 - `apps/mobile/` runs Expo Router. Screens sit under `app/(tabs)/`, shared views in `components/`, and APIs/utilities in `lib/shared/`.
 - `apps/web/` is a Next.js App Router app rooted in `app/` with Tailwind config in `tailwind.config.ts`. Future AI backend will live here.
-- `api-docs/` hosts reference material.
 
 ## Build, Test, and Development Commands
 - `pnpm install`: bootstrap all workspaces.

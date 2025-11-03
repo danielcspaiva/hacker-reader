@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "expo start",
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "ios:widgets": "npx expo prebuild --platform ios && pnpm ios",
