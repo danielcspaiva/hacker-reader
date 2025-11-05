@@ -5,12 +5,12 @@
  * All tracking functions are type-safe and follow naming conventions.
  */
 
-import { usePostHog } from "posthog-react-native";
 import type { Category } from "@/components/category-filter";
+import * as Application from "expo-application";
+import { usePostHog } from "posthog-react-native";
+import { Platform } from "react-native";
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
-import * as Application from "expo-application";
-import { Platform } from "react-native";
 
 export type WidgetSize = "small" | "medium" | "large";
 
@@ -76,7 +76,7 @@ export interface EventProperties {
   };
   [AnalyticsEvent.STORY_SHARED]: {
     [AnalyticsProperty.STORY_ID]: number;
-    [AnalyticsProperty.SHARE_METHOD]: "native" | "clipboard";
+    [AnalyticsProperty.SHARE_METHOD]: "native" | "clipboard" | "header_menu";
   };
   [AnalyticsEvent.COMMENT_VIEWED]: {
     [AnalyticsProperty.COMMENT_ID]: number;
@@ -139,7 +139,7 @@ export function getAppMetadata() {
  * });
  * ```
  */
-export function trackEvent<E extends AnalyticsEvent>(
+export function trackEvent<E extends keyof EventProperties>(
   posthog: ReturnType<typeof usePostHog>,
   event: E,
   properties?: EventProperties[E]

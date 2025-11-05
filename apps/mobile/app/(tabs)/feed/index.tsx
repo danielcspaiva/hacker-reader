@@ -2,6 +2,7 @@ import { CategoryFilter, type Category } from "@/components/category-filter";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { usePrefetchCategories, useStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
@@ -35,6 +36,7 @@ const HEADER_SCROLL_OFFSET = isLiquidGlassAvailable() ? 100 : 90;
 export default function FeedScreen() {
   const [category, setCategory] = useState<Category>("top");
   const analytics = useAnalytics();
+  const { isHidden } = useHiddenStories();
 
   const {
     data,
@@ -46,7 +48,9 @@ export default function FeedScreen() {
     isFetchingNextPage,
   } = useStories(category);
 
-  const stories = data?.pages.flatMap((page) => page) ?? [];
+  // Filter out hidden stories
+  const allStories = data?.pages.flatMap((page) => page) ?? [];
+  const stories = allStories.filter((story) => !isHidden(story.id));
 
   // Intelligently prefetch other categories in the background
   usePrefetchCategories(category, isPending, stories.length > 0);

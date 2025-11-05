@@ -64,7 +64,8 @@
           "organization": "hacker-reader"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

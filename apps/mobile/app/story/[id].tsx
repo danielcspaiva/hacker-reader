@@ -3,18 +3,19 @@ import { StoryCommentInput } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useBookmarkMutation, useIsBookmarked } from "@/hooks/use-bookmarks";
-import { useShareStory } from "@/hooks/use-share-story";
-import { useStory } from "@/hooks/use-story";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useStory } from "@/hooks/use-story";
+import { useStoryActions } from "@/hooks/use-story-actions";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { flattenComments } from "@/lib/utils/comments";
+import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
+import { frame } from "@expo/ui/swift-ui/modifiers";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -53,10 +54,24 @@ export default function StoryDetailScreen() {
 
   const { bottom } = useSafeAreaInsets();
 
-  // Bookmark state and mutation
-  const { data: isBookmarked } = useIsBookmarked(Number(id));
-  const bookmarkMutation = useBookmarkMutation();
-  const shareStory = useShareStory();
+  // Story actions hook - use placeholder story when not loaded yet
+  const placeholderStory = {
+    id: Number(id),
+    type: "story" as const,
+    by: "",
+    time: 0,
+    title: "",
+    score: 0,
+  };
+  const {
+    isBookmarked,
+    hasVoted,
+    handleBookmark,
+    handleShare,
+    handleHide,
+    handleVote,
+    handleFlag,
+  } = useStoryActions(story || placeholderStory);
 
   // Track story viewed
   useEffect(() => {
@@ -70,13 +85,6 @@ export default function StoryDetailScreen() {
       });
     }
   }, [story, isLoading, isInsidePreview, analytics]);
-
-  const handleBookmark = () => {
-    bookmarkMutation.mutate({
-      storyId: Number(id),
-      add: !isBookmarked,
-    });
-  };
 
   // Centralized collapse state
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
@@ -143,7 +151,10 @@ export default function StoryDetailScreen() {
         headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
         headerRight: () => (
           <View style={{ flexDirection: "row", gap: 8 }}>
-            <Pressable onPress={handleBookmark} style={styles.shareButton}>
+            <Pressable
+              onPress={() => handleBookmark()}
+              style={styles.shareButton}
+            >
               <IconSymbol
                 name={isBookmarked ? "bookmark.fill" : "bookmark"}
                 size={22}
@@ -151,18 +162,39 @@ export default function StoryDetailScreen() {
                 weight={"medium"}
               />
             </Pressable>
-            <Pressable
-              onPress={() => story && shareStory(story)}
-              disabled={!story}
-              style={styles.shareButton}
-            >
-              <IconSymbol
-                name="square.and.arrow.up"
-                size={22}
-                color={textColor}
-                weight={"medium"}
-              />
-            </Pressable>
+            <Host matchContents style={{ width: 36, height: 36 }}>
+              <ContextMenu>
+                <ContextMenu.Items>
+                  <SwiftUIButton
+                    systemImage={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
+                    onPress={handleVote}
+                  >
+                    {hasVoted ? "Unvote" : "Upvote"}
+                  </SwiftUIButton>
+                  <SwiftUIButton
+                    systemImage="square.and.arrow.up"
+                    onPress={handleShare}
+                  >
+                    Share
+                  </SwiftUIButton>
+                  <SwiftUIButton systemImage="eye.slash" onPress={handleHide}>
+                    Hide
+                  </SwiftUIButton>
+                  <SwiftUIButton systemImage="flag" onPress={handleFlag}>
+                    Flag
+                  </SwiftUIButton>
+                </ContextMenu.Items>
+                <ContextMenu.Trigger>
+                  <SwiftUIButton
+                    variant="default"
+                    systemImage="ellipsis"
+                    role="default"
+                    controlSize="regular"
+                    modifiers={[frame({ width: 36, height: 36 })]}
+                  />
+                </ContextMenu.Trigger>
+              </ContextMenu>
+            </Host>
           </View>
         ),
       }}

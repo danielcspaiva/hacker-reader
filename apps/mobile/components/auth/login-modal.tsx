@@ -3,6 +3,7 @@
  *
  * Displays a WebView for logging into Hacker News.
  * Extracts session cookies after successful login.
+ * Shows HN Guidelines acceptance before allowing login.
  */
 
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -13,6 +14,7 @@ import {
 } from "@/lib/login-webview-script";
 import type { Cookies } from "@react-native-cookies/cookies";
 import CookieManager from "@react-native-cookies/cookies";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -30,12 +32,15 @@ import type {
 } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { ThemedText } from "../themed-text";
+import { GuidelinesModal } from "./guidelines-modal";
 
 interface HNLoginModalProps {
   visible: boolean;
   onLoginSuccess: (cookies: Record<string, string>) => void | Promise<void>;
   onCancel: () => void;
 }
+
+const GUIDELINES_ACCEPTED_KEY = "@guidelines_accepted";
 
 export function HNLoginModal({
   visible,
@@ -46,8 +51,51 @@ export function HNLoginModal({
   const textColor = useThemeColor({}, "text");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showGuidelines, setShowGuidelines] = useState(false);
+  const [guidelinesAccepted, setGuidelinesAccepted] = useState(false);
   const hasCapturedSession = useRef(false);
   const webViewRef = useRef<WebViewType | null>(null);
+
+  // Check if guidelines were previously accepted
+  useEffect(() => {
+    if (visible) {
+      checkGuidelinesAcceptance();
+    }
+  }, [visible]);
+
+  async function checkGuidelinesAcceptance() {
+    try {
+      const accepted = await AsyncStorage.getItem(GUIDELINES_ACCEPTED_KEY);
+      if (accepted === "true") {
+        setGuidelinesAccepted(true);
+        setShowGuidelines(false);
+      } else {
+        setGuidelinesAccepted(false);
+        setShowGuidelines(true);
+      }
+    } catch (error) {
+      console.error("Failed to check guidelines acceptance:", error);
+      setShowGuidelines(true);
+    }
+  }
+
+  async function handleGuidelinesAccept() {
+    try {
+      await AsyncStorage.setItem(GUIDELINES_ACCEPTED_KEY, "true");
+      setGuidelinesAccepted(true);
+      setShowGuidelines(false);
+    } catch (error) {
+      console.error("Failed to save guidelines acceptance:", error);
+      setGuidelinesAccepted(true);
+      setShowGuidelines(false);
+    }
+  }
+
+  function handleGuidelinesReject() {
+    setShowGuidelines(false);
+    onCancel();
+  }
+
   function resetState() {
     setLoading(false);
     setError(null);
@@ -182,60 +230,70 @@ export function HNLoginModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={() => {
-        resetState();
-        onCancel();
-      }}
-      onDismiss={resetState}
-    >
-      <SafeAreaView style={[styles.container, { backgroundColor }]}>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" />
-            <ThemedText style={styles.loadingText}>
-              Logging you in...
-            </ThemedText>
-          </View>
-        ) : (
-          <>
-            <View style={styles.header}>
-              <ThemedText style={styles.title}>Login to Hacker News</ThemedText>
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  resetState();
-                  onCancel();
-                }}
-                color={textColor}
-              />
+    <>
+      <GuidelinesModal
+        visible={showGuidelines}
+        onAccept={handleGuidelinesAccept}
+        onReject={handleGuidelinesReject}
+      />
+
+      <Modal
+        visible={visible && !showGuidelines && guidelinesAccepted}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          resetState();
+          onCancel();
+        }}
+        onDismiss={resetState}
+      >
+        <SafeAreaView style={[styles.container, { backgroundColor }]}>
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" />
+              <ThemedText style={styles.loadingText}>
+                Logging you in...
+              </ThemedText>
             </View>
-
-            {error && (
-              <View style={styles.errorContainer}>
-                <ThemedText style={styles.errorText}>{error}</ThemedText>
+          ) : (
+            <>
+              <View style={styles.header}>
+                <ThemedText style={styles.title}>
+                  Login to Hacker News
+                </ThemedText>
+                <Button
+                  title="Cancel"
+                  onPress={() => {
+                    resetState();
+                    onCancel();
+                  }}
+                  color={textColor}
+                />
               </View>
-            )}
 
-            <WebView
-              ref={(ref) => {
-                webViewRef.current = ref;
-              }}
-              source={{ uri: "https://news.ycombinator.com/login" }}
-              onNavigationStateChange={handleNavigationStateChange}
-              injectedJavaScript={getLoginPageScript()}
-              onMessage={handleMessage}
-              sharedCookiesEnabled={true}
-              thirdPartyCookiesEnabled={true}
-              style={styles.webView}
-            />
-          </>
-        )}
-      </SafeAreaView>
-    </Modal>
+              {error && (
+                <View style={styles.errorContainer}>
+                  <ThemedText style={styles.errorText}>{error}</ThemedText>
+                </View>
+              )}
+
+              <WebView
+                ref={(ref) => {
+                  webViewRef.current = ref;
+                }}
+                source={{ uri: "https://news.ycombinator.com/login" }}
+                onNavigationStateChange={handleNavigationStateChange}
+                injectedJavaScript={getLoginPageScript()}
+                onMessage={handleMessage}
+                sharedCookiesEnabled={true}
+                thirdPartyCookiesEnabled={true}
+                style={styles.webView}
+              />
+            </>
+          )}
+        </SafeAreaView>
+      </Modal>
+    </>
   );
 }
 

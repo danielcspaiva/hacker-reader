@@ -3,6 +3,7 @@ import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Spacing } from "@/constants/theme";
 import { useIsBookmarked } from "@/hooks/use-bookmarks";
+import { useStoryActions } from "@/hooks/use-story-actions";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { getDomain, type HNItem } from "@/lib/shared";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
@@ -10,7 +11,6 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { StoryCardMetadata } from "./story-card-metadata";
-import { useStoryActions } from "./use-story-actions";
 
 export interface StoryCardProps {
   story: HNItem;
@@ -96,9 +96,7 @@ export function StoryCard({ story, index }: StoryCardProps) {
           {/* Vote action */}
           <Link.MenuAction
             title={actions.hasVoted ? "Unvote" : "Upvote"}
-            icon={
-              actions.hasVoted ? "arrowtriangle.up.fill" : "arrowtriangle.up"
-            }
+            icon={actions.hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
             onPress={actions.handleVote}
           />
 
@@ -114,6 +112,20 @@ export function StoryCard({ story, index }: StoryCardProps) {
             title="Share"
             icon="square.and.arrow.up"
             onPress={actions.handleShare}
+          />
+
+          {/* Hide action */}
+          <Link.MenuAction
+            title="Hide"
+            icon="eye.slash"
+            onPress={actions.handleHide}
+          />
+
+          {/* Flag action */}
+          <Link.MenuAction
+            title="Flag"
+            icon="flag"
+            onPress={actions.handleFlag}
           />
         </Link.Menu>
 

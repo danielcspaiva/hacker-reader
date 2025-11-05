@@ -13,10 +13,13 @@ import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useClearCache } from "@/hooks/use-clear-cache";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHNLogin } from "@/hooks/use-hn-login";
+import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
 import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
-import { Platform, StyleSheet, View } from "react-native";
+import { Alert, Platform, StyleSheet, View } from "react-native";
+
+const HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
 
 export default function SettingsScreen() {
   const { colorScheme } = useColorSchemeContext();
@@ -36,6 +39,8 @@ export default function SettingsScreen() {
     handleLoginSuccess,
     handleCloseModal,
   } = useHNLogin();
+  const { count: hiddenCount, clearAll: clearHiddenStories } =
+    useHiddenStories();
   const openLink = useExternalLink();
 
   const handleOpenRepository = () => openLink(REPO_URL);
@@ -48,6 +53,26 @@ export default function SettingsScreen() {
     if (rateUrl) openLink(rateUrl);
   };
   const handleOpenWebsite = () => openLink("https://dcsp.dev");
+  const handleOpenGuidelines = () => openLink(HN_GUIDELINES_URL);
+  const handleClearHidden = () => {
+    if (hiddenCount === 0) {
+      Alert.alert("No Hidden Posts", "You haven't hidden any posts yet.");
+      return;
+    }
+
+    Alert.alert(
+      "Clear Hidden Posts",
+      `Unhide all ${hiddenCount} hidden posts?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear All",
+          style: "destructive",
+          onPress: clearHiddenStories,
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -94,6 +119,25 @@ export default function SettingsScreen() {
               onOptionSelected={handleOptionSelected}
               variant="segmented"
             />
+          </Section>
+
+          <Section title="Content & Safety">
+            <Button
+              onPress={handleOpenGuidelines}
+              systemImage="doc.text"
+              modifiers={[foregroundStyle(textColor)]}
+            >
+              Hacker News Guidelines
+            </Button>
+            <Button
+              onPress={handleClearHidden}
+              systemImage="eye.slash"
+              modifiers={[foregroundStyle(textColor)]}
+            >
+              {hiddenCount > 0
+                ? `Hidden Posts (${hiddenCount})`
+                : "Hidden Posts"}
+            </Button>
           </Section>
 
           <Section title="Data">

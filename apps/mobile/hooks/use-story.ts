@@ -1,9 +1,9 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getItem } from "@/lib/shared";
 import {
   getStoryWithComments,
-  type AlgoliaStory,
   type AlgoliaComment,
-} from "@/lib/shared";
+} from "@/lib/shared/api/algolia-api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface StoryWithComments {
   id: number;
@@ -45,36 +45,39 @@ function convertAlgoliaComment(algoliaComment: AlgoliaComment): Comment | null {
   };
 }
 
-function convertAlgoliaStory(algoliaStory: AlgoliaStory): StoryWithComments {
-  return {
-    id: algoliaStory.id,
-    title: algoliaStory.title,
-    url: algoliaStory.url || undefined,
-    text: algoliaStory.text || undefined,
-    by: algoliaStory.author,
-    time: algoliaStory.created_at_i,
-    score: algoliaStory.points,
-    descendants: countComments(algoliaStory.children),
-    comments: algoliaStory.children
-      .map(convertAlgoliaComment)
-      .filter((c): c is Comment => c !== null),
-  };
-}
-
-function countComments(comments: AlgoliaComment[]): number {
-  return comments.reduce((total, comment) => {
-    return total + 1 + countComments(comment.children);
-  }, 0);
-}
-
 export function useStory(id: number) {
   const queryClient = useQueryClient();
 
   return useQuery<StoryWithComments, Error>({
     queryKey: ["story", id],
     queryFn: async () => {
-      const algoliaStory = await getStoryWithComments(id);
-      const story = convertAlgoliaStory(algoliaStory);
+      console.log(`[useStory] Fetching story ${id}`);
+
+      // Fetch story metadata from HN API (real-time score, always up-to-date)
+      // and comments from Algolia (nested tree structure)
+      const [hnItem, algoliaData] = await Promise.all([
+        getItem(id),
+        getStoryWithComments(id),
+      ]);
+
+      console.log(
+        `[useStory] HN API score: ${hnItem.score}, Algolia score: ${algoliaData.points}`
+      );
+
+      // Build story with real-time HN data + Algolia comments
+      const story: StoryWithComments = {
+        id: hnItem.id,
+        title: hnItem.title!,
+        url: hnItem.url,
+        text: hnItem.text,
+        by: hnItem.by!,
+        time: hnItem.time ?? 0,
+        score: hnItem.score ?? 0, // Use real-time score from HN API
+        descendants: hnItem.descendants,
+        comments: algoliaData.children
+          .map(convertAlgoliaComment)
+          .filter((c): c is Comment => c !== null),
+      };
 
       // Update the story data in all infinite query caches (top, new, ask, show, jobs)
       const categories = ["top", "new", "ask", "show", "jobs"] as const;
@@ -105,16 +108,7 @@ export function useStory(id: number) {
       });
 
       // Also update the individual item cache
-      queryClient.setQueryData(["item", id], {
-        id: story.id,
-        title: story.title,
-        url: story.url,
-        by: story.by,
-        time: story.time,
-        score: story.score,
-        descendants: story.descendants,
-        type: "story" as const,
-      });
+      queryClient.setQueryData(["item", id], hnItem);
 
       return story;
     },
