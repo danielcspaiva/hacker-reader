@@ -52,33 +52,33 @@
 /* Begin PBXFileReference section */
 		01011292CDB69B530684B578 /* Pods-HackerReader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReader.debug.xcconfig"; path = "Target Support Files/Pods-HackerReader/Pods-HackerReader.debug.xcconfig"; sourceTree = "<group>"; };
 		01F821AF1E22BB831377D796 /* Pods-HackerReaderWidgets.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReaderWidgets.release.xcconfig"; path = "Target Support Files/Pods-HackerReaderWidgets/Pods-HackerReaderWidgets.release.xcconfig"; sourceTree = "<group>"; };
-		07DAA9E9762646D496A576A3 /* WidgetKit.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		07DAA9E9762646D496A576A3 /* WidgetKit.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		13B07F961A680F5B00A75B9A /* HackerReader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerReader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HackerReader/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = HackerReader/Info.plist; sourceTree = "<group>"; };
-		1E01884F9E314E8F88C1BC3F /* WidgetAssets.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = WidgetAssets.xcassets; path = WidgetAssets.xcassets; sourceTree = "<group>"; };
+		1E01884F9E314E8F88C1BC3F /* WidgetAssets.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; path = WidgetAssets.xcassets; sourceTree = "<group>"; };
 		3B2923AD7791ABB3618362A8 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-HackerReader/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		41F39F92BA329E07658B4E5C /* Pods-HackerReader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReader.release.xcconfig"; path = "Target Support Files/Pods-HackerReader/Pods-HackerReader.release.xcconfig"; sourceTree = "<group>"; };
-		64579B0D9CF74111A7DA5CC5 /* HNWidgetEntry.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetEntry.swift; path = HNWidgetEntry.swift; sourceTree = "<group>"; };
-		6D686DC4355344C69752EED8 /* Attributes.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = Attributes.swift; path = Attributes.swift; sourceTree = "<group>"; };
+		64579B0D9CF74111A7DA5CC5 /* HNWidgetEntry.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = HNWidgetEntry.swift; sourceTree = "<group>"; };
+		6D686DC4355344C69752EED8 /* Attributes.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = Attributes.swift; sourceTree = "<group>"; };
 		6F4F864CD805D3F0A0EE5ED9 /* libPods-HackerReader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HackerReader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		780848945688BC90A9E3AB0E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = HackerReader/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		851AF2D78C3E400E91D95BDB /* HackerReaderWidgets.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = HackerReaderWidgets.entitlements; path = HackerReaderWidgets.entitlements; sourceTree = "<group>"; };
-		87B47D5DAE2B4B15A4164AC4 /* HackerReaderWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = HackerReaderWidgets.appex; path = HackerReaderWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		892841B12F3E4D0C9023EAE3 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "<group>"; };
-		9A47B7492069457898333B27 /* HNWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidget.swift; path = HNWidget.swift; sourceTree = "<group>"; };
+		780848945688BC90A9E3AB0E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = HackerReader/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		851AF2D78C3E400E91D95BDB /* HackerReaderWidgets.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; path = HackerReaderWidgets.entitlements; sourceTree = "<group>"; };
+		87B47D5DAE2B4B15A4164AC4 /* HackerReaderWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 9; includeInIndex = 0; path = HackerReaderWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		892841B12F3E4D0C9023EAE3 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9A47B7492069457898333B27 /* HNWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = HNWidget.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = HackerReader/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AA8B4D3FDA8B4D139733436F /* HNWidgetProvider.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetProvider.swift; path = HNWidgetProvider.swift; sourceTree = "<group>"; };
+		AA8B4D3FDA8B4D139733436F /* HNWidgetProvider.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = HNWidgetProvider.swift; sourceTree = "<group>"; };
 		ACB2483A650808AF875FF26B /* libPods-HackerReaderWidgets.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HackerReaderWidgets.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BA3348EF3B1540BFA4821EB5 /* HNWidgetView.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = HNWidgetView.swift; path = HNWidgetView.swift; sourceTree = "<group>"; };
+		BA3348EF3B1540BFA4821EB5 /* HNWidgetView.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; path = HNWidgetView.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		C41359EEE602A385C0B56820 /* Pods-HackerReaderWidgets.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HackerReaderWidgets.debug.xcconfig"; path = "Target Support Files/Pods-HackerReaderWidgets/Pods-HackerReaderWidgets.debug.xcconfig"; sourceTree = "<group>"; };
-		D94D8B77C3E14C23B5E6A45A /* .DS_Store */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = .DS_Store; path = .DS_Store; sourceTree = "<group>"; };
-		D9963E8431B0473B90954D61 /* ybook.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ybook.icon; path = HackerReader/ybook.icon; sourceTree = "<group>"; };
+		D94D8B77C3E14C23B5E6A45A /* .DS_Store */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; path = .DS_Store; sourceTree = "<group>"; };
+		D9963E8431B0473B90954D61 /* ybook.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = ybook.icon; path = HackerReader/ybook.icon; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = HackerReader/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* HackerReader-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "HackerReader-Bridging-Header.h"; path = "HackerReader/HackerReader-Bridging-Header.h"; sourceTree = "<group>"; };
-		F2516CBA6FF24EA08123F84C /* SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		F2516CBA6FF24EA08123F84C /* SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,7 +124,6 @@
 				C41359EEE602A385C0B56820 /* Pods-HackerReaderWidgets.debug.xcconfig */,
 				01F821AF1E22BB831377D796 /* Pods-HackerReaderWidgets.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -161,7 +160,6 @@
 				1E01884F9E314E8F88C1BC3F /* WidgetAssets.xcassets */,
 				851AF2D78C3E400E91D95BDB /* HackerReaderWidgets.entitlements */,
 			);
-			name = HackerReaderWidgets;
 			path = HackerReaderWidgets;
 			sourceTree = "<group>";
 		};
@@ -531,6 +529,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = HackerReader/HackerReader.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WV544557G7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -567,6 +566,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = HackerReader/HackerReader.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WV544557G7;
 				INFOPLIST_FILE = HackerReader/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -595,6 +595,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WV544557G7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HackerReaderWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HackerReaderWidgets;
@@ -736,6 +737,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WV544557G7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HackerReaderWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HackerReaderWidgets;

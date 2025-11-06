@@ -4,6 +4,7 @@ import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useStory } from "@/hooks/use-story";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -36,6 +37,7 @@ function EmptyComments() {
 export default function StoryDetailScreen() {
   const { id, title } = useLocalSearchParams();
   const analytics = useAnalytics();
+  const { isBlocked } = useBlockedUsers();
   const {
     data: story,
     isLoading,
@@ -71,6 +73,7 @@ export default function StoryDetailScreen() {
     handleHide,
     handleVote,
     handleFlag,
+    handleBlockUser,
   } = useStoryActions(story || placeholderStory);
 
   // Track story viewed
@@ -96,9 +99,14 @@ export default function StoryDetailScreen() {
   } | null>(null);
 
   // Flatten comments when story or collapse state changes
-  const flatComments = !story?.comments
+  const allFlatComments = !story?.comments
     ? []
     : flattenComments(story.comments, 0, collapsedIds);
+
+  // Filter out comments from blocked users
+  const flatComments = allFlatComments.filter(
+    (item) => !isBlocked(item.comment.by)
+  );
 
   const toggleCollapse = (commentId: number) => {
     setCollapsedIds((prev) => {
@@ -180,8 +188,15 @@ export default function StoryDetailScreen() {
                   <SwiftUIButton systemImage="eye.slash" onPress={handleHide}>
                     Hide
                   </SwiftUIButton>
-                  <SwiftUIButton systemImage="flag" onPress={handleFlag}>
+                  <SwiftUIButton systemImage="flag" onPress={handleFlag} role="destructive">
                     Flag
+                  </SwiftUIButton>
+                  <SwiftUIButton
+                    systemImage="nosign"
+                    onPress={handleBlockUser}
+                    role="destructive"
+                  >
+                    Block User
                   </SwiftUIButton>
                 </ContextMenu.Items>
                 <ContextMenu.Trigger>

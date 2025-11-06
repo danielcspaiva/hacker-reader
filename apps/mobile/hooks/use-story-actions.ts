@@ -4,6 +4,7 @@ import { useShareStory } from "@/hooks/use-share-story";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useHasVoted, addVote, removeVote } from "@/hooks/use-votes";
+import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { isAuthError, unvote, vote, flag, type HNItem } from "@/lib/shared";
@@ -17,6 +18,7 @@ export interface StoryActions {
   isBookmarking: boolean;
   isHidden: boolean;
   isBookmarked: boolean;
+  isBlocked: boolean;
 
   // Actions
   handleVote: () => void;
@@ -24,6 +26,7 @@ export interface StoryActions {
   handleShare: () => void;
   handleHide: () => void;
   handleFlag: () => void;
+  handleBlockUser: () => void;
 }
 
 /**
@@ -58,9 +61,11 @@ export function useStoryActions(story: HNItem): StoryActions {
   const bookmarkMutation = useBookmarkMutation();
   const shareStory = useShareStory();
   const { isHidden, hideItem } = useHiddenStories();
+  const { blockUser, isBlocked: isUserBlocked } = useBlockedUsers();
   const analytics = useAnalytics();
   const hasVoted = useHasVoted(story.id);
   const { data: isBookmarked = false } = useIsBookmarked(story.id);
+  const isBlocked = story.by ? isUserBlocked(story.by) : false;
 
   // Vote mutation with persistent vote tracking
   const voteMutation = useMutation<
@@ -73,11 +78,6 @@ export function useStoryActions(story: HNItem): StoryActions {
       if (!isAuthenticated || !session) {
         throw new Error("Not authenticated");
       }
-      console.log("[useStoryActions] Vote mutation started:", {
-        storyId: story.id,
-        wasVoted,
-        action: wasVoted ? "unvote" : "vote",
-      });
 
       // Update HN API
       const result = await (wasVoted
@@ -91,17 +91,10 @@ export function useStoryActions(story: HNItem): StoryActions {
         await addVote(story.id);
       }
 
-      console.log("[useStoryActions] Vote mutation API call completed");
       return result;
     },
 
     onMutate: async (wasVoted) => {
-      console.log("[useStoryActions] onMutate:", {
-        storyId: story.id,
-        wasVoted,
-        newHasVoted: !wasVoted,
-      });
-
       // Optimistically update the votes cache
       await queryClient.cancelQueries({ queryKey: ["votes"] });
       const previousVotes = queryClient.getQueryData<number[]>(["votes"]);
@@ -158,12 +151,6 @@ export function useStoryActions(story: HNItem): StoryActions {
     },
 
     onSuccess: (_data, wasVoted) => {
-      console.log("[useStoryActions] Vote mutation success:", {
-        storyId: story.id,
-        wasVoted,
-        action: wasVoted ? "unvoted" : "upvoted",
-      });
-
       // Track vote analytics
       if (wasVoted) {
         analytics.track(AnalyticsEvent.STORY_UNVOTED, {
@@ -178,13 +165,6 @@ export function useStoryActions(story: HNItem): StoryActions {
   });
 
   const handleVote = () => {
-    console.log("[useStoryActions] handleVote called:", {
-      storyId: story.id,
-      isAuthenticated,
-      hasVoted,
-      sessionValid: session?.hasValidSession(),
-    });
-
     if (!isAuthenticated) {
       Alert.alert(
         "Login Required",
@@ -313,16 +293,59 @@ export function useStoryActions(story: HNItem): StoryActions {
     ]);
   };
 
+  const handleBlockUser = () => {
+    const username = story.by;
+    if (!username) {
+      Alert.alert("Error", "Cannot block this user.", [{ text: "OK" }]);
+      return;
+    }
+
+    Alert.alert(
+      "Block User",
+      `Block all content from ${username}? This will hide their stories and comments from your feed.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await blockUser(username);
+              Alert.alert(
+                "User Blocked",
+                `You will no longer see content from ${username}. You can unblock them in Settings.`,
+                [{ text: "OK" }]
+              );
+              // Note: No need to invalidate stories query here
+              // The feed screen will automatically re-filter stories
+              // when the blocked users query updates
+            } catch (error) {
+              console.error(
+                "[useStoryActions] Failed to block user:",
+                error
+              );
+              Alert.alert("Error", "Failed to block user. Please try again.", [
+                { text: "OK" },
+              ]);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return {
     hasVoted,
     isVoting: voteMutation.isPending,
     isBookmarking: bookmarkMutation.isPending,
     isHidden: isHidden(story.id),
     isBookmarked,
+    isBlocked,
     handleVote,
     handleBookmark,
     handleShare,
     handleHide,
     handleFlag,
+    handleBlockUser,
   };
 }

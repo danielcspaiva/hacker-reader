@@ -1,28 +1,31 @@
 /**
- * HN Login Modal Component
+ * HN Login Modal Route
  *
- * Displays a WebView for logging into Hacker News.
+ * Displays a WebView for logging into Hacker News using Expo Router's formSheet modal.
  * Extracts session cookies after successful login.
  * Shows HN Guidelines acceptance before allowing login.
  */
 
+import { GuidelinesModal } from "@/components/auth/guidelines-modal";
+import { ThemedText } from "@/components/themed-text";
+import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
   clearCookieIntervalScript,
   getLoginPageScript,
   type CookieExtractionMessage,
 } from "@/lib/login-webview-script";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Cookies } from "@react-native-cookies/cookies";
 import CookieManager from "@react-native-cookies/cookies";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Button,
-  Modal,
   StyleSheet,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type {
@@ -31,22 +34,10 @@ import type {
   WebView as WebViewType,
 } from "react-native-webview";
 import { WebView } from "react-native-webview";
-import { ThemedText } from "../themed-text";
-import { GuidelinesModal } from "./guidelines-modal";
-
-interface HNLoginModalProps {
-  visible: boolean;
-  onLoginSuccess: (cookies: Record<string, string>) => void | Promise<void>;
-  onCancel: () => void;
-}
 
 const GUIDELINES_ACCEPTED_KEY = "@guidelines_accepted";
 
-export function HNLoginModal({
-  visible,
-  onLoginSuccess,
-  onCancel,
-}: HNLoginModalProps) {
+export default function LoginModal() {
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
   const [loading, setLoading] = useState(false);
@@ -55,13 +46,13 @@ export function HNLoginModal({
   const [guidelinesAccepted, setGuidelinesAccepted] = useState(false);
   const hasCapturedSession = useRef(false);
   const webViewRef = useRef<WebViewType | null>(null);
+  const { login: contextLogin } = useHNAuth();
 
-  // Check if guidelines were previously accepted
+  // Check if guidelines were previously accepted and clear old cookies
   useEffect(() => {
-    if (visible) {
-      checkGuidelinesAcceptance();
-    }
-  }, [visible]);
+    checkGuidelinesAcceptance();
+  }, []);
+
 
   async function checkGuidelinesAcceptance() {
     try {
@@ -93,7 +84,7 @@ export function HNLoginModal({
 
   function handleGuidelinesReject() {
     setShowGuidelines(false);
-    onCancel();
+    router.back();
   }
 
   function resetState() {
@@ -107,19 +98,20 @@ export function HNLoginModal({
 
   const completeLogin = async (cookies: Record<string, string>) => {
     await SecureStore.setItemAsync("hn_cookies", JSON.stringify(cookies));
-    await Promise.resolve(onLoginSuccess(cookies));
+    await contextLogin(cookies);
     if (webViewRef.current) {
       webViewRef.current.injectJavaScript(clearCookieIntervalScript);
     }
     hasCapturedSession.current = true;
     setLoading(false);
-  };
 
-  useEffect(() => {
-    if (visible) {
-      resetState();
+    // Dismiss the modal after successful login
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/settings");
     }
-  }, [visible]);
+  };
 
   const handleNavigationStateChange = async (navState: WebViewNavigation) => {
     if (hasCapturedSession.current) {
@@ -229,6 +221,11 @@ export function HNLoginModal({
     }
   };
 
+  const handleCancel = () => {
+    resetState();
+    router.back();
+  };
+
   return (
     <>
       <GuidelinesModal
@@ -237,46 +234,34 @@ export function HNLoginModal({
         onReject={handleGuidelinesReject}
       />
 
-      <Modal
-        visible={visible && !showGuidelines && guidelinesAccepted}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => {
-          resetState();
-          onCancel();
-        }}
-        onDismiss={resetState}
-      >
-        <SafeAreaView style={[styles.container, { backgroundColor }]}>
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" />
-              <ThemedText style={styles.loadingText}>
-                Logging you in...
+      <SafeAreaView style={[styles.container, { backgroundColor }]}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" />
+            <ThemedText style={styles.loadingText}>
+              Logging you in...
+            </ThemedText>
+          </View>
+        ) : (
+          <>
+            <View style={styles.header}>
+              <ThemedText style={styles.title}>
+                Login to Hacker News
               </ThemedText>
+              <Button
+                title="Cancel"
+                onPress={handleCancel}
+                color={textColor}
+              />
             </View>
-          ) : (
-            <>
-              <View style={styles.header}>
-                <ThemedText style={styles.title}>
-                  Login to Hacker News
-                </ThemedText>
-                <Button
-                  title="Cancel"
-                  onPress={() => {
-                    resetState();
-                    onCancel();
-                  }}
-                  color={textColor}
-                />
+
+            {error && (
+              <View style={styles.errorContainer}>
+                <ThemedText style={styles.errorText}>{error}</ThemedText>
               </View>
+            )}
 
-              {error && (
-                <View style={styles.errorContainer}>
-                  <ThemedText style={styles.errorText}>{error}</ThemedText>
-                </View>
-              )}
-
+            {guidelinesAccepted && (
               <WebView
                 ref={(ref) => {
                   webViewRef.current = ref;
@@ -289,10 +274,10 @@ export function HNLoginModal({
                 thirdPartyCookiesEnabled={true}
                 style={styles.webView}
               />
-            </>
-          )}
-        </SafeAreaView>
-      </Modal>
+            )}
+          </>
+        )}
+      </SafeAreaView>
     </>
   );
 }

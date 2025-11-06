@@ -161,6 +161,15 @@ function RootLayoutContent() {
             },
           }}
         />
+        <Stack.Screen
+          name="auth/login"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 16,
+          }}
+        />
       </Stack>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
     </ThemeProvider>

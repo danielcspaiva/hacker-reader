@@ -93,40 +93,38 @@ export function StoryCard({ story, index }: StoryCardProps) {
 
         {/* Context menu */}
         <Link.Menu>
-          {/* Vote action */}
           <Link.MenuAction
             title={actions.hasVoted ? "Unvote" : "Upvote"}
             icon={actions.hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
             onPress={actions.handleVote}
           />
-
-          {/* Bookmark action */}
           <Link.MenuAction
             title={isBookmarked ? "Remove Bookmark" : "Bookmark"}
             icon={isBookmarked ? "bookmark.fill" : "bookmark"}
             onPress={() => actions.handleBookmark(isBookmarked)}
           />
-
-          {/* Share action */}
           <Link.MenuAction
             title="Share"
             icon="square.and.arrow.up"
             onPress={actions.handleShare}
           />
-
-          {/* Hide action */}
-          <Link.MenuAction
-            title="Hide"
-            icon="eye.slash"
-            onPress={actions.handleHide}
-          />
-
-          {/* Flag action */}
-          <Link.MenuAction
-            title="Flag"
-            icon="flag"
-            onPress={actions.handleFlag}
-          />
+          <Link.Menu title="More" icon="ellipsis">
+            <Link.MenuAction
+              title="Hide"
+              icon="eye.slash"
+              onPress={actions.handleHide}
+            />
+            <Link.MenuAction
+              title="Flag"
+              icon="flag"
+              onPress={actions.handleFlag}
+            />
+            <Link.MenuAction
+              title="Block User"
+              icon="person.fill.xmark"
+              onPress={actions.handleBlockUser}
+            />
+          </Link.Menu>
         </Link.Menu>
 
         {/* Preview modal */}

@@ -1,4 +1,3 @@
-import { HNLoginModal } from "@/components/auth";
 import {
   ANDROID_PLAY_STORE_URL,
   APP_NAME,
@@ -9,12 +8,14 @@ import {
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
+import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useClearCache } from "@/hooks/use-clear-cache";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHNLogin } from "@/hooks/use-hn-login";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { clearBlockedUsers } from "@/lib/storage/blocked-users";
 import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
 import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { Alert, Platform, StyleSheet, View } from "react-native";
@@ -32,15 +33,11 @@ export default function SettingsScreen() {
   const { handleClearCache } = useClearCache();
   const { handleClearBookmarks, clearBookmarksLabel, isClearing } =
     useClearBookmarks();
-  const {
-    showLoginModal,
-    handleLogin,
-    handleLogout,
-    handleLoginSuccess,
-    handleCloseModal,
-  } = useHNLogin();
+  const { handleLogin, handleLogout } = useHNLogin();
   const { count: hiddenCount, clearAll: clearHiddenStories } =
     useHiddenStories();
+  const { blockedUsers, unblockUser, refresh: refreshBlockedUsers } =
+    useBlockedUsers();
   const openLink = useExternalLink();
 
   const handleOpenRepository = () => openLink(REPO_URL);
@@ -72,6 +69,92 @@ export default function SettingsScreen() {
         },
       ]
     );
+  };
+
+  const handleManageBlockedUsers = () => {
+    if (blockedUsers.length === 0) {
+      Alert.alert(
+        "No Blocked Users",
+        "You haven't blocked any users yet. You can block users from story cards and comments."
+      );
+      return;
+    }
+
+    // Build the alert message showing all blocked users
+    const userList = blockedUsers.map((u) => u.username).join("\n");
+    const message = `Blocked users (${blockedUsers.length}):\n\n${userList}\n\nSelect a user to unblock:`;
+
+    // Create unblock actions for each user
+    const actions = blockedUsers.map((user) => ({
+      text: user.username,
+      onPress: async () => {
+        Alert.alert(
+          "Unblock User",
+          `Unblock ${user.username}? You will start seeing their content again.`,
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Unblock",
+              onPress: async () => {
+                try {
+                  await unblockUser(user.username);
+                  await refreshBlockedUsers();
+                  Alert.alert(
+                    "User Unblocked",
+                    `You will now see content from ${user.username}.`
+                  );
+                } catch (error) {
+                  Alert.alert(
+                    "Error",
+                    "Failed to unblock user. Please try again."
+                  );
+                }
+              },
+            },
+          ]
+        );
+      },
+    }));
+
+    // Add clear all and cancel options
+    actions.push({
+      text: "Clear All",
+      onPress: async () => {
+        Alert.alert(
+          "Clear All Blocked Users",
+          `Unblock all ${blockedUsers.length} users?`,
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Clear All",
+              style: "destructive",
+              onPress: async () => {
+                try {
+                  await clearBlockedUsers();
+                  await refreshBlockedUsers();
+                  Alert.alert(
+                    "All Users Unblocked",
+                    "You will now see content from all previously blocked users."
+                  );
+                } catch (error) {
+                  Alert.alert(
+                    "Error",
+                    "Failed to clear blocked users. Please try again."
+                  );
+                }
+              },
+            },
+          ]
+        );
+      },
+    });
+
+    actions.push({
+      text: "Cancel",
+      onPress: async () => {},
+    });
+
+    Alert.alert("Blocked Users", message, actions);
   };
 
   return (
@@ -128,6 +211,15 @@ export default function SettingsScreen() {
               modifiers={[foregroundStyle(textColor)]}
             >
               Hacker News Guidelines
+            </Button>
+            <Button
+              onPress={handleManageBlockedUsers}
+              systemImage="person.fill.xmark"
+              modifiers={[foregroundStyle(textColor)]}
+            >
+              {blockedUsers.length > 0
+                ? `Blocked Users (${blockedUsers.length})`
+                : "Blocked Users"}
             </Button>
             <Button
               onPress={handleClearHidden}
@@ -193,12 +285,6 @@ export default function SettingsScreen() {
           </Section>
         </Form>
       </Host>
-
-      <HNLoginModal
-        visible={showLoginModal}
-        onLoginSuccess={handleLoginSuccess}
-        onCancel={handleCloseModal}
-      />
     </View>
   );
 }

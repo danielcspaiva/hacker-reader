@@ -179,5 +179,18 @@ export function getLoginPageStyles(isDarkMode: boolean): string {
       border-top: 1px solid var(--border-color) !important;
       padding-top: 32px !important;
     }
+
+    /* Hide the "Create Account" section */
+    b:nth-of-type(2),
+    b:last-of-type,
+    form:nth-of-type(2),
+    form:last-of-type {
+      display: none !important;
+    }
+
+    /* Additional specificity: hide any form with creating=t input */
+    form[action="login"]:has(input[name="creating"]) {
+      display: none !important;
+    }
   `;
 }

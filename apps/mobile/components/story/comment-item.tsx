@@ -1,12 +1,13 @@
 import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Spacing } from "@/constants/theme";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
+import { frame } from "@expo/ui/swift-ui/modifiers";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -25,8 +26,24 @@ export function CommentItem({
   onReply,
 }: CommentItemProps) {
   const borderColor = useThemeColor({}, "border");
-  const textColor = useThemeColor({}, "text");
   const { isAuthenticated } = useHNAuth();
+  const { blockUser } = useBlockedUsers();
+  const textColor = useThemeColor({}, "text");
+
+  const handleBlockUser = async () => {
+    try {
+      await blockUser(comment.by);
+      Alert.alert(
+        "User Blocked",
+        `You will no longer see content from ${comment.by}. You can unblock them in Settings.`,
+        [{ text: "OK" }]
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to block user. Please try again.", [
+        { text: "OK" },
+      ]);
+    }
+  };
 
   if (!comment.text) {
     return null;
@@ -42,55 +59,60 @@ export function CommentItem({
       ]}
     >
       <View style={styles.header}>
-        <ThemedText type="bodySmall" style={styles.author}>
-          {comment.by}
-        </ThemedText>
-        <ThemedText type="caption" style={styles.time}>
-          {" "}
-          • {timeAgo(comment.time)}
-        </ThemedText>
-        {comment.children && comment.children.length > 0 && (
-          <TouchableOpacity
-            onPress={() => onToggleCollapse(comment.id)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <ThemedText type="caption" style={styles.collapseButton}>
-              {" "}
-              [{isCollapsed ? `+${comment.children.length}` : "−"}]
-            </ThemedText>
-          </TouchableOpacity>
-        )}
-      </View>
-      {!isCollapsed && (
-        <>
-          <HTMLText html={comment.text} style={styles.text} />
-          {isAuthenticated && (
-            <Pressable
-              onPress={() => onReply(comment.id, comment.by)}
-              style={styles.replyButtonContainer}
+        <View style={styles.headerLeft}>
+          <ThemedText type="bodySmall" style={styles.author}>
+            {comment.by}
+          </ThemedText>
+          <ThemedText type="caption" style={styles.time}>
+            {" "}
+            • {timeAgo(comment.time)}
+          </ThemedText>
+          {comment.children && comment.children.length > 0 && (
+            <TouchableOpacity
+              onPress={() => onToggleCollapse(comment.id)}
+              activeOpacity={0.7}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <GlassView
-                glassEffectStyle="regular"
-                style={[styles.replyButton, { borderColor }]}
-                isInteractive
-              >
-                <IconSymbol
-                  name="arrowshape.turn.up.left"
-                  size={14}
-                  color={textColor}
-                  weight="medium"
-                  style={{ opacity: 0.6 }}
-                />
-                <ThemedText type="caption" style={styles.replyButtonText}>
-                  Reply
-                </ThemedText>
-              </GlassView>
-            </Pressable>
+              <ThemedText type="caption" style={styles.collapseButton}>
+                {" "}
+                [{isCollapsed ? `+${comment.children.length}` : "−"}]
+              </ThemedText>
+            </TouchableOpacity>
           )}
-        </>
-      )}
+        </View>
+        <Host matchContents style={{ width: 24, height: 24 }}>
+          <ContextMenu>
+            <ContextMenu.Items>
+              {isAuthenticated && (
+                <SwiftUIButton
+                  systemImage="arrowshape.turn.up.left"
+                  onPress={() => onReply(comment.id, comment.by)}
+                >
+                  Reply
+                </SwiftUIButton>
+              )}
+              <SwiftUIButton
+                systemImage="nosign"
+                onPress={handleBlockUser}
+                role="destructive"
+              >
+                Block User
+              </SwiftUIButton>
+            </ContextMenu.Items>
+            <ContextMenu.Trigger>
+              <SwiftUIButton
+                // variant="borderless"
+                color={textColor}
+                systemImage="ellipsis"
+                // role="default"
+                controlSize="small"
+                modifiers={[frame({ width: 24, height: 24 })]}
+              />
+            </ContextMenu.Trigger>
+          </ContextMenu>
+        </Host>
+      </View>
+      {!isCollapsed && <HTMLText html={comment.text} style={styles.text} />}
     </View>
   );
 
@@ -125,7 +147,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: Spacing.sm,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   author: {
     fontWeight: "600",
@@ -138,22 +166,5 @@ const styles = StyleSheet.create({
   },
   text: {
     marginBottom: Spacing.sm,
-  },
-  replyButton: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.sm,
-    padding: Spacing.sm,
-    borderRadius: 10,
-    borderWidth: isLiquidGlassAvailable() ? 0 : 1,
-  },
-  replyButtonContainer: {
-    alignSelf: "flex-start",
-  },
-  replyButtonText: {
-    opacity: 0.6,
   },
 });
