@@ -13,6 +13,7 @@ import {
   ReactNode,
 } from "react";
 import * as SecureStore from "expo-secure-store";
+import CookieManager from "@react-native-cookies/cookies";
 import { usePostHog } from "posthog-react-native";
 import { SecureSession } from "@/lib/shared/auth";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
@@ -69,7 +70,16 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     resetUser(posthog);
 
     setSession(null);
+
+    // Clear session from SecureStore
     await SecureStore.deleteItemAsync("hn_cookies");
+
+    // Clear HN cookies from WebView storage
+    try {
+      await CookieManager.clearByName("https://news.ycombinator.com", "user");
+    } catch (error) {
+      console.error("Failed to clear HN cookies:", error);
+    }
   }
 
   return (

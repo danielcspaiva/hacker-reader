@@ -21,7 +21,7 @@ export const REPO_URL = "https://github.com/danielcspaiva/hacker-reader";
  * TODO: Update with actual App Store link after launch
  */
 export const IOS_APP_STORE_URL =
-  "https://apps.apple.com/app/hacker-reader/idTBD";
+  "https://apps.apple.com/us/app/hacker-reader/id6754137305";
 
 /**
  * Android Play Store URL

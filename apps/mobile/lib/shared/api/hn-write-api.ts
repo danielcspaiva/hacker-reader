@@ -14,6 +14,7 @@ import {
   parseUnfavoriteLink,
   parseUnvoteLink,
   parseVoteLink,
+  parseFlagLink,
 } from "../auth/parsers";
 import { hnRateLimiter } from "../auth/rate-limiter";
 import { SecureSession } from "../auth/session";
@@ -77,15 +78,46 @@ export async function vote(
   itemId: number,
   session: SecureSession
 ): Promise<void> {
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Starting vote:", {
+      itemId,
+      hasSession: session.hasValidSession(),
+    });
+  }
+
   // Step 1: Fetch item page to get auth token
   const itemPage = await fetchHN(`/item?id=${itemId}`, session);
   const html = await itemPage.text();
 
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Fetched item page:", {
+      status: itemPage.status,
+      htmlLength: html.length,
+    });
+  }
+
   // Step 2: Parse vote link
   const voteLink = parseVoteLink(html, itemId);
 
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Parsed vote link:", voteLink);
+  }
+
   // Step 3: Follow vote link
-  await fetchHN(`/${voteLink}`, session);
+  const voteResponse = await fetchHN(`/${voteLink}`, session);
+
+  if (isDebugLoggingEnabled) {
+    const responseHtml = await voteResponse.text();
+    console.log("[HN Write API] Vote response:", {
+      status: voteResponse.status,
+      url: voteResponse.url,
+      redirected: voteResponse.redirected,
+      htmlLength: responseHtml.length,
+      htmlSnippet: responseHtml.slice(0, 500),
+    });
+  }
+
+  console.log("[HN Write API] Vote completed successfully");
 }
 
 /**
@@ -99,10 +131,43 @@ export async function unvote(
   itemId: number,
   session: SecureSession
 ): Promise<void> {
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Starting unvote:", {
+      itemId,
+      hasSession: session.hasValidSession(),
+    });
+  }
+
   const itemPage = await fetchHN(`/item?id=${itemId}`, session);
   const html = await itemPage.text();
+
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Fetched item page:", {
+      status: itemPage.status,
+      htmlLength: html.length,
+    });
+  }
+
   const unvoteLink = parseUnvoteLink(html, itemId);
-  await fetchHN(`/${unvoteLink}`, session);
+
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Parsed unvote link:", unvoteLink);
+  }
+
+  const unvoteResponse = await fetchHN(`/${unvoteLink}`, session);
+
+  if (isDebugLoggingEnabled) {
+    const responseHtml = await unvoteResponse.text();
+    console.log("[HN Write API] Unvote response:", {
+      status: unvoteResponse.status,
+      url: unvoteResponse.url,
+      redirected: unvoteResponse.redirected,
+      htmlLength: responseHtml.length,
+      htmlSnippet: responseHtml.slice(0, 500),
+    });
+  }
+
+  console.log("[HN Write API] Unvote completed successfully");
 }
 
 /**
@@ -277,4 +342,29 @@ export async function unfavorite(
   const html = await itemPage.text();
   const unfavLink = parseUnfavoriteLink(html, itemId);
   await fetchHN(`/${unfavLink}`, session);
+}
+
+/**
+ * Flag an item as inappropriate
+ *
+ * Note: Flagging requires sufficient karma on Hacker News.
+ * Users without enough karma will receive an INSUFFICIENT_KARMA error.
+ *
+ * @param itemId - ID of the item to flag
+ * @param session - Authenticated session
+ * @throws HNAuthError if operation fails or user lacks karma
+ */
+export async function flag(
+  itemId: number,
+  session: SecureSession
+): Promise<void> {
+  // Step 1: Fetch item page to get flag link
+  const itemPage = await fetchHN(`/item?id=${itemId}`, session);
+  const html = await itemPage.text();
+
+  // Step 2: Parse flag link (throws if insufficient karma)
+  const flagLink = parseFlagLink(html, itemId);
+
+  // Step 3: Follow flag link
+  await fetchHN(`/${flagLink}`, session);
 }

@@ -156,13 +156,17 @@ function findVotePath(
  * @throws HNAuthError with appropriate code if parsing fails
  */
 export function parseVoteLink(html: string, itemId: number): string {
-  const voteLink = extractAttributeFromTag(
+  const rawVoteLink = extractAttributeFromTag(
     html,
     "a",
     "id",
     `up_${itemId}`,
     "href"
   );
+
+  // Decode HTML entities from the extracted href attribute
+  const voteLink = rawVoteLink ? decodeHTMLEntities(rawVoteLink) : null;
+
   const fallbackVoteLink = voteLink ?? findVotePath(html, itemId, "up");
   if (!fallbackVoteLink) {
     // Smart error detection
@@ -205,18 +209,27 @@ export function parseVoteLink(html: string, itemId: number): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseUnvoteLink(html: string, itemId: number): string {
-  const unvoteLink =
-    extractAttributeFromTag(html, "a", "id", `un_${itemId}`, "href") ??
-    findVotePath(html, itemId, "un");
+  const rawUnvoteLink = extractAttributeFromTag(
+    html,
+    "a",
+    "id",
+    `un_${itemId}`,
+    "href"
+  );
 
-  if (!unvoteLink) {
+  // Decode HTML entities from the extracted href attribute
+  const unvoteLink = rawUnvoteLink ? decodeHTMLEntities(rawUnvoteLink) : null;
+
+  const fallbackUnvoteLink = unvoteLink ?? findVotePath(html, itemId, "un");
+
+  if (!fallbackUnvoteLink) {
     throw new HNAuthError(
       `Unvote link not found for item ${itemId}`,
       "PARSE_ERROR"
     );
   }
 
-  return unvoteLink;
+  return fallbackUnvoteLink;
 }
 
 /**
@@ -227,9 +240,15 @@ export function parseUnvoteLink(html: string, itemId: number): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseCommentFormHmac(html: string): string {
-  const hmac = extractAttributeFromTag(html, "input", "name", "hmac", "value");
+  const rawHmac = extractAttributeFromTag(
+    html,
+    "input",
+    "name",
+    "hmac",
+    "value"
+  );
 
-  if (!hmac) {
+  if (!rawHmac) {
     const text = extractTextContent(html).toLowerCase();
 
     if (text.includes("login")) {
@@ -242,7 +261,8 @@ export function parseCommentFormHmac(html: string): string {
     throw new HNAuthError("Comment form HMAC not found", "PARSE_ERROR");
   }
 
-  return hmac;
+  // Decode HTML entities (just in case, though HMACs shouldn't have them)
+  return decodeHTMLEntities(rawHmac);
 }
 
 /**
@@ -254,7 +274,7 @@ export function parseCommentFormHmac(html: string): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseFavoriteLink(html: string, itemId: number): string {
-  const favLink = extractAttributeFromTag(
+  const rawFavLink = extractAttributeFromTag(
     html,
     "a",
     "id",
@@ -262,11 +282,11 @@ export function parseFavoriteLink(html: string, itemId: number): string {
     "href"
   );
 
-  if (!favLink) {
+  if (!rawFavLink) {
     throw new HNAuthError("Favorite link not found", "PARSE_ERROR");
   }
 
-  return favLink;
+  return decodeHTMLEntities(rawFavLink);
 }
 
 /**
@@ -278,7 +298,7 @@ export function parseFavoriteLink(html: string, itemId: number): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseUnfavoriteLink(html: string, itemId: number): string {
-  const unfavLink = extractAttributeFromTag(
+  const rawUnfavLink = extractAttributeFromTag(
     html,
     "a",
     "id",
@@ -286,9 +306,65 @@ export function parseUnfavoriteLink(html: string, itemId: number): string {
     "href"
   );
 
-  if (!unfavLink) {
+  if (!rawUnfavLink) {
     throw new HNAuthError("Unfavorite link not found", "PARSE_ERROR");
   }
 
-  return unfavLink;
+  return decodeHTMLEntities(rawUnfavLink);
+}
+
+/**
+ * Parse flag link from an HN item page
+ *
+ * Note: Flag links are only available to users with sufficient karma on HN.
+ * If the link is not found, it likely means the user doesn't have permission.
+ *
+ * @param html - HTML content of the item page
+ * @param itemId - ID of the item to flag
+ * @returns Flag link path
+ * @throws HNAuthError if parsing fails
+ */
+export function parseFlagLink(html: string, itemId: number): string {
+  // Try to find flag link by id attribute
+  const rawFlagLink = extractAttributeFromTag(
+    html,
+    "a",
+    "id",
+    `flag_${itemId}`,
+    "href"
+  );
+
+  // Decode HTML entities from the extracted href attribute
+  const flagLink = rawFlagLink ? decodeHTMLEntities(rawFlagLink) : null;
+
+  // Also try pattern matching for flag links
+  const fallbackFlagLink =
+    flagLink ??
+    (() => {
+      const pattern = new RegExp(
+        `flag\\?[^"'<>\\s]*(?:id|for)=${itemId}[^"'<>\\s]*`,
+        "i"
+      );
+      const match = pattern.exec(html);
+      return match ? decodeHTMLEntities(match[0]) : null;
+    })();
+
+  if (!fallbackFlagLink) {
+    const text = extractTextContent(html).toLowerCase();
+
+    if (text.includes("login")) {
+      throw new HNAuthError(
+        "Session expired - please log in again",
+        "NOT_LOGGED_IN"
+      );
+    }
+
+    // Flag link not present usually means insufficient karma
+    throw new HNAuthError(
+      "Flag link not found - you may need more karma on Hacker News to flag content",
+      "INSUFFICIENT_KARMA"
+    );
+  }
+
+  return fallbackFlagLink;
 }

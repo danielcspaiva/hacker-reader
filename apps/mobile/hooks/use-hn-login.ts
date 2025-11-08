@@ -1,49 +1,32 @@
 import { useHNAuth } from "@/contexts/hn-auth-context";
-import { useState } from "react";
+import { router } from "expo-router";
 import { Alert } from "react-native";
 
 /**
- * Hook for managing HN login/logout flow with modal state.
- * Handles login modal visibility, login success, and logout confirmation.
+ * Hook for managing HN login/logout flow using Expo Router navigation.
+ * Handles login navigation, logout confirmation, and success alerts.
  *
- * @returns Login/logout handlers and modal state
+ * @returns Login/logout handlers
  *
  * @example
  * ```tsx
  * function Settings() {
- *   const {
- *     showLoginModal,
- *     handleLogin,
- *     handleLogout,
- *     handleLoginSuccess,
- *     handleCloseModal,
- *   } = useHNLogin();
+ *   const { handleLogin, handleLogout } = useHNLogin();
  *
  *   return (
  *     <>
  *       <Button onPress={handleLogin}>Login</Button>
- *       <LoginModal
- *         visible={showLoginModal}
- *         onSuccess={handleLoginSuccess}
- *         onClose={handleCloseModal}
- *       />
+ *       <Button onPress={handleLogout}>Logout</Button>
  *     </>
  *   );
  * }
  * ```
  */
 export function useHNLogin() {
-  const { login, logout } = useHNAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { logout } = useHNAuth();
 
   const handleLogin = () => {
-    setShowLoginModal(true);
-  };
-
-  const handleLoginSuccess = async (cookies: Record<string, string>) => {
-    await login(cookies);
-    setShowLoginModal(false);
-    Alert.alert("Success", "Logged in to Hacker News successfully!");
+    router.push("/auth/login");
   };
 
   const handleLogout = () => {
@@ -60,15 +43,8 @@ export function useHNLogin() {
     ]);
   };
 
-  const handleCloseModal = () => {
-    setShowLoginModal(false);
-  };
-
   return {
-    showLoginModal,
     handleLogin,
     handleLogout,
-    handleLoginSuccess,
-    handleCloseModal,
   };
 }

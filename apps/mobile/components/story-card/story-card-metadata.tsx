@@ -19,7 +19,7 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
     <View style={styles.metadata}>
       <View style={styles.metadataItem}>
         <IconSymbol
-          name={hasVoted ? "arrowtriangle.up.fill" : "arrowtriangle.up"}
+          name={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
           size={13}
           color={iconColor}
         />

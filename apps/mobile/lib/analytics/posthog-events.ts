@@ -33,9 +33,13 @@ export enum AnalyticsEvent {
   STORY_BOOKMARKED = "story_bookmarked",
   BOOKMARK_REMOVED = "bookmark_removed",
   STORY_SHARED = "story_shared",
+  STORY_HIDDEN = "story_hidden",
+  STORY_FLAGGED = "story_flagged",
   COMMENT_VIEWED = "comment_viewed",
   COMMENT_COLLAPSED = "comment_collapsed",
   COMMENT_LINK_CLICKED = "comment_link_clicked",
+  COMMENT_HIDDEN = "comment_hidden",
+  COMMENT_FLAGGED = "comment_flagged",
 
   // Authentication
   LOGIN_INITIATED = "login_initiated",

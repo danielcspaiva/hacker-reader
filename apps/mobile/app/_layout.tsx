@@ -3,7 +3,11 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  MutationCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
@@ -44,7 +48,7 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-// Create a client
+// Create a client with global mutation invalidation
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -54,6 +58,19 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true, // Always refetch when app comes to foreground
     },
   },
+  mutationCache: new MutationCache({
+    onSuccess: () => {
+      console.log(
+        "[MutationCache] Mutation succeeded, invalidating all queries"
+      );
+
+      // Automatically invalidate all queries after successful mutations
+      // This is fine for read-heavy apps - most users never mutate
+      queryClient.invalidateQueries();
+
+      console.log("[MutationCache] Query invalidation complete");
+    },
+  }),
 });
 
 function RootLayoutContent() {
@@ -142,6 +159,15 @@ function RootLayoutContent() {
                   ? Colors.dark[colorPalette].background
                   : Colors.light[colorPalette].background,
             },
+          }}
+        />
+        <Stack.Screen
+          name="auth/login"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 16,
           }}
         />
       </Stack>

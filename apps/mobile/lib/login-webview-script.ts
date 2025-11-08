@@ -58,6 +58,58 @@ export function getLoginPageScript(): string {
         });
       };
 
+      const hideAccountCreation = () => {
+        // Hide the "Create Account" form (the one with creating=t hidden input)
+        const forms = document.querySelectorAll('form[action="login"]');
+        forms.forEach(form => {
+          const creatingInput = form.querySelector('input[name="creating"]');
+          if (creatingInput) {
+            // This is the create account form
+            form.style.display = 'none';
+
+            // Also hide the "Create Account" heading/text above it
+            const parentCell = form.closest('td');
+            if (parentCell) {
+              const prevSiblings = Array.from(parentCell.parentElement?.children || []);
+              prevSiblings.forEach(sibling => {
+                const text = sibling.textContent || '';
+                if (text.includes('Create Account')) {
+                  sibling.style.display = 'none';
+                }
+              });
+            }
+          }
+        });
+
+        // Hide the <b>Create Account</b> heading text and following <br> tags
+        const boldTags = document.querySelectorAll('b');
+        boldTags.forEach(tag => {
+          const text = (tag.textContent || '').trim();
+          if (text === 'Create Account') {
+            tag.style.display = 'none';
+            // Also hide the following <br> tags (up to 4 following siblings to catch all <br> and text nodes)
+            let nextSibling = tag.nextSibling;
+            let count = 0;
+            while (nextSibling && count < 4) {
+              if (nextSibling.nodeName === 'BR' && nextSibling.style) {
+                nextSibling.style.display = 'none';
+              }
+              nextSibling = nextSibling.nextSibling;
+              count++;
+            }
+          }
+        });
+
+        // Additional safety: hide any table rows containing "create account" text
+        const allRows = document.querySelectorAll('tr');
+        allRows.forEach(row => {
+          const text = (row.textContent || '').toLowerCase();
+          if (text.includes('create account') && !text.includes('login')) {
+            row.style.display = 'none';
+          }
+        });
+      };
+
       const parseCookies = (cookieString) => {
         return cookieString.split(';').reduce((acc, cookie) => {
           const [key, ...rest] = cookie.split('=');
@@ -101,6 +153,7 @@ export function getLoginPageScript(): string {
         const css = isDarkMode ? DARK_STYLES : LIGHT_STYLES;
 
         applyPlaceholders();
+        hideAccountCreation();
         ensureStyleTag(css);
         setupCookieInterval();
       } catch (error) {
