@@ -4,7 +4,9 @@
 
 ![Hacker Reader Cover](assets/repo/cover-light.png)
 
-> A polished Hacker News experience for mobile and web, powered by Expo and Next.js.
+> A polished Hacker News experience for iOS, powered by Expo and React Native.
+
+[![Download on the App Store](https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83)](https://apps.apple.com/us/app/hacker-reader/id6754137305)
 
 ## Table of Contents
 - [Overview](#overview)
@@ -31,7 +33,8 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 - **Native mobile experience** – Browse Top, New, Show HN, Ask HN, and Jobs feeds with FlashList, themed layouts, haptic feedback, and deep React Query caching.
 - **HN account support** – Log in inside the app, manage a secure session, vote, favorite, and comment through the hardened write API wrappers.
 - **Thoughtful reading tools** – Rich Open Graph link previews, nested comment threads with collapse controls, Algolia-powered search, and persistent bookmarks backed by AsyncStorage.
-- **Web preview & landing** – A Next.js App Router site that showcases the app with a dark/light marketing experience.
+- **iOS Widgets** – Three widget sizes (small/medium/large) displaying Top Stories with auto-updates every 30 minutes, deep linking, and offline support.
+- **Web preview & landing** – A Next.js App Router marketing site showcasing the app.
 
 ## Monorepo Layout
 
@@ -128,7 +131,7 @@ pnpm web       # smoke-test the marketing site
 
 - **Framework**: Next.js 15 App Router with Tailwind CSS
 - **Purpose**: Marketing site showcasing the mobile app
-- **Features**: Dark/light themed landing page, screenshots, TestFlight links
+- **Features**: Dark/light themed landing page, screenshots, App Store links
 
 ## Architecture Notes
 
