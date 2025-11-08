@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AppStoreBadge } from "./(components)/app-store-badge";
 import { HeroIcon } from "./(components)/hero-icon";
 import { ThemeToggle } from "./(components)/theme-toggle";
 
@@ -38,6 +39,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <AppStoreBadge />
                   <a
                     href="#features"
                     className="inline-flex items-center justify-center rounded-2xl bg-[#ff6600] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-[#ff6600]/40 transition hover:-translate-y-0.5 hover:bg-[#ff7a1a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6600]"
@@ -45,7 +47,7 @@ export default function Home() {
                     Learn More
                   </a>
                   <div className="text-sm text-[#8a7f6d] dark:text-[#a8a8a8]">
-                    Coming soon to iOS & Android
+                    Android coming soon
                   </div>
                 </div>
               </div>
@@ -476,24 +478,9 @@ export default function Home() {
             <p className="mt-6 text-lg leading-relaxed text-[#5d5146] dark:text-[#c0c0c0]">
               Get early access and help shape the reader the community deserves.
             </p>
-            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-              <a
-                href="https://testflight.apple.com/join/placeholder"
-                className="inline-flex items-center justify-center rounded-2xl bg-[#ff6600] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-[#ff6600]/40 transition hover:-translate-y-0.5 hover:bg-[#ff7a1a]"
-              >
-                Join the TestFlight
-              </a>
-              <a
-                href="https://app.hackerreader.app"
-                className="inline-flex items-center justify-center rounded-2xl border border-[#dacbbc] px-8 py-4 text-base font-semibold text-[#1a1410] transition hover:border-[#ff6600] hover:text-[#ff6600] dark:border-[#2f2f2f] dark:text-[#f5f5f5] dark:hover:text-[#ff8c43]"
-              >
-                Open the web app
-              </a>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <AppStoreBadge />
             </div>
-            <p className="mt-6 text-sm text-[#8f806d] dark:text-[#979797]">
-              Works great on iOS, web, and Android. Coming soon to all
-              platforms.
-            </p>
           </div>
         </section>
       </main>
