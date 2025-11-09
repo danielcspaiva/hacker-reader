@@ -14,9 +14,10 @@ import { isAuthError } from "@/lib/shared/auth/errors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Cookies } from "@react-native-cookies/cookies";
 import CookieManager from "@react-native-cookies/cookies";
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -45,9 +46,10 @@ export default function LoginModal() {
   const { login: contextLogin } = useHNAuth();
 
   // Check if guidelines were previously accepted
-  useEffect(() => {
+  // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
+  useFocusEffect(() => {
     checkGuidelinesAcceptance();
-  }, []);
+  });
 
   async function checkGuidelinesAcceptance() {
     try {
@@ -252,7 +254,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   loginButtonDisabled: {
-    backgroundColor: "#ffb380",
+    backgroundColor: "#ff6600",
     opacity: 0.6,
   },
   loginButtonText: {
