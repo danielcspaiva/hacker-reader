@@ -169,7 +169,7 @@ function RootLayoutContent() {
           name="auth/login"
           options={{
             presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
-            sheetGrabberVisible: true,
+            sheetGrabberVisible: false,
             sheetAllowedDetents: [0.8],
             headerShown: true,
             headerTransparent: false,
@@ -196,7 +196,7 @@ function RootLayoutContent() {
           name="auth/guidelines"
           options={{
             presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
-            sheetGrabberVisible: true,
+            sheetGrabberVisible: false,
             headerShown: true,
             headerTransparent: false,
             sheetAllowedDetents: [0.9],
