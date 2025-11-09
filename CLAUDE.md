@@ -80,11 +80,13 @@ The mobile app includes iOS home screen widgets that display Top Stories from Ha
 
 ### Authentication (Mobile Only)
 
-The mobile app supports HN authentication via WebView login:
+The mobile app supports HN authentication with a native login experience:
 
 1. **Login Flow**:
-   - Users log in through official HN website in WebView (no credential handling in app)
-   - Cookies extracted using `@react-native-cookies/cookies` + JavaScript injection fallback
+   - Users must accept HN Guidelines on first login via dedicated screen (`app/auth/guidelines.tsx`)
+   - Guidelines acceptance persisted in AsyncStorage with automatic redirect on subsequent logins
+   - Native login form POSTs credentials directly to HN (no credential storage in app)
+   - Cookies extracted using `@react-native-cookies/cookies` after successful authentication
    - Cookies stored securely in `expo-secure-store` (device keychain/keystore)
 
 2. **Auth Module** (`apps/mobile/lib/shared/auth/`):
@@ -94,11 +96,12 @@ The mobile app supports HN authentication via WebView login:
    - **HTML Parsers** - Extract auth tokens from HN pages using cheerio
 
 3. **Write API** (`apps/mobile/lib/shared/api/hn-write-api.ts`):
+   - `login(username, password)` - Authenticate with HN and extract session cookies
    - `vote(itemId, session)` - Upvote stories/comments
    - `unvote(itemId, session)` - Remove upvote
    - `comment(parentId, text, session)` - Post comments
    - `favorite(itemId, session)` - Favorite items
-   - All operations require `SecureSession` with HN cookies
+   - All operations require `SecureSession` with HN cookies (except login)
    - HTTPS enforced, automatic rate limiting, smart error handling
 
 4. **Auth Context** (`apps/mobile/contexts/hn-auth-context.tsx`):
@@ -107,7 +110,8 @@ The mobile app supports HN authentication via WebView login:
    - `useHNAuth()` hook provides: `session`, `login()`, `logout()`, `isAuthenticated`
 
 5. **UI Integration**:
-   - Login modal: `components/auth/login-modal.tsx` - WebView with cookie extraction
+   - Guidelines screen: `app/auth/guidelines.tsx` - Dedicated route for HN guidelines acceptance
+   - Login screen: `app/auth/login.tsx` - Native form with direct HN authentication
    - Settings screen: Shows login status, login/logout buttons
    - Story cards: Upvote/unvote in context menu (when authenticated)
    - Optimistic updates with automatic rollback on error
@@ -222,6 +226,9 @@ app/
     [category]/     # Each category (top, new, ask, show, jobs)
       index.tsx     # List screen with FlashList
       _layout.tsx   # Stack layout config
+  auth/             # Authentication routes
+    guidelines.tsx  # HN guidelines acceptance screen
+    login.tsx       # Native login form
   story/
     [id].tsx        # Story detail with comments
   _layout.tsx       # Root layout with QueryClientProvider

@@ -1,7 +1,7 @@
 {
   "name": "@hn/mobile",
   "main": "expo-router/entry",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "scripts": {
     "dev": "expo start",

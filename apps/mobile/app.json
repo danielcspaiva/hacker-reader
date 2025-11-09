@@ -2,7 +2,7 @@
   "expo": {
     "name": "Hacker Reader",
     "slug": "hn-client",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/ybook.png",
     "scheme": "hnclient",

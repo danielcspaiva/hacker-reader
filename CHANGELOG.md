@@ -5,6 +5,21 @@ All notable changes to Hacker Reader will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-11-08
+
+### Changed
+- Refactored guidelines acceptance from modal component to dedicated screen route (`app/auth/guidelines.tsx`)
+- Enhanced login flow with native form that POSTs directly to Hacker News
+- Improved authentication reliability with direct credential submission
+- Removed sheet grabbers from authentication screens for cleaner user experience
+- Guidelines acceptance now persisted in AsyncStorage with automatic redirect flow
+
+### Added
+- Vercel Analytics integration for web app traffic insights
+
+### Removed
+- `GuidelinesModal` component (replaced with screen route)
+
 ## [1.0.0] - 2025-11-07
 
 ### Added
@@ -51,4 +66,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - React Query for state management
 - expo-router v6 for navigation
 
+[1.1.0]: https://github.com/danielcspaiva/hacker-reader/releases/tag/v1.1.0
 [1.0.0]: https://github.com/danielcspaiva/hacker-reader/releases/tag/v1.0.0
