@@ -79,6 +79,7 @@ const queryClient = new QueryClient({
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
   const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
   const { isAuthenticated } = useHNAuth();
   const posthog = usePostHog();
   useWidgetAnalytics();
@@ -174,11 +175,15 @@ function RootLayoutContent() {
             headerShown: true,
             headerTransparent: false,
             headerStyle: {
-              backgroundColor: "transparent",
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
             },
             headerTitle: "Login to Hacker News",
             contentStyle: {
-              backgroundColor: "transparent",
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
             },
             headerRight: () => (
               <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
@@ -201,21 +206,25 @@ function RootLayoutContent() {
             headerTransparent: false,
             sheetAllowedDetents: [0.9],
             headerStyle: {
-              backgroundColor: "transparent",
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
             },
             headerTitle: "Guidelines",
             contentStyle: {
-              backgroundColor: "transparent",
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
             },
             headerRight: () => (
               <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
-              <IconSymbol
-                name="xmark"
-                size={20}
-                color={textColor}
-                weight="light"
-              />
-            </Pressable>
+                <IconSymbol
+                  name="xmark"
+                  size={20}
+                  color={textColor}
+                  weight="light"
+                />
+              </Pressable>
             ),
           }}
         />
