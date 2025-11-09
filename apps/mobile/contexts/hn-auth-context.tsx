@@ -69,12 +69,19 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     trackEvent(posthog, AnalyticsEvent.LOGOUT_TRIGGERED, {});
     resetUser(posthog);
 
+    // Note: We only perform client-side logout (clearing cookies/storage).
+    // Server-side logout via HN's logout endpoint is not needed because:
+    // 1. HN sessions expire naturally
+    // 2. Client-side clearing is sufficient for mobile app security
+    // 3. React Native's cookie manager interferes with server-side logout attempts
+
+    // Clear local session state
     setSession(null);
 
     // Clear session from SecureStore
     await SecureStore.deleteItemAsync("hn_cookies");
 
-    // Clear HN cookies from WebView storage
+    // Clear HN cookies from cookie manager
     try {
       await CookieManager.clearByName("https://news.ycombinator.com", "user");
     } catch (error) {

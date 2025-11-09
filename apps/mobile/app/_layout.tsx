@@ -8,18 +8,21 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
+import { Pressable } from "react-native";
 import "react-native-reanimated";
 
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import {
   ColorSchemeProvider,
   useColorSchemeContext,
 } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { getAppMetadata } from "@/lib/analytics/tracking";
@@ -75,6 +78,7 @@ const queryClient = new QueryClient({
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
+  const textColor = useThemeColor({}, "text");
   const { isAuthenticated } = useHNAuth();
   const posthog = usePostHog();
   useWidgetAnalytics();
@@ -164,10 +168,55 @@ function RootLayoutContent() {
         <Stack.Screen
           name="auth/login"
           options={{
-            presentation: "modal",
-            headerShown: false,
+            presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
             sheetGrabberVisible: true,
-            sheetCornerRadius: 16,
+            sheetAllowedDetents: [0.8],
+            headerShown: true,
+            headerTransparent: false,
+            headerStyle: {
+              backgroundColor: "transparent",
+            },
+            headerTitle: "Login to Hacker News",
+            contentStyle: {
+              backgroundColor: "transparent",
+            },
+            headerRight: () => (
+              <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
+                <IconSymbol
+                  name="xmark"
+                  size={20}
+                  color={textColor}
+                  weight="light"
+                />
+              </Pressable>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="auth/guidelines"
+          options={{
+            presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
+            sheetGrabberVisible: true,
+            headerShown: true,
+            headerTransparent: false,
+            sheetAllowedDetents: [0.9],
+            headerStyle: {
+              backgroundColor: "transparent",
+            },
+            headerTitle: "Guidelines",
+            contentStyle: {
+              backgroundColor: "transparent",
+            },
+            headerRight: () => (
+              <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
+              <IconSymbol
+                name="xmark"
+                size={20}
+                color={textColor}
+                weight="light"
+              />
+            </Pressable>
+            ),
           }}
         />
       </Stack>

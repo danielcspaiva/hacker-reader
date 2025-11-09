@@ -11,10 +11,10 @@ import { HNAuthError } from "../auth/errors";
 import {
   parseCommentFormHmac,
   parseFavoriteLink,
+  parseFlagLink,
   parseUnfavoriteLink,
   parseUnvoteLink,
   parseVoteLink,
-  parseFlagLink,
 } from "../auth/parsers";
 import { hnRateLimiter } from "../auth/rate-limiter";
 import { SecureSession } from "../auth/session";
@@ -367,4 +367,104 @@ export async function flag(
 
   // Step 3: Follow flag link
   await fetchHN(`/${flagLink}`, session);
+}
+
+/**
+ * Login to Hacker News with username and password
+ *
+ * This function performs the login POST request to HN.
+ * Cookies are managed by the native cookie manager and should be
+ * extracted separately using @react-native-cookies/cookies.
+ *
+ * @param username - HN username
+ * @param password - HN password
+ * @throws HNAuthError if login fails
+ */
+export async function login(username: string, password: string): Promise<void> {
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Starting native login:", {
+      username,
+      passwordLength: password.length,
+    });
+  }
+
+  const url = `${HN_BASE_URL}/login`;
+  validateHTTPS(url);
+
+  // Prepare form data (matches HN's login form)
+  const formData = new URLSearchParams({
+    acct: username,
+    pw: password,
+  });
+
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Posting to login endpoint");
+  }
+
+  // POST to login endpoint
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "HN-Client/1.0 (Mobile)",
+    },
+    body: formData.toString(),
+    redirect: "follow", // Follow redirects to get final response
+  });
+
+  if (isDebugLoggingEnabled) {
+    console.log("[HN Write API] Login response:", {
+      status: response.status,
+      statusText: response.statusText,
+      redirected: response.redirected,
+      url: response.url,
+    });
+  }
+
+  // Get response HTML to check for errors
+  const html = await response.text();
+  const lowerHtml = html.toLowerCase();
+
+  // Check for login errors in the response
+  if (
+    lowerHtml.includes("bad login") ||
+    lowerHtml.includes("unknown or expired")
+  ) {
+    throw new HNAuthError(
+      "Invalid username or password",
+      "INVALID_CREDENTIALS"
+    );
+  }
+
+  if (
+    lowerHtml.includes("banned") ||
+    lowerHtml.includes("account is not active")
+  ) {
+    throw new HNAuthError("Account is banned or inactive", "BANNED");
+  }
+
+  if (
+    lowerHtml.includes("too many") ||
+    lowerHtml.includes("slow down") ||
+    lowerHtml.includes("rate limit")
+  ) {
+    throw new HNAuthError(
+      "Too many login attempts. Please wait and try again.",
+      "RATE_LIMITED"
+    );
+  }
+
+  // Check if we're still on the login page (login failed)
+  if (response.url.includes("/login")) {
+    throw new HNAuthError(
+      "Login failed - please check your credentials",
+      "INVALID_CREDENTIALS"
+    );
+  }
+
+  if (isDebugLoggingEnabled) {
+    console.log(
+      "[HN Write API] Login successful - cookies managed by native cookie manager"
+    );
+  }
 }

@@ -8,7 +8,9 @@ export type HNAuthErrorCode =
   | "RATE_LIMITED"
   | "PARSE_ERROR"
   | "CAPTCHA_REQUIRED"
-  | "NETWORK_ERROR";
+  | "NETWORK_ERROR"
+  | "INVALID_CREDENTIALS"
+  | "BANNED";
 
 export class HNAuthError extends Error {
   constructor(
