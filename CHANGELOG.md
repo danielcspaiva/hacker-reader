@@ -7,15 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2025-11-08
 
+### Added
+- Comment deletion functionality with optimistic UI updates
+- New `use-comment-mutation` hook for streamlined comment posting
+- New `use-delete-comment-mutation` hook for deleting comments
+- TypeScript type checking script in package.json
+- Vercel Analytics integration for web app traffic insights
+
 ### Changed
 - Refactored guidelines acceptance from modal component to dedicated screen route (`app/auth/guidelines.tsx`)
 - Enhanced login flow with native form that POSTs directly to Hacker News
 - Improved authentication reliability with direct credential submission
 - Removed sheet grabbers from authentication screens for cleaner user experience
 - Guidelines acceptance now persisted in AsyncStorage with automatic redirect flow
+- Improved mutation cache logic to skip auto-invalidation for comment mutations, allowing manual control
+- Enhanced header titles for consistency: "Login" → "Sign in", "Guidelines" → "Hacker News Guidelines"
+- Refactored comment posting logic from component to dedicated hook
+- Improved analytics tracking with dedicated functions for comment events
+- Enhanced Open Graph API with better error handling and type safety
+- Updated HN authentication parsers with improved token extraction
 
-### Added
-- Vercel Analytics integration for web app traffic insights
+### Improved
+- Error handling for unblocking users with better user feedback
+- Error handling for clearing blocked users
+- Story query hook with better cache management for comments
 
 ### Removed
 - `GuidelinesModal` component (replaced with screen route)
