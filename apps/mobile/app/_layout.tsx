@@ -241,8 +241,10 @@ export default Sentry.wrap(function RootLayout() {
       options={{
         host: process.env.EXPO_PUBLIC_POSTHOG_HOST!,
         enableSessionReplay: true,
+        disabled: __DEV__,
       }}
       autocapture
+      debug={__DEV__}
     >
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider>
