@@ -3,14 +3,11 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useCommentMutation } from "@/hooks/use-comment-mutation";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { comment } from "@/lib/shared/api";
-import { isAuthError } from "@/lib/shared/auth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -39,8 +36,7 @@ export function StoryCommentInput({
 }: StoryCommentInputProps) {
   const textColor = useThemeColor({}, "text");
   const { colorScheme, colorPalette } = useColorSchemeContext();
-  const { session, isAuthenticated, logout } = useHNAuth();
-  const queryClient = useQueryClient();
+  const { isAuthenticated } = useHNAuth();
   const { bottom } = useSafeAreaInsets();
   const isDark = colorScheme === "dark";
   const hasLiquidGlass = isLiquidGlassAvailable();
@@ -57,6 +53,20 @@ export function StoryCommentInput({
   const [isCommentInputVisible, setIsCommentInputVisible] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
+  // Comment mutation
+  const commentMutation = useCommentMutation({
+    storyId,
+    replyTarget,
+    onSuccess: () => {
+      // Clean up UI
+      setCommentText("");
+      setIsCommentInputVisible(false);
+      if (replyTarget) {
+        onCancelReply();
+      }
+    },
+  });
+
   // Auto-show input when a reply target is set
   useEffect(() => {
     if (replyTarget) {
@@ -72,60 +82,6 @@ export function StoryCommentInput({
       }, 100);
     }
   }, [isCommentInputVisible]);
-
-  // Determine parent ID based on whether we're replying to a comment or the story
-  const parentId = replyTarget ? replyTarget.commentId : storyId;
-
-  // Comment mutation
-  const commentMutation = useMutation({
-    mutationFn: async (text: string) => {
-      if (!session) throw new Error("Not authenticated");
-      await comment(parentId, text, session);
-    },
-    onSuccess: async () => {
-      setCommentText("");
-      setIsCommentInputVisible(false);
-      if (replyTarget) {
-        onCancelReply(); // Clear reply mode
-      }
-
-      // Wait a moment for HN's API to update (comments aren't instant)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Refetch story to show new comment
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
-    },
-    onError: (error) => {
-      if (isAuthError(error)) {
-        switch (error.code) {
-          case "NOT_LOGGED_IN":
-            logout();
-            Alert.alert("Session Expired", "Please log in again to continue", [
-              { text: "OK" },
-            ]);
-            break;
-          case "RATE_LIMITED":
-            Alert.alert(
-              "Slow Down",
-              "You're performing actions too quickly. Please wait a moment.",
-              [{ text: "OK" }]
-            );
-            break;
-          case "PARSE_ERROR":
-            Alert.alert(
-              "Something Went Wrong",
-              "The app may need an update. Please try again later.",
-              [{ text: "OK" }]
-            );
-            break;
-          default:
-            Alert.alert("Error", error.message);
-        }
-      } else {
-        Alert.alert("Error", "Failed to post comment. Please try again.");
-      }
-    },
-  });
 
   const handlePostComment = () => {
     if (!commentText.trim() || commentMutation.isPending) {
@@ -168,7 +124,7 @@ export function StoryCommentInput({
           ]}
         >
           <GlassView
-            glassEffectStyle="clear"
+            glassEffectStyle="regular"
             isInteractive
             style={[
               styles.floatingButtonGlass,

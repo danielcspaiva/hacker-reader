@@ -188,7 +188,11 @@ export default function StoryDetailScreen() {
                   <SwiftUIButton systemImage="eye.slash" onPress={handleHide}>
                     Hide
                   </SwiftUIButton>
-                  <SwiftUIButton systemImage="flag" onPress={handleFlag} role="destructive">
+                  <SwiftUIButton
+                    systemImage="flag"
+                    onPress={handleFlag}
+                    role="destructive"
+                  >
                     Flag
                   </SwiftUIButton>
                   <SwiftUIButton
@@ -254,6 +258,7 @@ export default function StoryDetailScreen() {
             isCollapsed={collapsedIds.has(item.comment.id)}
             onToggleCollapse={toggleCollapse}
             onReply={handleReply}
+            storyId={Number(id)}
           />
         )}
         keyExtractor={(item) => item.comment.id.toString()}

@@ -22,7 +22,8 @@ import { trackEvent, resetUser } from "@/lib/analytics/tracking";
 interface HNAuthContextValue {
   session: SecureSession | null;
   isLoading: boolean;
-  login: (cookies: Record<string, string>) => Promise<void>;
+  username: string | null;
+  login: (cookies: Record<string, string>, username: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -31,6 +32,7 @@ const HNAuthContext = createContext<HNAuthContextValue | null>(null);
 
 export function HNAuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SecureSession | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const posthog = usePostHog();
 
@@ -42,9 +44,11 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
   async function loadSession() {
     try {
       const cookiesJson = await SecureStore.getItemAsync("hn_cookies");
+      const storedUsername = await SecureStore.getItemAsync("hn_username");
       if (cookiesJson) {
         const cookies = JSON.parse(cookiesJson);
         setSession(new SecureSession(cookies));
+        setUsername(storedUsername);
       }
     } catch (error) {
       console.error("Failed to load session:", error);
@@ -53,10 +57,12 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function login(cookies: Record<string, string>) {
+  async function login(cookies: Record<string, string>, username: string) {
     const newSession = new SecureSession(cookies);
     setSession(newSession);
+    setUsername(username);
     await SecureStore.setItemAsync("hn_cookies", JSON.stringify(cookies));
+    await SecureStore.setItemAsync("hn_username", username);
 
     // Track login completion (fully anonymous)
     // Note: is_authenticated super property is automatically set in _layout.tsx
@@ -77,9 +83,11 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
 
     // Clear local session state
     setSession(null);
+    setUsername(null);
 
     // Clear session from SecureStore
     await SecureStore.deleteItemAsync("hn_cookies");
+    await SecureStore.deleteItemAsync("hn_username");
 
     // Clear HN cookies from cookie manager
     try {
@@ -93,6 +101,7 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     <HNAuthContext.Provider
       value={{
         session,
+        username,
         isLoading,
         login,
         logout,

@@ -10,6 +10,7 @@
 import { HNAuthError } from "../auth/errors";
 import {
   parseCommentFormHmac,
+  parseDeleteLink,
   parseFavoriteLink,
   parseFlagLink,
   parseUnfavoriteLink,
@@ -78,46 +79,15 @@ export async function vote(
   itemId: number,
   session: SecureSession
 ): Promise<void> {
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Starting vote:", {
-      itemId,
-      hasSession: session.hasValidSession(),
-    });
-  }
-
   // Step 1: Fetch item page to get auth token
   const itemPage = await fetchHN(`/item?id=${itemId}`, session);
   const html = await itemPage.text();
 
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Fetched item page:", {
-      status: itemPage.status,
-      htmlLength: html.length,
-    });
-  }
-
   // Step 2: Parse vote link
   const voteLink = parseVoteLink(html, itemId);
 
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Parsed vote link:", voteLink);
-  }
-
   // Step 3: Follow vote link
-  const voteResponse = await fetchHN(`/${voteLink}`, session);
-
-  if (isDebugLoggingEnabled) {
-    const responseHtml = await voteResponse.text();
-    console.log("[HN Write API] Vote response:", {
-      status: voteResponse.status,
-      url: voteResponse.url,
-      redirected: voteResponse.redirected,
-      htmlLength: responseHtml.length,
-      htmlSnippet: responseHtml.slice(0, 500),
-    });
-  }
-
-  console.log("[HN Write API] Vote completed successfully");
+  await fetchHN(`/${voteLink}`, session);
 }
 
 /**
@@ -131,118 +101,36 @@ export async function unvote(
   itemId: number,
   session: SecureSession
 ): Promise<void> {
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Starting unvote:", {
-      itemId,
-      hasSession: session.hasValidSession(),
-    });
-  }
-
   const itemPage = await fetchHN(`/item?id=${itemId}`, session);
   const html = await itemPage.text();
 
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Fetched item page:", {
-      status: itemPage.status,
-      htmlLength: html.length,
-    });
-  }
-
   const unvoteLink = parseUnvoteLink(html, itemId);
 
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Parsed unvote link:", unvoteLink);
-  }
-
-  const unvoteResponse = await fetchHN(`/${unvoteLink}`, session);
-
-  if (isDebugLoggingEnabled) {
-    const responseHtml = await unvoteResponse.text();
-    console.log("[HN Write API] Unvote response:", {
-      status: unvoteResponse.status,
-      url: unvoteResponse.url,
-      redirected: unvoteResponse.redirected,
-      htmlLength: responseHtml.length,
-      htmlSnippet: responseHtml.slice(0, 500),
-    });
-  }
-
-  console.log("[HN Write API] Unvote completed successfully");
+  await fetchHN(`/${unvoteLink}`, session);
 }
 
 /**
- * Post a comment on an item
- *
- * @param parentId - ID of the parent item (story or comment)
- * @param text - Comment text (supports HN markdown)
- * @param session - Authenticated session
- * @throws HNAuthError if operation fails
+ * Helper function to check for common comment errors in HN's response HTML
  */
-export async function comment(
-  parentId: number,
-  text: string,
-  session: SecureSession
+async function checkForCommentErrors(
+  responseHtml: string,
+  lowerHtml: string
 ): Promise<void> {
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Starting comment post:", {
-      parentId,
-      textLength: text.length,
-      hasSession: session.hasValidSession(),
-    });
+  // Check for session/auth errors - but be careful not to match template text
+  // HN shows actual errors in the page title or as explicit error messages
+  // The confirmation page may contain "unknown or expired" as documentation text
+
+  // Check for explicit "bad login" message (always an error)
+  if (lowerHtml.includes("bad login")) {
+    throw new HNAuthError(
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
+    );
   }
 
-  // Step 1: Fetch parent item page to get HMAC
-  const itemPage = await fetchHN(`/item?id=${parentId}`, session);
-  const html = await itemPage.text();
-  const hmac = parseCommentFormHmac(html);
-
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Got HMAC:", hmac.slice(0, 10) + "...");
-  }
-
-  // Step 2: POST comment
-  // HN requires 'goto' parameter for redirect after successful comment
-  const formData = new URLSearchParams({
-    parent: parentId.toString(),
-    goto: `item?id=${parentId}`,
-    hmac: hmac,
-    text: text,
-  });
-
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Posting comment with form data:", {
-      parent: parentId,
-      goto: `item?id=${parentId}`,
-      hmacLength: hmac.length,
-      textLength: text.length,
-    });
-  }
-
-  const response = await fetchHN("/comment", session, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: formData.toString(),
-  });
-
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Comment response:", {
-      status: response.status,
-      url: response.url,
-      redirected: response.redirected,
-    });
-  }
-
-  // Step 3: Verify the comment was accepted
-  const responseHtml = await response.text();
-  const lowerHtml = responseHtml.toLowerCase();
-
-  // Check for common error messages
-  if (
-    lowerHtml.includes("unknown or expired") ||
-    lowerHtml.includes("bad login")
-  ) {
+  // Check for "unknown or expired link" (the actual error message)
+  // This is different from template text which might say "unknown or expired"
+  if (lowerHtml.includes("unknown or expired link")) {
     throw new HNAuthError(
       "Session expired - please log in again",
       "NOT_LOGGED_IN"
@@ -277,10 +165,6 @@ export async function comment(
   );
 
   if (hasTextareaError) {
-    console.error(
-      "[HN Write API] Validation error detected - HN rejected the comment"
-    );
-
     // Try to extract any additional error message
     const errorMatch = responseHtml.match(
       /<font color="#ff6600">\s*([^<]+)\s*<\/font>/i
@@ -288,7 +172,6 @@ export async function comment(
     const errorMessage = errorMatch ? errorMatch[1].trim() : null;
 
     if (errorMessage && errorMessage !== "*") {
-      console.error("[HN Write API] Error message from HN:", errorMessage);
       throw new HNAuthError(
         `HN rejected comment: ${errorMessage}`,
         "PARSE_ERROR"
@@ -296,18 +179,119 @@ export async function comment(
     }
 
     // Generic validation error
-    console.error(
-      "[HN Write API] Response HTML snippet:",
-      responseHtml.slice(0, 1000)
-    );
     throw new HNAuthError(
       "HN rejected your comment. Possible reasons: comment too short, contains invalid characters, or account restrictions. Please try posting directly on news.ycombinator.com to see the specific error.",
       "PARSE_ERROR"
     );
   }
+}
+
+/**
+ * Post a comment on an item
+ *
+ * @param parentId - ID of the parent item (story or comment)
+ * @param text - Comment text (supports HN markdown)
+ * @param session - Authenticated session
+ * @returns The ID of the newly created comment (if found in response)
+ * @throws HNAuthError if operation fails
+ */
+export async function comment(
+  parentId: number,
+  text: string,
+  session: SecureSession
+): Promise<number | null> {
+  // Step 1: Fetch parent item page to get HMAC
+  const itemPage = await fetchHN(`/item?id=${parentId}`, session);
+  const html = await itemPage.text();
+
+  const hmac = parseCommentFormHmac(html);
+
+  // Step 2: POST comment
+  // HN requires 'goto' parameter for redirect after successful comment
+  const formData = new URLSearchParams({
+    parent: parentId.toString(),
+    goto: `item?id=${parentId}`,
+    hmac: hmac,
+    text: text,
+  });
+
+  const response = await fetchHN("/comment", session, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData.toString(),
+  });
+
+  // Read the response HTML immediately (before it's consumed)
+  const initialResponseHtml = await response.text();
+
+  // Check if HN is asking for comment confirmation
+  // URL pattern: https://news.ycombinator.com/x?fnid=...&fnop=commconfirm
+  const needsConfirmation =
+    response.url.includes("fnop=commconfirm") ||
+    response.url.includes("fnop=comment-confirm");
+
+  if (needsConfirmation) {
+    // The response we already have IS the confirmation page
+    // (fetch auto-followed the redirect and gave us the final page)
+    const confirmHtml = initialResponseHtml;
+
+    // Check the confirmation response for errors
+    const confirmLowerHtml = confirmHtml.toLowerCase();
+
+    await checkForCommentErrors(confirmHtml, confirmLowerHtml);
+
+    // Try to extract the new comment ID from the confirmation response
+    const confirmCommentIdMatch = confirmHtml.match(/item\?id=(\d+)/g);
+    let confirmedCommentId: number | null = null;
+
+    if (confirmCommentIdMatch && confirmCommentIdMatch.length > 0) {
+      const ids = confirmCommentIdMatch
+        .map((match) => {
+          const id = match.match(/id=(\d+)/)?.[1];
+          return id ? parseInt(id, 10) : null;
+        })
+        .filter((id): id is number => id !== null && id !== parentId);
+
+      if (ids.length > 0) {
+        confirmedCommentId = Math.max(...ids);
+      }
+    }
+
+    return confirmedCommentId;
+  }
+
+  // Step 3: Verify the comment was accepted (no confirmation needed)
+  // Use the HTML we already read from the response
+  const lowerHtml = initialResponseHtml.toLowerCase();
+
+  // Check for errors using helper function
+  await checkForCommentErrors(initialResponseHtml, lowerHtml);
 
   // Success if we get here - HN redirected to item page without errors
-  console.log("[HN Write API] Comment posted successfully");
+
+  // Try to extract the new comment ID from the response HTML
+  // HN includes links like <a href="item?id=45876842">
+  const commentIdMatch = initialResponseHtml.match(/item\?id=(\d+)/g);
+  let newCommentId: number | null = null;
+
+  if (commentIdMatch && commentIdMatch.length > 0) {
+    // Find IDs in the HTML, exclude the parent ID
+    const ids = commentIdMatch
+      .map((match) => {
+        const id = match.match(/id=(\d+)/)?.[1];
+        return id ? parseInt(id, 10) : null;
+      })
+      .filter((id): id is number => id !== null && id !== parentId);
+
+    // The new comment ID is likely the highest ID (most recent)
+    if (ids.length > 0) {
+      newCommentId = Math.max(...ids);
+    }
+  }
+
+  return newCommentId;
 }
 
 /**
@@ -370,6 +354,64 @@ export async function flag(
 }
 
 /**
+ * Delete a comment or story
+ *
+ * Note: You can only delete your own items, and typically within
+ * a time window after posting (HN enforces this).
+ *
+ * @param itemId - ID of the item to delete
+ * @param session - Authenticated session
+ * @throws HNAuthError if operation fails
+ */
+export async function deleteComment(
+  itemId: number,
+  session: SecureSession
+): Promise<void> {
+  // Step 1: Fetch item page to get delete link
+  const itemPage = await fetchHN(`/item?id=${itemId}`, session);
+  const html = await itemPage.text();
+
+  // Step 2: Parse delete link
+  const deleteLink = parseDeleteLink(html, itemId);
+
+  // Step 3: Follow delete-confirm link to get confirmation form
+  const confirmPage = await fetchHN(`/${deleteLink}`, session);
+  const confirmHtml = await confirmPage.text();
+
+  // Step 4: Parse the confirmation form HMAC
+  // The form has: <input type="hidden" name="hmac" value="...">
+  const hmacMatch = confirmHtml.match(
+    /<input[^>]*name="hmac"[^>]*value="([^"]+)"/i
+  );
+  if (!hmacMatch) {
+    throw new HNAuthError("Delete confirmation HMAC not found", "PARSE_ERROR");
+  }
+  const hmac = hmacMatch[1];
+
+  // Step 5: Parse the goto parameter
+  const gotoMatch = confirmHtml.match(
+    /<input[^>]*name="goto"[^>]*value="([^"]+)"/i
+  );
+  const goto = gotoMatch ? gotoMatch[1] : `item?id=${itemId}`;
+
+  // Step 6: Submit the confirmation form
+  const formData = new URLSearchParams({
+    id: itemId.toString(),
+    goto: goto,
+    hmac: hmac,
+    d: "Yes", // Confirm deletion
+  });
+
+  await fetchHN("/xdelete", session, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData.toString(),
+  });
+}
+
+/**
  * Login to Hacker News with username and password
  *
  * This function performs the login POST request to HN.
@@ -381,13 +423,6 @@ export async function flag(
  * @throws HNAuthError if login fails
  */
 export async function login(username: string, password: string): Promise<void> {
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Starting native login:", {
-      username,
-      passwordLength: password.length,
-    });
-  }
-
   const url = `${HN_BASE_URL}/login`;
   validateHTTPS(url);
 
@@ -396,10 +431,6 @@ export async function login(username: string, password: string): Promise<void> {
     acct: username,
     pw: password,
   });
-
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Posting to login endpoint");
-  }
 
   // POST to login endpoint
   const response = await fetch(url, {
@@ -411,15 +442,6 @@ export async function login(username: string, password: string): Promise<void> {
     body: formData.toString(),
     redirect: "follow", // Follow redirects to get final response
   });
-
-  if (isDebugLoggingEnabled) {
-    console.log("[HN Write API] Login response:", {
-      status: response.status,
-      statusText: response.statusText,
-      redirected: response.redirected,
-      url: response.url,
-    });
-  }
 
   // Get response HTML to check for errors
   const html = await response.text();
@@ -459,12 +481,6 @@ export async function login(username: string, password: string): Promise<void> {
     throw new HNAuthError(
       "Login failed - please check your credentials",
       "INVALID_CREDENTIALS"
-    );
-  }
-
-  if (isDebugLoggingEnabled) {
-    console.log(
-      "[HN Write API] Login successful - cookies managed by native cookie manager"
     );
   }
 }

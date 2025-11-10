@@ -1,9 +1,14 @@
-import { getItem } from "@/lib/shared";
+import { getItem, getItems } from "@/lib/shared";
 import {
   getStoryWithComments,
   type AlgoliaComment,
 } from "@/lib/shared/api/algolia-api";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { HNItem } from "@/lib/shared/types";
+import {
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+} from "@tanstack/react-query";
 
 export interface StoryWithComments {
   id: number;
@@ -27,6 +32,22 @@ export interface Comment {
   children: Comment[];
 }
 
+// Convert HN API item to our Comment format
+function convertHNItemToComment(hnItem: HNItem): Comment | null {
+  // Skip deleted, dead, or invalid comments
+  if (hnItem.deleted || hnItem.dead || !hnItem.by || !hnItem.text) {
+    return null;
+  }
+
+  return {
+    id: hnItem.id,
+    by: hnItem.by,
+    time: hnItem.time ?? 0,
+    text: hnItem.text,
+    children: [], // HN API comments don't have nested children pre-fetched
+  };
+}
+
 // Convert Algolia format to our app's format
 function convertAlgoliaComment(algoliaComment: AlgoliaComment): Comment | null {
   // Skip deleted or invalid comments
@@ -34,16 +55,48 @@ function convertAlgoliaComment(algoliaComment: AlgoliaComment): Comment | null {
     return null;
   }
 
+  const convertedChildren = algoliaComment.children
+    .map(convertAlgoliaComment)
+    .filter((c): c is Comment => c !== null);
+
   return {
     id: algoliaComment.id,
     by: algoliaComment.author,
     time: algoliaComment.created_at_i,
     text: algoliaComment.text,
-    children: algoliaComment.children
-      .map(convertAlgoliaComment)
-      .filter((c): c is Comment => c !== null),
+    children: convertedChildren,
   };
 }
+
+// Collect all comment IDs from Algolia tree (recursively)
+function collectAlgoliaCommentIds(comments: AlgoliaComment[]): Set<number> {
+  const ids = new Set<number>();
+
+  function traverse(comment: AlgoliaComment) {
+    ids.add(comment.id);
+    comment.children.forEach(traverse);
+  }
+
+  comments.forEach(traverse);
+  return ids;
+}
+
+// Filter Algolia comments to only include top-level comments present in HN API's kids array
+// This removes deleted top-level comments while trusting Algolia for nested structure (for performance)
+function filterAlgoliaCommentsByHNKids(
+  comments: AlgoliaComment[],
+  hnKids: number[]
+): AlgoliaComment[] {
+  const hnKidsSet = new Set(hnKids);
+
+  // Only filter top-level comments - trust Algolia for nested structure
+  return comments.filter((comment) => hnKidsSet.has(comment.id));
+}
+
+// Note: We used to recursively fetch all nested HN kids here, but that was extremely slow
+// for stories with many comments (200 comments = 200 sequential API calls = 40+ seconds).
+// Now we only validate top-level comments against HN API and trust Algolia for the nested structure.
+// This is much faster and deleted nested comments are rare anyway.
 
 export function useStory(id: number) {
   const queryClient = useQueryClient();
@@ -51,8 +104,6 @@ export function useStory(id: number) {
   return useQuery<StoryWithComments, Error>({
     queryKey: ["story", id],
     queryFn: async () => {
-      console.log(`[useStory] Fetching story ${id}`);
-
       // Fetch story metadata from HN API (real-time score, always up-to-date)
       // and comments from Algolia (nested tree structure)
       const [hnItem, algoliaData] = await Promise.all([
@@ -60,11 +111,49 @@ export function useStory(id: number) {
         getStoryWithComments(id),
       ]);
 
-      console.log(
-        `[useStory] HN API score: ${hnItem.score}, Algolia score: ${algoliaData.points}`
-      );
+      // Step 1: Use only top-level HN kids for filtering
+      // We trust Algolia's nested structure to avoid slow recursive fetching
+      const topLevelHNKids = hnItem.kids || [];
 
-      // Build story with real-time HN data + Algolia comments
+      // Step 2: Filter Algolia comments to only include those in HN's top-level kids array
+      // This catches deleted top-level comments while trusting Algolia for nested structure
+      const filteredAlgoliaComments =
+        topLevelHNKids.length > 0
+          ? filterAlgoliaCommentsByHNKids(algoliaData.children, topLevelHNKids)
+          : [];
+
+      // Step 3: Convert filtered Algolia comments to our format
+      const convertedComments = filteredAlgoliaComments
+        .map(convertAlgoliaComment)
+        .filter((c): c is Comment => c !== null);
+
+      // Step 4: Detect missing comments by comparing HN API kids vs filtered Algolia IDs
+      let missingComments: Comment[] = [];
+
+      if (hnItem.kids && hnItem.kids.length > 0) {
+        // Collect all comment IDs that Algolia has (including nested) after filtering
+        const algoliaCommentIds = collectAlgoliaCommentIds(
+          filteredAlgoliaComments
+        );
+
+        // Find top-level comments that are in HN API but not in filtered Algolia
+        const missingCommentIds = hnItem.kids.filter(
+          (kidId) => !algoliaCommentIds.has(kidId)
+        );
+
+        if (missingCommentIds.length > 0) {
+          // Fetch missing comments from HN API
+          const missingHNItems = await getItems(missingCommentIds);
+
+          missingComments = missingHNItems
+            .map(convertHNItemToComment)
+            .filter((c): c is Comment => c !== null);
+        }
+      }
+
+      // Merge Algolia comments with missing HN API comments
+      const allComments = [...convertedComments, ...missingComments];
+
       const story: StoryWithComments = {
         id: hnItem.id,
         title: hnItem.title!,
@@ -74,33 +163,32 @@ export function useStory(id: number) {
         time: hnItem.time ?? 0,
         score: hnItem.score ?? 0, // Use real-time score from HN API
         descendants: hnItem.descendants,
-        comments: algoliaData.children
-          .map(convertAlgoliaComment)
-          .filter((c): c is Comment => c !== null),
+        comments: allComments,
       };
 
       // Update the story data in all infinite query caches (top, new, ask, show, jobs)
       const categories = ["top", "new", "ask", "show", "jobs"] as const;
 
       categories.forEach((category) => {
-        queryClient.setQueriesData(
+        queryClient.setQueriesData<InfiniteData<HNItem[]>>(
           { queryKey: ["stories", category] },
-          (oldData: any) => {
+          (oldData) => {
             if (!oldData?.pages) return oldData;
 
             return {
               ...oldData,
-              pages: oldData.pages.map((page: any[]) =>
-                page.map((item: any) =>
-                  item.id === id
-                    ? {
-                        ...item,
-                        descendants: story.descendants,
-                        score: story.score,
-                        title: story.title,
-                      }
-                    : item
-                )
+              pages: oldData.pages.map((page) =>
+                page.map((item) => {
+                  if (item.id === id) {
+                    return {
+                      ...item,
+                      descendants: story.descendants,
+                      score: story.score,
+                      title: story.title,
+                    };
+                  }
+                  return item;
+                })
               ),
             };
           }
@@ -108,7 +196,7 @@ export function useStory(id: number) {
       });
 
       // Also update the individual item cache
-      queryClient.setQueryData(["item", id], hnItem);
+      queryClient.setQueryData<HNItem>(["item", id], hnItem);
 
       return story;
     },

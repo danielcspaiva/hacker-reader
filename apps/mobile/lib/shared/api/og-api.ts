@@ -57,6 +57,31 @@ const TIMEOUT_MS = 5000; // 5 second timeout
 const HEAD_SIZE_LIMIT = 50000; // 50KB should be enough for <head> section
 
 /**
+ * Type-safe fetch wrapper that handles AbortController signal type incompatibility
+ * between React Native and Web APIs
+ */
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit & { timeout?: number } = {}
+): Promise<Response> {
+  const { timeout = TIMEOUT_MS, ...fetchInit } = init;
+  const controller = new AbortController();
+
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    // The signal types are compatible at runtime, just not in TypeScript
+    const response = await fetch(input, {
+      ...fetchInit,
+      signal: controller.signal as never,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Extract all relevant meta tags in a single pass for better performance
  */
 function extractAllMetaTags(html: string): Record<string, string> {
@@ -98,22 +123,22 @@ async function validateImageUrl(
   imageUrl: string,
   parentSignal?: AbortSignal
 ): Promise<boolean> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 4000);
+  if (parentSignal?.aborted) {
+    return false;
+  }
 
+  const controller = new AbortController();
   const abortFromParent = () => controller.abort();
+
   if (parentSignal) {
-    if (parentSignal.aborted) {
-      controller.abort();
-    } else {
-      parentSignal.addEventListener("abort", abortFromParent);
-    }
+    parentSignal.addEventListener("abort", abortFromParent);
   }
 
   try {
-    const response = await fetch(imageUrl, {
+    const response = await fetchWithTimeout(imageUrl, {
       method: "HEAD",
-      signal: controller.signal,
+      timeout: 4000,
+      signal: controller.signal as never,
     });
 
     if (!response.ok) {
@@ -129,7 +154,6 @@ async function validateImageUrl(
   } catch {
     return false;
   } finally {
-    clearTimeout(timeoutId);
     if (parentSignal) {
       parentSignal.removeEventListener("abort", abortFromParent);
     }
@@ -140,22 +164,23 @@ export async function fetchOGMetadata(
   url: string,
   signal?: AbortSignal
 ): Promise<OGMetadata | null> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  if (signal?.aborted) {
+    return null;
+  }
 
-  // Chain the abort signals
+  const controller = new AbortController();
   const abortHandler = () => controller.abort();
+
   if (signal) {
     signal.addEventListener("abort", abortHandler);
   }
 
   try {
-    // Fetch the HTML directly with timeout
-    const response = await fetch(url, {
-      signal: controller.signal,
+    const response = await fetchWithTimeout(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; HNClient/1.0)",
       },
+      signal: controller.signal as never,
     });
 
     if (!response.ok) {
@@ -217,7 +242,6 @@ export async function fetchOGMetadata(
     }
     return null;
   } finally {
-    clearTimeout(timeoutId);
     if (signal) {
       signal.removeEventListener("abort", abortHandler);
     }

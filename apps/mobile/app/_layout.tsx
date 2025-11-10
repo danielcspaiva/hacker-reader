@@ -62,16 +62,16 @@ const queryClient = new QueryClient({
     },
   },
   mutationCache: new MutationCache({
-    onSuccess: () => {
-      console.log(
-        "[MutationCache] Mutation succeeded, invalidating all queries"
-      );
+    onSuccess: (_data, _variables, _context, mutation) => {
+      // Skip auto-invalidation for comment mutations
+      // Comment mutations handle invalidation manually after waiting for HN API
+      if (mutation.options.meta?.skipAutoInvalidation) {
+        return;
+      }
 
       // Automatically invalidate all queries after successful mutations
       // This is fine for read-heavy apps - most users never mutate
       queryClient.invalidateQueries();
-
-      console.log("[MutationCache] Query invalidation complete");
     },
   }),
 });
@@ -179,7 +179,7 @@ function RootLayoutContent() {
                 ? "transparent"
                 : backgroundColor,
             },
-            headerTitle: "Login to Hacker News",
+            headerTitle: "Sign in to Hacker News",
             contentStyle: {
               backgroundColor: isLiquidGlassAvailable()
                 ? "transparent"
@@ -210,7 +210,7 @@ function RootLayoutContent() {
                 ? "transparent"
                 : backgroundColor,
             },
-            headerTitle: "Guidelines",
+            headerTitle: "Hacker News Guidelines",
             contentStyle: {
               backgroundColor: isLiquidGlassAvailable()
                 ? "transparent"

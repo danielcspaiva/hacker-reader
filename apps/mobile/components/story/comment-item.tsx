@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
+import { useDeleteCommentMutation } from "@/hooks/use-delete-comment-mutation";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
@@ -16,6 +17,7 @@ interface CommentItemProps {
   isCollapsed: boolean;
   onToggleCollapse: (id: number) => void;
   onReply: (commentId: number, username: string) => void;
+  storyId: number;
 }
 
 export function CommentItem({
@@ -24,11 +26,16 @@ export function CommentItem({
   isCollapsed,
   onToggleCollapse,
   onReply,
+  storyId,
 }: CommentItemProps) {
   const borderColor = useThemeColor({}, "border");
-  const { isAuthenticated } = useHNAuth();
+  const { isAuthenticated, username } = useHNAuth();
   const { blockUser } = useBlockedUsers();
   const textColor = useThemeColor({}, "text");
+  const deleteCommentMutation = useDeleteCommentMutation({ storyId });
+
+  // Check if this is the logged-in user's own comment
+  const isOwnComment = username && comment.by === username;
 
   const handleBlockUser = async () => {
     try {
@@ -38,11 +45,42 @@ export function CommentItem({
         `You will no longer see content from ${comment.by}. You can unblock them in Settings.`,
         [{ text: "OK" }]
       );
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to block user. Please try again.", [
         { text: "OK" },
       ]);
     }
+  };
+
+  const handleDeleteComment = () => {
+    if (!isAuthenticated) {
+      Alert.alert(
+        "Login Required",
+        "You must be logged in to delete comments.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Delete Comment",
+      "Are you sure you want to delete this comment? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteCommentMutation.mutate(comment.id),
+        },
+      ]
+    );
+  };
+
+  const handleReply = () => {
+    onReply(comment.id, comment.by);
   };
 
   if (!comment.text) {
@@ -86,18 +124,28 @@ export function CommentItem({
               {isAuthenticated && (
                 <SwiftUIButton
                   systemImage="arrowshape.turn.up.left"
-                  onPress={() => onReply(comment.id, comment.by)}
+                  onPress={handleReply}
                 >
                   Reply
                 </SwiftUIButton>
               )}
-              <SwiftUIButton
-                systemImage="nosign"
-                onPress={handleBlockUser}
-                role="destructive"
-              >
-                Block User
-              </SwiftUIButton>
+              {isOwnComment ? (
+                <SwiftUIButton
+                  systemImage="trash"
+                  onPress={handleDeleteComment}
+                  role="destructive"
+                >
+                  Delete Comment
+                </SwiftUIButton>
+              ) : (
+                <SwiftUIButton
+                  systemImage="nosign"
+                  onPress={handleBlockUser}
+                  role="destructive"
+                >
+                  Block User
+                </SwiftUIButton>
+              )}
             </ContextMenu.Items>
             <ContextMenu.Trigger>
               <SwiftUIButton

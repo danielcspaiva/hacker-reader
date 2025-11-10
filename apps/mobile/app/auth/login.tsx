@@ -111,8 +111,8 @@ export default function LoginModal() {
         JSON.stringify(cookieRecord)
       );
 
-      // Update auth context
-      await contextLogin(cookieRecord);
+      // Update auth context with username
+      await contextLogin(cookieRecord, username.trim());
 
       // Dismiss the modal after successful login
       if (router.canGoBack()) {
@@ -194,7 +194,7 @@ export default function LoginModal() {
             onPress={handleLogin}
             disabled={!username || !password || loading}
           >
-            <ThemedText style={styles.loginButtonText}>Login</ThemedText>
+            <ThemedText style={styles.loginButtonText}>Sign in</ThemedText>
           </TouchableOpacity>
         </View>
       )}
@@ -202,7 +202,7 @@ export default function LoginModal() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#ff6600" />
-          <ThemedText style={styles.loadingText}>Logging you in...</ThemedText>
+          <ThemedText style={styles.loadingText}>Signing you in...</ThemedText>
         </View>
       )}
     </SafeAreaView>

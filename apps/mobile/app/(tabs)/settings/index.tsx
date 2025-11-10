@@ -12,8 +12,8 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useClearCache } from "@/hooks/use-clear-cache";
 import { useExternalLink } from "@/hooks/use-external-link";
-import { useHNLogin } from "@/hooks/use-hn-login";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useHNLogin } from "@/hooks/use-hn-login";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { clearBlockedUsers } from "@/lib/storage/blocked-users";
 import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
@@ -36,8 +36,11 @@ export default function SettingsScreen() {
   const { handleLogin, handleLogout } = useHNLogin();
   const { count: hiddenCount, clearAll: clearHiddenStories } =
     useHiddenStories();
-  const { blockedUsers, unblockUser, refresh: refreshBlockedUsers } =
-    useBlockedUsers();
+  const {
+    blockedUsers,
+    unblockUser,
+    refresh: refreshBlockedUsers,
+  } = useBlockedUsers();
   const openLink = useExternalLink();
 
   const handleOpenRepository = () => openLink(REPO_URL);
@@ -103,7 +106,7 @@ export default function SettingsScreen() {
                     "User Unblocked",
                     `You will now see content from ${user.username}.`
                   );
-                } catch (error) {
+                } catch {
                   Alert.alert(
                     "Error",
                     "Failed to unblock user. Please try again."
@@ -136,7 +139,7 @@ export default function SettingsScreen() {
                     "All Users Unblocked",
                     "You will now see content from all previously blocked users."
                   );
-                } catch (error) {
+                } catch {
                   Alert.alert(
                     "Error",
                     "Failed to clear blocked users. Please try again."
@@ -182,7 +185,7 @@ export default function SettingsScreen() {
                 systemImage="rectangle.portrait.and.arrow.right"
                 modifiers={[foregroundStyle("red")]}
               >
-                Logout from Hacker News
+                Sign out of Hacker News
               </Button>
             ) : (
               <Button
@@ -190,7 +193,7 @@ export default function SettingsScreen() {
                 systemImage="person.badge.key"
                 modifiers={[foregroundStyle(textColor)]}
               >
-                Login to Hacker News
+                Sign in to Hacker News
               </Button>
             )}
           </Section>

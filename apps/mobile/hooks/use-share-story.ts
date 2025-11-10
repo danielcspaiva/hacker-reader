@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import { Platform, Share, Alert } from "react-native";
 import type { HNItem } from "@/lib/shared";
+import { useCallback } from "react";
+import { Alert, Platform, Share } from "react-native";
 
 type ShareableStory = Pick<HNItem, "id" | "title" | "url">;
 
@@ -45,7 +45,7 @@ export function useShareStory() {
 
       // Optional: Track successful shares
       if (result.action === Share.sharedAction) {
-        console.log("Story shared successfully");
+        // TODO: Track successful shares
       }
     } catch (error) {
       console.error("Error sharing story:", error);
