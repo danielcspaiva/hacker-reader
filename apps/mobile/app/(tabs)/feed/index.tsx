@@ -177,7 +177,7 @@ export default function FeedScreen() {
             refetch();
           }
         }}
-        refreshing={isRefetching}
+        refreshing={isRefetching && !isPending}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
