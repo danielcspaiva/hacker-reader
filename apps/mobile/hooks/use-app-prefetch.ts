@@ -10,7 +10,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const PREFETCH_PAGE_SIZE = 10; // Prefetch first 10 items per category
+// IMPORTANT: Must match PAGE_SIZE in use-stories.ts for proper pagination
+const PAGE_SIZE = 30;
 
 // Map category to the appropriate API fetcher function
 const CATEGORY_FETCHERS = {
@@ -26,10 +27,10 @@ const CATEGORY_FETCHERS = {
  *
  * Strategy:
  * - Waits 1.5s after mount to allow initial category (Top) to load first
- * - Prefetches first 10 items for all 5 categories in parallel
+ * - Prefetches first 30 items for all 5 categories in parallel
  * - Skips OG metadata prefetch to save bandwidth
- * - Total: 55 API calls (5 category ID lists + 50 item details)
- * - Completes in ~1-2 seconds
+ * - Total: 155 API calls (5 category ID lists + 150 item details)
+ * - Completes in ~2-3 seconds
  */
 export function useAppPrefetch() {
   const queryClient = useQueryClient();
@@ -50,7 +51,7 @@ export function useAppPrefetch() {
               const storyFetcher = CATEGORY_FETCHERS[category];
               const ids = await storyFetcher(
                 pageParam as number,
-                PREFETCH_PAGE_SIZE
+                PAGE_SIZE
               );
               const items = await getItems(ids);
 
@@ -65,9 +66,11 @@ export function useAppPrefetch() {
               return items;
             },
             initialPageParam: 0,
-            getNextPageParam: () => {
-              // Only prefetch first page, so always return undefined
-              return undefined;
+            getNextPageParam: (lastPage, allPages) => {
+              // Only stop if we got 0 items (truly at the end)
+              // Don't stop just because we got fewer than PAGE_SIZE, since some items may be deleted/filtered
+              if (lastPage.length === 0) return undefined;
+              return allPages.length * PAGE_SIZE;
             },
             pages: 1, // Only prefetch first page
           });

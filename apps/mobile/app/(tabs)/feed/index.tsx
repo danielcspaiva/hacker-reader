@@ -78,11 +78,12 @@ export default function FeedScreen() {
   // Animation setup for sticky header
   const flatListRef = useRef<FlatList>(null);
   const animatedTranslateY = useSharedValue(0);
-  const isScrolledDown = useSharedValue(false);
+  const scrollOffsetY = useRef(0);
   const backgroundColor = useThemeColor({}, "background");
   const isLiquidGlass = isLiquidGlassAvailable();
   const { top } = useSafeAreaInsets();
 
+  // Animated scroll handler for sticky header (runs on UI thread)
   const scrollHandler = useAnimatedScrollHandler((event) => {
     animatedTranslateY.value = interpolate(
       event.contentOffset.y,
@@ -90,8 +91,6 @@ export default function FeedScreen() {
       [0, HEADER_SCROLL_OFFSET],
       Extrapolation.CLAMP
     );
-
-    isScrolledDown.value = event.contentOffset.y > 10;
   });
 
   const stickyHeaderStyle = useAnimatedStyle(() => {
@@ -114,14 +113,14 @@ export default function FeedScreen() {
       setCategory(newCategory);
 
       // Scroll to top if user has scrolled down
-      if (isScrolledDown.value) {
+      if (scrollOffsetY.current > 10) {
         flatListRef.current?.scrollToOffset({
           offset: -30 - top,
           animated: true,
         });
       }
     },
-    [analytics, category, isScrolledDown, top]
+    [analytics, category, top]
   );
 
   const renderStickyHeader = useMemo(
@@ -163,6 +162,9 @@ export default function FeedScreen() {
         ListHeaderComponent={renderStickyHeader}
         stickyHeaderIndices={[0]}
         onScroll={scrollHandler}
+        onScrollBeginDrag={(e) => {
+          scrollOffsetY.current = e.nativeEvent.contentOffset.y;
+        }}
         scrollEventThrottle={16}
         style={{ backgroundColor }}
         contentContainerStyle={{
@@ -179,11 +181,11 @@ export default function FeedScreen() {
         }}
         refreshing={isRefetching && !isPending}
         onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
+          if (hasNextPage && !isFetchingNextPage && !isPending) {
             fetchNextPage();
           }
         }}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.3}
         ListEmptyComponent={
           <View style={styles.centered}>
             <ThemedText>No stories found</ThemedText>
