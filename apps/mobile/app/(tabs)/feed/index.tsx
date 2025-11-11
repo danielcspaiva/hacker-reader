@@ -11,7 +11,7 @@ import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { type HNItem } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -62,15 +62,6 @@ export default function FeedScreen() {
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
 
-  // Track category changes
-  const handleCategoryChange = (newCategory: Category) => {
-    analytics.track(AnalyticsEvent.CATEGORY_CHANGED, {
-      [AnalyticsProperty.FROM_CATEGORY]: category,
-      [AnalyticsProperty.TO_CATEGORY]: newCategory,
-    });
-    setCategory(newCategory);
-  };
-
   // Track infinite scroll
   const currentPage = useRef(0);
   useEffect(() => {
@@ -87,8 +78,10 @@ export default function FeedScreen() {
   // Animation setup for sticky header
   const flatListRef = useRef<FlatList>(null);
   const animatedTranslateY = useSharedValue(0);
+  const isScrolledDown = useSharedValue(false);
   const backgroundColor = useThemeColor({}, "background");
   const isLiquidGlass = isLiquidGlassAvailable();
+  const { top } = useSafeAreaInsets();
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
     animatedTranslateY.value = interpolate(
@@ -97,6 +90,8 @@ export default function FeedScreen() {
       [0, HEADER_SCROLL_OFFSET],
       Extrapolation.CLAMP
     );
+
+    isScrolledDown.value = event.contentOffset.y > 10;
   });
 
   const stickyHeaderStyle = useAnimatedStyle(() => {
@@ -110,13 +105,35 @@ export default function FeedScreen() {
     };
   });
 
-  const renderStickyHeader = () => (
-    <Animated.View style={stickyHeaderStyle}>
-      <CategoryFilter
-        category={category}
-        onSelectCategory={handleCategoryChange}
-      />
-    </Animated.View>
+  const handleSelectCategory = useCallback(
+    (newCategory: Category) => {
+      analytics.track(AnalyticsEvent.CATEGORY_CHANGED, {
+        [AnalyticsProperty.FROM_CATEGORY]: category,
+        [AnalyticsProperty.TO_CATEGORY]: newCategory,
+      });
+      setCategory(newCategory);
+
+      // Scroll to top if user has scrolled down
+      if (isScrolledDown.value) {
+        flatListRef.current?.scrollToOffset({
+          offset: -30 - top,
+          animated: true,
+        });
+      }
+    },
+    [analytics, category, isScrolledDown, top]
+  );
+
+  const renderStickyHeader = useMemo(
+    () => (
+      <Animated.View style={stickyHeaderStyle}>
+        <CategoryFilter
+          category={category}
+          onSelectCategory={handleSelectCategory}
+        />
+      </Animated.View>
+    ),
+    [category, handleSelectCategory, stickyHeaderStyle]
   );
 
   return (

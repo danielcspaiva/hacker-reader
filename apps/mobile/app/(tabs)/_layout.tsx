@@ -26,6 +26,10 @@ export default function TabLayout() {
         <Icon sf="bookmark" />
         <Label>Bookmarks</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="profile">
+        <Icon sf="person" />
+        <Label>Profile</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf="gear" />
         <Label>Settings</Label>

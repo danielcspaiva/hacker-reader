@@ -22,6 +22,7 @@ import {
   useColorSchemeContext,
 } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
@@ -83,6 +84,9 @@ function RootLayoutContent() {
   const { isAuthenticated } = useHNAuth();
   const posthog = usePostHog();
   useWidgetAnalytics();
+
+  // Prefetch all categories on app open for instant category switching
+  useAppPrefetch();
 
   // Register super properties when app state changes
   useEffect(() => {

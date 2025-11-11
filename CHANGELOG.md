@@ -5,6 +5,41 @@ All notable changes to Hacker Reader will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-11-11
+
+### Added
+- **Profile Tab** with complete user profile viewing
+  - View user karma, account age, and bio
+  - Browse user's submissions (stories and comments)
+  - Separate views for stories vs comments with type filter
+  - Account login/logout moved from Settings to Profile
+- **Smart Prefetching** for instant category switching
+  - New `use-app-prefetch` hook prefetches all 5 categories on app open
+  - Prefetches first 10 items per category (55 API calls total)
+  - Completes in 1-2 seconds after initial load
+  - No loading spinners when switching between categories
+- New API endpoints in `hn-api.ts`:
+  - `getUser(id)` - Fetch user profile data
+  - Enhanced `getItems()` with better null filtering
+- New hooks for user data:
+  - `use-user.ts` - Fetch and cache user profiles
+  - `use-user-submissions.ts` - Fetch and cache user submissions (stories & comments)
+- New UI components:
+  - `SubmissionCommentCard` - Display user comment submissions
+  - `SubmissionTypeFilter` - Toggle between stories and comments view
+
+### Changed
+- Moved authentication UI from Settings tab to dedicated Profile tab
+- Enhanced feed scroll behavior to auto-scroll to top when switching categories
+- Optimized category filter to remove unnecessary animation frame wrapper
+- Refactored sticky header rendering with `useMemo` for better performance
+- App version bumped to 1.2.0 in `app.json`
+
+### Performance
+- Category switching now instant after ~2 second warmup period
+- React Query cache reuse across profile and feed views
+- Individual item caches populated during prefetch for faster detail views
+
 ## [1.1.0] - 2025-11-08
 
 ### Added
@@ -81,5 +116,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - React Query for state management
 - expo-router v6 for navigation
 
+[1.2.0]: https://github.com/danielcspaiva/hacker-reader/releases/tag/v1.2.0
 [1.1.0]: https://github.com/danielcspaiva/hacker-reader/releases/tag/v1.1.0
 [1.0.0]: https://github.com/danielcspaiva/hacker-reader/releases/tag/v1.0.0

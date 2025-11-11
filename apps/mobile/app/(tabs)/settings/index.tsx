@@ -6,14 +6,12 @@ import {
   REPO_URL,
 } from "@/constants/app-config";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useClearCache } from "@/hooks/use-clear-cache";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
-import { useHNLogin } from "@/hooks/use-hn-login";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { clearBlockedUsers } from "@/lib/storage/blocked-users";
 import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
@@ -24,7 +22,6 @@ const HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
 
 export default function SettingsScreen() {
   const { colorScheme } = useColorSchemeContext();
-  const { isAuthenticated } = useHNAuth();
   const textColor = useThemeColor({}, "text");
 
   // Custom hooks for all business logic
@@ -33,7 +30,6 @@ export default function SettingsScreen() {
   const { handleClearCache } = useClearCache();
   const { handleClearBookmarks, clearBookmarksLabel, isClearing } =
     useClearBookmarks();
-  const { handleLogin, handleLogout } = useHNLogin();
   const { count: hiddenCount, clearAll: clearHiddenStories } =
     useHiddenStories();
   const {
@@ -177,27 +173,6 @@ export default function SettingsScreen() {
             }),
           ]}
         >
-          <Section title="Account">
-            {isAuthenticated ? (
-              <Button
-                onPress={handleLogout}
-                role="destructive"
-                systemImage="rectangle.portrait.and.arrow.right"
-                modifiers={[foregroundStyle("red")]}
-              >
-                Sign out of Hacker News
-              </Button>
-            ) : (
-              <Button
-                onPress={handleLogin}
-                systemImage="person.badge.key"
-                modifiers={[foregroundStyle(textColor)]}
-              >
-                Sign in to Hacker News
-              </Button>
-            )}
-          </Section>
-
           <Section title="Appearance">
             <Picker
               options={options}

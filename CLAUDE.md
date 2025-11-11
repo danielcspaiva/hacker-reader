@@ -124,6 +124,44 @@ The mobile app supports HN authentication with a native login experience:
 
 **Note**: Web app remains read-only (no authentication). Comment posting API is ready but UI not yet implemented.
 
+---
+
+### User Profiles (Mobile Only)
+
+The mobile app includes a dedicated Profile tab for viewing user profiles and submissions:
+
+1. **Profile Tab** (`app/(tabs)/profile/`):
+   - Displays authenticated user's profile (karma, account age, bio)
+   - Shows login/logout UI (moved from Settings tab)
+   - Links to user submissions screen
+   - Uses native SwiftUI forms via `@expo/ui/swift-ui`
+
+2. **API Endpoints** (`lib/shared/api/hn-api.ts`):
+   - `getUser(id)` - Fetch user profile data
+   - Returns `HNUser` type with: id, karma, about, created, submitted
+
+3. **Data Hooks**:
+   - `use-user.ts` - React Query hook for fetching user profiles
+   - `use-user-submissions.ts` - Fetches and caches user's submitted items
+   - Filters out deleted/dead items automatically
+   - Caches individual items for reuse across app
+
+4. **Submissions Screen** (`app/(tabs)/profile/submissions.tsx`):
+   - Displays all user submissions (stories and comments)
+   - Type filter to toggle between stories and comments view
+   - Stories rendered with `StoryCard` component
+   - Comments rendered with `SubmissionCommentCard` component
+   - Deep links to parent story/comment context
+
+5. **UI Components**:
+   - `SubmissionCommentCard` - Card for displaying comment submissions
+   - `SubmissionTypeFilter` - Segmented control for stories/comments toggle
+   - HTML parsing for user bios and comment text
+
+**Note**: Profile viewing works for any user, but only authenticated users see login/logout UI.
+
+---
+
 ### Routing & Navigation
 - **File-based routing** using Expo Router (expo-router v6)
 - Routes are defined in the `app/` directory structure
@@ -157,6 +195,19 @@ The app uses a **React Query + HN API** architecture:
    - `getNextPageParam` returns next offset or undefined when done
    - Stories are flattened from pages in components: `data?.pages.flatMap(page => page)`
    - Automatic caching by React Query - switching between categories is instant after first load
+
+4. **Smart Prefetching Strategy** (`hooks/use-app-prefetch.ts`):
+   - **Global prefetch on app open** - All 5 categories prefetched automatically
+   - Triggered from `app/_layout.tsx` when app mounts (not tied to specific screen)
+   - Waits 1.5s after mount to allow initial category (Top) to load first
+   - Prefetches first 10 items per category in parallel (not full 30-item page)
+   - **Total: 55 API calls** (5 category ID lists + 50 item details)
+   - Completes in ~1-2 seconds background load
+   - **Result: Instant category switching** - no loading spinners after prefetch
+   - Skips OG metadata prefetch for background categories (bandwidth optimization)
+   - Checks cache before prefetching to avoid duplicate requests
+   - Additional predictive prefetching still runs from feed screen via `usePrefetchCategories`
+   - React Query handles cache deduplication automatically
 
 ### UI Components
 
@@ -222,20 +273,31 @@ Comments and story text contain HTML that needs parsing:
 
 ```
 app/
-  (tabs)/           # Tab-based routes
-    [category]/     # Each category (top, new, ask, show, jobs)
-      index.tsx     # List screen with FlashList
-      _layout.tsx   # Stack layout config
-  auth/             # Authentication routes
-    guidelines.tsx  # HN guidelines acceptance screen
-    login.tsx       # Native login form
+  (tabs)/              # Tab-based routes
+    feed/              # Stories feed
+      index.tsx        # List screen with category filter
+      _layout.tsx      # Stack layout config
+    bookmarks/         # Bookmarked stories
+    profile/           # User profile
+      index.tsx        # Profile screen with login/logout
+      submissions.tsx  # User's stories and comments
+      _layout.tsx      # Stack layout config
+    settings/          # App settings
+    search/            # Search functionality
+  auth/                # Authentication routes
+    guidelines.tsx     # HN guidelines acceptance screen
+    login.tsx          # Native login form
   story/
-    [id].tsx        # Story detail with comments
-  _layout.tsx       # Root layout with QueryClientProvider
-lib/                # API clients
-hooks/              # React Query hooks and custom hooks
-components/         # Reusable components
-constants/          # Theme and other constants
+    [id].tsx           # Story detail with comments
+  _layout.tsx          # Root layout with QueryClientProvider
+lib/                   # API clients
+hooks/                 # React Query hooks and custom hooks
+  use-app-prefetch.ts  # Global category prefetching
+  use-stories.ts       # Stories data fetching
+  use-user.ts          # User profile fetching
+  use-user-submissions.ts  # User submissions fetching
+components/            # Reusable components
+constants/             # Theme and other constants
 ```
 
 ## Important Implementation Notes

@@ -3,33 +3,30 @@ import { Host, Picker } from "@expo/ui/swift-ui";
 import { glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 
-export type Category = "top" | "new" | "ask" | "show" | "jobs";
+export type SubmissionType = "stories" | "comments";
 
-const CATEGORY_LABELS: Record<Category, string> = {
-  top: "Top",
-  new: "New",
-  ask: "Ask",
-  show: "Show",
-  jobs: "Jobs",
+const SUBMISSION_TYPE_LABELS: Record<SubmissionType, string> = {
+  stories: "Stories",
+  comments: "Comments",
 };
 
-interface CategoryFilterProps {
-  category: Category;
-  onSelectCategory: (category: Category) => void;
+interface SubmissionTypeFilterProps {
+  submissionType: SubmissionType;
+  onSelectType: (type: SubmissionType) => void;
 }
 
-export function CategoryFilter({
-  category,
-  onSelectCategory,
-}: CategoryFilterProps) {
-  const categories = Object.keys(CATEGORY_LABELS) as Category[];
+export function SubmissionTypeFilter({
+  submissionType,
+  onSelectType,
+}: SubmissionTypeFilterProps) {
+  const types = Object.keys(SUBMISSION_TYPE_LABELS) as SubmissionType[];
   const { colorScheme } = useColorSchemeContext();
-  const selectedIndex = categories.findIndex((cat) => cat === category);
+  const selectedIndex = types.findIndex((type) => type === submissionType);
 
   const handleOptionSelected = (event: { nativeEvent: { index: number } }) => {
-    const nextCategory = categories[event.nativeEvent.index];
-    if (nextCategory && nextCategory !== category) {
-      onSelectCategory(nextCategory);
+    const nextType = types[event.nativeEvent.index];
+    if (nextType && nextType !== submissionType) {
+      onSelectType(nextType);
     }
   };
 
@@ -37,7 +34,7 @@ export function CategoryFilter({
     <View style={styles.container}>
       <Host matchContents colorScheme={colorScheme}>
         <Picker
-          options={categories.map((cat) => CATEGORY_LABELS[cat])}
+          options={types.map((type) => SUBMISSION_TYPE_LABELS[type])}
           selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
           onOptionSelected={handleOptionSelected}
           variant="segmented"

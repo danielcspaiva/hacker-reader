@@ -47,5 +47,7 @@ export async function getUser(id: string): Promise<HNUser> {
 }
 
 export async function getItems(ids: number[]): Promise<HNItem[]> {
-  return Promise.all(ids.map((id) => getItem(id)));
+  const items = await Promise.all(ids.map((id) => getItem(id)));
+  // Filter out null/undefined items (deleted or dead items)
+  return items.filter((item): item is HNItem => item != null);
 }
