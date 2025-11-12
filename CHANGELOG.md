@@ -13,9 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Browse user's submissions (stories and comments)
   - Separate views for stories vs comments with type filter
   - Account login/logout moved from Settings to Profile
+- **Third-Party User Profiles** with dedicated screens
+  - New routes: `app/user/[id].tsx` and `app/user/[id]/submissions.tsx`
+  - Clickable usernames throughout app (comment headers, story headers)
+  - View any HN user's profile, karma, bio, and submission history
+  - Same submission filtering (stories vs comments) as own profile
 - **Smart Prefetching** for instant category switching
   - New `use-app-prefetch` hook prefetches all 5 categories on app open
-  - Prefetches first 10 items per category (55 API calls total)
+  - Prefetches first 30 items per category (155 API calls total)
   - Completes in 1-2 seconds after initial load
   - No loading spinners when switching between categories
 - New API endpoints in `hn-api.ts`:
@@ -27,18 +32,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New UI components:
   - `SubmissionCommentCard` - Display user comment submissions
   - `SubmissionTypeFilter` - Toggle between stories and comments view
+- Enhanced login screen with external link to HN account creation
 
 ### Changed
 - Moved authentication UI from Settings tab to dedicated Profile tab
 - Enhanced feed scroll behavior to auto-scroll to top when switching categories
 - Optimized category filter to remove unnecessary animation frame wrapper
-- Refactored sticky header rendering with `useMemo` for better performance
+- Refactored sticky header rendering with ref-based scroll tracking for better performance
+- Improved infinite scroll logic to prevent duplicate fetches while data is pending
+- Enhanced feed refreshing to only trigger when not already loading data
+- Simplified `getItems()` function by removing unnecessary null filtering
 - App version bumped to 1.2.0 in `app.json`
 
 ### Performance
 - Category switching now instant after ~2 second warmup period
 - React Query cache reuse across profile and feed views
 - Individual item caches populated during prefetch for faster detail views
+- Increased prefetch page size (10 → 30 items) reduces subsequent API calls
 
 ## [1.1.0] - 2025-11-08
 

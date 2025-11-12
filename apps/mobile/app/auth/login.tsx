@@ -205,7 +205,7 @@ export default function LoginModal() {
 
           <View style={styles.infoContainer}>
             <ThemedText style={[styles.infoText, { color: secondaryTextColor }]}>
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <ThemedText
                 style={[styles.infoText, styles.link]}
                 onPress={() => openLink("https://news.ycombinator.com/login")}

@@ -128,7 +128,7 @@ The mobile app supports HN authentication with a native login experience:
 
 ### User Profiles (Mobile Only)
 
-The mobile app includes a dedicated Profile tab for viewing user profiles and submissions:
+The mobile app includes comprehensive user profile viewing for both authenticated users and third-party HN users:
 
 1. **Profile Tab** (`app/(tabs)/profile/`):
    - Displays authenticated user's profile (karma, account age, bio)
@@ -136,29 +136,37 @@ The mobile app includes a dedicated Profile tab for viewing user profiles and su
    - Links to user submissions screen
    - Uses native SwiftUI forms via `@expo/ui/swift-ui`
 
-2. **API Endpoints** (`lib/shared/api/hn-api.ts`):
+2. **Third-Party User Profiles** (`app/user/[id].tsx` and `app/user/[id]/submissions.tsx`):
+   - View any HN user's profile via clickable usernames
+   - Usernames are clickable in comment headers (`CommentItem`) and story headers (`StoryHeader`)
+   - Same profile and submission viewing features as authenticated user profile
+   - Navigation pattern: tap username → user profile → view submissions
+
+3. **API Endpoints** (`lib/shared/api/hn-api.ts`):
    - `getUser(id)` - Fetch user profile data
    - Returns `HNUser` type with: id, karma, about, created, submitted
 
-3. **Data Hooks**:
+4. **Data Hooks**:
    - `use-user.ts` - React Query hook for fetching user profiles
    - `use-user-submissions.ts` - Fetches and caches user's submitted items
    - Filters out deleted/dead items automatically
    - Caches individual items for reuse across app
 
-4. **Submissions Screen** (`app/(tabs)/profile/submissions.tsx`):
-   - Displays all user submissions (stories and comments)
+5. **Submissions Screens**:
+   - Own profile: `app/(tabs)/profile/submissions.tsx`
+   - Third-party: `app/user/[id]/submissions.tsx`
+   - Both display all user submissions (stories and comments)
    - Type filter to toggle between stories and comments view
    - Stories rendered with `StoryCard` component
    - Comments rendered with `SubmissionCommentCard` component
    - Deep links to parent story/comment context
 
-5. **UI Components**:
+6. **UI Components**:
    - `SubmissionCommentCard` - Card for displaying comment submissions
    - `SubmissionTypeFilter` - Segmented control for stories/comments toggle
    - HTML parsing for user bios and comment text
 
-**Note**: Profile viewing works for any user, but only authenticated users see login/logout UI.
+**Note**: Profile viewing works for any user, but only authenticated users see login/logout UI in their own profile tab.
 
 ---
 
@@ -200,8 +208,8 @@ The app uses a **React Query + HN API** architecture:
    - **Global prefetch on app open** - All 5 categories prefetched automatically
    - Triggered from `app/_layout.tsx` when app mounts (not tied to specific screen)
    - Waits 1.5s after mount to allow initial category (Top) to load first
-   - Prefetches first 10 items per category in parallel (not full 30-item page)
-   - **Total: 55 API calls** (5 category ID lists + 50 item details)
+   - Prefetches first 30 items per category in parallel (full page size)
+   - **Total: ~155 API calls** (5 category ID lists + 150 item details)
    - Completes in ~1-2 seconds background load
    - **Result: Instant category switching** - no loading spinners after prefetch
    - Skips OG metadata prefetch for background categories (bandwidth optimization)
@@ -278,7 +286,7 @@ app/
       index.tsx        # List screen with category filter
       _layout.tsx      # Stack layout config
     bookmarks/         # Bookmarked stories
-    profile/           # User profile
+    profile/           # User profile (authenticated user)
       index.tsx        # Profile screen with login/logout
       submissions.tsx  # User's stories and comments
       _layout.tsx      # Stack layout config
@@ -289,6 +297,10 @@ app/
     login.tsx          # Native login form
   story/
     [id].tsx           # Story detail with comments
+  user/                # Third-party user profiles
+    [id].tsx           # Any user's profile screen
+    [id]/
+      submissions.tsx  # Any user's stories and comments
   _layout.tsx          # Root layout with QueryClientProvider
 lib/                   # API clients
 hooks/                 # React Query hooks and custom hooks
@@ -297,6 +309,9 @@ hooks/                 # React Query hooks and custom hooks
   use-user.ts          # User profile fetching
   use-user-submissions.ts  # User submissions fetching
 components/            # Reusable components
+  story/
+    story-header.tsx   # Story header with clickable username
+    comment-item.tsx   # Comment with clickable username
 constants/             # Theme and other constants
 ```
 
