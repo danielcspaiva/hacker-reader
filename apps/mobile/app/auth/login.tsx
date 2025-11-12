@@ -8,6 +8,7 @@
 
 import { ThemedText } from "@/components/themed-text";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useExternalLink } from "@/hooks/use-external-link";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import * as HNWriteAPI from "@/lib/shared/api/hn-write-api";
 import { isAuthError } from "@/lib/shared/auth/errors";
@@ -37,6 +38,10 @@ export default function LoginModal() {
     { light: "#999", dark: "#666" },
     "text"
   );
+  const secondaryTextColor = useThemeColor(
+    { light: "#666", dark: "#999" },
+    "text"
+  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +49,7 @@ export default function LoginModal() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { login: contextLogin } = useHNAuth();
+  const openLink = useExternalLink();
 
   // Check if guidelines were previously accepted
   // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
@@ -196,6 +202,24 @@ export default function LoginModal() {
           >
             <ThemedText style={styles.loginButtonText}>Sign in</ThemedText>
           </TouchableOpacity>
+
+          <View style={styles.infoContainer}>
+            <ThemedText style={[styles.infoText, { color: secondaryTextColor }]}>
+              Don't have an account?{" "}
+              <ThemedText
+                style={[styles.infoText, styles.link]}
+                onPress={() => openLink("https://news.ycombinator.com/login")}
+              >
+                Create one on Hacker News (free)
+              </ThemedText>
+            </ThemedText>
+            <ThemedText
+              style={[styles.infoText, { color: secondaryTextColor, marginTop: 16 }]}
+            >
+              Your password is sent directly to Hacker News and never stored in
+              this app.
+            </ThemedText>
+          </View>
         </View>
       )}
 
@@ -267,12 +291,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: "center",
   },
   link: {
     color: "#ff6600",
-    textDecorationLine: "underline",
+    fontWeight: "500",
   },
   loadingContainer: {
     flex: 1,

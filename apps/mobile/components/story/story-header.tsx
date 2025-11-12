@@ -1,12 +1,12 @@
 import { LinkPreview } from "@/components/link-preview";
 import { ThemedText } from "@/components/themed-text";
-import type { StoryWithComments } from "@/hooks/use-story";
-import { useOGMetadata } from "@/hooks/use-og-metadata";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { Spacing } from "@/constants/theme";
+import { useOGMetadata } from "@/hooks/use-og-metadata";
+import type { StoryWithComments } from "@/hooks/use-story";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { useIsPreview } from "expo-router";
+import { router, useIsPreview } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
@@ -49,7 +49,14 @@ export function StoryHeader({ story }: StoryHeaderProps) {
         </ThemedText>
         <View style={styles.metadata}>
           <ThemedText type="bodySmall" style={styles.metadataText}>
-            {story.score} points by {story.by}
+            {story.score} points by{" "}
+          </ThemedText>
+          <ThemedText
+            type="bodySmall"
+            style={styles.metadataText}
+            onPress={() => router.push(`/user/${story.by}`)}
+          >
+            {story.by}
           </ThemedText>
           <ThemedText type="bodySmall" style={styles.metadataText}>
             {" "}

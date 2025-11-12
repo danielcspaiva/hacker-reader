@@ -73,7 +73,7 @@ export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
             {/* Comment type indicator */}
             <View style={styles.header}>
               <IconSymbol
-                name="bubble.left.fill"
+                name="bubble.left.and.bubble.right"
                 size={14}
                 color={mutedColor}
               />

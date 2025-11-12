@@ -8,7 +8,8 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
 import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import { router } from "expo-router";
+import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -98,9 +99,11 @@ export function CommentItem({
     >
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <ThemedText type="bodySmall" style={styles.author}>
-            {comment.by}
-          </ThemedText>
+          <Pressable onPress={() => router.push(`/user/${comment.by}`)}>
+            <ThemedText type="bodySmall" style={styles.author}>
+              {comment.by}
+            </ThemedText>
+          </Pressable>
           <ThemedText type="caption" style={styles.time}>
             {" "}
             • {timeAgo(comment.time)}

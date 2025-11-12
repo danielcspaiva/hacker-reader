@@ -140,7 +140,7 @@ export function StoryCommentInput({
               style={[styles.floatingButton]}
             >
               <IconSymbol
-                name="bubble.left"
+                name="bubble.right"
                 size={24}
                 color={textColor}
                 weight="medium"
