@@ -78,6 +78,12 @@ export interface EventProperties {
     [AnalyticsProperty.STORY_ID]: number;
     [AnalyticsProperty.SHARE_METHOD]: "native" | "clipboard" | "header_menu";
   };
+  [AnalyticsEvent.STORY_HIDDEN]: {
+    [AnalyticsProperty.STORY_ID]: number;
+  };
+  [AnalyticsEvent.STORY_FLAGGED]: {
+    [AnalyticsProperty.STORY_ID]: number;
+  };
   [AnalyticsEvent.COMMENT_VIEWED]: {
     [AnalyticsProperty.COMMENT_ID]: number;
     [AnalyticsProperty.DEPTH_LEVEL]: number;
@@ -88,6 +94,12 @@ export interface EventProperties {
   };
   [AnalyticsEvent.COMMENT_LINK_CLICKED]: {
     [AnalyticsProperty.URL]: string;
+  };
+  [AnalyticsEvent.COMMENT_HIDDEN]: {
+    [AnalyticsProperty.COMMENT_ID]: number;
+  };
+  [AnalyticsEvent.COMMENT_FLAGGED]: {
+    [AnalyticsProperty.COMMENT_ID]: number;
   };
 
   // Authentication

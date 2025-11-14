@@ -320,10 +320,7 @@ export function useStoryActions(story: HNItem): StoryActions {
               // The feed screen will automatically re-filter stories
               // when the blocked users query updates
             } catch (error) {
-              console.error(
-                "[useStoryActions] Failed to block user:",
-                error
-              );
+              console.error("[useStoryActions] Failed to block user:", error);
               Alert.alert("Error", "Failed to block user. Please try again.", [
                 { text: "OK" },
               ]);

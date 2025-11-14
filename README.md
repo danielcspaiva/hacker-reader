@@ -31,7 +31,7 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 ## Key Features
 
 - **Native mobile experience** – Browse Top, New, Show HN, Ask HN, and Jobs feeds with FlashList, themed layouts, haptic feedback, and deep React Query caching.
-- **HN account support** – Log in inside the app, manage a secure session, vote, favorite, and comment through the hardened write API wrappers.
+- **HN account support** – Log in inside the app, manage a secure session, vote, favorite, post comments, and delete your own comments through the hardened write API wrappers with optimistic UI updates.
 - **Thoughtful reading tools** – Rich Open Graph link previews, nested comment threads with collapse controls, Algolia-powered search, and persistent bookmarks backed by AsyncStorage.
 - **iOS Widgets** – Three widget sizes (small/medium/large) displaying Top Stories with auto-updates every 30 minutes, deep linking, and offline support.
 - **Web preview & landing** – A Next.js App Router marketing site showcasing the app.
@@ -114,8 +114,8 @@ pnpm web       # smoke-test the marketing site
 
 - **Platform**: iOS (Android support coming soon)
 - **Framework**: Expo SDK 54 with React Compiler, Expo Router, and React Native 0.81
-- **Features**: FlashList-driven feeds, story detail screens, bookmarks, search, and threaded comments
-- **Authentication**: Secure HN account login via in-app WebView with vote/favorite/comment capabilities
+- **Features**: FlashList-driven feeds, story detail screens, bookmarks, search, and threaded comments with full posting and deletion capabilities
+- **Authentication**: Secure HN account login via in-app WebView with vote/favorite/comment/delete capabilities
 - **Theming**: System-aware dark mode with persisted preferences, custom color palettes, and glass effects
 - **Home Screen Widgets**: Three widget sizes (small/medium/large) displaying Top Stories with auto-updates every 30 minutes, deep linking to stories, and offline support via cached data
 

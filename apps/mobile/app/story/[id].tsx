@@ -152,10 +152,13 @@ export default function StoryDetailScreen() {
   };
 
   // Render Stack.Screen immediately to prevent header title flash
+  // Use fetched story title if available, otherwise fall back to route param or loading state
+  const headerTitle = story?.title || (title as string) || "Story";
+
   const screenOptions = !isInsidePreview && (
     <Stack.Screen
       options={{
-        title: title as string,
+        title: headerTitle,
         headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
         headerRight: () => (
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -188,7 +191,11 @@ export default function StoryDetailScreen() {
                   <SwiftUIButton systemImage="eye.slash" onPress={handleHide}>
                     Hide
                   </SwiftUIButton>
-                  <SwiftUIButton systemImage="flag" onPress={handleFlag} role="destructive">
+                  <SwiftUIButton
+                    systemImage="flag"
+                    onPress={handleFlag}
+                    role="destructive"
+                  >
                     Flag
                   </SwiftUIButton>
                   <SwiftUIButton
@@ -254,6 +261,7 @@ export default function StoryDetailScreen() {
             isCollapsed={collapsedIds.has(item.comment.id)}
             onToggleCollapse={toggleCollapse}
             onReply={handleReply}
+            storyId={Number(id)}
           />
         )}
         keyExtractor={(item) => item.comment.id.toString()}

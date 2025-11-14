@@ -19,23 +19,22 @@
  * ```
  */
 
-import { usePostHog } from "posthog-react-native";
-import { useCallback } from "react";
-import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import {
-  trackEvent,
   identifyUser,
-  resetUser,
   registerSuperProperties,
+  resetUser,
+  trackEvent,
   type EventProperties,
 } from "@/lib/analytics/tracking";
+import { usePostHog } from "posthog-react-native";
+import { useCallback } from "react";
 
 export interface Analytics {
   /**
    * Track a typed analytics event
    */
-  track: <E extends AnalyticsEvent>(
+  track: <E extends keyof EventProperties>(
     event: E,
     properties?: EventProperties[E]
   ) => void;
@@ -78,7 +77,10 @@ export function useAnalytics(): Analytics {
   const posthog = usePostHog();
 
   const track = useCallback(
-    <E extends AnalyticsEvent>(event: E, properties?: EventProperties[E]) => {
+    <E extends keyof EventProperties>(
+      event: E,
+      properties?: EventProperties[E]
+    ) => {
       trackEvent(posthog, event, properties);
     },
     [posthog]

@@ -80,11 +80,13 @@ The mobile app includes iOS home screen widgets that display Top Stories from Ha
 
 ### Authentication (Mobile Only)
 
-The mobile app supports HN authentication via WebView login:
+The mobile app supports HN authentication with a native login experience:
 
 1. **Login Flow**:
-   - Users log in through official HN website in WebView (no credential handling in app)
-   - Cookies extracted using `@react-native-cookies/cookies` + JavaScript injection fallback
+   - Users must accept HN Guidelines on first login via dedicated screen (`app/auth/guidelines.tsx`)
+   - Guidelines acceptance persisted in AsyncStorage with automatic redirect on subsequent logins
+   - Native login form POSTs credentials directly to HN (no credential storage in app)
+   - Cookies extracted using `@react-native-cookies/cookies` after successful authentication
    - Cookies stored securely in `expo-secure-store` (device keychain/keystore)
 
 2. **Auth Module** (`apps/mobile/lib/shared/auth/`):
@@ -94,11 +96,12 @@ The mobile app supports HN authentication via WebView login:
    - **HTML Parsers** - Extract auth tokens from HN pages using cheerio
 
 3. **Write API** (`apps/mobile/lib/shared/api/hn-write-api.ts`):
+   - `login(username, password)` - Authenticate with HN and extract session cookies
    - `vote(itemId, session)` - Upvote stories/comments
    - `unvote(itemId, session)` - Remove upvote
    - `comment(parentId, text, session)` - Post comments
    - `favorite(itemId, session)` - Favorite items
-   - All operations require `SecureSession` with HN cookies
+   - All operations require `SecureSession` with HN cookies (except login)
    - HTTPS enforced, automatic rate limiting, smart error handling
 
 4. **Auth Context** (`apps/mobile/contexts/hn-auth-context.tsx`):
@@ -107,7 +110,8 @@ The mobile app supports HN authentication via WebView login:
    - `useHNAuth()` hook provides: `session`, `login()`, `logout()`, `isAuthenticated`
 
 5. **UI Integration**:
-   - Login modal: `components/auth/login-modal.tsx` - WebView with cookie extraction
+   - Guidelines screen: `app/auth/guidelines.tsx` - Dedicated route for HN guidelines acceptance
+   - Login screen: `app/auth/login.tsx` - Native form with direct HN authentication
    - Settings screen: Shows login status, login/logout buttons
    - Story cards: Upvote/unvote in context menu (when authenticated)
    - Optimistic updates with automatic rollback on error
@@ -119,6 +123,52 @@ The mobile app supports HN authentication via WebView login:
    - All requests use HTTPS only
 
 **Note**: Web app remains read-only (no authentication). Comment posting API is ready but UI not yet implemented.
+
+---
+
+### User Profiles (Mobile Only)
+
+The mobile app includes comprehensive user profile viewing for both authenticated users and third-party HN users:
+
+1. **Profile Tab** (`app/(tabs)/profile/`):
+   - Displays authenticated user's profile (karma, account age, bio)
+   - Shows login/logout UI (moved from Settings tab)
+   - Links to user submissions screen
+   - Uses native SwiftUI forms via `@expo/ui/swift-ui`
+
+2. **Third-Party User Profiles** (`app/user/[id].tsx` and `app/user/[id]/submissions.tsx`):
+   - View any HN user's profile via clickable usernames
+   - Usernames are clickable in comment headers (`CommentItem`) and story headers (`StoryHeader`)
+   - Same profile and submission viewing features as authenticated user profile
+   - Navigation pattern: tap username → user profile → view submissions
+
+3. **API Endpoints** (`lib/shared/api/hn-api.ts`):
+   - `getUser(id)` - Fetch user profile data
+   - Returns `HNUser` type with: id, karma, about, created, submitted
+
+4. **Data Hooks**:
+   - `use-user.ts` - React Query hook for fetching user profiles
+   - `use-user-submissions.ts` - Fetches and caches user's submitted items
+   - Filters out deleted/dead items automatically
+   - Caches individual items for reuse across app
+
+5. **Submissions Screens**:
+   - Own profile: `app/(tabs)/profile/submissions.tsx`
+   - Third-party: `app/user/[id]/submissions.tsx`
+   - Both display all user submissions (stories and comments)
+   - Type filter to toggle between stories and comments view
+   - Stories rendered with `StoryCard` component
+   - Comments rendered with `SubmissionCommentCard` component
+   - Deep links to parent story/comment context
+
+6. **UI Components**:
+   - `SubmissionCommentCard` - Card for displaying comment submissions
+   - `SubmissionTypeFilter` - Segmented control for stories/comments toggle
+   - HTML parsing for user bios and comment text
+
+**Note**: Profile viewing works for any user, but only authenticated users see login/logout UI in their own profile tab.
+
+---
 
 ### Routing & Navigation
 - **File-based routing** using Expo Router (expo-router v6)
@@ -153,6 +203,19 @@ The app uses a **React Query + HN API** architecture:
    - `getNextPageParam` returns next offset or undefined when done
    - Stories are flattened from pages in components: `data?.pages.flatMap(page => page)`
    - Automatic caching by React Query - switching between categories is instant after first load
+
+4. **Smart Prefetching Strategy** (`hooks/use-app-prefetch.ts`):
+   - **Global prefetch on app open** - All 5 categories prefetched automatically
+   - Triggered from `app/_layout.tsx` when app mounts (not tied to specific screen)
+   - Waits 1.5s after mount to allow initial category (Top) to load first
+   - Prefetches first 30 items per category in parallel (full page size)
+   - **Total: ~155 API calls** (5 category ID lists + 150 item details)
+   - Completes in ~1-2 seconds background load
+   - **Result: Instant category switching** - no loading spinners after prefetch
+   - Skips OG metadata prefetch for background categories (bandwidth optimization)
+   - Checks cache before prefetching to avoid duplicate requests
+   - Additional predictive prefetching still runs from feed screen via `usePrefetchCategories`
+   - React Query handles cache deduplication automatically
 
 ### UI Components
 
@@ -218,17 +281,38 @@ Comments and story text contain HTML that needs parsing:
 
 ```
 app/
-  (tabs)/           # Tab-based routes
-    [category]/     # Each category (top, new, ask, show, jobs)
-      index.tsx     # List screen with FlashList
-      _layout.tsx   # Stack layout config
+  (tabs)/              # Tab-based routes
+    feed/              # Stories feed
+      index.tsx        # List screen with category filter
+      _layout.tsx      # Stack layout config
+    bookmarks/         # Bookmarked stories
+    profile/           # User profile (authenticated user)
+      index.tsx        # Profile screen with login/logout
+      submissions.tsx  # User's stories and comments
+      _layout.tsx      # Stack layout config
+    settings/          # App settings
+    search/            # Search functionality
+  auth/                # Authentication routes
+    guidelines.tsx     # HN guidelines acceptance screen
+    login.tsx          # Native login form
   story/
-    [id].tsx        # Story detail with comments
-  _layout.tsx       # Root layout with QueryClientProvider
-lib/                # API clients
-hooks/              # React Query hooks and custom hooks
-components/         # Reusable components
-constants/          # Theme and other constants
+    [id].tsx           # Story detail with comments
+  user/                # Third-party user profiles
+    [id].tsx           # Any user's profile screen
+    [id]/
+      submissions.tsx  # Any user's stories and comments
+  _layout.tsx          # Root layout with QueryClientProvider
+lib/                   # API clients
+hooks/                 # React Query hooks and custom hooks
+  use-app-prefetch.ts  # Global category prefetching
+  use-stories.ts       # Stories data fetching
+  use-user.ts          # User profile fetching
+  use-user-submissions.ts  # User submissions fetching
+components/            # Reusable components
+  story/
+    story-header.tsx   # Story header with clickable username
+    comment-item.tsx   # Comment with clickable username
+constants/             # Theme and other constants
 ```
 
 ## Important Implementation Notes

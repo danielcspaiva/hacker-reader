@@ -1,7 +1,7 @@
 {
   "name": "@hn/mobile",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "license": "MIT",
   "scripts": {
     "dev": "expo start",
@@ -13,6 +13,7 @@
     "prebuild:clean": "rm -rf ios && npx expo prebuild --platform ios && pnpm sync-xcode-env",
     "sync-xcode-env": "node ./scripts/sync-xcode-env.js",
     "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "format": "prettier --write ."
   },

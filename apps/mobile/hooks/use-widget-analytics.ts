@@ -38,12 +38,6 @@ const FAMILY_TO_SIZE: Record<string, WidgetSize> = {
   large: "large",
 };
 
-function logWidgetAnalytics(...args: unknown[]) {
-  if (__DEV__) {
-    // console.log("[WidgetAnalytics]", ...args);
-  }
-}
-
 const ReactNativeWidgetExtension: {
   getCurrentConfigurations?: () => Promise<NativeWidgetConfiguration[]>;
 } | null =
@@ -52,10 +46,8 @@ const ReactNativeWidgetExtension: {
         try {
           const module =
             require("react-native-widget-extension/build/ReactNativeWidgetExtensionModule").default;
-          logWidgetAnalytics("Loaded native widget module.");
           return module;
-        } catch (error) {
-          logWidgetAnalytics("Native widget module unavailable:", error);
+        } catch {
           return null;
         }
       })()
@@ -136,8 +128,7 @@ function parseWidgetTap(url: string): ParsedWidgetTap | null {
       storyId,
       kind: typeof widgetKind === "string" ? widgetKind : undefined,
     };
-  } catch (error) {
-    console.warn("[Analytics] Failed to parse widget tap URL:", error);
+  } catch {
     return null;
   }
 }
@@ -152,9 +143,6 @@ export function useWidgetAnalytics() {
       !ReactNativeWidgetExtension ||
       typeof ReactNativeWidgetExtension.getCurrentConfigurations !== "function"
     ) {
-      logWidgetAnalytics(
-        "Widget analytics disabled; native module unavailable or missing getCurrentConfigurations"
-      );
       return;
     }
 
@@ -175,11 +163,6 @@ export function useWidgetAnalytics() {
           ? (configurationsRaw as NativeWidgetConfiguration[])
           : [];
 
-        logWidgetAnalytics(
-          "Fetched native widget configurations:",
-          configurations
-        );
-
         const normalized = configurations
           .map(normalizeConfiguration)
           .filter(
@@ -197,11 +180,6 @@ export function useWidgetAnalytics() {
         });
         const uniqueConfigurations = Array.from(uniqueConfigMap.values());
 
-        logWidgetAnalytics(
-          "Normalized widget configurations:",
-          uniqueConfigurations
-        );
-
         const currentKeys = uniqueConfigurations.map((config) => config.key);
         const storedRaw = await AsyncStorage.getItem(WIDGET_CONFIG_STORAGE_KEY);
         let storedKeys: StoredWidgetKey[] = [];
@@ -211,16 +189,10 @@ export function useWidgetAnalytics() {
             if (Array.isArray(parsed)) {
               storedKeys = parsed as StoredWidgetKey[];
             }
-          } catch (error) {
-            console.warn(
-              "[Analytics] Failed to parse stored widget configurations:",
-              error
-            );
+          } catch {
+            // Failed to parse stored widget configurations
           }
         }
-
-        logWidgetAnalytics("Stored widget keys:", storedKeys);
-        logWidgetAnalytics("Current widget keys:", currentKeys);
 
         const currentSet = new Set(currentKeys);
         const storedSet = new Set(storedKeys);
@@ -228,15 +200,6 @@ export function useWidgetAnalytics() {
         const newConfigurations = uniqueConfigurations.filter(
           (config) => !storedSet.has(config.key)
         );
-
-        if (newConfigurations.length > 0) {
-          logWidgetAnalytics(
-            "Detected new widget configurations:",
-            newConfigurations
-          );
-        } else {
-          logWidgetAnalytics("No new widget configurations detected.");
-        }
 
         newConfigurations.forEach((config) => {
           track(AnalyticsEvent.WIDGET_ADDED, {
@@ -250,35 +213,21 @@ export function useWidgetAnalytics() {
           JSON.stringify(Array.from(currentSet))
         );
 
-        logWidgetAnalytics(
-          "Updated stored widget keys:",
-          Array.from(currentSet)
-        );
-
         registerSuper({
           [AnalyticsProperty.HAS_WIDGET_INSTALLED]: currentSet.size > 0,
         });
-        logWidgetAnalytics(
-          "Registered super property has_widget_installed:",
-          currentSet.size > 0
-        );
-      } catch (error) {
-        console.warn(
-          "[Analytics] Failed to sync widget configurations:",
-          error
-        );
+      } catch {
+        // Failed to sync widget configurations
       } finally {
         syncInFlight = false;
       }
     };
 
     syncWidgetConfigurations();
-    logWidgetAnalytics("Initialized widget analytics sync");
 
     const subscription = AppState.addEventListener("change", (nextState) => {
       if (nextState === "active") {
         syncWidgetConfigurations();
-        logWidgetAnalytics("App became active; syncing widget configurations");
       }
     });
 
@@ -297,8 +246,6 @@ export function useWidgetAnalytics() {
       const payload = parseWidgetTap(url);
       if (!payload) return;
 
-      logWidgetAnalytics("Tracking widget tap payload:", payload);
-
       track(AnalyticsEvent.WIDGET_TAPPED, {
         [AnalyticsProperty.WIDGET_SIZE]: payload.size,
         [AnalyticsProperty.STORY_ID]: payload.storyId,
@@ -316,10 +263,9 @@ export function useWidgetAnalytics() {
         const initialUrl = await Linking.getInitialURL();
         if (initialUrl) {
           handleUrl(initialUrl);
-          logWidgetAnalytics("Processed initial URL:", initialUrl);
         }
-      } catch (error) {
-        console.warn("[Analytics] Failed to read initial URL:", error);
+      } catch {
+        // Failed to read initial URL
       }
     };
 
@@ -328,7 +274,6 @@ export function useWidgetAnalytics() {
     const subscription = Linking.addEventListener("url", (event) => {
       if (event?.url) {
         handleUrl(event.url);
-        logWidgetAnalytics("Received deep link URL:", event.url);
       }
     });
 

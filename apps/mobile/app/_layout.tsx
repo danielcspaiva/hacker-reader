@@ -8,18 +8,22 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
+import { Pressable } from "react-native";
 import "react-native-reanimated";
 
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import {
   ColorSchemeProvider,
   useColorSchemeContext,
 } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { useAppPrefetch } from "@/hooks/use-app-prefetch";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { getAppMetadata } from "@/lib/analytics/tracking";
@@ -59,25 +63,30 @@ const queryClient = new QueryClient({
     },
   },
   mutationCache: new MutationCache({
-    onSuccess: () => {
-      console.log(
-        "[MutationCache] Mutation succeeded, invalidating all queries"
-      );
+    onSuccess: (_data, _variables, _context, mutation) => {
+      // Skip auto-invalidation for comment mutations
+      // Comment mutations handle invalidation manually after waiting for HN API
+      if (mutation.options.meta?.skipAutoInvalidation) {
+        return;
+      }
 
       // Automatically invalidate all queries after successful mutations
       // This is fine for read-heavy apps - most users never mutate
       queryClient.invalidateQueries();
-
-      console.log("[MutationCache] Query invalidation complete");
     },
   }),
 });
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
   const { isAuthenticated } = useHNAuth();
   const posthog = usePostHog();
   useWidgetAnalytics();
+
+  // Prefetch all categories on app open for instant category switching
+  useAppPrefetch();
 
   // Register super properties when app state changes
   useEffect(() => {
@@ -164,10 +173,63 @@ function RootLayoutContent() {
         <Stack.Screen
           name="auth/login"
           options={{
-            presentation: "modal",
-            headerShown: false,
-            sheetGrabberVisible: true,
-            sheetCornerRadius: 16,
+            presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
+            sheetGrabberVisible: false,
+            sheetAllowedDetents: [0.8],
+            headerShown: true,
+            headerTransparent: false,
+            headerStyle: {
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
+            },
+            headerTitle: "Sign in to Hacker News",
+            contentStyle: {
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
+            },
+            headerRight: () => (
+              <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
+                <IconSymbol
+                  name="xmark"
+                  size={20}
+                  color={textColor}
+                  weight="light"
+                />
+              </Pressable>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="auth/guidelines"
+          options={{
+            presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
+            sheetGrabberVisible: false,
+            headerShown: true,
+            headerTransparent: false,
+            sheetAllowedDetents: [0.9],
+            headerStyle: {
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
+            },
+            headerTitle: "Hacker News Guidelines",
+            contentStyle: {
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : backgroundColor,
+            },
+            headerRight: () => (
+              <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
+                <IconSymbol
+                  name="xmark"
+                  size={20}
+                  color={textColor}
+                  weight="light"
+                />
+              </Pressable>
+            ),
           }}
         />
       </Stack>
@@ -183,8 +245,10 @@ export default Sentry.wrap(function RootLayout() {
       options={{
         host: process.env.EXPO_PUBLIC_POSTHOG_HOST!,
         enableSessionReplay: true,
+        disabled: __DEV__,
       }}
       autocapture
+      debug={__DEV__}
     >
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider>

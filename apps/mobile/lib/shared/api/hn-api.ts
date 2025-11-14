@@ -47,5 +47,5 @@ export async function getUser(id: string): Promise<HNUser> {
 }
 
 export async function getItems(ids: number[]): Promise<HNItem[]> {
-  return Promise.all(ids.map((id) => getItem(id)));
+  return await Promise.all(ids.map((id) => getItem(id)));
 }

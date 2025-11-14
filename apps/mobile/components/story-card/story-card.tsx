@@ -138,14 +138,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     gap: Spacing.md,
-    paddingHorizontal: isLiquidGlassAvailable() ? Spacing.lg : 0,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
   },
   container: {
     flexDirection: "row",
     gap: Spacing.md,
     marginHorizontal: Spacing.lg,
-    borderRadius: isLiquidGlassAvailable() ? 16 : 0,
+    borderRadius: 16,
     borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
     marginBottom: Spacing.lg,
   },

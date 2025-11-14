@@ -368,3 +368,47 @@ export function parseFlagLink(html: string, itemId: number): string {
 
   return fallbackFlagLink;
 }
+
+/**
+ * Parse delete link from an HN item page
+ *
+ * Note: Delete links are only available for your own comments/stories
+ * and typically within a time window after posting.
+ *
+ * @param html - HTML content of the item page
+ * @param itemId - ID of the item to delete
+ * @returns Delete link path (e.g., "delete-confirm?id=123&goto=...")
+ * @throws HNAuthError if parsing fails
+ */
+export function parseDeleteLink(html: string, itemId: number): string {
+  // Pattern match for delete-confirm links
+  // Example: delete-confirm?id=45877116&amp;goto=item%3Fid%3D45853261
+  const pattern = new RegExp(
+    `delete-confirm\\?[^"'<>\\s]*id=${itemId}[^"'<>\\s]*`,
+    "i"
+  );
+  const match = pattern.exec(html);
+  const deleteLink = match ? decodeHTMLEntities(match[0]) : null;
+
+  if (!deleteLink) {
+    const text = extractTextContent(html).toLowerCase();
+
+    if (text.includes("login")) {
+      throw new HNAuthError(
+        "Session expired - please log in again",
+        "NOT_LOGGED_IN"
+      );
+    }
+
+    // Delete link not present means either:
+    // - Not your comment
+    // - Too old (outside deletion window)
+    // - Already deleted
+    throw new HNAuthError(
+      "Delete link not found - this may not be your comment, or the deletion window has expired",
+      "PARSE_ERROR"
+    );
+  }
+
+  return deleteLink;
+}

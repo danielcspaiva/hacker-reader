@@ -186,10 +186,13 @@ Each story displays:
 
 #### Commenting
 
-- **Reply to Stories** - Post top-level comments
-- **Reply to Comments** - Nested replies in threads
-- **HTML Support** - Basic formatting supported
-- **API Ready** - Backend implemented, UI coming soon
+- **Reply to Stories** - Post top-level comments with in-app composer
+- **Reply to Comments** - Nested replies in threads with inline input
+- **Delete Comments** - Remove your own comments with confirmation prompt
+- **Optimistic Updates** - Instant UI feedback while posting/deleting
+- **HTML Support** - Basic formatting supported (links, code, quotes)
+- **Error Recovery** - Automatic rollback on network errors
+- **Smart Hooks** - Dedicated `use-comment-mutation` and `use-delete-comment-mutation` hooks
 
 #### Rate Limiting
 
@@ -346,10 +349,12 @@ Each story displays:
 #### React Query Hooks
 
 - `useStories(category)` - Infinite query for story lists
-- `useStory(id)` - Single story query
+- `useStory(id)` - Single story query with comment management
 - `useComment(id)` - Single comment query
+- `useCommentMutation()` - Post comments with optimistic updates
+- `useDeleteCommentMutation()` - Delete comments with optimistic updates
 - `useOGMetadata(url)` - Link preview metadata
-- Automatic cache management
+- Automatic cache management with manual control for mutations
 
 ### Platform Features
 
@@ -404,11 +409,12 @@ Each story displays:
 
 ### Planned Features
 
-- [ ] Comment posting UI implementation
+- [x] Comment posting UI implementation
+- [x] Comment deletion
 - [ ] User profiles
-- [ ] Search functionality
+- [x] Search functionality (Algolia-powered)
 - [ ] Favorites list screen
-- [ ] Share stories
+- [x] Share stories
 - [ ] Offline reading mode
 - [ ] iPad optimization
 - [ ] Android widgets
@@ -458,4 +464,4 @@ Each story displays:
 
 ---
 
-_Last Updated: January 2025_
+_Last Updated: November 10, 2025_

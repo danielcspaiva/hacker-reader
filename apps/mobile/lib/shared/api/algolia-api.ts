@@ -34,14 +34,18 @@ export interface AlgoliaStory {
 
 async function fetchJSON<T>(path: string): Promise<T> {
   const response = await fetch(`${ALGOLIA_BASE_URL}${path}`);
+
   if (!response.ok) {
     throw new Error(`Algolia API error: ${response.status}`);
   }
-  return response.json() as Promise<T>;
+
+  const data = (await response.json()) as T;
+  return data;
 }
 
 export async function getStoryWithComments(id: number): Promise<AlgoliaStory> {
-  return fetchJSON<AlgoliaStory>(`/items/${id}`);
+  const story = await fetchJSON<AlgoliaStory>(`/items/${id}`);
+  return story;
 }
 
 export interface AlgoliaSearchHit {
@@ -73,5 +77,10 @@ export async function searchStories(
     hitsPerPage: hitsPerPage.toString(),
     tags: "story",
   });
-  return fetchJSON<AlgoliaSearchResponse>(`/search?${params.toString()}`);
+
+  const result = await fetchJSON<AlgoliaSearchResponse>(
+    `/search?${params.toString()}`
+  );
+
+  return result;
 }
