@@ -376,6 +376,14 @@ This restores the working SDK 54 state completely.
   - `buffer` package needed for `react-native-svg` compatibility
   - After Stack import fix: "Text strings must be rendered within <Text>" errors — needs investigation
 
-**IMPORTANT**: SDK 55 sub-packages (expo-router, @expo/ui, etc.) are ALL canary builds. Only `expo` itself has a stable 55.0.9 release. This is causing many issues. Consider waiting for stable release or accepting canary risk.
+**IMPORTANT**: SDK 55 sub-packages (expo-router, @expo/ui, etc.) are ALL canary builds. Only `expo` itself has a stable 55.0.9 release.
 
-- **Next**: Debug "Text strings" errors, or wait for stable SDK 55
+### Session 2 Continued
+- Found `import { Stack } from "expo-router"` broken in canary — must use `import Stack from "expo-router/stack"`
+- Found `@expo/ui Button` no longer accepts text children — must use `label` prop
+- Found `react-native-reanimated` 4.2.1 incompatible with screen transitions — upgraded to 4.3.0
+- Found `react-native-worklets` 0.7.2 incompatible with reanimated 4.3.0 — upgraded to 0.8.1
+- **ALL 5 TABS WORKING**: feed, bookmarks, profile, settings, search
+- **Story detail with comments working**: navigation, back button, web browser links
+- **Settings screen rendering**: @expo/ui Form/Section/Button with SF Symbols
+- **Next**: Restore full story header options, test auth, test profile tab, run lint/typecheck, final cleanup
