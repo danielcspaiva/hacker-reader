@@ -25,3 +25,25 @@ export interface HNUser {
 }
 
 export type StoryCategory = "top" | "new" | "ask" | "show" | "jobs";
+
+export interface StoryWithComments {
+  id: number;
+  title: string;
+  url?: string;
+  text?: string;
+  by: string;
+  time: number;
+  score: number;
+  descendants?: number;
+  comments: Comment[];
+}
+
+export interface Comment {
+  id: number;
+  by: string;
+  time: number;
+  text?: string;
+  deleted?: boolean;
+  dead?: boolean;
+  children: Comment[];
+}

@@ -34,6 +34,21 @@ export const Colors = {
   },
 };
 
+/**
+ * HN brand colors used across auth screens and accent elements.
+ * Use these instead of hardcoding hex values.
+ */
+export const BrandColors = {
+  /** HN signature orange */
+  hnOrange: "#ff6600",
+  /** White text on orange */
+  onOrange: "#ffffff",
+  /** Error background (light) */
+  errorBackground: "#fee",
+  /** Error text color */
+  errorText: "#c00",
+} as const;
+
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */

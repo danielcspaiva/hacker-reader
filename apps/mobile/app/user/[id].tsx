@@ -2,47 +2,13 @@ import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
+import { parseHTMLText } from "@/lib/shared/utils/html";
+import { formatMemberSince } from "@/lib/shared/utils/time";
 import { Button, Form, Host, Section, Text } from "@expo/ui/swift-ui";
 import { font, foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { router, useLocalSearchParams } from "expo-router";
 import Stack from "expo-router/stack";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-
-/**
- * Format Unix timestamp to readable date string
- */
-function formatMemberSince(timestamp: number): string {
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-}
-
-/**
- * Parse HTML entities and basic tags from HN user bio
- */
-function parseHTMLText(html: string): string {
-  return html
-    .replace(/<p>/g, "\n\n")
-    .replace(/<\/p>/g, "")
-    .replace(/<i>(.*?)<\/i>/g, "$1")
-    .replace(/<b>(.*?)<\/b>/g, "$1")
-    .replace(/<a[^>]*>(.*?)<\/a>/g, "$1")
-    // Decode all numeric HTML entities (&#xHH; and &#DDD;)
-    .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
-      String.fromCharCode(Number.parseInt(hex, 16))
-    )
-    .replace(/&#([0-9]+);/g, (_, dec) =>
-      String.fromCharCode(Number.parseInt(dec, 10))
-    )
-    // Decode named HTML entities
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .trim();
-}
 
 export default function UserProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

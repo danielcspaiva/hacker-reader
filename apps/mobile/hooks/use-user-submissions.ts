@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getItems } from "@/lib/shared/api/hn-api";
+import { queryKeys } from "@/lib/query-keys";
 import type { HNItem } from "@/lib/shared/types";
 
 /**
@@ -8,7 +9,7 @@ import type { HNItem } from "@/lib/shared/types";
  */
 export function useUserSubmissions(submittedIds: number[] | undefined) {
   return useQuery<HNItem[]>({
-    queryKey: ["submissions", submittedIds],
+    queryKey: queryKeys.submissions(submittedIds ?? []),
     queryFn: async () => {
       if (!submittedIds || submittedIds.length === 0) {
         return [];

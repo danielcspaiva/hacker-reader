@@ -8,6 +8,7 @@
 
 import { ThemedText } from "@/components/themed-text";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { BrandColors } from "@/constants/theme";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import * as HNWriteAPI from "@/lib/shared/api/hn-write-api";
@@ -225,7 +226,7 @@ export default function LoginModal() {
 
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#ff6600" />
+          <ActivityIndicator size="large" color={BrandColors.hnOrange} />
           <ThemedText style={styles.loadingText}>Signing you in...</ThemedText>
         </View>
       )}
@@ -270,7 +271,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: "#ff6600",
+    backgroundColor: BrandColors.hnOrange,
     height: 50,
     borderRadius: 8,
     justifyContent: "center",
@@ -278,11 +279,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   loginButtonDisabled: {
-    backgroundColor: "#ff6600",
+    backgroundColor: BrandColors.hnOrange,
     opacity: 0.6,
   },
   loginButtonText: {
-    color: "#fff",
+    color: BrandColors.onOrange,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   link: {
-    color: "#ff6600",
+    color: BrandColors.hnOrange,
     fontWeight: "500",
   },
   loadingContainer: {
@@ -312,11 +313,11 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 16,
     marginTop: 8,
-    backgroundColor: "#fee",
+    backgroundColor: BrandColors.errorBackground,
     borderRadius: 8,
   },
   errorText: {
-    color: "#c00",
+    color: BrandColors.errorText,
     fontSize: 14,
   },
 });

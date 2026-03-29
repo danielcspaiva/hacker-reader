@@ -3,34 +3,15 @@ import {
   getStoryWithComments,
   type AlgoliaComment,
 } from "@/lib/shared/api/algolia-api";
-import type { HNItem } from "@/lib/shared/types";
+import type { Comment, HNItem, StoryWithComments } from "@/lib/shared/types";
+import { queryKeys } from "@/lib/query-keys";
 import {
   useQuery,
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
 
-export interface StoryWithComments {
-  id: number;
-  title: string;
-  url?: string;
-  text?: string;
-  by: string;
-  time: number;
-  score: number;
-  descendants?: number;
-  comments: Comment[];
-}
-
-export interface Comment {
-  id: number;
-  by: string;
-  time: number;
-  text?: string;
-  deleted?: boolean;
-  dead?: boolean;
-  children: Comment[];
-}
+export type { Comment, StoryWithComments };
 
 // Convert HN API item to our Comment format
 function convertHNItemToComment(hnItem: HNItem): Comment | null {
@@ -102,7 +83,7 @@ export function useStory(id: number) {
   const queryClient = useQueryClient();
 
   return useQuery<StoryWithComments, Error>({
-    queryKey: ["story", id],
+    queryKey: queryKeys.story(id),
     queryFn: async () => {
       // Fetch story metadata from HN API (real-time score, always up-to-date)
       // and comments from Algolia (nested tree structure)
@@ -171,7 +152,7 @@ export function useStory(id: number) {
 
       categories.forEach((category) => {
         queryClient.setQueriesData<InfiniteData<HNItem[]>>(
-          { queryKey: ["stories", category] },
+          { queryKey: queryKeys.stories(category) },
           (oldData) => {
             if (!oldData?.pages) return oldData;
 
@@ -196,7 +177,7 @@ export function useStory(id: number) {
       });
 
       // Also update the individual item cache
-      queryClient.setQueryData<HNItem>(["item", id], hnItem);
+      queryClient.setQueryData<HNItem>(queryKeys.item(id), hnItem);
 
       return story;
     },

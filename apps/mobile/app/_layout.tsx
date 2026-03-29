@@ -1,13 +1,5 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import {
-  MutationCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { ThemeProvider } from "@react-navigation/native";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { router } from "expo-router";
 import Stack from "expo-router/stack";
 import { StatusBar } from "expo-status-bar";
@@ -23,6 +15,8 @@ import {
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { queryClient } from "@/lib/query-client";
+import { buildNavigationTheme } from "@/constants/navigation-themes";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { getAppMetadata } from "@/lib/analytics/tracking";
@@ -52,30 +46,6 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
-// Create a client with global mutation invalidation
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 2 * 60 * 1000, // 2 minutes - shorter to ensure fresher data
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      retry: 2,
-      refetchOnWindowFocus: true, // Always refetch when app comes to foreground
-    },
-  },
-  mutationCache: new MutationCache({
-    onSuccess: (_data, _variables, _context, mutation) => {
-      // Skip auto-invalidation for comment mutations
-      // Comment mutations handle invalidation manually after waiting for HN API
-      if (mutation.options.meta?.skipAutoInvalidation) {
-        return;
-      }
-
-      // Automatically invalidate all queries after successful mutations
-      // This is fine for read-heavy apps - most users never mutate
-      queryClient.invalidateQueries();
-    },
-  }),
-});
 
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
@@ -101,32 +71,10 @@ function RootLayoutContent() {
     }
   }, [posthog, colorScheme, isAuthenticated]);
 
-  const customDarkTheme = {
-    ...DarkTheme,
-    colors: {
-      ...DarkTheme.colors,
-      background: Colors.dark[colorPalette].background,
-      card: Colors.dark[colorPalette].background,
-      text: Colors.dark[colorPalette].text,
-      border: Colors.dark[colorPalette].border,
-    },
-  };
-
-  const customLightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      background: Colors.light[colorPalette].background,
-      card: Colors.light[colorPalette].background,
-      text: Colors.light[colorPalette].text,
-      border: Colors.light[colorPalette].border,
-    },
-  };
+  const navigationTheme = buildNavigationTheme(colorScheme, colorPalette);
 
   return (
-    <ThemeProvider
-      value={colorScheme === "dark" ? customDarkTheme : customLightTheme}
-    >
+    <ThemeProvider value={navigationTheme}>
       <Stack
         screenOptions={{
           headerShown: false,

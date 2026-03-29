@@ -9,6 +9,10 @@
 
 import { HNAuthError } from "../auth/errors";
 import {
+  checkForCommentErrors,
+  checkForLoginErrors,
+} from "./hn-error-detector";
+import {
   parseCommentFormHmac,
   parseDeleteLink,
   parseFavoriteLink,
@@ -18,13 +22,12 @@ import {
   parseVoteLink,
 } from "../auth/parsers";
 import { hnRateLimiter } from "../auth/rate-limiter";
+import { HN_WRITE_BASE_URL } from "../constants";
 import { SecureSession } from "../auth/session";
 
 const isDebugLoggingEnabled =
   (typeof __DEV__ !== "undefined" && __DEV__) ||
   process.env.NODE_ENV !== "production";
-
-const HN_BASE_URL = "https://news.ycombinator.com";
 
 /**
  * Validate that a URL uses HTTPS
@@ -43,7 +46,7 @@ async function fetchHN(
   session: SecureSession,
   options: RequestInit = {}
 ): Promise<Response> {
-  const url = `${HN_BASE_URL}${path}`;
+  const url = `${HN_WRITE_BASE_URL}${path}`;
   validateHTTPS(url);
 
   // Apply rate limiting
@@ -107,83 +110,6 @@ export async function unvote(
   const unvoteLink = parseUnvoteLink(html, itemId);
 
   await fetchHN(`/${unvoteLink}`, session);
-}
-
-/**
- * Helper function to check for common comment errors in HN's response HTML
- */
-async function checkForCommentErrors(
-  responseHtml: string,
-  lowerHtml: string
-): Promise<void> {
-  // Check for session/auth errors - but be careful not to match template text
-  // HN shows actual errors in the page title or as explicit error messages
-  // The confirmation page may contain "unknown or expired" as documentation text
-
-  // Check for explicit "bad login" message (always an error)
-  if (lowerHtml.includes("bad login")) {
-    throw new HNAuthError(
-      "Session expired - please log in again",
-      "NOT_LOGGED_IN"
-    );
-  }
-
-  // Check for "unknown or expired link" (the actual error message)
-  // This is different from template text which might say "unknown or expired"
-  if (lowerHtml.includes("unknown or expired link")) {
-    throw new HNAuthError(
-      "Session expired - please log in again",
-      "NOT_LOGGED_IN"
-    );
-  }
-  if (
-    lowerHtml.includes("submitting too fast") ||
-    lowerHtml.includes("slow down")
-  ) {
-    throw new HNAuthError(
-      "You are posting too fast. Please wait.",
-      "RATE_LIMITED"
-    );
-  }
-  if (
-    lowerHtml.includes("insufficient karma") ||
-    lowerHtml.includes("can't comment")
-  ) {
-    throw new HNAuthError(
-      "Insufficient karma to comment",
-      "INSUFFICIENT_KARMA"
-    );
-  }
-  if (lowerHtml.includes("blank") || lowerHtml.includes("empty comment")) {
-    throw new HNAuthError("Comment cannot be blank", "PARSE_ERROR");
-  }
-
-  // Check for validation errors (HN shows * in orange next to invalid fields)
-  // Look for <textarea> with a preceding error indicator
-  const hasTextareaError = responseHtml.match(
-    /<font color="#ff6600">\s*\*\s*<\/font>\s*<textarea name="text"/i
-  );
-
-  if (hasTextareaError) {
-    // Try to extract any additional error message
-    const errorMatch = responseHtml.match(
-      /<font color="#ff6600">\s*([^<]+)\s*<\/font>/i
-    );
-    const errorMessage = errorMatch ? errorMatch[1].trim() : null;
-
-    if (errorMessage && errorMessage !== "*") {
-      throw new HNAuthError(
-        `HN rejected comment: ${errorMessage}`,
-        "PARSE_ERROR"
-      );
-    }
-
-    // Generic validation error
-    throw new HNAuthError(
-      "HN rejected your comment. Possible reasons: comment too short, contains invalid characters, or account restrictions. Please try posting directly on news.ycombinator.com to see the specific error.",
-      "PARSE_ERROR"
-    );
-  }
 }
 
 /**
@@ -423,7 +349,7 @@ export async function deleteComment(
  * @throws HNAuthError if login fails
  */
 export async function login(username: string, password: string): Promise<void> {
-  const url = `${HN_BASE_URL}/login`;
+  const url = `${HN_WRITE_BASE_URL}/login`;
   validateHTTPS(url);
 
   // Prepare form data (matches HN's login form)
@@ -448,39 +374,5 @@ export async function login(username: string, password: string): Promise<void> {
   const lowerHtml = html.toLowerCase();
 
   // Check for login errors in the response
-  if (
-    lowerHtml.includes("bad login") ||
-    lowerHtml.includes("unknown or expired")
-  ) {
-    throw new HNAuthError(
-      "Invalid username or password",
-      "INVALID_CREDENTIALS"
-    );
-  }
-
-  if (
-    lowerHtml.includes("banned") ||
-    lowerHtml.includes("account is not active")
-  ) {
-    throw new HNAuthError("Account is banned or inactive", "BANNED");
-  }
-
-  if (
-    lowerHtml.includes("too many") ||
-    lowerHtml.includes("slow down") ||
-    lowerHtml.includes("rate limit")
-  ) {
-    throw new HNAuthError(
-      "Too many login attempts. Please wait and try again.",
-      "RATE_LIMITED"
-    );
-  }
-
-  // Check if we're still on the login page (login failed)
-  if (response.url.includes("/login")) {
-    throw new HNAuthError(
-      "Login failed - please check your credentials",
-      "INVALID_CREDENTIALS"
-    );
-  }
+  checkForLoginErrors(lowerHtml, response.url);
 }

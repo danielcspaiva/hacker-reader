@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { searchStories, type HNItem } from "@/lib/shared";
+import { queryKeys } from "@/lib/query-keys";
 
 const HITS_PER_PAGE = 30;
 
@@ -32,7 +33,7 @@ export function useSearchStories(query: string) {
   const trimmedQuery = query.trim();
 
   return useInfiniteQuery<SearchStoriesPage, Error>({
-    queryKey: ["algolia-search", trimmedQuery],
+    queryKey: queryKeys.algoliaSearch(trimmedQuery),
     queryFn: async ({ pageParam = 0 }) => {
       const currentPage = typeof pageParam === "number" ? pageParam : 0;
       const response = await searchStories(

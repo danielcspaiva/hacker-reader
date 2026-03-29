@@ -7,8 +7,10 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { queryKeys } from "@/lib/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { loadJSON, saveJSON } from "@/lib/shared/storage/async-storage-utils";
 
 const HIDDEN_STORIES_KEY = "@hidden_stories";
 const HIDDEN_COMMENTS_KEY = "@hidden_comments";
@@ -19,27 +21,14 @@ type ItemType = "story" | "comment";
  * Load hidden IDs from AsyncStorage
  */
 async function loadHiddenIds(storageKey: string): Promise<number[]> {
-  try {
-    const stored = await AsyncStorage.getItem(storageKey);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    return [];
-  } catch (error) {
-    console.error(`Failed to load hidden items:`, error);
-    return [];
-  }
+  return loadJSON<number[]>(storageKey, []);
 }
 
 /**
  * Save hidden IDs to AsyncStorage
  */
 async function saveHiddenIds(storageKey: string, ids: number[]): Promise<void> {
-  try {
-    await AsyncStorage.setItem(storageKey, JSON.stringify(ids));
-  } catch (error) {
-    console.error(`Failed to save hidden items:`, error);
-  }
+  return saveJSON(storageKey, ids);
 }
 
 /**
@@ -49,7 +38,7 @@ export function useHiddenItems(type: ItemType) {
   const queryClient = useQueryClient();
   const storageKey =
     type === "story" ? HIDDEN_STORIES_KEY : HIDDEN_COMMENTS_KEY;
-  const queryKey = type === "story" ? ["hidden-stories"] : ["hidden-comments"];
+  const queryKey = type === "story" ? [...queryKeys.hiddenItems.stories] : [...queryKeys.hiddenItems.comments];
 
   // Load hidden IDs using React Query
   const { data: hiddenIds = [], isLoading } = useQuery({
@@ -68,7 +57,7 @@ export function useHiddenItems(type: ItemType) {
     onSuccess: (newHiddenIds) => {
       queryClient.setQueryData(queryKey, newHiddenIds);
       // Invalidate stories queries to trigger re-render
-      queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storiesPrefix });
     },
   });
 
@@ -82,7 +71,7 @@ export function useHiddenItems(type: ItemType) {
     onSuccess: (newHiddenIds) => {
       queryClient.setQueryData(queryKey, newHiddenIds);
       // Invalidate stories queries to trigger re-render
-      queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storiesPrefix });
     },
   });
 
@@ -95,7 +84,7 @@ export function useHiddenItems(type: ItemType) {
     onSuccess: (newHiddenIds) => {
       queryClient.setQueryData(queryKey, newHiddenIds);
       // Invalidate stories queries to trigger re-render
-      queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storiesPrefix });
     },
   });
 

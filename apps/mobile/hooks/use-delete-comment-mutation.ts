@@ -2,6 +2,7 @@ import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment, StoryWithComments } from "@/hooks/use-story";
 import { deleteComment } from "@/lib/shared/api/hn-write-api";
 import { isAuthError } from "@/lib/shared/auth";
+import { queryKeys } from "@/lib/query-keys";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
@@ -53,7 +54,7 @@ export function useDeleteCommentMutation({
     },
     onMutate: async (commentId) => {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({ queryKey: ["story", storyId] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.story(storyId) });
 
       // Snapshot the previous value
       const previousData = queryClient.getQueryData<StoryWithComments>([
@@ -63,7 +64,7 @@ export function useDeleteCommentMutation({
 
       // Optimistically remove the comment from cache
       queryClient.setQueryData<StoryWithComments>(
-        ["story", storyId],
+        queryKeys.story(storyId),
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -100,7 +101,7 @@ export function useDeleteCommentMutation({
     onError: (error, _commentId, context) => {
       // Rollback optimistic update on error
       if (context?.previousData) {
-        queryClient.setQueryData(["story", storyId], context.previousData);
+        queryClient.setQueryData(queryKeys.story(storyId), context.previousData);
       }
 
       if (isAuthError(error)) {
@@ -138,7 +139,7 @@ export function useDeleteCommentMutation({
     },
     onSettled: () => {
       // Refetch to ensure consistency (but don't wait for it)
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.story(storyId) });
     },
   });
 }

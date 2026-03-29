@@ -11,10 +11,9 @@ import {
   unblockUser as storageUnblockUser,
   type BlockedUser,
 } from "@/lib/storage/blocked-users";
+import { queryKeys } from "@/lib/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
-
-const BLOCKED_USERS_QUERY_KEY = ["blockedUsers"];
 
 export function useBlockedUsers() {
   const queryClient = useQueryClient();
@@ -23,7 +22,7 @@ export function useBlockedUsers() {
   const { data: blockedUsers = [], isLoading: loading } = useQuery<
     BlockedUser[]
   >({
-    queryKey: BLOCKED_USERS_QUERY_KEY,
+    queryKey: queryKeys.blockedUsers,
     queryFn: async () => {
       return await getBlockedUsers();
     },
@@ -42,9 +41,9 @@ export function useBlockedUsers() {
     },
     onSuccess: () => {
       // Invalidate and refetch blocked users across all components
-      queryClient.invalidateQueries({ queryKey: BLOCKED_USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.blockedUsers });
       // Invalidate stories to force feed to re-filter and remove blocked user's content
-      queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storiesPrefix });
     },
     onError: (error) => {
       console.error("[useBlockedUsers] Failed to block user:", error);
@@ -58,9 +57,9 @@ export function useBlockedUsers() {
     },
     onSuccess: () => {
       // Invalidate and refetch blocked users across all components
-      queryClient.invalidateQueries({ queryKey: BLOCKED_USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.blockedUsers });
       // Invalidate stories to force feed to re-filter and show unblocked user's content
-      queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.storiesPrefix });
     },
     onError: (error) => {
       console.error("[useBlockedUsers] Failed to unblock user:", error);
@@ -93,7 +92,7 @@ export function useBlockedUsers() {
 
   // Manual refresh function
   const refresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: BLOCKED_USERS_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: queryKeys.blockedUsers });
   }, [queryClient]);
 
   return {

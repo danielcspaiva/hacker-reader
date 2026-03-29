@@ -15,3 +15,16 @@ export function timeAgo(timestamp: number): string {
   }
   return `${Math.floor(diff / 86400)}d`;
 }
+
+/**
+ * Format Unix timestamp to readable member-since date string
+ * @param timestamp Unix timestamp in seconds
+ * @returns Formatted string like "January 2015"
+ */
+export function formatMemberSince(timestamp: number): string {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+}

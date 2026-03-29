@@ -1,9 +1,8 @@
+import { HN_API_BASE_URL } from "../constants";
 import type { HNItem, HNUser } from "../types";
 
-const BASE_URL = "https://hacker-news.firebaseio.com/v0";
-
 async function fetchJSON<T>(path: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`);
+  const response = await fetch(`${HN_API_BASE_URL}${path}`);
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
   }

@@ -1,5 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
+import { loadJSON, saveJSON } from "@/lib/shared/storage/async-storage-utils";
+import { queryKeys } from "@/lib/query-keys";
 
 const VOTES_STORAGE_KEY = "hn-votes";
 
@@ -7,27 +8,17 @@ const VOTES_STORAGE_KEY = "hn-votes";
  * Get all voted item IDs from storage
  */
 async function getVotedIds(): Promise<number[]> {
-  try {
-    const json = await AsyncStorage.getItem(VOTES_STORAGE_KEY);
-    return json ? JSON.parse(json) : [];
-  } catch (error) {
-    console.error("Error loading votes:", error);
-    return [];
-  }
+  return loadJSON<number[]>(VOTES_STORAGE_KEY, []);
 }
 
 /**
  * Add a vote to storage
  */
 export async function addVote(itemId: number): Promise<void> {
-  try {
-    const votes = await getVotedIds();
-    if (!votes.includes(itemId)) {
-      votes.push(itemId);
-      await AsyncStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(votes));
-    }
-  } catch (error) {
-    console.error("Error saving vote:", error);
+  const votes = await getVotedIds();
+  if (!votes.includes(itemId)) {
+    votes.push(itemId);
+    await saveJSON(VOTES_STORAGE_KEY, votes);
   }
 }
 
@@ -35,13 +26,9 @@ export async function addVote(itemId: number): Promise<void> {
  * Remove a vote from storage
  */
 export async function removeVote(itemId: number): Promise<void> {
-  try {
-    const votes = await getVotedIds();
-    const filtered = votes.filter((id) => id !== itemId);
-    await AsyncStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(filtered));
-  } catch (error) {
-    console.error("Error removing vote:", error);
-  }
+  const votes = await getVotedIds();
+  const filtered = votes.filter((id) => id !== itemId);
+  await saveJSON(VOTES_STORAGE_KEY, filtered);
 }
 
 /**
@@ -57,7 +44,7 @@ export async function hasVoted(itemId: number): Promise<boolean> {
  */
 export function useVotedIds() {
   return useQuery<number[], Error>({
-    queryKey: ["votes"],
+    queryKey: queryKeys.votes,
     queryFn: getVotedIds,
     staleTime: 0, // Always fresh
   });

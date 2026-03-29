@@ -1,41 +1,11 @@
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { TabStackLayout } from "@/components/navigation/tab-stack-layout";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import Stack from "expo-router/stack";
 
 export default function Layout() {
-  const { colorScheme, colorPalette } = useColorSchemeContext();
-  const textColor = useThemeColor({}, "tint");
-  const backgroundColor =
-    colorScheme === "dark"
-      ? Colors.dark[colorPalette].background
-      : Colors.light[colorPalette].background;
-
   return (
-    <Stack
-      screenOptions={{
-        headerTransparent: isLiquidGlassAvailable(),
-        headerLargeTitle: true,
-        headerLargeTitleShadowVisible: false,
-        headerTintColor: textColor,
-        headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
-        headerStyle: {
-          backgroundColor: isLiquidGlassAvailable()
-            ? "transparent"
-            : backgroundColor,
-        },
-      }}
-    >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "Settings",
-          headerLargeTitleStyle: {
-            color: textColor,
-          },
-        }}
-      />
-    </Stack>
+    <TabStackLayout
+      screens={[{ name: "index", title: "Settings" }]}
+      screenOptions={{ headerTransparent: isLiquidGlassAvailable() }}
+    />
   );
 }

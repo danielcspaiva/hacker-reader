@@ -4,40 +4,12 @@ import { useHNLogin } from "@/hooks/use-hn-login";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
+import { parseHTMLText } from "@/lib/shared/utils/html";
+import { formatMemberSince } from "@/lib/shared/utils/time";
 import { Button, Form, Host, Section } from "@expo/ui/swift-ui";
 import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-
-/**
- * Format Unix timestamp to readable date string
- */
-function formatMemberSince(timestamp: number): string {
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-}
-
-/**
- * Parse HTML entities and basic tags from HN user bio
- */
-function parseHTMLText(html: string): string {
-  return html
-    .replace(/<p>/g, "\n\n")
-    .replace(/<\/p>/g, "")
-    .replace(/<i>(.*?)<\/i>/g, "$1")
-    .replace(/<b>(.*?)<\/b>/g, "$1")
-    .replace(/<a[^>]*>(.*?)<\/a>/g, "$1")
-    .replace(/&#x2F;/g, "/")
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .trim();
-}
 
 export default function ProfileScreen() {
   const { colorScheme } = useColorSchemeContext();

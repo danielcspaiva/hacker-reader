@@ -6,6 +6,7 @@ import {
   removeBookmark,
 } from "@/lib/bookmarks";
 import { getItem, type HNItem } from "@/lib/shared";
+import { queryKeys } from "@/lib/query-keys";
 import * as Haptics from "expo-haptics";
 
 /**
@@ -13,7 +14,7 @@ import * as Haptics from "expo-haptics";
  */
 export function useBookmarkIds() {
   return useQuery<number[], Error>({
-    queryKey: ["bookmarks"],
+    queryKey: queryKeys.bookmarks.all,
     queryFn: getBookmarkIds,
     staleTime: 0, // Always fresh - we want to see updates immediately
   });
@@ -26,7 +27,7 @@ export function useBookmarks() {
   const queryClient = useQueryClient();
 
   return useQuery<HNItem[], Error>({
-    queryKey: ["bookmarks", "stories"],
+    queryKey: queryKeys.bookmarks.stories,
     queryFn: async () => {
       const ids = await getBookmarkIds();
 
@@ -34,13 +35,13 @@ export function useBookmarks() {
       const stories = await Promise.all(
         ids.map(async (id) => {
           // Try to get from cache first
-          const cached = queryClient.getQueryData<HNItem>(["item", id]);
+          const cached = queryClient.getQueryData<HNItem>(queryKeys.item(id));
           if (cached) return cached;
 
           // Fetch from API if not cached
           const item = await getItem(id);
           // Update cache for future use
-          queryClient.setQueryData(["item", id], item);
+          queryClient.setQueryData(queryKeys.item(id), item);
           return item;
         })
       );
@@ -57,7 +58,7 @@ export function useBookmarks() {
  */
 export function useIsBookmarked(storyId: number) {
   return useQuery<boolean, Error>({
-    queryKey: ["bookmark", "check", storyId],
+    queryKey: queryKeys.bookmarks.check(storyId),
     queryFn: () => isBookmarked(storyId),
     staleTime: 0,
   });
@@ -82,30 +83,28 @@ export function useBookmarkMutation() {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["bookmarks"] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.bookmarks.all });
       await queryClient.cancelQueries({
-        queryKey: ["bookmark", "check", storyId],
+        queryKey: queryKeys.bookmarks.check(storyId),
       });
 
       // Snapshot previous values
-      const previousIds = queryClient.getQueryData<number[]>(["bookmarks"]);
-      const previousCheck = queryClient.getQueryData<boolean>([
-        "bookmark",
-        "check",
-        storyId,
-      ]);
+      const previousIds = queryClient.getQueryData<number[]>(queryKeys.bookmarks.all);
+      const previousCheck = queryClient.getQueryData<boolean>(
+        queryKeys.bookmarks.check(storyId)
+      );
 
       // Optimistically update bookmark check
-      queryClient.setQueryData(["bookmark", "check", storyId], add);
+      queryClient.setQueryData(queryKeys.bookmarks.check(storyId), add);
 
       // Optimistically update bookmark IDs list
       if (add) {
-        queryClient.setQueryData<number[]>(["bookmarks"], (old = []) => [
+        queryClient.setQueryData<number[]>(queryKeys.bookmarks.all, (old = []) => [
           storyId,
           ...old,
         ]);
       } else {
-        queryClient.setQueryData<number[]>(["bookmarks"], (old = []) =>
+        queryClient.setQueryData<number[]>(queryKeys.bookmarks.all, (old = []) =>
           old.filter((id) => id !== storyId)
         );
       }
@@ -115,11 +114,11 @@ export function useBookmarkMutation() {
     onError: (err, { storyId }, context) => {
       // Rollback on error
       if (context?.previousIds) {
-        queryClient.setQueryData(["bookmarks"], context.previousIds);
+        queryClient.setQueryData(queryKeys.bookmarks.all, context.previousIds);
       }
       if (context?.previousCheck !== undefined) {
         queryClient.setQueryData(
-          ["bookmark", "check", storyId],
+          queryKeys.bookmarks.check(storyId),
           context.previousCheck
         );
       }
@@ -127,7 +126,7 @@ export function useBookmarkMutation() {
     },
     onSettled: () => {
       // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all });
     },
   });
 }

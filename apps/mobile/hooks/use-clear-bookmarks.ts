@@ -1,5 +1,6 @@
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
 import { clearBookmarks } from "@/lib/bookmarks";
+import { queryKeys } from "@/lib/query-keys";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Alert } from "react-native";
@@ -57,10 +58,10 @@ export function useClearBookmarks() {
             try {
               setIsClearing(true);
               await clearBookmarks();
-              queryClient.setQueryData<number[]>(["bookmarks"], []);
-              queryClient.setQueryData(["bookmarks", "stories"], []);
-              queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
-              queryClient.invalidateQueries({ queryKey: ["bookmark"] });
+              queryClient.setQueryData<number[]>(queryKeys.bookmarks.all, []);
+              queryClient.setQueryData(queryKeys.bookmarks.stories, []);
+              queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all });
+              queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all });
               Alert.alert("Success", "All bookmarks cleared");
             } catch (error) {
               console.error("Error clearing bookmarks:", error);

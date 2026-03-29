@@ -2,6 +2,7 @@ import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment, StoryWithComments } from "@/hooks/use-story";
 import { comment } from "@/lib/shared/api";
 import { isAuthError } from "@/lib/shared/auth";
+import { queryKeys } from "@/lib/query-keys";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
@@ -76,7 +77,7 @@ export function useCommentMutation({
         try {
           // Add the comment directly to the cache using the data we already have
           queryClient.setQueryData<StoryWithComments>(
-            ["story", storyId],
+            queryKeys.story(storyId),
             (oldData) => {
               if (!oldData) return oldData;
 
@@ -126,12 +127,12 @@ export function useCommentMutation({
         } catch {
           // Fall back to invalidation if cache update fails
           await new Promise((resolve) => setTimeout(resolve, 8000));
-          queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.story(storyId) });
         }
       } else {
         // Couldn't extract comment ID, fall back to waiting
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.story(storyId) });
       }
     },
     onError: (error) => {

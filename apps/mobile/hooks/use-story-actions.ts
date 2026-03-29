@@ -8,6 +8,7 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { isAuthError, unvote, vote, flag, type HNItem } from "@/lib/shared";
+import { queryKeys } from "@/lib/query-keys";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
@@ -96,17 +97,17 @@ export function useStoryActions(story: HNItem): StoryActions {
 
     onMutate: async (wasVoted) => {
       // Optimistically update the votes cache
-      await queryClient.cancelQueries({ queryKey: ["votes"] });
-      const previousVotes = queryClient.getQueryData<number[]>(["votes"]);
+      await queryClient.cancelQueries({ queryKey: queryKeys.votes });
+      const previousVotes = queryClient.getQueryData<number[]>(queryKeys.votes);
 
       if (wasVoted) {
         // Remove from votes
-        queryClient.setQueryData<number[]>(["votes"], (old = []) =>
+        queryClient.setQueryData<number[]>(queryKeys.votes, (old = []) =>
           old.filter((id) => id !== story.id)
         );
       } else {
         // Add to votes
-        queryClient.setQueryData<number[]>(["votes"], (old = []) => [
+        queryClient.setQueryData<number[]>(queryKeys.votes, (old = []) => [
           ...old,
           story.id,
         ]);
@@ -126,7 +127,7 @@ export function useStoryActions(story: HNItem): StoryActions {
 
       // Rollback optimistic update
       if (context?.previousVotes) {
-        queryClient.setQueryData(["votes"], context.previousVotes);
+        queryClient.setQueryData(queryKeys.votes, context.previousVotes);
       }
 
       // Show appropriate error message

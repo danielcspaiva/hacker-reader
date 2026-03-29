@@ -86,3 +86,29 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
 
   return parts;
 }
+
+/**
+ * Parse HTML entities and basic tags to plain text
+ * Used for rendering user bios and other simple HTML content
+ */
+export function parseHTMLText(html: string): string {
+  return html
+    .replace(/<p>/g, "\n\n")
+    .replace(/<\/p>/g, "")
+    .replace(/<i>(.*?)<\/i>/g, "$1")
+    .replace(/<b>(.*?)<\/b>/g, "$1")
+    .replace(/<a[^>]*>(.*?)<\/a>/g, "$1")
+    // Decode all numeric HTML entities (&#xHH; and &#DDD;)
+    .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
+      String.fromCharCode(Number.parseInt(hex, 16))
+    )
+    .replace(/&#([0-9]+);/g, (_, dec) =>
+      String.fromCharCode(Number.parseInt(dec, 10))
+    )
+    // Decode named HTML entities
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .trim();
+}
