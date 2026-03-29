@@ -4,7 +4,8 @@ import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import { Button, Form, Host, Section, Text } from "@expo/ui/swift-ui";
 import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
-import { router, Stack, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import Stack from "expo-router/stack";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 /**

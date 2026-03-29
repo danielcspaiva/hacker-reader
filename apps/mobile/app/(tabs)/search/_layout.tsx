@@ -4,7 +4,8 @@ import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import Stack from "expo-router/stack";
 
 export default function Layout() {
   const router = useRouter();

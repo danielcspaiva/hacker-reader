@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import React from "react";
 
 export const unstable_settings = {
@@ -23,24 +23,24 @@ export default function TabLayout() {
       minimizeBehavior="onScrollDown"
     >
       <NativeTabs.Trigger name="feed">
-        <Icon sf="newspaper" />
-        <Label>Stories</Label>
+        <NativeTabs.Trigger.Icon sf="newspaper" />
+        <NativeTabs.Trigger.Label>Stories</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="bookmarks">
-        <Icon sf="bookmark" />
-        <Label>Bookmarks</Label>
+        <NativeTabs.Trigger.Icon sf="bookmark" />
+        <NativeTabs.Trigger.Label>Bookmarks</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
-        <Icon sf="person" />
-        <Label>Profile</Label>
+        <NativeTabs.Trigger.Icon sf="person" />
+        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
-        <Icon sf="gear" />
-        <Label>Settings</Label>
+        <NativeTabs.Trigger.Icon sf="gear" />
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="search" role="search">
-        <Icon sf="magnifyingglass" />
-        <Label>Search</Label>
+        <NativeTabs.Trigger.Icon sf="magnifyingglass" />
+        <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

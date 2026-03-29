@@ -10,7 +10,8 @@ import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import type { HNItem } from "@/lib/shared/types";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import Stack from "expo-router/stack";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,

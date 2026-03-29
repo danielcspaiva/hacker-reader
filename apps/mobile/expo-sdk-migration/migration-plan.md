@@ -343,11 +343,11 @@ This restores the working SDK 54 state completely.
 | 0.3 Baseline | DONE | Screenshot saved: `baseline-screenshots/sdk54-feed-tab.png`. expo-doctor saved: `baseline-doctor.txt` (4 pre-existing failures: duplicate deps, CNG sync warning, unmaintained cookies pkg, 24 outdated patches). App works fine. |
 | 1.1 Delete index.tsx | DONE | Moved redirect from `(tabs)/index.tsx` to root `app/index.tsx`. Added `initialRouteName` to both root and tabs layouts. App launches correctly to feed tab. |
 | 1.2 Verify SDK 54 | DONE | Feed tab loads as default, no errors in metro or system logs. App running cleanly. |
-| 2.1 Nuclear clean | | |
-| 2.2 Upgrade SDK | | |
-| 2.3 Reinstall | | |
-| 2.4 Diagnostics | | |
-| 3.1 NativeTabs | | |
+| 2.1 Nuclear clean | DONE | Wiped node_modules, .expo, ios, pnpm store, watchman |
+| 2.2 Upgrade SDK | DONE | expo 55.0.10, react 19.2.0, RN 0.83.4, expo-router 55.0.9 (canary). Also installed `buffer` for react-native-svg compat. |
+| 2.3 Reinstall | DONE | pnpm install + prebuild:clean + pod install |
+| 2.4 Diagnostics | DONE | expo-doctor: 4 failures (same pre-existing + app.json deprecated fields). Committed. |
+| 3.1 NativeTabs | DONE | Updated Icon/Label to compound components (NativeTabs.Trigger.Icon/.Label). SDK 55 no longer exports standalone Icon/Label. |
 | 3.2 app.json | | |
 | 3.3 @expo/ui | | |
 | 3.4 Sentry/PostHog | | |

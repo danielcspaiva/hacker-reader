@@ -15,7 +15,8 @@ import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
+import { useIsPreview, useLocalSearchParams } from "expo-router";
+import Stack from "expo-router/stack";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
