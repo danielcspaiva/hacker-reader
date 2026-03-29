@@ -50,6 +50,7 @@ Sentry.init({
 
 export const unstable_settings = {
   anchor: "(tabs)",
+  initialRouteName: "(tabs)",
 };
 
 // Create a client with global mutation invalidation

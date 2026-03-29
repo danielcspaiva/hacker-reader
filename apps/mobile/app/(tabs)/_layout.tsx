@@ -4,6 +4,10 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import React from "react";
 
+export const unstable_settings = {
+  initialRouteName: "feed",
+};
+
 export default function TabLayout() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
   const tintColor = useThemeColor({}, "tint");
