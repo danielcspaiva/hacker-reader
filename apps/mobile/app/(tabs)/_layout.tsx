@@ -2,7 +2,6 @@ import { Colors } from "@/constants/theme";
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
-import React from "react";
 
 export const unstable_settings = {
   initialRouteName: "feed",
@@ -30,15 +29,15 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Icon sf="bookmark" />
         <NativeTabs.Trigger.Label>Bookmarks</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="profile">
+      <NativeTabs.Trigger name="profile" hidden>
         <NativeTabs.Trigger.Icon sf="person" />
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
+      <NativeTabs.Trigger name="settings" hidden>
         <NativeTabs.Trigger.Icon sf="gear" />
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="search" role="search">
+      <NativeTabs.Trigger name="search" hidden>
         <NativeTabs.Trigger.Icon sf="magnifyingglass" />
         <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

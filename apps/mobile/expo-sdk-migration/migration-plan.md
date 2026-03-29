@@ -365,4 +365,17 @@ This restores the working SDK 54 state completely.
 - `ios-simulator` MCP fixed (wrong package name) — needs session restart to connect
 - Simulator: iPhone 17 Pro (7ECA3E87) booted, iOS 26.1
 - App running on SDK 54.0.13, all working
-- **Next**: Restart session for MCP tools, then Phase 1
+
+### Session 2 (2026-03-28)
+- Phase 1: Routing fix successful — moved redirect from `(tabs)/index.tsx` to root `app/index.tsx`
+- Phase 2: SDK upgrade completed (all packages are canary — SDK 55 not fully stable yet!)
+- Phase 3 findings:
+  - **CRITICAL**: `import { Stack } from "expo-router"` is BROKEN in canary builds. Crashes with `RawText` native component not found. Must use `import Stack from "expo-router/stack"` instead.
+  - NativeTabs imports changed: standalone `Icon`/`Label` removed, use `NativeTabs.Trigger.Icon`/`.Label`
+  - Removed duplicate `@react-navigation/*` packages (bundled in expo-router)
+  - `buffer` package needed for `react-native-svg` compatibility
+  - After Stack import fix: "Text strings must be rendered within <Text>" errors — needs investigation
+
+**IMPORTANT**: SDK 55 sub-packages (expo-router, @expo/ui, etc.) are ALL canary builds. Only `expo` itself has a stable 55.0.9 release. This is causing many issues. Consider waiting for stable release or accepting canary risk.
+
+- **Next**: Debug "Text strings" errors, or wait for stable SDK 55
