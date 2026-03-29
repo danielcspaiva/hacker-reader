@@ -187,27 +187,24 @@ export default function SettingsScreen() {
               onPress={handleOpenGuidelines}
               systemImage="doc.text"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Hacker News Guidelines
-            </Button>
+              label="Hacker News Guidelines"
+            />
             <Button
               onPress={handleManageBlockedUsers}
               systemImage="person.fill.xmark"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              {blockedUsers.length > 0
+              label={blockedUsers.length > 0
                 ? `Blocked Users (${blockedUsers.length})`
                 : "Blocked Users"}
-            </Button>
+            />
             <Button
               onPress={handleClearHidden}
               systemImage="eye.slash"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              {hiddenCount > 0
+              label={hiddenCount > 0
                 ? `Hidden Posts (${hiddenCount})`
                 : "Hidden Posts"}
-            </Button>
+            />
           </Section>
 
           <Section title="Data">
@@ -215,18 +212,16 @@ export default function SettingsScreen() {
               onPress={handleClearCache}
               systemImage="arrow.clockwise"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Clear Cache
-            </Button>
+              label="Clear Cache"
+            />
             <Button
               onPress={handleClearBookmarks}
               role="destructive"
               systemImage="trash"
               disabled={isClearing}
               modifiers={[foregroundStyle("red")]}
-            >
-              {clearBookmarksLabel}
-            </Button>
+              label={clearBookmarksLabel}
+            />
           </Section>
 
           <Section title="Support">
@@ -234,16 +229,14 @@ export default function SettingsScreen() {
               onPress={handleOpenRepository}
               systemImage="chevron.left.slash.chevron.right"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Check Source Code
-            </Button>
+              label="Check Source Code"
+            />
             <Button
               onPress={handleRateApp}
               systemImage="star"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Rate Hacker Reader
-            </Button>
+              label="Rate Hacker Reader"
+            />
           </Section>
 
           <Section title="About">
@@ -251,15 +244,13 @@ export default function SettingsScreen() {
               onPress={handleOpenWebsite}
               systemImage="globe"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Built by dcsp.dev
-            </Button>
+              label="Built by dcsp.dev"
+            />
             <Button
               systemImage="info.circle"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              {`${APP_NAME} v${APP_VERSION}`}
-            </Button>
+              label={`${APP_NAME} v${APP_VERSION}`}
+            />
           </Section>
         </Form>
       </Host>

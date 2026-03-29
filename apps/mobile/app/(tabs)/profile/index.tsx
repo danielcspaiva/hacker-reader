@@ -74,9 +74,8 @@ export default function ProfileScreen() {
                 onPress={handleLogin}
                 systemImage="person.badge.key"
                 modifiers={[foregroundStyle(textColor)]}
-              >
-                Sign in to Hacker News
-              </Button>
+                label="Sign in to Hacker News"
+              />
             </Section>
           ) : (
             <>
@@ -92,21 +91,18 @@ export default function ProfileScreen() {
                     <Button
                       systemImage="person"
                       modifiers={[foregroundStyle(textColor)]}
-                    >
-                      {user.id}
-                    </Button>
+                      label={user.id}
+                    />
                     <Button
                       systemImage="star"
                       modifiers={[foregroundStyle(textColor)]}
-                    >
-                      {user.karma.toLocaleString()} karma
-                    </Button>
+                      label={`${user.karma.toLocaleString()} karma`}
+                    />
                     <Button
                       systemImage="calendar"
                       modifiers={[foregroundStyle(textColor)]}
-                    >
-                      Member since {formatMemberSince(user.created)}
-                    </Button>
+                      label={`Member since ${formatMemberSince(user.created)}`}
+                    />
                     {user.submitted &&
                       user.submitted.length > 0 &&
                       submissionsCount !== undefined &&
@@ -117,9 +113,8 @@ export default function ProfileScreen() {
                           }
                           systemImage="square.and.pencil"
                           modifiers={[foregroundStyle(textColor)]}
-                        >
-                          {submissionsCount.toLocaleString()} submissions
-                        </Button>
+                          label={`${submissionsCount.toLocaleString()} submissions`}
+                        />
                       )}
                   </Section>
 
@@ -139,9 +134,8 @@ export default function ProfileScreen() {
                       role="destructive"
                       systemImage="rectangle.portrait.and.arrow.right"
                       modifiers={[foregroundStyle("red")]}
-                    >
-                      Sign out of Hacker News
-                    </Button>
+                      label="Sign out of Hacker News"
+                    />
                   </Section>
                 </>
               ) : (
@@ -149,9 +143,8 @@ export default function ProfileScreen() {
                   <Button
                     systemImage="exclamationmark.triangle"
                     modifiers={[foregroundStyle("red")]}
-                  >
-                    Failed to load profile
-                  </Button>
+                    label="Failed to load profile"
+                  />
                 </Section>
               )}
             </>

@@ -95,21 +95,18 @@ export default function UserProfileScreen() {
                   <Button
                     systemImage="person"
                     modifiers={[foregroundStyle(textColor)]}
-                  >
-                    {user.id}
-                  </Button>
+                    label={user.id}
+                  />
                   <Button
                     systemImage="star"
                     modifiers={[foregroundStyle(textColor)]}
-                  >
-                    {user.karma.toLocaleString()} karma
-                  </Button>
+                    label={`${user.karma.toLocaleString()} karma`}
+                  />
                   <Button
                     systemImage="calendar"
                     modifiers={[foregroundStyle(textColor)]}
-                  >
-                    Member since {formatMemberSince(user.created)}
-                  </Button>
+                    label={`Member since ${formatMemberSince(user.created)}`}
+                  />
                   {user.submitted &&
                     user.submitted.length > 0 &&
                     submissionsCount !== undefined &&
@@ -120,9 +117,8 @@ export default function UserProfileScreen() {
                         }
                         systemImage="square.and.pencil"
                         modifiers={[foregroundStyle(textColor)]}
-                      >
-                        {submissionsCount.toLocaleString()} submissions
-                      </Button>
+                        label={`${submissionsCount.toLocaleString()} submissions`}
+                      />
                     )}
                 </Section>
 
@@ -139,9 +135,8 @@ export default function UserProfileScreen() {
                 <Button
                   systemImage="exclamationmark.triangle"
                   modifiers={[foregroundStyle("red")]}
-                >
-                  User not found
-                </Button>
+                  label="User not found"
+                />
               </Section>
             )}
           </Form>

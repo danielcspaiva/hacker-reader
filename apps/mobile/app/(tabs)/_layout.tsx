@@ -29,11 +29,11 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Icon sf="bookmark" />
         <NativeTabs.Trigger.Label>Bookmarks</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="profile" hidden>
+      <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Icon sf="person" />
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings" hidden>
+      <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Icon sf="gear" />
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
