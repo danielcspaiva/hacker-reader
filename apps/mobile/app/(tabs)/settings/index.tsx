@@ -14,8 +14,13 @@ import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { clearBlockedUsers } from "@/lib/storage/blocked-users";
-import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
-import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
+import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
+import {
+  foregroundStyle,
+  frame,
+  pickerStyle,
+  tag,
+} from "@expo/ui/swift-ui/modifiers";
 import { Alert, Platform, StyleSheet, View } from "react-native";
 
 const HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
@@ -25,7 +30,7 @@ export default function SettingsScreen() {
   const textColor = useThemeColor({}, "text");
 
   // Custom hooks for all business logic
-  const { options, selectedIndex, handleOptionSelected } =
+  const { options, selection, handleSelectionChange } =
     useAppearanceSettings();
   const { handleClearCache } = useClearCache();
   const { handleClearBookmarks, clearBookmarksLabel, isClearing } =
@@ -175,11 +180,16 @@ export default function SettingsScreen() {
         >
           <Section title="Appearance">
             <Picker
-              options={options}
-              selectedIndex={selectedIndex}
-              onOptionSelected={handleOptionSelected}
-              variant="segmented"
-            />
+              selection={selection}
+              onSelectionChange={handleSelectionChange}
+              modifiers={[pickerStyle("segmented")]}
+            >
+              {options.map((opt) => (
+                <Text key={opt.value} modifiers={[tag(opt.value)]}>
+                  {opt.label}
+                </Text>
+              ))}
+            </Picker>
           </Section>
 
           <Section title="Content & Safety">

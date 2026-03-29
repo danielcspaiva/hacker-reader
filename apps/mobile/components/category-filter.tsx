@@ -1,6 +1,6 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { Host, Picker } from "@expo/ui/swift-ui";
-import { glassEffect } from "@expo/ui/swift-ui/modifiers";
+import { Host, Picker, Text } from "@expo/ui/swift-ui";
+import { glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
@@ -24,29 +24,30 @@ export function CategoryFilter({
 }: CategoryFilterProps) {
   const categories = Object.keys(CATEGORY_LABELS) as Category[];
   const { colorScheme } = useColorSchemeContext();
-  const selectedIndex = categories.findIndex((cat) => cat === category);
-
-  const handleOptionSelected = (event: { nativeEvent: { index: number } }) => {
-    const nextCategory = categories[event.nativeEvent.index];
-    if (nextCategory && nextCategory !== category) {
-      onSelectCategory(nextCategory);
-    }
-  };
 
   return (
     <View style={styles.container}>
       <Host matchContents colorScheme={colorScheme}>
         <Picker
-          options={categories.map((cat) => CATEGORY_LABELS[cat])}
-          selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
-          onOptionSelected={handleOptionSelected}
-          variant="segmented"
+          selection={category}
+          onSelectionChange={(selection) => {
+            if (selection !== category) {
+              onSelectCategory(selection as Category);
+            }
+          }}
           modifiers={[
+            pickerStyle("segmented"),
             glassEffect({
               glass: { variant: "regular" },
             }),
           ]}
-        />
+        >
+          {categories.map((cat) => (
+            <Text key={cat} modifiers={[tag(cat)]}>
+              {CATEGORY_LABELS[cat]}
+            </Text>
+          ))}
+        </Picker>
       </Host>
     </View>
   );
