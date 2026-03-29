@@ -128,26 +128,23 @@ export function CommentItem({
                 <SwiftUIButton
                   systemImage="arrowshape.turn.up.left"
                   onPress={handleReply}
-                >
-                  Reply
-                </SwiftUIButton>
+                  label="Reply"
+                />
               )}
               {isOwnComment ? (
                 <SwiftUIButton
                   systemImage="trash"
                   onPress={handleDeleteComment}
                   role="destructive"
-                >
-                  Delete Comment
-                </SwiftUIButton>
+                  label="Delete Comment"
+                />
               ) : (
                 <SwiftUIButton
                   systemImage="nosign"
                   onPress={handleBlockUser}
                   role="destructive"
-                >
-                  Block User
-                </SwiftUIButton>
+                  label="Block User"
+                />
               )}
             </ContextMenu.Items>
             <ContextMenu.Trigger>

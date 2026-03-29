@@ -180,32 +180,26 @@ export default function StoryDetailScreen() {
                   <SwiftUIButton
                     systemImage={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
                     onPress={handleVote}
-                  >
-                    {hasVoted ? "Unvote" : "Upvote"}
-                  </SwiftUIButton>
+                    label={hasVoted ? "Unvote" : "Upvote"}
+                  />
                   <SwiftUIButton
                     systemImage="square.and.arrow.up"
                     onPress={handleShare}
-                  >
-                    Share
-                  </SwiftUIButton>
-                  <SwiftUIButton systemImage="eye.slash" onPress={handleHide}>
-                    Hide
-                  </SwiftUIButton>
+                    label="Share"
+                  />
+                  <SwiftUIButton systemImage="eye.slash" onPress={handleHide} label="Hide" />
                   <SwiftUIButton
                     systemImage="flag"
                     onPress={handleFlag}
                     role="destructive"
-                  >
-                    Flag
-                  </SwiftUIButton>
+                    label="Flag"
+                  />
                   <SwiftUIButton
                     systemImage="nosign"
                     onPress={handleBlockUser}
                     role="destructive"
-                  >
-                    Block User
-                  </SwiftUIButton>
+                    label="Block User"
+                  />
                 </ContextMenu.Items>
                 <ContextMenu.Trigger>
                   <SwiftUIButton
