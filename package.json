@@ -28,28 +28,5 @@
     "concurrently": "^9.1.2",
     "prettier": "^3.4.2",
     "typescript": "~5.9.2"
-  },
-  "dependencies": {
-    "@expo/ui": "55.0.7-canary-20260328-bdc6273",
-    "eslint-config-expo": "55.0.1-canary-20260328-bdc6273",
-    "expo": "~55.0.9",
-    "expo-application": "55.0.11-canary-20260328-bdc6273",
-    "expo-constants": "55.0.10-canary-20260328-bdc6273",
-    "expo-dev-client": "55.0.20-canary-20260328-bdc6273",
-    "expo-device": "55.0.11-canary-20260328-bdc6273",
-    "expo-file-system": "55.0.13-canary-20260328-bdc6273",
-    "expo-font": "55.0.5-canary-20260328-bdc6273",
-    "expo-glass-effect": "55.0.9-canary-20260328-bdc6273",
-    "expo-haptics": "55.0.10-canary-20260328-bdc6273",
-    "expo-image": "55.0.7-canary-20260328-bdc6273",
-    "expo-linking": "55.0.10-canary-20260328-bdc6273",
-    "expo-localization": "55.0.10-canary-20260328-bdc6273",
-    "expo-router": "55.0.9-canary-20260328-bdc6273",
-    "expo-secure-store": "55.0.10-canary-20260328-bdc6273",
-    "expo-splash-screen": "55.0.14-canary-20260328-bdc6273",
-    "expo-status-bar": "55.0.5-canary-20260328-bdc6273",
-    "expo-symbols": "55.0.6-canary-20260328-bdc6273",
-    "expo-system-ui": "55.0.12-canary-20260328-bdc6273",
-    "expo-web-browser": "55.0.11-canary-20260328-bdc6273"
   }
 }

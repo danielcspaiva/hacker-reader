@@ -18,7 +18,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@expo/metro-runtime": "~55.0.7",
+    "@expo/metro-runtime": "55.0.8-canary-20260328-bdc6273",
     "@expo/ui": "55.0.7-canary-20260328-bdc6273",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -72,6 +72,20 @@
       "exclude": [
         "react-native-widget-extension"
       ]
+    },
+    "install": {
+      "exclude": [
+        "react-native-reanimated",
+        "react-native-worklets"
+      ]
+    },
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "@react-native-cookies/cookies",
+          "react-native-user-interface-style"
+        ]
+      }
     }
   },
   "private": true,

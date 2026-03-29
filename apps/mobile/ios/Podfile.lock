@@ -2497,12 +2497,12 @@ DEPENDENCIES:
   - EXConstants (from `../../../node_modules/expo-constants/ios`)
   - EXJSONUtils (from `../../../node_modules/expo-json-utils/ios`)
   - EXManifests (from `../../../node_modules/expo-manifests/ios`)
-  - Expo (from `../node_modules/expo`)
+  - Expo (from `../../../node_modules/expo`)
   - expo-dev-client (from `../../../node_modules/expo-dev-client/ios`)
   - expo-dev-launcher (from `../../../node_modules/expo-dev-launcher`)
   - expo-dev-menu (from `../../../node_modules/expo-dev-menu`)
   - expo-dev-menu-interface (from `../../../node_modules/expo-dev-menu-interface/ios`)
-  - ExpoAsset (from `../node_modules/expo-asset/ios`)
+  - ExpoAsset (from `../../../node_modules/expo-asset/ios`)
   - ExpoDevice (from `../../../node_modules/expo-device/ios`)
   - "ExpoDomWebView (from `../../../node_modules/@expo/dom-webview/ios`)"
   - ExpoFileSystem (from `../../../node_modules/expo-file-system/ios`)
@@ -2510,12 +2510,12 @@ DEPENDENCIES:
   - ExpoGlassEffect (from `../../../node_modules/expo-glass-effect/ios`)
   - ExpoHaptics (from `../../../node_modules/expo-haptics/ios`)
   - ExpoImage (from `../../../node_modules/expo-image/ios`)
-  - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
+  - ExpoKeepAwake (from `../../../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../../../node_modules/expo-linking/ios`)
   - ExpoLocalization (from `../../../node_modules/expo-localization/ios`)
-  - "ExpoLogBox (from `../node_modules/@expo/log-box`)"
-  - ExpoModulesCore (from `../node_modules/expo-modules-core`)
-  - ExpoModulesJSI (from `../node_modules/expo-modules-core`)
+  - "ExpoLogBox (from `../../../node_modules/@expo/log-box`)"
+  - ExpoModulesCore (from `../../../node_modules/expo-modules-core`)
+  - ExpoModulesJSI (from `../../../node_modules/expo-modules-core`)
   - ExpoRouter (from `../../../node_modules/expo-router/ios`)
   - ExpoSecureStore (from `../../../node_modules/expo-secure-store/ios`)
   - ExpoSplashScreen (from `../../../node_modules/expo-splash-screen/ios`)
@@ -2633,7 +2633,7 @@ EXTERNAL SOURCES:
   EXManifests:
     :path: "../../../node_modules/expo-manifests/ios"
   Expo:
-    :path: "../node_modules/expo"
+    :path: "../../../node_modules/expo"
   expo-dev-client:
     :path: "../../../node_modules/expo-dev-client/ios"
   expo-dev-launcher:
@@ -2643,7 +2643,7 @@ EXTERNAL SOURCES:
   expo-dev-menu-interface:
     :path: "../../../node_modules/expo-dev-menu-interface/ios"
   ExpoAsset:
-    :path: "../node_modules/expo-asset/ios"
+    :path: "../../../node_modules/expo-asset/ios"
   ExpoDevice:
     :path: "../../../node_modules/expo-device/ios"
   ExpoDomWebView:
@@ -2659,17 +2659,17 @@ EXTERNAL SOURCES:
   ExpoImage:
     :path: "../../../node_modules/expo-image/ios"
   ExpoKeepAwake:
-    :path: "../node_modules/expo-keep-awake/ios"
+    :path: "../../../node_modules/expo-keep-awake/ios"
   ExpoLinking:
     :path: "../../../node_modules/expo-linking/ios"
   ExpoLocalization:
     :path: "../../../node_modules/expo-localization/ios"
   ExpoLogBox:
-    :path: "../node_modules/@expo/log-box"
+    :path: "../../../node_modules/@expo/log-box"
   ExpoModulesCore:
-    :path: "../node_modules/expo-modules-core"
+    :path: "../../../node_modules/expo-modules-core"
   ExpoModulesJSI:
-    :path: "../node_modules/expo-modules-core"
+    :path: "../../../node_modules/expo-modules-core"
   ExpoRouter:
     :path: "../../../node_modules/expo-router/ios"
   ExpoSecureStore:
