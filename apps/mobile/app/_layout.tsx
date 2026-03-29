@@ -14,8 +14,6 @@ import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
 import { Pressable } from "react-native";
-// import "react-native-reanimated"; // Removed for SDK 55 — causes Reanimated error with screen transitions
-
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import {

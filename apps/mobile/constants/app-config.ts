@@ -16,17 +16,11 @@ export const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
 /** GitHub repository URL */
 export const REPO_URL = "https://github.com/danielcspaiva/hacker-reader";
 
-/**
- * iOS App Store URL
- * TODO: Update with actual App Store link after launch
- */
+/** iOS App Store URL */
 export const IOS_APP_STORE_URL =
   "https://apps.apple.com/us/app/hacker-reader/id6754137305";
 
-/**
- * Android Play Store URL
- * TODO: Update with actual Play Store link after launch
- */
+/** Android Play Store URL */
 export const ANDROID_PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.danielcspaiva.hnclient";
 

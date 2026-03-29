@@ -30,7 +30,7 @@ export function useShareStory() {
         story.url || `https://news.ycombinator.com/item?id=${story.id}`;
       const title = story.title || "Hacker News Story";
 
-      const result = await Share.share({
+      await Share.share({
         // iOS: Native share sheet handles both title and URL
         // Android: Needs combined message
         message: Platform.select({
@@ -43,10 +43,6 @@ export function useShareStory() {
         title,
       });
 
-      // Optional: Track successful shares
-      if (result.action === Share.sharedAction) {
-        // TODO: Track successful shares
-      }
     } catch (error) {
       console.error("Error sharing story:", error);
       Alert.alert(
