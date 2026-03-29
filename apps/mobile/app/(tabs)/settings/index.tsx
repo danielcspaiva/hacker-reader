@@ -16,6 +16,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { clearBlockedUsers } from "@/lib/storage/blocked-users";
 import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
 import {
+  disabled,
   foregroundStyle,
   frame,
   pickerStyle,
@@ -228,8 +229,7 @@ export default function SettingsScreen() {
               onPress={handleClearBookmarks}
               role="destructive"
               systemImage="trash"
-              disabled={isClearing}
-              modifiers={[foregroundStyle("red")]}
+              modifiers={[disabled(isClearing), foregroundStyle("red")]}
               label={clearBookmarksLabel}
             />
           </Section>

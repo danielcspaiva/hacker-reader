@@ -7,7 +7,7 @@ import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
 import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
-import { frame } from "@expo/ui/swift-ui/modifiers";
+import { controlSize, foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
@@ -149,12 +149,8 @@ export function CommentItem({
             </ContextMenu.Items>
             <ContextMenu.Trigger>
               <SwiftUIButton
-                // variant="borderless"
-                color={textColor}
                 systemImage="ellipsis"
-                // role="default"
-                controlSize="small"
-                modifiers={[frame({ width: 24, height: 24 })]}
+                modifiers={[foregroundStyle(textColor), controlSize("small"), frame({ width: 24, height: 24 })]}
               />
             </ContextMenu.Trigger>
           </ContextMenu>

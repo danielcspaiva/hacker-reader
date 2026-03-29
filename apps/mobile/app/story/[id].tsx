@@ -12,7 +12,7 @@ import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { flattenComments } from "@/lib/utils/comments";
 import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
-import { frame } from "@expo/ui/swift-ui/modifiers";
+import { buttonStyle, controlSize, frame } from "@expo/ui/swift-ui/modifiers";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { useIsPreview, useLocalSearchParams } from "expo-router";
@@ -203,11 +203,9 @@ export default function StoryDetailScreen() {
                 </ContextMenu.Items>
                 <ContextMenu.Trigger>
                   <SwiftUIButton
-                    variant="default"
                     systemImage="ellipsis"
                     role="default"
-                    controlSize="regular"
-                    modifiers={[frame({ width: 36, height: 36 })]}
+                    modifiers={[buttonStyle("plain"), controlSize("regular"), frame({ width: 36, height: 36 })]}
                   />
                 </ContextMenu.Trigger>
               </ContextMenu>

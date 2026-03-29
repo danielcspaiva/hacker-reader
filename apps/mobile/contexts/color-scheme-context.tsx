@@ -65,8 +65,10 @@ export function ColorSchemeProvider({
   };
 
   // Determine actual color scheme based on preference
+  // systemColorScheme may return "unspecified" in SDK 55+, treat it as null
+  const resolvedSystemScheme = systemColorScheme === "light" || systemColorScheme === "dark" ? systemColorScheme : "light";
   const colorScheme: ColorScheme =
-    preference === "system" ? (systemColorScheme ?? "light") : preference;
+    preference === "system" ? resolvedSystemScheme : preference;
 
   // Sync iOS interface style with user's theme preference
   useEffect(() => {

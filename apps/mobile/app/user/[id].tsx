@@ -3,7 +3,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import { Button, Form, Host, Section, Text } from "@expo/ui/swift-ui";
-import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
+import { font, foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { router, useLocalSearchParams } from "expo-router";
 import Stack from "expo-router/stack";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -124,7 +124,7 @@ export default function UserProfileScreen() {
 
                 {user.about && (
                   <Section title="About">
-                    <Text size={15} color={textColor}>
+                    <Text modifiers={[font({ size: 15 }), foregroundStyle(textColor)]}>
                       {parseHTMLText(user.about)}
                     </Text>
                   </Section>
