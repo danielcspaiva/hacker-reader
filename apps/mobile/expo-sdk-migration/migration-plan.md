@@ -348,11 +348,11 @@ This restores the working SDK 54 state completely.
 | 2.3 Reinstall | DONE | pnpm install + prebuild:clean + pod install |
 | 2.4 Diagnostics | DONE | expo-doctor: 4 failures (same pre-existing + app.json deprecated fields). Committed. |
 | 3.1 NativeTabs | DONE | Updated Icon/Label to compound components (NativeTabs.Trigger.Icon/.Label). SDK 55 no longer exports standalone Icon/Label. |
-| 3.2 app.json | | |
-| 3.3 @expo/ui | | |
-| 3.4 Sentry/PostHog | | |
-| 3.5 Third-party pkgs | | |
-| 4.1 Navigation | | |
+| 3.2 app.json | DONE | Removed newArchEnabled and edgeToEdgeEnabled (deprecated in SDK 55) |
+| 3.3 @expo/ui | DONE | **BREAKING**: Button no longer accepts text children, must use `label` prop. Fixed in all files (profile, settings, user, story, comment-item). |
+| 3.4 Sentry/PostHog | DONE | Working — PostHog logs visible in metro, Sentry init runs without errors |
+| 3.5 Third-party pkgs | PARTIAL | Feed, bookmarks, search work. Need to verify story detail, auth flows, and user profiles |
+| 4.1 Navigation | PARTIAL | All 5 tabs render. Need to test story detail navigation and back button |
 | 4.2 Auth | | |
 | 4.3 @expo/ui verify | | |
 | 4.4 Widgets | | |
