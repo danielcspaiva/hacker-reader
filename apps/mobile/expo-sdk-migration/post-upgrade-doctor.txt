@@ -1,0 +1,36 @@
+env: load .env.local
+env: export EXPO_PUBLIC_POSTHOG_API_KEY EXPO_PUBLIC_POSTHOG_HOST EXPO_PUBLIC_SENTRY_DSN SENTRY_AUTH_TOKEN
+Running 17 checks on your project...
+13/17 checks passed. 4 checks failed. Possible issues detected:
+Use the --verbose flag to see more details about passed checks.
+
+✖ Check Expo config (app.json/ app.config.js) schema
+Errors validating fields in /Users/danielcspaiva/personal/hn-client/apps/mobile/app.json:
+ should NOT have additional property 'newArchEnabled'.
+ Field: android - should NOT have additional property 'edgeToEdgeEnabled'.
+Advice:
+Resolve schema errors in your app config. Learn more: https://docs.expo.dev/workflow/configuration/
+
+✖ Check that no duplicate dependencies are installed
+Your project contains duplicate native module dependencies, which should be de-duplicated.
+Native builds may only contain one version of any given native module, and having multiple versions of a single Native module installed may lead to unexpected build errors.
+Found duplicates for @expo/fingerprint:
+  ├─ @expo/fingerprint@0.16.7-canary-20260328-bdc6273 (at: ../../node_modules/@expo/fingerprint)
+  └─ @expo/fingerprint@0.6.1 (at: ../../node_modules/react-native-widget-extension/node_modules/@expo/fingerprint)
+Advice:
+Resolve your dependency issues and deduplicate your dependencies. Learn more: https://expo.fyi/resolving-dependency-issues
+
+✖ Check for app config fields that may not be synced in a non-CNG project
+This project contains native project folders but also has native configuration properties in app.json, indicating it is configured to use Prebuild. When the android/ios folders are present, EAS Build will not sync the following properties: orientation, icon, scheme, userInterfaceStyle, ios, android, plugins. 
+
+
+✖ Validate packages against React Native Directory package metadata
+The following issues were found when validating your dependencies against React Native Directory:
+  Unsupported on New Architecture: @react-native-cookies/cookies
+  Unmaintained: @react-native-cookies/cookies
+  No metadata available: react-native-user-interface-style
+Advice:
+Use libraries that are actively maintained and support the New Architecture. Find alternative libraries with https://reactnative.directory.
+Add packages to expo.doctor.reactNativeDirectoryCheck.exclude in package.json to selectively skip validations, if the warning is not relevant.
+Update React Native Directory to include metadata for unknown packages. Alternatively, set expo.doctor.reactNativeDirectoryCheck.listUnknownPackages in package.json to false to skip warnings about packages with no metadata, if the warning is not relevant.
+

@@ -341,8 +341,8 @@ This restores the working SDK 54 state completely.
 | 0.1 Tooling | DONE | `xcrun simctl` works for screenshots. `ios-simulator-mcp` configured but needs session restart. MCP was misconfigured as `@anthropic/ios-simulator-mcp` (404) — fixed to `ios-simulator-mcp@latest`. Deepwiki skill available as backup. |
 | 0.2 Branch | DONE | Created `feat/sdk-55-upgrade` branch |
 | 0.3 Baseline | DONE | Screenshot saved: `baseline-screenshots/sdk54-feed-tab.png`. expo-doctor saved: `baseline-doctor.txt` (4 pre-existing failures: duplicate deps, CNG sync warning, unmaintained cookies pkg, 24 outdated patches). App works fine. |
-| 1.1 Delete index.tsx | | |
-| 1.2 Verify SDK 54 | | |
+| 1.1 Delete index.tsx | DONE | Moved redirect from `(tabs)/index.tsx` to root `app/index.tsx`. Added `initialRouteName` to both root and tabs layouts. App launches correctly to feed tab. |
+| 1.2 Verify SDK 54 | DONE | Feed tab loads as default, no errors in metro or system logs. App running cleanly. |
 | 2.1 Nuclear clean | | |
 | 2.2 Upgrade SDK | | |
 | 2.3 Reinstall | | |
