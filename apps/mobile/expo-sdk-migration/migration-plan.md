@@ -351,12 +351,12 @@ This restores the working SDK 54 state completely.
 | 3.2 app.json | DONE | Removed newArchEnabled and edgeToEdgeEnabled (deprecated in SDK 55) |
 | 3.3 @expo/ui | DONE | **BREAKING**: Button no longer accepts text children, must use `label` prop. Fixed in all files (profile, settings, user, story, comment-item). |
 | 3.4 Sentry/PostHog | DONE | Working — PostHog logs visible in metro, Sentry init runs without errors |
-| 3.5 Third-party pkgs | PARTIAL | Feed, bookmarks, search work. Need to verify story detail, auth flows, and user profiles |
-| 4.1 Navigation | PARTIAL | All 5 tabs render. Need to test story detail navigation and back button |
-| 4.2 Auth | | |
-| 4.3 @expo/ui verify | | |
-| 4.4 Widgets | | |
-| 4.5 Final cleanup | | |
+| 3.5 Third-party pkgs | DONE | All working. Upgraded reanimated 4.2.1→4.3.0, worklets 0.7.2→0.8.1 to fix screen transitions. |
+| 4.1 Navigation | DONE | All tabs, story detail, back button, web browser links all working |
+| 4.2 Auth | SKIPPED | Can't test without HN credentials in simulator. Login modal presentation verified. |
+| 4.3 @expo/ui verify | DONE | Picker API migrated (selection/onSelectionChange/Text+tag). Button label prop. Settings + Profile render. |
+| 4.4 Widgets | DONE | Widget target exists in ios/ after prebuild |
+| 4.5 Final cleanup | DONE | TypeScript: 0 errors. ESLint: 0 errors. expo-doctor: 4 warnings (all expected/pre-existing). |
 
 ## Session Notes
 
