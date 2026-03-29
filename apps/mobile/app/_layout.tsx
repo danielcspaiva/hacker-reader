@@ -145,7 +145,31 @@ function RootLayoutContent() {
           name="story/[id]"
           options={{
             headerShown: true,
+            headerTransparent: true,
             headerBackButtonDisplayMode: "minimal",
+            headerLargeTitle: true,
+            headerLargeTitleShadowVisible: false,
+            headerBlurEffect: isLiquidGlassAvailable()
+              ? "none"
+              : "systemMaterial",
+            headerLargeTitleStyle: {
+              color:
+                colorScheme === "dark"
+                  ? Colors.dark[colorPalette].background
+                  : Colors.light[colorPalette].background,
+              fontSize: 1,
+            },
+            headerTintColor:
+              colorScheme === "dark"
+                ? Colors.dark[colorPalette].text
+                : Colors.light[colorPalette].text,
+            headerStyle: {
+              backgroundColor: isLiquidGlassAvailable()
+                ? "transparent"
+                : colorScheme === "dark"
+                  ? Colors.dark[colorPalette].background
+                  : Colors.light[colorPalette].background,
+            },
           }}
         />
         <Stack.Screen
