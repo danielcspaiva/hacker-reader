@@ -2217,7 +2217,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNReanimated (4.2.1):
+  - RNReanimated (4.3.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2239,10 +2239,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNReanimated/reanimated (= 4.2.1)
+    - RNReanimated/apple (= 4.3.0)
+    - RNReanimated/common (= 4.3.0)
     - RNWorklets
     - Yoga
-  - RNReanimated/reanimated (4.2.1):
+  - RNReanimated/apple (4.3.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2264,10 +2265,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNReanimated/reanimated/apple (= 4.2.1)
     - RNWorklets
     - Yoga
-  - RNReanimated/reanimated/apple (4.2.1):
+  - RNReanimated/common (4.3.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2407,7 +2407,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets (0.7.2):
+  - RNWorklets (0.8.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2429,9 +2429,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/worklets (= 0.7.2)
+    - RNWorklets/apple (= 0.8.1)
+    - RNWorklets/common (= 0.8.1)
     - Yoga
-  - RNWorklets/worklets (0.7.2):
+  - RNWorklets/apple (0.8.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2453,9 +2454,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/worklets/apple (= 0.7.2)
     - Yoga
-  - RNWorklets/worklets/apple (0.7.2):
+  - RNWorklets/common (0.8.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2513,7 +2513,7 @@ DEPENDENCIES:
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../../../node_modules/expo-linking/ios`)
   - ExpoLocalization (from `../../../node_modules/expo-localization/ios`)
-  - "ExpoLogBox (from `../../../node_modules/@expo/log-box`)"
+  - "ExpoLogBox (from `../node_modules/@expo/log-box`)"
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoModulesJSI (from `../node_modules/expo-modules-core`)
   - ExpoRouter (from `../../../node_modules/expo-router/ios`)
@@ -2665,7 +2665,7 @@ EXTERNAL SOURCES:
   ExpoLocalization:
     :path: "../../../node_modules/expo-localization/ios"
   ExpoLogBox:
-    :path: "../../../node_modules/@expo/log-box"
+    :path: "../node_modules/@expo/log-box"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
   ExpoModulesJSI:
@@ -2973,11 +2973,11 @@ SPEC CHECKSUMS:
   ReactNativeDependencies: a03731eaac9996d55a0a3c6ad4ed6b0fa23c45bc
   RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
   RNGestureHandler: 0ea8153746a92b3744d4eaadade647debedf646e
-  RNReanimated: 55f3c45edaee604ad1f1447cb13e928cb6e21660
+  RNReanimated: e33497d4047d3f6f0071268486ee1a273819aa37
   RNScreens: 02e62f995ceb94ea465864b3bf4d4767b87f0362
   RNSentry: fbdf0705a341b40f9c78cce0cb3adf7fdcc895cf
   RNSVG: 4af054df80cb34efdd7cc17ed22756365b992a72
-  RNWorklets: e39484d2d9f19e04de116784d06841d30b70fb3a
+  RNWorklets: e08e31490fbaaf3d6b409d1e1ec20ec0a53dca05
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c

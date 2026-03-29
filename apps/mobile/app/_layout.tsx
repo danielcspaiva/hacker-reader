@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
 import { Pressable } from "react-native";
-import "react-native-reanimated";
+// import "react-native-reanimated"; // Removed for SDK 55 — causes Reanimated error with screen transitions
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
@@ -145,31 +145,7 @@ function RootLayoutContent() {
           name="story/[id]"
           options={{
             headerShown: true,
-            headerTransparent: true,
             headerBackButtonDisplayMode: "minimal",
-            headerLargeTitle: true,
-            headerLargeTitleShadowVisible: false,
-            headerBlurEffect: isLiquidGlassAvailable()
-              ? "none"
-              : "systemMaterial",
-            headerLargeTitleStyle: {
-              color:
-                colorScheme === "dark"
-                  ? Colors.dark[colorPalette].background
-                  : Colors.light[colorPalette].background,
-              fontSize: 1,
-            },
-            headerTintColor:
-              colorScheme === "dark"
-                ? Colors.dark[colorPalette].text
-                : Colors.light[colorPalette].text,
-            headerStyle: {
-              backgroundColor: isLiquidGlassAvailable()
-                ? "transparent"
-                : colorScheme === "dark"
-                  ? Colors.dark[colorPalette].background
-                  : Colors.light[colorPalette].background,
-            },
           }}
         />
         <Stack.Screen
