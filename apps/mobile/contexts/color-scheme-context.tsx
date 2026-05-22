@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, use, useEffect, useState, useRef } from "react";
 import { useColorScheme as useSystemColorScheme } from "react-native";
 import UserInterfaceStyle from "react-native-user-interface-style";
 import { usePostHog } from "posthog-react-native";
@@ -97,7 +97,7 @@ export function ColorSchemeProvider({
 }
 
 export function useColorSchemeContext() {
-  const context = useContext(ColorSchemeContext);
+  const context = use(ColorSchemeContext);
   if (context === undefined) {
     throw new Error(
       "useColorSchemeContext must be used within a ColorSchemeProvider"

@@ -5,13 +5,7 @@
  * Manages session persistence via expo-secure-store.
  */
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, use, useState, useEffect, ReactNode } from "react";
 import * as SecureStore from "expo-secure-store";
 import CookieManager from "@react-native-cookies/cookies";
 import { usePostHog } from "posthog-react-native";
@@ -115,7 +109,7 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useHNAuth() {
-  const context = useContext(HNAuthContext);
+  const context = use(HNAuthContext);
   if (!context) {
     throw new Error("useHNAuth must be used within HNAuthProvider");
   }
