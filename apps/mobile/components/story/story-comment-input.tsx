@@ -5,6 +5,7 @@ import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useCommentMutation } from "@/hooks/use-comment-mutation";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { hapticImpact, hapticSelection } from "@/lib/haptics";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -86,6 +87,7 @@ export function StoryCommentInput({
     if (!commentText.trim() || commentMutation.isPending) {
       return;
     }
+    hapticImpact();
     Keyboard.dismiss();
     commentMutation.mutate(commentText);
   };
@@ -124,7 +126,6 @@ export function StoryCommentInput({
         >
           <GlassView
             glassEffectStyle="regular"
-            isInteractive
             style={[
               styles.floatingButtonGlass,
               !hasLiquidGlass && {
@@ -135,7 +136,10 @@ export function StoryCommentInput({
             ]}
           >
             <Pressable
-              onPress={() => setIsManuallyOpened(true)}
+              onPress={() => {
+                hapticSelection();
+                setIsManuallyOpened(true);
+              }}
               style={[styles.floatingButton]}
             >
               <IconSymbol

@@ -1,4 +1,5 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { hapticSelection } from "@/lib/haptics";
 import { Host, Picker, Text } from "@expo/ui/swift-ui";
 import { frame, glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
@@ -27,6 +28,7 @@ export function CategoryFilter({
 
   const handleSelectionChange = (nextCategory: Category) => {
     if (nextCategory && nextCategory !== category) {
+      hapticSelection();
       onSelectCategory(nextCategory);
     }
   };

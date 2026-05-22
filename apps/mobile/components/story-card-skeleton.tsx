@@ -10,7 +10,6 @@ export function StoryCardSkeleton() {
   return (
     <GlassView
       glassEffectStyle="regular"
-      isInteractive
       style={[styles.container, { borderColor }]}
     >
       <View style={styles.header}>
@@ -61,6 +60,7 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: Spacing.lg,
     borderRadius: isLiquidGlassAvailable() ? 16 : 0,
+    borderCurve: "continuous",
     borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
     marginBottom: Spacing.lg,
   },

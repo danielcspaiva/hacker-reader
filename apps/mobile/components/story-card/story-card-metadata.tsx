@@ -23,7 +23,7 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
           size={13}
           color={iconColor}
         />
-        <ThemedText type="bodySmall" style={styles.metadataText}>
+        <ThemedText type="bodySmall" style={[styles.metadataText, styles.numeric]}>
           {story.score}
         </ThemedText>
       </View>
@@ -63,7 +63,7 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
           size={13}
           color={iconColor}
         />
-        <ThemedText type="bodySmall" style={styles.metadataText}>
+        <ThemedText type="bodySmall" style={[styles.metadataText, styles.numeric]}>
           {story.descendants || 0}
         </ThemedText>
       </View>
@@ -85,5 +85,8 @@ const styles = StyleSheet.create({
   },
   metadataText: {
     opacity: 0.6,
+  },
+  numeric: {
+    fontVariant: ["tabular-nums"],
   },
 });
