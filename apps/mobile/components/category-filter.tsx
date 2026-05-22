@@ -1,6 +1,6 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { Host, Picker, Text } from "@expo/ui/swift-ui";
-import { glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
+import { frame, glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
@@ -33,12 +33,13 @@ export function CategoryFilter({
 
   return (
     <View style={styles.container}>
-      <Host matchContents colorScheme={colorScheme}>
+      <Host matchContents={{ vertical: true }} colorScheme={colorScheme}>
         <Picker
           selection={category}
           onSelectionChange={handleSelectionChange}
           modifiers={[
             pickerStyle("segmented"),
+            frame({ maxWidth: Number.MAX_SAFE_INTEGER }),
             glassEffect({
               glass: { variant: "regular" },
             }),
