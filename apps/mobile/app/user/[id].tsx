@@ -3,7 +3,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import { Button, Form, Host, Section, Text } from "@expo/ui/swift-ui";
-import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
+import { font, foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
@@ -93,22 +93,19 @@ export default function UserProfileScreen() {
                 <Section title="Account">
                   <Button
                     systemImage="person"
+                    label={user.id}
                     modifiers={[foregroundStyle(textColor)]}
-                  >
-                    {user.id}
-                  </Button>
+                  />
                   <Button
                     systemImage="star"
+                    label={`${user.karma.toLocaleString()} karma`}
                     modifiers={[foregroundStyle(textColor)]}
-                  >
-                    {user.karma.toLocaleString()} karma
-                  </Button>
+                  />
                   <Button
                     systemImage="calendar"
+                    label={`Member since ${formatMemberSince(user.created)}`}
                     modifiers={[foregroundStyle(textColor)]}
-                  >
-                    Member since {formatMemberSince(user.created)}
-                  </Button>
+                  />
                   {user.submitted &&
                     user.submitted.length > 0 &&
                     submissionsCount !== undefined &&
@@ -118,16 +115,15 @@ export default function UserProfileScreen() {
                           router.push(`/user/${user.id}/submissions`)
                         }
                         systemImage="square.and.pencil"
+                        label={`${submissionsCount.toLocaleString()} submissions`}
                         modifiers={[foregroundStyle(textColor)]}
-                      >
-                        {submissionsCount.toLocaleString()} submissions
-                      </Button>
+                      />
                     )}
                 </Section>
 
                 {user.about && (
                   <Section title="About">
-                    <Text size={15} color={textColor}>
+                    <Text modifiers={[font({ size: 15 }), foregroundStyle(textColor)]}>
                       {parseHTMLText(user.about)}
                     </Text>
                   </Section>
@@ -137,10 +133,9 @@ export default function UserProfileScreen() {
               <Section title="Error">
                 <Button
                   systemImage="exclamationmark.triangle"
+                  label="User not found"
                   modifiers={[foregroundStyle("red")]}
-                >
-                  User not found
-                </Button>
+                />
               </Section>
             )}
           </Form>

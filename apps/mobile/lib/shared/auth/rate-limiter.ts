@@ -28,7 +28,7 @@ export class HNRateLimiter {
       console.warn(
         `[HN Rate Limit] Waiting ${Math.ceil(waitTime / 1000)}s before next action`
       );
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
+      await new Promise<void>((resolve) => setTimeout(resolve, waitTime));
     }
 
     this.actionTimestamps.push(now);

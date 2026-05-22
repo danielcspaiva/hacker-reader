@@ -70,8 +70,9 @@ async function fetchWithTimeout(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    // The signal types are compatible at runtime, just not in TypeScript
-    const response = await fetch(input, {
+    // The signal types are compatible at runtime, just not in TypeScript.
+    // expo/fetch (the default in SDK 56) accepts string | Request, not URL.
+    const response = await fetch(input instanceof URL ? input.toString() : input, {
       ...fetchInit,
       signal: controller.signal as never,
     });

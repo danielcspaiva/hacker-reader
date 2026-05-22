@@ -64,9 +64,15 @@ export function ColorSchemeProvider({
     AsyncStorage.setItem(STORAGE_KEY, newPreference);
   };
 
-  // Determine actual color scheme based on preference
+  // Determine actual color scheme based on preference.
+  // useColorScheme() can return "unspecified"/null (SDK 56 / RN 0.85), so map
+  // anything that isn't explicitly "dark" to "light".
   const colorScheme: ColorScheme =
-    preference === "system" ? (systemColorScheme ?? "light") : preference;
+    preference === "system"
+      ? systemColorScheme === "dark"
+        ? "dark"
+        : "light"
+      : preference;
 
   // Sync iOS interface style with user's theme preference
   useEffect(() => {

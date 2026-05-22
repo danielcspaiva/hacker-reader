@@ -15,7 +15,7 @@ import { isAuthError } from "@/lib/shared/auth/errors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Cookies } from "@react-native-cookies/cookies";
 import CookieManager from "@react-native-cookies/cookies";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router/react-navigation";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
@@ -87,7 +87,7 @@ export default function LoginModal() {
       await HNWriteAPI.login(username.trim(), password);
 
       // Wait a bit for cookies to settle
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise<void>((resolve) => setTimeout(resolve, 500));
 
       // Extract cookies using native cookie manager (more reliable than header parsing)
       const cookies: Cookies = await CookieManager.get(
