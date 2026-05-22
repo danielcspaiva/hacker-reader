@@ -13,8 +13,8 @@ import {
   labelStyle,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { router } from "expo-router";
-import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Link } from "expo-router";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -104,11 +104,14 @@ export function CommentItem({
     >
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => router.push(`/user/${comment.by}`)}>
-            <ThemedText type="bodySmall" style={styles.author}>
-              {comment.by}
-            </ThemedText>
-          </Pressable>
+          <Link href={`/user/${comment.by}`}>
+            <Link.Trigger>
+              <ThemedText type="bodySmall" style={styles.author}>
+                {comment.by}
+              </ThemedText>
+            </Link.Trigger>
+            <Link.Preview />
+          </Link>
           <ThemedText type="caption" style={styles.time}>
             {" "}
             • {timeAgo(comment.time)}

@@ -6,7 +6,7 @@ import type { StoryWithComments } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { router, useIsPreview } from "expo-router";
+import { Link, useIsPreview } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
@@ -51,13 +51,11 @@ export function StoryHeader({ story }: StoryHeaderProps) {
           <ThemedText type="bodySmall" style={styles.metadataText}>
             {story.score} points by{" "}
           </ThemedText>
-          <ThemedText
-            type="bodySmall"
-            style={styles.metadataText}
-            onPress={() => router.push(`/user/${story.by}`)}
-          >
-            {story.by}
-          </ThemedText>
+          <Link href={`/user/${story.by}`} asChild>
+            <ThemedText type="bodySmall" style={styles.metadataText}>
+              {story.by}
+            </ThemedText>
+          </Link>
           <ThemedText type="bodySmall" style={styles.metadataText}>
             {" "}
             •{" "}
