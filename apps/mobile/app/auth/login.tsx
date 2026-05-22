@@ -19,7 +19,7 @@ import CookieManager from "@react-native-cookies/cookies";
 import { useFocusEffect } from "expo-router/react-navigation";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -52,13 +52,7 @@ export default function LoginModal() {
   const { login: contextLogin } = useHNAuth();
   const openLink = useExternalLink();
 
-  // Check if guidelines were previously accepted
-  // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
-  useFocusEffect(() => {
-    checkGuidelinesAcceptance();
-  });
-
-  async function checkGuidelinesAcceptance() {
+  const checkGuidelinesAcceptance = useCallback(async () => {
     try {
       const accepted = await AsyncStorage.getItem(GUIDELINES_ACCEPTED_KEY);
       if (accepted === "true") {
@@ -72,7 +66,15 @@ export default function LoginModal() {
       // On error, redirect to guidelines to be safe
       router.push("/auth/guidelines");
     }
-  }
+  }, []);
+
+  // Check if guidelines were previously accepted
+  // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
+  useFocusEffect(
+    useCallback(() => {
+      checkGuidelinesAcceptance();
+    }, [checkGuidelinesAcceptance])
+  );
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
