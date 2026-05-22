@@ -5,10 +5,9 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import { Button, Form, Host, Section } from "@expo/ui/swift-ui";
-import { foregroundStyle, frame, padding } from "@expo/ui/swift-ui/modifiers";
+import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
  * Format Unix timestamp to readable date string
@@ -47,7 +46,6 @@ export default function ProfileScreen() {
   const { data: submissions } = useUserSubmissions(user?.submitted);
   const { handleLogin, handleLogout } = useHNLogin();
   const textColor = useThemeColor({}, "text");
-  const insets = useSafeAreaInsets();
 
   // Derive count from submissions (filter out deleted and dead items)
   const submissionsCount =
@@ -55,15 +53,9 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <Host
-        style={styles.host}
-        useViewportSizeMeasurement
-        matchContents
-        colorScheme={colorScheme}
-      >
+      <Host style={styles.host} colorScheme={colorScheme}>
         <Form
           modifiers={[
-            padding({ top: insets.top + 52 }),
             frame({
               maxWidth: Number.MAX_SAFE_INTEGER,
               maxHeight: Number.MAX_SAFE_INTEGER,

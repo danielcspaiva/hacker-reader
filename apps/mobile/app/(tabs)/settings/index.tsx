@@ -19,19 +19,16 @@ import {
   disabled,
   foregroundStyle,
   frame,
-  padding,
   pickerStyle,
   tag,
 } from "@expo/ui/swift-ui/modifiers";
 import { Alert, Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
 
 export default function SettingsScreen() {
   const { colorScheme } = useColorSchemeContext();
   const textColor = useThemeColor({}, "text");
-  const insets = useSafeAreaInsets();
 
   // Custom hooks for all business logic
   const { options, preference, setPreference } = useAppearanceSettings();
@@ -166,15 +163,9 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Host
-        style={styles.host}
-        useViewportSizeMeasurement
-        matchContents
-        colorScheme={colorScheme}
-      >
+      <Host style={styles.host} colorScheme={colorScheme}>
         <Form
           modifiers={[
-            padding({ top: insets.top + 52 }),
             frame({
               maxWidth: Number.MAX_SAFE_INTEGER,
               maxHeight: Number.MAX_SAFE_INTEGER,
