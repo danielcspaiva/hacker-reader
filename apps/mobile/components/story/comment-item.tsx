@@ -7,13 +7,8 @@ import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { hapticImpact, hapticSelection, Haptics } from "@/lib/haptics";
 import { timeAgo } from "@/lib/shared";
-import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
-import {
-  controlSize,
-  frame,
-  labelStyle,
-  tint,
-} from "@expo/ui/swift-ui/modifiers";
+import { Button as SwiftUIButton, Host, Image, Menu } from "@expo/ui/swift-ui";
+import { frame } from "@expo/ui/swift-ui/modifiers";
 import { Link } from "expo-router";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
@@ -144,45 +139,34 @@ export function CommentItem({
             </TouchableOpacity>
           )}
         </View>
-        <Host matchContents style={{ width: 24, height: 24 }}>
-          <ContextMenu>
-            <ContextMenu.Items>
-              {isAuthenticated && (
-                <SwiftUIButton
-                  systemImage="arrowshape.turn.up.left"
-                  onPress={handleReply}
-                  label="Reply"
-                />
-              )}
-              {isOwnComment ? (
-                <SwiftUIButton
-                  systemImage="trash"
-                  onPress={handleDeleteComment}
-                  role="destructive"
-                  label="Delete Comment"
-                />
-              ) : (
-                <SwiftUIButton
-                  systemImage="nosign"
-                  onPress={handleBlockUser}
-                  role="destructive"
-                  label="Block User"
-                />
-              )}
-            </ContextMenu.Items>
-            <ContextMenu.Trigger>
+        <Host matchContents style={styles.moreButton}>
+          <Menu
+            label={<Image systemName="ellipsis" color={textColor} size={18} />}
+            modifiers={[frame({ width: 32, height: 32 })]}
+          >
+            {isAuthenticated && (
               <SwiftUIButton
-                label="More"
-                systemImage="ellipsis"
-                modifiers={[
-                  labelStyle("iconOnly"),
-                  tint(textColor),
-                  controlSize("small"),
-                  frame({ width: 24, height: 24 }),
-                ]}
+                systemImage="arrowshape.turn.up.left"
+                onPress={handleReply}
+                label="Reply"
               />
-            </ContextMenu.Trigger>
-          </ContextMenu>
+            )}
+            {isOwnComment ? (
+              <SwiftUIButton
+                systemImage="trash"
+                onPress={handleDeleteComment}
+                role="destructive"
+                label="Delete Comment"
+              />
+            ) : (
+              <SwiftUIButton
+                systemImage="nosign"
+                onPress={handleBlockUser}
+                role="destructive"
+                label="Block User"
+              />
+            )}
+          </Menu>
         </Host>
       </View>
       {!isCollapsed && (
@@ -234,6 +218,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+  },
+  moreButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   author: {
     fontWeight: "600",
