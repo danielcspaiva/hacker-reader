@@ -123,7 +123,8 @@ export function useBookmarkMutation() {
           context.previousCheck
         );
       }
-      console.error("Bookmark mutation error:", err);
+      // The underlying storage error is reported by lib/bookmarks; here we only
+      // need to roll back the optimistic update.
     },
     onSettled: () => {
       // Refetch to ensure consistency

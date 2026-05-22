@@ -10,6 +10,7 @@ import { ThemedText } from "@/components/themed-text";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { reportError } from "@/lib/observability";
 import * as HNWriteAPI from "@/lib/shared/api/hn-write-api";
 import { isAuthError } from "@/lib/shared/auth/errors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -67,7 +68,7 @@ export default function LoginModal() {
         router.push("/auth/guidelines");
       }
     } catch (error) {
-      console.error("Failed to check guidelines acceptance:", error);
+      reportError(error, { operation: "checkGuidelinesAcceptance" });
       // On error, redirect to guidelines to be safe
       router.push("/auth/guidelines");
     }

@@ -8,6 +8,7 @@
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -43,7 +44,7 @@ export default function GuidelinesScreen() {
     try {
       await AsyncStorage.setItem(GUIDELINES_ACCEPTED_KEY, "true");
     } catch (error) {
-      console.error("Failed to save guidelines acceptance:", error);
+      reportError(error, { operation: "saveGuidelinesAcceptance" });
     }
     router.back();
   };
