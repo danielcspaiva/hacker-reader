@@ -7,7 +7,6 @@ import {
   MutationCache,
   QueryClient,
   QueryClientProvider,
-  type QueryKey,
 } from "@tanstack/react-query";
 import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -53,17 +52,9 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-// Let mutations declare exactly which query keys they invalidate via
-// `meta.invalidates`, instead of blanket-invalidating every query in the app.
-declare module "@tanstack/react-query" {
-  interface Register {
-    mutationMeta: {
-      invalidates?: QueryKey[];
-    };
-  }
-}
-
+// The `meta.invalidates` contract is declared in `@/types/react-query`.
 // Create a client with declarative, scoped mutation invalidation
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
