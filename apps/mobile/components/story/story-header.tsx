@@ -44,11 +44,14 @@ export function StoryHeader({ story }: StoryHeaderProps) {
           },
         ]}
       >
-        <ThemedText type="title" style={styles.title}>
+        <ThemedText type="title" style={styles.title} selectable>
           {story.title}
         </ThemedText>
         <View style={styles.metadata}>
-          <ThemedText type="bodySmall" style={styles.metadataText}>
+          <ThemedText
+            type="bodySmall"
+            style={[styles.metadataText, styles.numeric]}
+          >
             {story.score} points by{" "}
           </ThemedText>
           <Link href={`/user/${story.by}`} asChild>
@@ -69,7 +72,10 @@ export function StoryHeader({ story }: StoryHeaderProps) {
                 {" "}
                 •{" "}
               </ThemedText>
-              <ThemedText type="bodySmall" style={styles.metadataText}>
+              <ThemedText
+                type="bodySmall"
+                style={[styles.metadataText, styles.numeric]}
+              >
                 {story.descendants} comments
               </ThemedText>
             </>
@@ -122,6 +128,9 @@ const styles = StyleSheet.create({
   },
   metadataText: {
     opacity: 0.6,
+  },
+  numeric: {
+    fontVariant: ["tabular-nums"],
   },
   url: {
     marginBottom: Spacing.md,

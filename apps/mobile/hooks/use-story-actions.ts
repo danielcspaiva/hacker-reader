@@ -8,6 +8,7 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { reportError } from "@/lib/observability";
+import { hapticImpact, hapticNotify, Haptics } from "@/lib/haptics";
 import { isAuthError, unvote, vote, flag, type HNItem } from "@/lib/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
@@ -120,6 +121,8 @@ export function useStoryActions(story: HNItem): StoryActions {
     },
 
     onError: (error, _wasVoted, context) => {
+      hapticNotify(Haptics.NotificationFeedbackType.Error);
+
       // Rollback optimistic update
       if (context?.previousVotes) {
         queryClient.setQueryData(["votes"], context.previousVotes);
@@ -172,6 +175,7 @@ export function useStoryActions(story: HNItem): StoryActions {
       return;
     }
 
+    hapticImpact();
     voteMutation.mutate(hasVoted);
   };
 
@@ -197,6 +201,7 @@ export function useStoryActions(story: HNItem): StoryActions {
   };
 
   const handleShare = () => {
+    hapticImpact();
     shareStory(story);
 
     // Track share analytics
@@ -213,6 +218,7 @@ export function useStoryActions(story: HNItem): StoryActions {
         text: "Hide",
         style: "destructive",
         onPress: () => {
+          hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
           hideItem(story.id);
           // Track hide analytics
           analytics.track(AnalyticsEvent.STORY_HIDDEN, {
@@ -233,6 +239,7 @@ export function useStoryActions(story: HNItem): StoryActions {
     },
 
     onSuccess: () => {
+      hapticNotify(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         "Content Flagged",
         "This content has been reported to Hacker News moderators.",
@@ -246,6 +253,8 @@ export function useStoryActions(story: HNItem): StoryActions {
     },
 
     onError: (error) => {
+      hapticNotify(Haptics.NotificationFeedbackType.Error);
+
       if (isAuthError(error)) {
         if (error.code === "NOT_LOGGED_IN") {
           logout();
@@ -309,6 +318,7 @@ export function useStoryActions(story: HNItem): StoryActions {
           text: "Block",
           style: "destructive",
           onPress: async () => {
+            hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
             try {
               await blockUser(username);
               Alert.alert(

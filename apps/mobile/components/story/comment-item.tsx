@@ -5,6 +5,7 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useDeleteCommentMutation } from "@/hooks/use-delete-comment-mutation";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { hapticImpact, hapticSelection, Haptics } from "@/lib/haptics";
 import { timeAgo } from "@/lib/shared";
 import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
 import {
@@ -15,6 +16,11 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { Link } from "expo-router";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -44,6 +50,7 @@ export function CommentItem({
   const isOwnComment = username && comment.by === username;
 
   const handleBlockUser = async () => {
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await blockUser(comment.by);
       Alert.alert(
@@ -79,13 +86,17 @@ export function CommentItem({
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => deleteCommentMutation.mutate(comment.id),
+          onPress: () => {
+            hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
+            deleteCommentMutation.mutate(comment.id);
+          },
         },
       ]
     );
   };
 
   const handleReply = () => {
+    hapticSelection();
     onReply(comment.id, comment.by);
   };
 
@@ -94,7 +105,8 @@ export function CommentItem({
   }
 
   let content = (
-    <View
+    <Animated.View
+      layout={LinearTransition.duration(200)}
       style={[
         styles.comment,
         {
@@ -118,7 +130,10 @@ export function CommentItem({
           </ThemedText>
           {comment.children && comment.children.length > 0 && (
             <TouchableOpacity
-              onPress={() => onToggleCollapse(comment.id)}
+              onPress={() => {
+                hapticSelection();
+                onToggleCollapse(comment.id);
+              }}
               activeOpacity={0.7}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
@@ -170,8 +185,15 @@ export function CommentItem({
           </ContextMenu>
         </Host>
       </View>
-      {!isCollapsed && <HTMLText html={comment.text} style={styles.text} />}
-    </View>
+      {!isCollapsed && (
+        <Animated.View
+          entering={FadeIn.duration(150)}
+          exiting={FadeOut.duration(150)}
+        >
+          <HTMLText html={comment.text} style={styles.text} />
+        </Animated.View>
+      )}
+    </Animated.View>
   );
 
   // Wrap with nested borders for each depth level

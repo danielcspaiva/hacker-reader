@@ -5,6 +5,7 @@ import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useStories } from "@/hooks/use-stories";
+import { hapticImpact } from "@/lib/haptics";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
@@ -176,6 +177,7 @@ export default function FeedScreen() {
         onRefresh={() => {
           // Only trigger refetch if not already loading or refetching
           if (!isPending && !isRefetching) {
+            hapticImpact();
             refetch();
           }
         }}

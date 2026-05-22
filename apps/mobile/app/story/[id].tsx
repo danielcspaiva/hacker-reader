@@ -6,6 +6,7 @@ import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useStory } from "@/hooks/use-story";
 import { useStoryActions } from "@/hooks/use-story-actions";
+import { hapticImpact } from "@/lib/haptics";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
@@ -254,6 +255,7 @@ export default function StoryDetailScreen() {
         onRefresh={() => {
           // Only trigger refetch if not already loading or refetching
           if (!isLoading && !isRefetching) {
+            hapticImpact();
             refetch();
           }
         }}
