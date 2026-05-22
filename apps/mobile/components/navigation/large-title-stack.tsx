@@ -12,8 +12,19 @@ import type { ReactNode } from "react";
  *
  * Each tab layout now only declares its screen title (and any screen-specific options,
  * e.g. the search bar) via `Stack.Screen` children passed through to this component.
+ *
+ * `headerTransparent` defaults to `isLiquidGlassAvailable()` — the value the
+ * Form-based screens (Profile, Settings, Search) were tuned for, where an opaque
+ * header on pre-iOS-26 keeps the first section clear of the header. Feed/Bookmarks
+ * pass `headerTransparent` to always float over their lists.
  */
-export function LargeTitleStack({ children }: { children?: ReactNode }) {
+export function LargeTitleStack({
+  children,
+  headerTransparent = isLiquidGlassAvailable(),
+}: {
+  children?: ReactNode;
+  headerTransparent?: boolean;
+}) {
   const { colorScheme, colorPalette } = useColorSchemeContext();
   const tintColor = useThemeColor({}, "tint");
   const backgroundColor =
@@ -24,7 +35,7 @@ export function LargeTitleStack({ children }: { children?: ReactNode }) {
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
+        headerTransparent,
         headerLargeTitle: true,
         headerLargeTitleShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",

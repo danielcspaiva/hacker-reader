@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 
 export default function Layout() {
   return (
-    <LargeTitleStack>
+    <LargeTitleStack headerTransparent>
       <Stack.Screen name="index" options={{ title: "Feed" }} />
     </LargeTitleStack>
   );
