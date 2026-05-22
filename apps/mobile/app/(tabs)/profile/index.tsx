@@ -73,10 +73,9 @@ export default function ProfileScreen() {
               <Button
                 onPress={handleLogin}
                 systemImage="person.badge.key"
+                label="Sign in to Hacker News"
                 modifiers={[foregroundStyle(textColor)]}
-              >
-                Sign in to Hacker News
-              </Button>
+              />
             </Section>
           ) : (
             <>
@@ -91,22 +90,19 @@ export default function ProfileScreen() {
                   <Section title="Account">
                     <Button
                       systemImage="person"
+                      label={user.id}
                       modifiers={[foregroundStyle(textColor)]}
-                    >
-                      {user.id}
-                    </Button>
+                    />
                     <Button
                       systemImage="star"
+                      label={`${user.karma.toLocaleString()} karma`}
                       modifiers={[foregroundStyle(textColor)]}
-                    >
-                      {user.karma.toLocaleString()} karma
-                    </Button>
+                    />
                     <Button
                       systemImage="calendar"
+                      label={`Member since ${formatMemberSince(user.created)}`}
                       modifiers={[foregroundStyle(textColor)]}
-                    >
-                      Member since {formatMemberSince(user.created)}
-                    </Button>
+                    />
                     {user.submitted &&
                       user.submitted.length > 0 &&
                       submissionsCount !== undefined &&
@@ -116,10 +112,9 @@ export default function ProfileScreen() {
                             router.push("/(tabs)/profile/submissions")
                           }
                           systemImage="square.and.pencil"
+                          label={`${submissionsCount.toLocaleString()} submissions`}
                           modifiers={[foregroundStyle(textColor)]}
-                        >
-                          {submissionsCount.toLocaleString()} submissions
-                        </Button>
+                        />
                       )}
                   </Section>
 
@@ -138,20 +133,18 @@ export default function ProfileScreen() {
                       onPress={handleLogout}
                       role="destructive"
                       systemImage="rectangle.portrait.and.arrow.right"
+                      label="Sign out of Hacker News"
                       modifiers={[foregroundStyle("red")]}
-                    >
-                      Sign out of Hacker News
-                    </Button>
+                    />
                   </Section>
                 </>
               ) : (
                 <Section title="Error">
                   <Button
                     systemImage="exclamationmark.triangle"
+                    label="Failed to load profile"
                     modifiers={[foregroundStyle("red")]}
-                  >
-                    Failed to load profile
-                  </Button>
+                  />
                 </Section>
               )}
             </>

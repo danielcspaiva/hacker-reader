@@ -1,6 +1,6 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { Host, Picker } from "@expo/ui/swift-ui";
-import { glassEffect } from "@expo/ui/swift-ui/modifiers";
+import { Host, Picker, Text } from "@expo/ui/swift-ui";
+import { glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 
 export type SubmissionType = "stories" | "comments";
@@ -21,10 +21,8 @@ export function SubmissionTypeFilter({
 }: SubmissionTypeFilterProps) {
   const types = Object.keys(SUBMISSION_TYPE_LABELS) as SubmissionType[];
   const { colorScheme } = useColorSchemeContext();
-  const selectedIndex = types.findIndex((type) => type === submissionType);
 
-  const handleOptionSelected = (event: { nativeEvent: { index: number } }) => {
-    const nextType = types[event.nativeEvent.index];
+  const handleSelectionChange = (nextType: SubmissionType) => {
     if (nextType && nextType !== submissionType) {
       onSelectType(nextType);
     }
@@ -34,16 +32,21 @@ export function SubmissionTypeFilter({
     <View style={styles.container}>
       <Host matchContents colorScheme={colorScheme}>
         <Picker
-          options={types.map((type) => SUBMISSION_TYPE_LABELS[type])}
-          selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
-          onOptionSelected={handleOptionSelected}
-          variant="segmented"
+          selection={submissionType}
+          onSelectionChange={handleSelectionChange}
           modifiers={[
+            pickerStyle("segmented"),
             glassEffect({
               glass: { variant: "regular" },
             }),
           ]}
-        />
+        >
+          {types.map((type) => (
+            <Text key={type} modifiers={[tag(type)]}>
+              {SUBMISSION_TYPE_LABELS[type]}
+            </Text>
+          ))}
+        </Picker>
       </Host>
     </View>
   );

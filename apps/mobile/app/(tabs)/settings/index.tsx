@@ -14,8 +14,14 @@ import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { clearBlockedUsers } from "@/lib/storage/blocked-users";
-import { Button, Form, Host, Picker, Section } from "@expo/ui/swift-ui";
-import { foregroundStyle, frame } from "@expo/ui/swift-ui/modifiers";
+import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
+import {
+  disabled,
+  foregroundStyle,
+  frame,
+  pickerStyle,
+  tag,
+} from "@expo/ui/swift-ui/modifiers";
 import { Alert, Platform, StyleSheet, View } from "react-native";
 
 const HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
@@ -25,8 +31,7 @@ export default function SettingsScreen() {
   const textColor = useThemeColor({}, "text");
 
   // Custom hooks for all business logic
-  const { options, selectedIndex, handleOptionSelected } =
-    useAppearanceSettings();
+  const { options, preference, setPreference } = useAppearanceSettings();
   const { handleClearCache } = useClearCache();
   const { handleClearBookmarks, clearBookmarksLabel, isClearing } =
     useClearBookmarks();
@@ -175,91 +180,88 @@ export default function SettingsScreen() {
         >
           <Section title="Appearance">
             <Picker
-              options={options}
-              selectedIndex={selectedIndex}
-              onOptionSelected={handleOptionSelected}
-              variant="segmented"
-            />
+              selection={preference}
+              onSelectionChange={setPreference}
+              modifiers={[pickerStyle("segmented")]}
+            >
+              {options.map((opt) => (
+                <Text key={opt.value} modifiers={[tag(opt.value)]}>
+                  {opt.label}
+                </Text>
+              ))}
+            </Picker>
           </Section>
 
           <Section title="Content & Safety">
             <Button
               onPress={handleOpenGuidelines}
               systemImage="doc.text"
+              label="Hacker News Guidelines"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Hacker News Guidelines
-            </Button>
+            />
             <Button
               onPress={handleManageBlockedUsers}
               systemImage="person.fill.xmark"
+              label={
+                blockedUsers.length > 0
+                  ? `Blocked Users (${blockedUsers.length})`
+                  : "Blocked Users"
+              }
               modifiers={[foregroundStyle(textColor)]}
-            >
-              {blockedUsers.length > 0
-                ? `Blocked Users (${blockedUsers.length})`
-                : "Blocked Users"}
-            </Button>
+            />
             <Button
               onPress={handleClearHidden}
               systemImage="eye.slash"
+              label={
+                hiddenCount > 0 ? `Hidden Posts (${hiddenCount})` : "Hidden Posts"
+              }
               modifiers={[foregroundStyle(textColor)]}
-            >
-              {hiddenCount > 0
-                ? `Hidden Posts (${hiddenCount})`
-                : "Hidden Posts"}
-            </Button>
+            />
           </Section>
 
           <Section title="Data">
             <Button
               onPress={handleClearCache}
               systemImage="arrow.clockwise"
+              label="Clear Cache"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Clear Cache
-            </Button>
+            />
             <Button
               onPress={handleClearBookmarks}
               role="destructive"
               systemImage="trash"
-              disabled={isClearing}
-              modifiers={[foregroundStyle("red")]}
-            >
-              {clearBookmarksLabel}
-            </Button>
+              label={clearBookmarksLabel}
+              modifiers={[foregroundStyle("red"), disabled(isClearing)]}
+            />
           </Section>
 
           <Section title="Support">
             <Button
               onPress={handleOpenRepository}
               systemImage="chevron.left.slash.chevron.right"
+              label="Check Source Code"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Check Source Code
-            </Button>
+            />
             <Button
               onPress={handleRateApp}
               systemImage="star"
+              label="Rate Hacker Reader"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Rate Hacker Reader
-            </Button>
+            />
           </Section>
 
           <Section title="About">
             <Button
               onPress={handleOpenWebsite}
               systemImage="globe"
+              label="Built by dcsp.dev"
               modifiers={[foregroundStyle(textColor)]}
-            >
-              Built by dcsp.dev
-            </Button>
+            />
             <Button
               systemImage="info.circle"
+              label={`${APP_NAME} v${APP_VERSION}`}
               modifiers={[foregroundStyle(textColor)]}
-            >
-              {`${APP_NAME} v${APP_VERSION}`}
-            </Button>
+            />
           </Section>
         </Form>
       </Host>

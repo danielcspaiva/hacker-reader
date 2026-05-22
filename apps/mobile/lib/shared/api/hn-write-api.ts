@@ -440,7 +440,8 @@ export async function login(username: string, password: string): Promise<void> {
       "User-Agent": "HN-Client/1.0 (Mobile)",
     },
     body: formData.toString(),
-    redirect: "follow", // Follow redirects to get final response
+    // Redirects are followed by default; expo/fetch (the SDK 56 default) omits
+    // the `redirect` option from its RequestInit type.
   });
 
   // Get response HTML to check for errors

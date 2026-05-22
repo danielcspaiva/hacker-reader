@@ -125,12 +125,12 @@ export function useCommentMutation({
           );
         } catch {
           // Fall back to invalidation if cache update fails
-          await new Promise((resolve) => setTimeout(resolve, 8000));
+          await new Promise<void>((resolve) => setTimeout(resolve, 8000));
           queryClient.invalidateQueries({ queryKey: ["story", storyId] });
         }
       } else {
         // Couldn't extract comment ID, fall back to waiting
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise<void>((resolve) => setTimeout(resolve, 5000));
         queryClient.invalidateQueries({ queryKey: ["story", storyId] });
       }
     },
