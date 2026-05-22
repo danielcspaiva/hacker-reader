@@ -2,7 +2,6 @@ import { CommentItem } from "@/components/story/comment-item";
 import { StoryCommentInput } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
 import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useStory } from "@/hooks/use-story";
@@ -11,19 +10,11 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { flattenComments } from "@/lib/utils/comments";
-import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
-import { frame, labelStyle } from "@expo/ui/swift-ui/modifiers";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function EmptyComments() {
@@ -155,72 +146,55 @@ export default function StoryDetailScreen() {
   // Use fetched story title if available, otherwise fall back to route param or loading state
   const headerTitle = story?.title || (title as string) || "Story";
 
+  // Native header items via Stack.Toolbar (expo-router): the bookmark toggle plus
+  // a tap-to-open "More" menu. This replaces the previous @expo/ui ContextMenu, which
+  // only opened on long-press — the wrong gesture for a header button. Stack.Toolbar is
+  // cross-platform (iOS + Android) as of SDK 56.
   const screenOptions = !isInsidePreview && (
-    <Stack.Screen
-      options={{
-        title: headerTitle,
-        headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
-        headerRight: () => (
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            <Pressable
-              onPress={() => handleBookmark()}
-              style={styles.shareButton}
-            >
-              <IconSymbol
-                name={isBookmarked ? "bookmark.fill" : "bookmark"}
-                size={22}
-                color={textColor}
-                weight={"medium"}
-              />
-            </Pressable>
-            <Host matchContents style={{ width: 36, height: 36 }}>
-              <ContextMenu>
-                <ContextMenu.Items>
-                  <SwiftUIButton
-                    systemImage={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
-                    onPress={handleVote}
-                    label={hasVoted ? "Unvote" : "Upvote"}
-                  />
-                  <SwiftUIButton
-                    systemImage="square.and.arrow.up"
-                    onPress={handleShare}
-                    label="Share"
-                  />
-                  <SwiftUIButton
-                    systemImage="eye.slash"
-                    onPress={handleHide}
-                    label="Hide"
-                  />
-                  <SwiftUIButton
-                    systemImage="flag"
-                    onPress={handleFlag}
-                    role="destructive"
-                    label="Flag"
-                  />
-                  <SwiftUIButton
-                    systemImage="nosign"
-                    onPress={handleBlockUser}
-                    role="destructive"
-                    label="Block User"
-                  />
-                </ContextMenu.Items>
-                <ContextMenu.Trigger>
-                  <SwiftUIButton
-                    label="More"
-                    systemImage="ellipsis"
-                    role="default"
-                    modifiers={[
-                      labelStyle("iconOnly"),
-                      frame({ width: 36, height: 36 }),
-                    ]}
-                  />
-                </ContextMenu.Trigger>
-              </ContextMenu>
-            </Host>
-          </View>
-        ),
-      }}
-    />
+    <>
+      <Stack.Screen
+        options={{
+          title: headerTitle,
+          headerBlurEffect: isLiquidGlassAvailable()
+            ? "none"
+            : "systemMaterial",
+        }}
+      />
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon={isBookmarked ? "bookmark.fill" : "bookmark"}
+          tintColor={textColor}
+          onPress={handleBookmark}
+        />
+        <Stack.Toolbar.Menu icon="ellipsis" tintColor={textColor}>
+          <Stack.Toolbar.MenuAction
+            icon={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
+            onPress={handleVote}
+          >
+            {hasVoted ? "Unvote" : "Upvote"}
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            icon="square.and.arrow.up"
+            onPress={handleShare}
+          >
+            Share
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction icon="eye.slash" onPress={handleHide}>
+            Hide
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction icon="flag" destructive onPress={handleFlag}>
+            Flag
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            icon="nosign"
+            destructive
+            onPress={handleBlockUser}
+          >
+            Block User
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
+    </>
   );
 
   if (isLoading) {
@@ -317,11 +291,5 @@ const styles = StyleSheet.create({
   },
   noComments: {
     opacity: 0.5,
-  },
-  shareButton: {
-    height: 36,
-    width: 36,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
