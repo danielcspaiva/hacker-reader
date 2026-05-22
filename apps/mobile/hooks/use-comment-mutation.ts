@@ -1,5 +1,6 @@
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment, StoryWithComments } from "@/hooks/use-story";
+import { reportError } from "@/lib/observability";
 import { comment } from "@/lib/shared/api";
 import { isAuthError } from "@/lib/shared/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -55,11 +56,9 @@ export function useCommentMutation({
   const parentId = replyTarget ? replyTarget.commentId : storyId;
 
   return useMutation({
-    // Skip automatic query invalidation - we'll do it manually after waiting for HN API
-    // React Query's global MutationCache invalidates immediately, which is too fast for HN
-    meta: {
-      skipAutoInvalidation: true,
-    },
+    // No meta.invalidates: this mutation reconciles the cache itself (optimistic
+    // in-place update, with a delayed refetch fallback) because HN's API needs a
+    // moment before a refetch would reflect the new comment.
     mutationFn: async (text: string) => {
       if (!session) {
         throw new Error("Not authenticated");
@@ -123,8 +122,10 @@ export function useCommentMutation({
               };
             }
           );
-        } catch {
-          // Fall back to invalidation if cache update fails
+        } catch (error) {
+          // Updating the cache in place is best-effort; if it throws something
+          // unexpected, report it and fall back to refetching from the server.
+          reportError(error, { operation: "commentCacheUpdate", storyId });
           await new Promise<void>((resolve) => setTimeout(resolve, 8000));
           queryClient.invalidateQueries({ queryKey: ["story", storyId] });
         }
@@ -161,6 +162,8 @@ export function useCommentMutation({
             Alert.alert("Error", error.message);
         }
       } else {
+        // Unexpected failure (not an expected auth case) — report it.
+        reportError(error, { operation: "postComment", storyId });
         Alert.alert("Error", "Failed to post comment. Please try again.");
       }
     },

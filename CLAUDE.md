@@ -208,14 +208,11 @@ The app uses a **React Query + HN API** architecture:
    - **Global prefetch on app open** - All 5 categories prefetched automatically
    - Triggered from `app/_layout.tsx` when app mounts (not tied to specific screen)
    - Waits 1.5s after mount to allow initial category (Top) to load first
-   - Prefetches first 30 items per category in parallel (full page size)
-   - **Total: ~155 API calls** (5 category ID lists + 150 item details)
-   - Completes in ~1-2 seconds background load
+   - Warms the first page of every category in parallel via `prefetchCategory` (from `hooks/use-stories.ts`)
    - **Result: Instant category switching** - no loading spinners after prefetch
    - Skips OG metadata prefetch for background categories (bandwidth optimization)
-   - Checks cache before prefetching to avoid duplicate requests
-   - Additional predictive prefetching still runs from feed screen via `usePrefetchCategories`
-   - React Query handles cache deduplication automatically
+   - `prefetchCategory` no-ops for any category already cached (deduplication)
+   - This is the single source of background warming - the feed screen no longer runs its own predictive/idle prefetch
 
 ### UI Components
 

@@ -9,10 +9,21 @@ import {
   getTopStories,
   type HNItem,
 } from "@/lib/shared";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import {
+  useInfiniteQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 
-const PAGE_SIZE = 30;
+export const PAGE_SIZE = 30;
+
+export const STORY_CATEGORIES: Category[] = [
+  "top",
+  "new",
+  "ask",
+  "show",
+  "jobs",
+];
 
 // Map category to the appropriate API fetcher function
 const CATEGORY_FETCHERS = {
@@ -23,144 +34,83 @@ const CATEGORY_FETCHERS = {
   jobs: getJobStories,
 } as const;
 
-// Predictive prefetching: which categories to prefetch based on current category
-const PREFETCH_STRATEGY: Record<Category, Category[]> = {
-  top: ["new"], // Most common: Top → New
-  new: ["top", "ask"], // New → Top (back) or Ask
-  ask: ["show"], // Ask → Show
-  show: ["jobs"], // Show → Jobs
-  jobs: ["show"], // Jobs → Show (back)
-};
+/**
+ * Fetch one page of a category and populate the per-item cache so detail views
+ * can reuse it. `getItems` may return fewer than PAGE_SIZE items (failed/deleted
+ * fetches are dropped), but the page offset is always advanced by PAGE_SIZE
+ * because it indexes into the raw ID list, not the resolved items.
+ */
+async function fetchCategoryPage(
+  queryClient: QueryClient,
+  category: Category,
+  pageParam: number,
+  { prefetchOG }: { prefetchOG: boolean }
+): Promise<HNItem[]> {
+  const ids = await CATEGORY_FETCHERS[category](pageParam, PAGE_SIZE);
+  const items = await getItems(ids);
+
+  // Populate individual item caches for reuse across different views
+  items.forEach((item) => {
+    queryClient.setQueryData(["item", item.id], item);
+  });
+
+  // Prefetch OG metadata only for the foreground category to avoid a render
+  // waterfall; background-prefetched categories fetch OG data on demand.
+  if (prefetchOG) {
+    items.forEach((item) => {
+      if (item.url) {
+        queryClient.prefetchQuery({
+          queryKey: ["og-metadata", item.url],
+          queryFn: ({ signal }) => fetchOGMetadata(item.url!, signal),
+          staleTime: 60 * 60 * 1000, // 1 hour
+        });
+      }
+    });
+  }
+
+  return items;
+}
+
+// Stop paginating once a page yields no items (true end of the HN list). We
+// can't key off `length < PAGE_SIZE` because getItems drops failed/deleted
+// items, so a full page can legitimately resolve to fewer than PAGE_SIZE.
+function getStoriesNextPageParam(
+  lastPage: HNItem[],
+  allPages: HNItem[][]
+): number | undefined {
+  if (lastPage.length === 0) return undefined;
+  return allPages.length * PAGE_SIZE;
+}
 
 export function useStories(category: Category) {
   const queryClient = useQueryClient();
 
   return useInfiniteQuery<HNItem[], Error>({
     queryKey: ["stories", category],
-    queryFn: async ({ pageParam = 0 }) => {
-      const storyFetcher = CATEGORY_FETCHERS[category];
-      const ids = await storyFetcher(pageParam as number, PAGE_SIZE);
-      const items = await getItems(ids);
-
-      // Populate individual item caches for reuse across different views
-      items.forEach((item) => {
-        queryClient.setQueryData(["item", item.id], item);
-      });
-
-      // Prefetch OG metadata for stories with URLs to avoid waterfall
-      items.forEach((item) => {
-        if (item.url) {
-          queryClient.prefetchQuery({
-            queryKey: ["og-metadata", item.url],
-            queryFn: ({ signal }) => fetchOGMetadata(item.url!, signal),
-            staleTime: 60 * 60 * 1000, // 1 hour
-          });
-        }
-      });
-
-      return items;
-    },
-    getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length < PAGE_SIZE) return undefined;
-      return allPages.length * PAGE_SIZE;
-    },
+    queryFn: ({ pageParam }) =>
+      fetchCategoryPage(queryClient, category, pageParam as number, {
+        prefetchOG: true,
+      }),
+    getNextPageParam: getStoriesNextPageParam,
     initialPageParam: 0,
   });
 }
 
 /**
- * Hook to intelligently prefetch category data in the background
- *
- * Strategy:
- * 1. Immediate: Prefetch predictive next categories after current loads (2s delay)
- * 2. Idle: Prefetch all remaining categories after 5s of idle time
+ * Warm the first page of a category in the background for instant switching.
+ * No-ops if the category is already cached. Skips OG prefetch to save bandwidth.
  */
-export function usePrefetchCategories(
-  currentCategory: Category,
-  isLoading: boolean,
-  hasData: boolean
-) {
-  const queryClient = useQueryClient();
+export function prefetchCategory(queryClient: QueryClient, category: Category) {
+  if (queryClient.getQueryData(["stories", category])) return;
 
-  useEffect(() => {
-    // Don't prefetch if current category is still loading or has no data
-    if (isLoading || !hasData) return;
-
-    // Step 1: Predictive prefetching (after 2s delay)
-    const predictiveTimer = setTimeout(() => {
-      const categoriesToPrefetch = PREFETCH_STRATEGY[currentCategory];
-
-      categoriesToPrefetch.forEach((category) => {
-        // Check if already cached to avoid unnecessary requests
-        const existingData = queryClient.getQueryData(["stories", category]);
-        if (!existingData) {
-          queryClient.prefetchInfiniteQuery({
-            queryKey: ["stories", category],
-            queryFn: async ({ pageParam = 0 }) => {
-              const storyFetcher = CATEGORY_FETCHERS[category];
-              const ids = await storyFetcher(pageParam as number, PAGE_SIZE);
-              const items = await getItems(ids);
-
-              // Populate individual item caches
-              items.forEach((item) => {
-                queryClient.setQueryData(["item", item.id], item);
-              });
-
-              // Skip OG prefetching for background-loaded categories to save bandwidth
-              // OG data will be fetched on-demand when user switches to category
-
-              return items;
-            },
-            initialPageParam: 0,
-            getNextPageParam: () => {
-              // Only prefetch first page, so always return undefined
-              return undefined;
-            },
-            pages: 1, // Only prefetch first page
-          });
-        }
-      });
-    }, 2000);
-
-    // Step 2: Idle prefetching of all remaining categories (after 5s)
-    const idleTimer = setTimeout(() => {
-      const allCategories: Category[] = ["top", "new", "ask", "show", "jobs"];
-      const remainingCategories = allCategories.filter(
-        (cat) =>
-          cat !== currentCategory &&
-          !PREFETCH_STRATEGY[currentCategory].includes(cat)
-      );
-
-      remainingCategories.forEach((category) => {
-        const existingData = queryClient.getQueryData(["stories", category]);
-        if (!existingData) {
-          queryClient.prefetchInfiniteQuery({
-            queryKey: ["stories", category],
-            queryFn: async ({ pageParam = 0 }) => {
-              const storyFetcher = CATEGORY_FETCHERS[category];
-              const ids = await storyFetcher(pageParam as number, PAGE_SIZE);
-              const items = await getItems(ids);
-
-              items.forEach((item) => {
-                queryClient.setQueryData(["item", item.id], item);
-              });
-
-              return items;
-            },
-            initialPageParam: 0,
-            getNextPageParam: () => {
-              // Only prefetch first page, so always return undefined
-              return undefined;
-            },
-            pages: 1,
-          });
-        }
-      });
-    }, 5000);
-
-    return () => {
-      clearTimeout(predictiveTimer);
-      clearTimeout(idleTimer);
-    };
-  }, [currentCategory, isLoading, hasData, queryClient]);
+  return queryClient.prefetchInfiniteQuery({
+    queryKey: ["stories", category],
+    queryFn: ({ pageParam }) =>
+      fetchCategoryPage(queryClient, category, pageParam as number, {
+        prefetchOG: false,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: getStoriesNextPageParam,
+    pages: 1, // Only prefetch the first page
+  });
 }

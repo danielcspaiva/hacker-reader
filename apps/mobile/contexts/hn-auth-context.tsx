@@ -18,6 +18,7 @@ import { usePostHog } from "posthog-react-native";
 import { SecureSession } from "@/lib/shared/auth";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { trackEvent, resetUser } from "@/lib/analytics/tracking";
+import { reportError } from "@/lib/observability";
 
 interface HNAuthContextValue {
   session: SecureSession | null;
@@ -51,7 +52,7 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
         setUsername(storedUsername);
       }
     } catch (error) {
-      console.error("Failed to load session:", error);
+      reportError(error, { operation: "loadSession" });
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +94,7 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     try {
       await CookieManager.clearByName("https://news.ycombinator.com", "user");
     } catch (error) {
-      console.error("Failed to clear HN cookies:", error);
+      reportError(error, { operation: "logout.clearCookies" });
     }
   }
 

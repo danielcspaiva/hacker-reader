@@ -7,6 +7,7 @@ import { useHasVoted, addVote, removeVote } from "@/hooks/use-votes";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
+import { reportError } from "@/lib/observability";
 import { isAuthError, unvote, vote, flag, type HNItem } from "@/lib/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
@@ -74,6 +75,9 @@ export function useStoryActions(story: HNItem): StoryActions {
     boolean,
     { previousVotes?: number[] }
   >({
+    // Reconcile the persisted vote list after success; the visible HN score
+    // isn't updated live, so nothing else needs invalidating.
+    meta: { invalidates: [["votes"]] },
     mutationFn: async (wasVoted: boolean) => {
       if (!isAuthenticated || !session) {
         throw new Error("Not authenticated");
@@ -116,14 +120,6 @@ export function useStoryActions(story: HNItem): StoryActions {
     },
 
     onError: (error, _wasVoted, context) => {
-      console.error("[useStoryActions] Vote mutation error:", {
-        storyId: story.id,
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        isAuthError: isAuthError(error),
-        errorCode: isAuthError(error) ? error.code : "N/A",
-      });
-
       // Rollback optimistic update
       if (context?.previousVotes) {
         queryClient.setQueryData(["votes"], context.previousVotes);
@@ -144,6 +140,8 @@ export function useStoryActions(story: HNItem): StoryActions {
           );
         }
       } else {
+        // Unexpected failure (not an expected auth/rate-limit case) — report it.
+        reportError(error, { operation: "vote", storyId: story.id });
         Alert.alert("Error", "Failed to vote. Please try again.", [
           { text: "OK" },
         ]);
@@ -266,6 +264,8 @@ export function useStoryActions(story: HNItem): StoryActions {
           ]);
         }
       } else {
+        // Unexpected failure (not an expected auth case) — report it.
+        reportError(error, { operation: "flag", storyId: story.id });
         Alert.alert("Error", "Failed to flag content. Please try again.", [
           { text: "OK" },
         ]);
@@ -319,8 +319,9 @@ export function useStoryActions(story: HNItem): StoryActions {
               // Note: No need to invalidate stories query here
               // The feed screen will automatically re-filter stories
               // when the blocked users query updates
-            } catch (error) {
-              console.error("[useStoryActions] Failed to block user:", error);
+            } catch {
+              // The underlying storage error is reported by lib/storage; here
+              // we only surface it to the user.
               Alert.alert("Error", "Failed to block user. Please try again.", [
                 { text: "OK" },
               ]);

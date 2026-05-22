@@ -10,6 +10,7 @@ import { ThemedText } from "@/components/themed-text";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { reportError } from "@/lib/observability";
 import * as HNWriteAPI from "@/lib/shared/api/hn-write-api";
 import { isAuthError } from "@/lib/shared/auth/errors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,7 +19,7 @@ import CookieManager from "@react-native-cookies/cookies";
 import { useFocusEffect } from "expo-router/react-navigation";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -51,13 +52,7 @@ export default function LoginModal() {
   const { login: contextLogin } = useHNAuth();
   const openLink = useExternalLink();
 
-  // Check if guidelines were previously accepted
-  // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
-  useFocusEffect(() => {
-    checkGuidelinesAcceptance();
-  });
-
-  async function checkGuidelinesAcceptance() {
+  const checkGuidelinesAcceptance = useCallback(async () => {
     try {
       const accepted = await AsyncStorage.getItem(GUIDELINES_ACCEPTED_KEY);
       if (accepted === "true") {
@@ -67,11 +62,19 @@ export default function LoginModal() {
         router.push("/auth/guidelines");
       }
     } catch (error) {
-      console.error("Failed to check guidelines acceptance:", error);
+      reportError(error, { operation: "checkGuidelinesAcceptance" });
       // On error, redirect to guidelines to be safe
       router.push("/auth/guidelines");
     }
-  }
+  }, []);
+
+  // Check if guidelines were previously accepted
+  // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
+  useFocusEffect(
+    useCallback(() => {
+      checkGuidelinesAcceptance();
+    }, [checkGuidelinesAcceptance])
+  );
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {

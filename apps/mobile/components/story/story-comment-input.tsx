@@ -50,8 +50,14 @@ export function StoryCommentInput({
       : Colors.light[colorPalette].border;
 
   const [commentText, setCommentText] = useState("");
-  const [isCommentInputVisible, setIsCommentInputVisible] = useState(false);
+  const [isManuallyOpened, setIsManuallyOpened] = useState(false);
   const inputRef = useRef<TextInput>(null);
+
+  // The input is visible when the user explicitly opened it, or whenever a reply
+  // target is set. Deriving this (rather than syncing replyTarget into state via
+  // an effect) keeps a single source of truth; closing/posting clears the reply
+  // target in the parent, which collapses this back to false.
+  const isCommentInputVisible = isManuallyOpened || replyTarget !== null;
 
   // Comment mutation
   const commentMutation = useCommentMutation({
@@ -60,19 +66,12 @@ export function StoryCommentInput({
     onSuccess: () => {
       // Clean up UI
       setCommentText("");
-      setIsCommentInputVisible(false);
+      setIsManuallyOpened(false);
       if (replyTarget) {
         onCancelReply();
       }
     },
   });
-
-  // Auto-show input when a reply target is set
-  useEffect(() => {
-    if (replyTarget) {
-      setIsCommentInputVisible(true);
-    }
-  }, [replyTarget]);
 
   // Focus input when it becomes visible
   useEffect(() => {
@@ -92,7 +91,7 @@ export function StoryCommentInput({
   };
 
   const handleCloseCommentInput = () => {
-    setIsCommentInputVisible(false);
+    setIsManuallyOpened(false);
     setCommentText("");
     if (replyTarget) {
       onCancelReply(); // Clear reply mode when closing input
@@ -136,7 +135,7 @@ export function StoryCommentInput({
             ]}
           >
             <Pressable
-              onPress={() => setIsCommentInputVisible(true)}
+              onPress={() => setIsManuallyOpened(true)}
               style={[styles.floatingButton]}
             >
               <IconSymbol

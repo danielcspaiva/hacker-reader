@@ -52,7 +52,9 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-// Create a client with global mutation invalidation
+// The `meta.invalidates` contract is declared in `@/types/react-query`.
+// Create a client with declarative, scoped mutation invalidation
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -64,15 +66,13 @@ const queryClient = new QueryClient({
   },
   mutationCache: new MutationCache({
     onSuccess: (_data, _variables, _context, mutation) => {
-      // Skip auto-invalidation for comment mutations
-      // Comment mutations handle invalidation manually after waiting for HN API
-      if (mutation.options.meta?.skipAutoInvalidation) {
-        return;
-      }
-
-      // Automatically invalidate all queries after successful mutations
-      // This is fine for read-heavy apps - most users never mutate
-      queryClient.invalidateQueries();
+      // Only invalidate the keys a mutation explicitly declares. Mutations that
+      // manage their own invalidation in onSuccess/onSettled (bookmarks, hidden
+      // items, blocked users, comments) simply declare nothing here.
+      const invalidates = mutation.options.meta?.invalidates;
+      invalidates?.forEach((queryKey) =>
+        queryClient.invalidateQueries({ queryKey })
+      );
     },
   }),
 });

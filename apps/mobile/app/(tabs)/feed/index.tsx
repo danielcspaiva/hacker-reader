@@ -4,7 +4,7 @@ import { ThemedText } from "@/components/themed-text";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
-import { usePrefetchCategories, useStories } from "@/hooks/use-stories";
+import { useStories } from "@/hooks/use-stories";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
@@ -56,8 +56,8 @@ export default function FeedScreen() {
     (story) => !isHidden(story.id) && (!story.by || !isBlocked(story.by))
   );
 
-  // Intelligently prefetch other categories in the background
-  usePrefetchCategories(category, isPending, stories.length > 0);
+  // Background warming of all categories is handled once globally by
+  // useAppPrefetch() in the root layout, so no per-screen prefetch is needed.
 
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");

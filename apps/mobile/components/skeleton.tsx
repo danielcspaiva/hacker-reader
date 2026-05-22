@@ -1,5 +1,5 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Animated, StyleSheet, View, ViewStyle } from "react-native";
 
 interface SkeletonProps {
@@ -17,7 +17,9 @@ export function Skeleton({
 }: SkeletonProps) {
   const backgroundColor = useThemeColor({}, "background");
   const borderColor = useThemeColor({}, "border");
-  const shimmerOpacity = useRef(new Animated.Value(0.3)).current;
+  // Lazy state initializer creates the Animated.Value exactly once with a stable
+  // identity, without reading a ref's `current` during render.
+  const [shimmerOpacity] = useState(() => new Animated.Value(0.3));
 
   useEffect(() => {
     const animation = Animated.loop(

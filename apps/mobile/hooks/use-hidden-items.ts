@@ -6,6 +6,7 @@
  * Uses React Query for state management and cache invalidation.
  */
 
+import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
@@ -21,12 +22,15 @@ type ItemType = "story" | "comment";
 async function loadHiddenIds(storageKey: string): Promise<number[]> {
   try {
     const stored = await AsyncStorage.getItem(storageKey);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    return [];
+    if (!stored) return [];
+
+    // Validate at the boundary: keep only numeric IDs from the parsed array.
+    const parsed: unknown = JSON.parse(stored);
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is number => typeof id === "number")
+      : [];
   } catch (error) {
-    console.error(`Failed to load hidden items:`, error);
+    reportError(error, { operation: "loadHiddenIds", storageKey });
     return [];
   }
 }
@@ -38,7 +42,7 @@ async function saveHiddenIds(storageKey: string, ids: number[]): Promise<void> {
   try {
     await AsyncStorage.setItem(storageKey, JSON.stringify(ids));
   } catch (error) {
-    console.error(`Failed to save hidden items:`, error);
+    reportError(error, { operation: "saveHiddenIds", storageKey });
   }
 }
 

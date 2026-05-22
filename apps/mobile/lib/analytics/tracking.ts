@@ -6,6 +6,7 @@
  */
 
 import type { Category } from "@/components/category-filter";
+import { reportError } from "@/lib/observability";
 import * as Application from "expo-application";
 import { usePostHog } from "posthog-react-native";
 import { Platform } from "react-native";
@@ -164,7 +165,7 @@ export function trackEvent<E extends keyof EventProperties>(
   try {
     posthog.capture(event, properties);
   } catch (error) {
-    console.error(`[Analytics] Error tracking ${event}:`, error);
+    reportError(error, { operation: "trackEvent", event });
   }
 }
 
@@ -187,7 +188,7 @@ export function identifyUser(
   try {
     posthog.identify(username, properties);
   } catch (error) {
-    console.error("[Analytics] Error identifying user:", error);
+    reportError(error, { operation: "identifyUser" });
   }
 }
 
@@ -203,7 +204,7 @@ export function resetUser(posthog: ReturnType<typeof usePostHog>) {
   try {
     posthog.reset();
   } catch (error) {
-    console.error("[Analytics] Error resetting user:", error);
+    reportError(error, { operation: "resetUser" });
   }
 }
 
@@ -226,6 +227,6 @@ export function registerSuperProperties(
   try {
     posthog.register(properties);
   } catch (error) {
-    console.error("[Analytics] Error registering super properties:", error);
+    reportError(error, { operation: "registerSuperProperties" });
   }
 }
