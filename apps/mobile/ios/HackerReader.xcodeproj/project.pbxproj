@@ -631,7 +631,7 @@
 			baseConfigurationReference = 33EC561DA65A71E5D623A5C6 /* Pods-HackerReaderWidgets.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HackerReaderWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HackerReaderWidgets;
@@ -786,7 +786,7 @@
 			baseConfigurationReference = D9B3A24EEF4421793E65F291 /* Pods-HackerReaderWidgets.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HackerReaderWidgets/HackerReaderWidgets.entitlements;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HackerReaderWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HackerReaderWidgets;
