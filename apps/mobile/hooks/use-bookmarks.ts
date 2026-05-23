@@ -6,7 +6,7 @@ import {
   removeBookmark,
 } from "@/lib/bookmarks";
 import { getItem, type HNItem } from "@/lib/shared";
-import * as Haptics from "expo-haptics";
+import { hapticImpact, Haptics } from "@/lib/haptics";
 
 /**
  * Hook to get all bookmarked story IDs
@@ -79,7 +79,7 @@ export function useBookmarkMutation() {
     },
     onMutate: async ({ storyId, add }) => {
       // Haptic feedback for instant user feedback
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
 
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["bookmarks"] });
@@ -123,7 +123,8 @@ export function useBookmarkMutation() {
           context.previousCheck
         );
       }
-      console.error("Bookmark mutation error:", err);
+      // The underlying storage error is reported by lib/bookmarks; here we only
+      // need to roll back the optimistic update.
     },
     onSettled: () => {
       // Refetch to ensure consistency

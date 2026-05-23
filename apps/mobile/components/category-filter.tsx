@@ -1,6 +1,7 @@
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { Host, Picker } from "@expo/ui/swift-ui";
-import { glassEffect } from "@expo/ui/swift-ui/modifiers";
+import { hapticSelection } from "@/lib/haptics";
+import { Host, Picker, Text } from "@expo/ui/swift-ui";
+import { frame, glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 
 export type Category = "top" | "new" | "ask" | "show" | "jobs";
@@ -24,29 +25,34 @@ export function CategoryFilter({
 }: CategoryFilterProps) {
   const categories = Object.keys(CATEGORY_LABELS) as Category[];
   const { colorScheme } = useColorSchemeContext();
-  const selectedIndex = categories.findIndex((cat) => cat === category);
 
-  const handleOptionSelected = (event: { nativeEvent: { index: number } }) => {
-    const nextCategory = categories[event.nativeEvent.index];
+  const handleSelectionChange = (nextCategory: Category) => {
     if (nextCategory && nextCategory !== category) {
+      hapticSelection();
       onSelectCategory(nextCategory);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Host matchContents colorScheme={colorScheme}>
+      <Host matchContents={{ vertical: true }} colorScheme={colorScheme}>
         <Picker
-          options={categories.map((cat) => CATEGORY_LABELS[cat])}
-          selectedIndex={selectedIndex >= 0 ? selectedIndex : 0}
-          onOptionSelected={handleOptionSelected}
-          variant="segmented"
+          selection={category}
+          onSelectionChange={handleSelectionChange}
           modifiers={[
+            pickerStyle("segmented"),
+            frame({ maxWidth: Number.MAX_SAFE_INTEGER }),
             glassEffect({
               glass: { variant: "regular" },
             }),
           ]}
-        />
+        >
+          {categories.map((cat) => (
+            <Text key={cat} modifiers={[tag(cat)]}>
+              {CATEGORY_LABELS[cat]}
+            </Text>
+          ))}
+        </Picker>
       </Host>
     </View>
   );
