@@ -6,7 +6,7 @@ import type { StoryWithComments } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { router, useIsPreview } from "expo-router";
+import { Link, useIsPreview } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { HTMLText } from "./html-text";
@@ -44,20 +44,21 @@ export function StoryHeader({ story }: StoryHeaderProps) {
           },
         ]}
       >
-        <ThemedText type="title" style={styles.title}>
+        <ThemedText type="title" style={styles.title} selectable>
           {story.title}
         </ThemedText>
         <View style={styles.metadata}>
-          <ThemedText type="bodySmall" style={styles.metadataText}>
-            {story.score} points by{" "}
-          </ThemedText>
           <ThemedText
             type="bodySmall"
-            style={styles.metadataText}
-            onPress={() => router.push(`/user/${story.by}`)}
+            style={[styles.metadataText, styles.numeric]}
           >
-            {story.by}
+            {story.score} points by{" "}
           </ThemedText>
+          <Link href={`/user/${story.by}`} asChild>
+            <ThemedText type="bodySmall" style={styles.metadataText}>
+              {story.by}
+            </ThemedText>
+          </Link>
           <ThemedText type="bodySmall" style={styles.metadataText}>
             {" "}
             •{" "}
@@ -71,7 +72,10 @@ export function StoryHeader({ story }: StoryHeaderProps) {
                 {" "}
                 •{" "}
               </ThemedText>
-              <ThemedText type="bodySmall" style={styles.metadataText}>
+              <ThemedText
+                type="bodySmall"
+                style={[styles.metadataText, styles.numeric]}
+              >
                 {story.descendants} comments
               </ThemedText>
             </>
@@ -124,6 +128,9 @@ const styles = StyleSheet.create({
   },
   metadataText: {
     opacity: 0.6,
+  },
+  numeric: {
+    fontVariant: ["tabular-nums"],
   },
   url: {
     marginBottom: Spacing.md,

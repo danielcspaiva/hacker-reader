@@ -5,6 +5,7 @@
  * Blocked users' stories and comments are filtered from the app.
  */
 
+import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BLOCKED_USERS_KEY = "@blocked_users";
@@ -12,6 +13,18 @@ const BLOCKED_USERS_KEY = "@blocked_users";
 export interface BlockedUser {
   username: string;
   blockedAt: number; // timestamp
+}
+
+/**
+ * Type guard for a persisted blocked-user record.
+ */
+function isBlockedUser(value: unknown): value is BlockedUser {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as BlockedUser).username === "string" &&
+    typeof (value as BlockedUser).blockedAt === "number"
+  );
 }
 
 /**
@@ -23,10 +36,12 @@ export async function getBlockedUsers(): Promise<BlockedUser[]> {
     if (!json) {
       return [];
     }
-    const users = JSON.parse(json);
-    return Array.isArray(users) ? users : [];
+    // Validate at the boundary and drop malformed entries rather than trusting
+    // the raw parse.
+    const parsed: unknown = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed.filter(isBlockedUser) : [];
   } catch (error) {
-    console.error("Failed to get blocked users:", error);
+    reportError(error, { operation: "getBlockedUsers" });
     return [];
   }
 }
@@ -68,7 +83,7 @@ export async function blockUser(username: string): Promise<void> {
 
     await AsyncStorage.setItem(BLOCKED_USERS_KEY, JSON.stringify(users));
   } catch (error) {
-    console.error("[BlockedUsers] Failed to block user:", error);
+    reportError(error, { operation: "blockUser", username });
     throw error;
   }
 }
@@ -82,7 +97,7 @@ export async function unblockUser(username: string): Promise<void> {
     const filtered = users.filter((u) => u.username !== username);
     await AsyncStorage.setItem(BLOCKED_USERS_KEY, JSON.stringify(filtered));
   } catch (error) {
-    console.error("Failed to unblock user:", error);
+    reportError(error, { operation: "unblockUser", username });
     throw error;
   }
 }
@@ -94,7 +109,7 @@ export async function clearBlockedUsers(): Promise<void> {
   try {
     await AsyncStorage.removeItem(BLOCKED_USERS_KEY);
   } catch (error) {
-    console.error("Failed to clear blocked users:", error);
+    reportError(error, { operation: "clearBlockedUsers" });
     throw error;
   }
 }

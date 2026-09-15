@@ -271,8 +271,10 @@ export async function comment(
 
   // Success if we get here - HN redirected to item page without errors
 
-  // Try to extract the new comment ID from the response HTML
-  // HN includes links like <a href="item?id=45876842">
+  // Best-effort recovery of the new comment ID: HN doesn't return it directly,
+  // so we scrape every `item?id=N` link and assume the highest (most recent) is
+  // ours. If this guesses wrong or finds nothing we return null, and the caller
+  // falls back to refetching the story from the server.
   const commentIdMatch = initialResponseHtml.match(/item\?id=(\d+)/g);
   let newCommentId: number | null = null;
 
@@ -440,7 +442,8 @@ export async function login(username: string, password: string): Promise<void> {
       "User-Agent": "HN-Client/1.0 (Mobile)",
     },
     body: formData.toString(),
-    redirect: "follow", // Follow redirects to get final response
+    // Redirects are followed by default; expo/fetch (the SDK 56 default) omits
+    // the `redirect` option from its RequestInit type.
   });
 
   // Get response HTML to check for errors

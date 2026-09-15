@@ -64,7 +64,6 @@ export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
   return (
     <GlassView
       glassEffectStyle="regular"
-      isInteractive
       style={[styles.container, { borderColor }]}
     >
       <Link href={`/story/${comment.parent}?commentId=${comment.id}`}>
@@ -121,6 +120,7 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: Spacing.lg,
     borderRadius: 16,
+    borderCurve: "continuous",
     borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
     marginBottom: Spacing.lg,
   },

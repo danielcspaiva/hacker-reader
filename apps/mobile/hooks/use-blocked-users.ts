@@ -46,9 +46,8 @@ export function useBlockedUsers() {
       // Invalidate stories to force feed to re-filter and remove blocked user's content
       queryClient.invalidateQueries({ queryKey: ["stories"] });
     },
-    onError: (error) => {
-      console.error("[useBlockedUsers] Failed to block user:", error);
-    },
+    // Errors are reported by the storage layer (blockUser) and surfaced to the
+    // user by the calling component, so no onError handler is needed here.
   });
 
   // Unblock a user mutation
@@ -62,9 +61,8 @@ export function useBlockedUsers() {
       // Invalidate stories to force feed to re-filter and show unblocked user's content
       queryClient.invalidateQueries({ queryKey: ["stories"] });
     },
-    onError: (error) => {
-      console.error("[useBlockedUsers] Failed to unblock user:", error);
-    },
+    // Errors are reported by the storage layer (unblockUser) and surfaced to the
+    // user by the calling component, so no onError handler is needed here.
   });
 
   // Block a user

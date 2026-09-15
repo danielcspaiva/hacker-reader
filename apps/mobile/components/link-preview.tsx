@@ -59,7 +59,6 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
   return (
     <GlassView
       glassEffectStyle="regular"
-      isInteractive
       style={[styles.container, { borderColor }]}
     >
       <View style={styles.imageContainer}>
@@ -96,6 +95,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 24,
+    borderCurve: "continuous",
     borderWidth: isLiquidGlassAvailable() ? 0 : 1,
     overflow: "hidden",
     marginTop: 8,
@@ -108,12 +108,14 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 8,
+    borderCurve: "continuous",
     borderWidth: 1,
   },
   thumbnailLoading: {
     width: 80,
     height: 80,
     borderRadius: 6,
+    borderCurve: "continuous",
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -146,6 +148,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     borderRadius: 8,
+    borderCurve: "continuous",
     overflow: "hidden",
     marginBottom: 16,
   },

@@ -21,7 +21,7 @@ export function HTMLText({ html, style }: HTMLTextProps) {
   if (!parts) return null;
 
   return (
-    <ThemedText style={style}>
+    <ThemedText style={style} selectable>
       {parts.map((part, index) => {
         if (part.type === "link") {
           return (

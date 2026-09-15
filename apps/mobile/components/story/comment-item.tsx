@@ -5,11 +5,17 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useDeleteCommentMutation } from "@/hooks/use-delete-comment-mutation";
 import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { hapticImpact, hapticSelection, Haptics } from "@/lib/haptics";
 import { timeAgo } from "@/lib/shared";
-import { ContextMenu, Host, Button as SwiftUIButton } from "@expo/ui/swift-ui";
+import { Button as SwiftUIButton, Host, Image, Menu } from "@expo/ui/swift-ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
-import { router } from "expo-router";
-import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Link } from "expo-router";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -39,6 +45,7 @@ export function CommentItem({
   const isOwnComment = username && comment.by === username;
 
   const handleBlockUser = async () => {
+    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await blockUser(comment.by);
       Alert.alert(
@@ -74,13 +81,17 @@ export function CommentItem({
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => deleteCommentMutation.mutate(comment.id),
+          onPress: () => {
+            hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
+            deleteCommentMutation.mutate(comment.id);
+          },
         },
       ]
     );
   };
 
   const handleReply = () => {
+    hapticSelection();
     onReply(comment.id, comment.by);
   };
 
@@ -89,7 +100,8 @@ export function CommentItem({
   }
 
   let content = (
-    <View
+    <Animated.View
+      layout={LinearTransition.duration(200)}
       style={[
         styles.comment,
         {
@@ -99,18 +111,24 @@ export function CommentItem({
     >
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Pressable onPress={() => router.push(`/user/${comment.by}`)}>
-            <ThemedText type="bodySmall" style={styles.author}>
-              {comment.by}
-            </ThemedText>
-          </Pressable>
+          <Link href={`/user/${comment.by}`}>
+            <Link.Trigger>
+              <ThemedText type="bodySmall" style={styles.author}>
+                {comment.by}
+              </ThemedText>
+            </Link.Trigger>
+            <Link.Preview />
+          </Link>
           <ThemedText type="caption" style={styles.time}>
             {" "}
             • {timeAgo(comment.time)}
           </ThemedText>
           {comment.children && comment.children.length > 0 && (
             <TouchableOpacity
-              onPress={() => onToggleCollapse(comment.id)}
+              onPress={() => {
+                hapticSelection();
+                onToggleCollapse(comment.id);
+              }}
               activeOpacity={0.7}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
@@ -121,50 +139,45 @@ export function CommentItem({
             </TouchableOpacity>
           )}
         </View>
-        <Host matchContents style={{ width: 24, height: 24 }}>
-          <ContextMenu>
-            <ContextMenu.Items>
-              {isAuthenticated && (
-                <SwiftUIButton
-                  systemImage="arrowshape.turn.up.left"
-                  onPress={handleReply}
-                >
-                  Reply
-                </SwiftUIButton>
-              )}
-              {isOwnComment ? (
-                <SwiftUIButton
-                  systemImage="trash"
-                  onPress={handleDeleteComment}
-                  role="destructive"
-                >
-                  Delete Comment
-                </SwiftUIButton>
-              ) : (
-                <SwiftUIButton
-                  systemImage="nosign"
-                  onPress={handleBlockUser}
-                  role="destructive"
-                >
-                  Block User
-                </SwiftUIButton>
-              )}
-            </ContextMenu.Items>
-            <ContextMenu.Trigger>
+        <Host matchContents style={styles.moreButton}>
+          <Menu
+            label={<Image systemName="ellipsis" color={textColor} size={18} />}
+            modifiers={[frame({ width: 32, height: 32 })]}
+          >
+            {isAuthenticated && (
               <SwiftUIButton
-                // variant="borderless"
-                color={textColor}
-                systemImage="ellipsis"
-                // role="default"
-                controlSize="small"
-                modifiers={[frame({ width: 24, height: 24 })]}
+                systemImage="arrowshape.turn.up.left"
+                onPress={handleReply}
+                label="Reply"
               />
-            </ContextMenu.Trigger>
-          </ContextMenu>
+            )}
+            {isOwnComment ? (
+              <SwiftUIButton
+                systemImage="trash"
+                onPress={handleDeleteComment}
+                role="destructive"
+                label="Delete Comment"
+              />
+            ) : (
+              <SwiftUIButton
+                systemImage="nosign"
+                onPress={handleBlockUser}
+                role="destructive"
+                label="Block User"
+              />
+            )}
+          </Menu>
         </Host>
       </View>
-      {!isCollapsed && <HTMLText html={comment.text} style={styles.text} />}
-    </View>
+      {!isCollapsed && (
+        <Animated.View
+          entering={FadeIn.duration(150)}
+          exiting={FadeOut.duration(150)}
+        >
+          <HTMLText html={comment.text} style={styles.text} />
+        </Animated.View>
+      )}
+    </Animated.View>
   );
 
   // Wrap with nested borders for each depth level
@@ -205,6 +218,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+  },
+  moreButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   author: {
     fontWeight: "600",

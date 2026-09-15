@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
 import { useSearchStories } from "@/hooks/use-search-stories";
+import { hapticImpact } from "@/lib/haptics";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
@@ -72,8 +73,10 @@ export default function SearchScreen() {
   if (isError) {
     return (
       <View style={styles.centered}>
-        <ThemedText>Something went wrong while searching.</ThemedText>
-        <ThemedText style={styles.helperText}>{error?.message}</ThemedText>
+        <ThemedText selectable>Something went wrong while searching.</ThemedText>
+        <ThemedText style={styles.helperText} selectable>
+          {error?.message}
+        </ThemedText>
       </View>
     );
   }
@@ -134,6 +137,7 @@ export default function SearchScreen() {
       onRefresh={() => {
         // Only trigger refetch if not already loading or refetching
         if (!isLoading && !isRefetching) {
+          hapticImpact();
           refetch();
         }
       }}

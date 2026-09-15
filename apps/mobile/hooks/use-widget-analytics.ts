@@ -159,8 +159,10 @@ export function useWidgetAnalytics() {
       try {
         const configurationsRaw =
           await ReactNativeWidgetExtension?.getCurrentConfigurations?.();
+        // `configurationsRaw` is already typed; the guard narrows away the
+        // undefined case, and normalizeConfiguration validates each entry below.
         const configurations = Array.isArray(configurationsRaw)
-          ? (configurationsRaw as NativeWidgetConfiguration[])
+          ? configurationsRaw
           : [];
 
         const normalized = configurations
@@ -185,9 +187,11 @@ export function useWidgetAnalytics() {
         let storedKeys: StoredWidgetKey[] = [];
         if (storedRaw) {
           try {
-            const parsed = JSON.parse(storedRaw);
+            const parsed: unknown = JSON.parse(storedRaw);
             if (Array.isArray(parsed)) {
-              storedKeys = parsed as StoredWidgetKey[];
+              storedKeys = parsed.filter(
+                (key): key is StoredWidgetKey => typeof key === "string"
+              );
             }
           } catch {
             // Failed to parse stored widget configurations

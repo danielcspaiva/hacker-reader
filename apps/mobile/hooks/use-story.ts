@@ -1,3 +1,4 @@
+import { STORY_CATEGORIES } from "@/hooks/use-stories";
 import { getItem, getItems } from "@/lib/shared";
 import {
   getStoryWithComments,
@@ -8,6 +9,7 @@ import {
   useQuery,
   useQueryClient,
   type InfiniteData,
+  type QueryClient,
 } from "@tanstack/react-query";
 
 export interface StoryWithComments {
@@ -98,6 +100,41 @@ function filterAlgoliaCommentsByHNKids(
 // Now we only validate top-level comments against HN API and trust Algolia for the nested structure.
 // This is much faster and deleted nested comments are rare anyway.
 
+/**
+ * Reflect a freshly fetched story's live fields (score, comment count, title)
+ * into every category list cache that already contains it, plus the per-item
+ * cache, so feed cards stay in sync without triggering another fetch.
+ */
+function syncStoryIntoCaches(queryClient: QueryClient, hnItem: HNItem): void {
+  STORY_CATEGORIES.forEach((category) => {
+    queryClient.setQueriesData<InfiniteData<HNItem[]>>(
+      { queryKey: ["stories", category] },
+      (oldData) => {
+        if (!oldData?.pages) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) =>
+            page.map((item) =>
+              item.id === hnItem.id
+                ? {
+                    ...item,
+                    descendants: hnItem.descendants,
+                    score: hnItem.score ?? 0,
+                    title: hnItem.title,
+                  }
+                : item
+            )
+          ),
+        };
+      }
+    );
+  });
+
+  // Also update the individual item cache
+  queryClient.setQueryData<HNItem>(["item", hnItem.id], hnItem);
+}
+
 export function useStory(id: number) {
   const queryClient = useQueryClient();
 
@@ -166,37 +203,8 @@ export function useStory(id: number) {
         comments: allComments,
       };
 
-      // Update the story data in all infinite query caches (top, new, ask, show, jobs)
-      const categories = ["top", "new", "ask", "show", "jobs"] as const;
-
-      categories.forEach((category) => {
-        queryClient.setQueriesData<InfiniteData<HNItem[]>>(
-          { queryKey: ["stories", category] },
-          (oldData) => {
-            if (!oldData?.pages) return oldData;
-
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page) =>
-                page.map((item) => {
-                  if (item.id === id) {
-                    return {
-                      ...item,
-                      descendants: story.descendants,
-                      score: story.score,
-                      title: story.title,
-                    };
-                  }
-                  return item;
-                })
-              ),
-            };
-          }
-        );
-      });
-
-      // Also update the individual item cache
-      queryClient.setQueryData<HNItem>(["item", id], hnItem);
+      // Keep the feed/list caches and per-item cache in sync with the live data
+      syncStoryIntoCaches(queryClient, hnItem);
 
       return story;
     },

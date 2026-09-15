@@ -1,3 +1,4 @@
+import { reportError } from "@/lib/observability";
 import type { HNItem } from "@/lib/shared";
 import { useCallback } from "react";
 import { Alert, Platform, Share } from "react-native";
@@ -48,7 +49,7 @@ export function useShareStory() {
         // TODO: Track successful shares
       }
     } catch (error) {
-      console.error("Error sharing story:", error);
+      reportError(error, { operation: "shareStory" });
       Alert.alert(
         "Share Failed",
         "Could not share this story. Please try again."

@@ -1,3 +1,4 @@
+import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
 
@@ -9,9 +10,15 @@ const VOTES_STORAGE_KEY = "hn-votes";
 async function getVotedIds(): Promise<number[]> {
   try {
     const json = await AsyncStorage.getItem(VOTES_STORAGE_KEY);
-    return json ? JSON.parse(json) : [];
+    if (!json) return [];
+
+    // Validate at the boundary: keep only numeric IDs.
+    const parsed: unknown = JSON.parse(json);
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is number => typeof id === "number")
+      : [];
   } catch (error) {
-    console.error("Error loading votes:", error);
+    reportError(error, { operation: "getVotedIds" });
     return [];
   }
 }
@@ -27,7 +34,7 @@ export async function addVote(itemId: number): Promise<void> {
       await AsyncStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(votes));
     }
   } catch (error) {
-    console.error("Error saving vote:", error);
+    reportError(error, { operation: "addVote", itemId });
   }
 }
 
@@ -40,7 +47,7 @@ export async function removeVote(itemId: number): Promise<void> {
     const filtered = votes.filter((id) => id !== itemId);
     await AsyncStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(filtered));
   } catch (error) {
-    console.error("Error removing vote:", error);
+    reportError(error, { operation: "removeVote", itemId });
   }
 }
 

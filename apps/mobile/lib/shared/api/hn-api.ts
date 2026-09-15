@@ -47,5 +47,15 @@ export async function getUser(id: string): Promise<HNUser> {
 }
 
 export async function getItems(ids: number[]): Promise<HNItem[]> {
-  return await Promise.all(ids.map((id) => getItem(id)));
+  // Use allSettled so one failed item fetch (transient network/404) doesn't
+  // reject the whole page — degrade to the items we did get. Also drops `null`
+  // responses the HN API returns for deleted items, which would otherwise break
+  // downstream code that reads `item.id`.
+  const results = await Promise.allSettled(ids.map((id) => getItem(id)));
+  return results
+    .filter(
+      (result): result is PromiseFulfilledResult<HNItem> =>
+        result.status === "fulfilled" && result.value != null
+    )
+    .map((result) => result.value);
 }

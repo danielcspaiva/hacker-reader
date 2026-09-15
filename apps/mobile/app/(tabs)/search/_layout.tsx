@@ -1,24 +1,17 @@
 import { useEffect, useRef } from "react";
 
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { LargeTitleStack } from "@/components/navigation/large-title-stack";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
 
 export default function Layout() {
   const router = useRouter();
-  const { colorScheme, colorPalette } = useColorSchemeContext();
   const tintColor = useThemeColor({}, "tint");
   const textColor = useThemeColor({}, "text");
   const placeholderColor = useThemeColor(
     { light: "#9ca3af", dark: "#6b7280" },
     "icon"
   );
-  const backgroundColor =
-    colorScheme === "dark"
-      ? Colors.dark[colorPalette].background
-      : Colors.light[colorPalette].background;
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -40,38 +33,22 @@ export default function Layout() {
   };
 
   return (
-    <Stack
-      screenOptions={{
-        headerTransparent: isLiquidGlassAvailable(),
-        headerLargeTitle: true,
-        headerLargeTitleShadowVisible: false,
-        headerTintColor: tintColor,
-        headerBlurEffect: isLiquidGlassAvailable() ? "none" : "systemMaterial",
-        headerStyle: {
-          backgroundColor: isLiquidGlassAvailable()
-            ? "transparent"
-            : backgroundColor,
-        },
-        headerSearchBarOptions: {
-          headerIconColor: tintColor,
-          tintColor,
-          textColor,
-          hintTextColor: placeholderColor,
-          placeholder: "Search stories",
-          hideWhenScrolling: false,
-          onChangeText: handleSearchChange,
-        },
-      }}
-    >
+    <LargeTitleStack>
       <Stack.Screen
         name="index"
         options={{
           title: "Search",
-          headerLargeTitleStyle: {
-            color: tintColor,
+          headerSearchBarOptions: {
+            headerIconColor: tintColor,
+            tintColor,
+            textColor,
+            hintTextColor: placeholderColor,
+            placeholder: "Search stories",
+            hideWhenScrolling: false,
+            onChangeText: handleSearchChange,
           },
         }}
       />
-    </Stack>
+    </LargeTitleStack>
   );
 }

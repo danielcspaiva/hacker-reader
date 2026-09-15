@@ -34,7 +34,6 @@ export function StoryCard({ story, index }: StoryCardProps) {
   return (
     <GlassView
       glassEffectStyle="regular"
-      isInteractive
       style={[styles.container, { borderColor }]}
     >
       <Link
@@ -146,6 +145,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     marginHorizontal: Spacing.lg,
     borderRadius: 16,
+    borderCurve: "continuous",
     borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
     marginBottom: Spacing.lg,
   },

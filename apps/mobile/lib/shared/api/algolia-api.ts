@@ -13,7 +13,7 @@ export interface AlgoliaComment {
   type: "comment" | "story" | "job" | "poll" | "pollopt";
   url: string | null;
   title: string | null;
-  options?: any[];
+  options?: unknown[];
 }
 
 export interface AlgoliaStory {
@@ -29,7 +29,7 @@ export interface AlgoliaStory {
   story_id: number | null;
   children: AlgoliaComment[];
   type: "story" | "job" | "poll" | "comment";
-  options?: any[];
+  options?: unknown[];
 }
 
 async function fetchJSON<T>(path: string): Promise<T> {

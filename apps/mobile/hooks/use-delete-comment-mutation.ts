@@ -1,5 +1,6 @@
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment, StoryWithComments } from "@/hooks/use-story";
+import { reportError } from "@/lib/observability";
 import { deleteComment } from "@/lib/shared/api/hn-write-api";
 import { isAuthError } from "@/lib/shared/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -129,6 +130,8 @@ export function useDeleteCommentMutation({
             Alert.alert("Error", error.message, [{ text: "OK" }]);
         }
       } else {
+        // Unexpected failure (not an expected auth case) — report it.
+        reportError(error, { operation: "deleteComment" });
         const errorMessage =
           error instanceof Error
             ? error.message

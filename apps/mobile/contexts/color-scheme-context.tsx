@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, use, useEffect, useState, useRef } from "react";
 import { useColorScheme as useSystemColorScheme } from "react-native";
 import UserInterfaceStyle from "react-native-user-interface-style";
 import { usePostHog } from "posthog-react-native";
@@ -64,9 +64,15 @@ export function ColorSchemeProvider({
     AsyncStorage.setItem(STORAGE_KEY, newPreference);
   };
 
-  // Determine actual color scheme based on preference
+  // Determine actual color scheme based on preference.
+  // useColorScheme() can return "unspecified"/null (SDK 56 / RN 0.85), so map
+  // anything that isn't explicitly "dark" to "light".
   const colorScheme: ColorScheme =
-    preference === "system" ? (systemColorScheme ?? "light") : preference;
+    preference === "system"
+      ? systemColorScheme === "dark"
+        ? "dark"
+        : "light"
+      : preference;
 
   // Sync iOS interface style with user's theme preference
   useEffect(() => {
@@ -91,7 +97,7 @@ export function ColorSchemeProvider({
 }
 
 export function useColorSchemeContext() {
-  const context = useContext(ColorSchemeContext);
+  const context = use(ColorSchemeContext);
   if (context === undefined) {
     throw new Error(
       "useColorSchemeContext must be used within a ColorSchemeProvider"

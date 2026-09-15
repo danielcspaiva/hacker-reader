@@ -2,6 +2,7 @@ import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { hapticImpact } from "@/lib/haptics";
 import { type HNItem } from "@/lib/shared";
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useEffect, useRef } from "react";
@@ -75,6 +76,7 @@ export default function BookmarksScreen() {
       onRefresh={() => {
         // Only trigger refetch if not already loading or refetching
         if (!isLoading && !isRefetching) {
+          hapticImpact();
           refetch();
         }
       }}
