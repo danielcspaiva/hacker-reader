@@ -1,12 +1,6 @@
-/**
- * HN Login Modal Route
- *
- * Displays a native login form for Hacker News authentication.
- * POSTs credentials directly to HN and extracts session cookies.
- * Redirects to HN Guidelines screen if not yet accepted.
- */
-
+import { GuidelinesContent } from "@/components/guidelines-content";
 import { ThemedText } from "@/components/themed-text";
+import { GUIDELINES_ACCEPTED_KEY } from "@/constants/app-config";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -16,8 +10,7 @@ import { isAuthError } from "@/lib/shared/auth/errors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Cookies } from "@react-native-cookies/cookies";
 import CookieManager from "@react-native-cookies/cookies";
-import { useFocusEffect } from "expo-router/react-navigation";
-import { router } from "expo-router";
+import { router, Stack, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
 import {
@@ -28,8 +21,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const GUIDELINES_ACCEPTED_KEY = "@guidelines_accepted";
 
 export default function LoginModal() {
   const textColor = useThemeColor({}, "text");
@@ -46,7 +37,9 @@ export default function LoginModal() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [guidelinesAccepted, setGuidelinesAccepted] = useState(false);
+  const [guidelinesAccepted, setGuidelinesAccepted] = useState<boolean | null>(
+    null
+  );
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { login: contextLogin } = useHNAuth();
@@ -55,21 +48,13 @@ export default function LoginModal() {
   const checkGuidelinesAcceptance = useCallback(async () => {
     try {
       const accepted = await AsyncStorage.getItem(GUIDELINES_ACCEPTED_KEY);
-      if (accepted === "true") {
-        setGuidelinesAccepted(true);
-      } else {
-        // Redirect to guidelines screen if not accepted
-        router.push("/auth/guidelines");
-      }
+      setGuidelinesAccepted(accepted === "true");
     } catch (error) {
       reportError(error, { operation: "checkGuidelinesAcceptance" });
-      // On error, redirect to guidelines to be safe
-      router.push("/auth/guidelines");
+      setGuidelinesAccepted(false);
     }
   }, []);
 
-  // Check if guidelines were previously accepted
-  // Use useFocusEffect to re-check when screen comes into focus (e.g., after accepting guidelines)
   useFocusEffect(
     useCallback(() => {
       checkGuidelinesAcceptance();
@@ -86,18 +71,13 @@ export default function LoginModal() {
     setError(null);
 
     try {
-      // Call native login API (this performs the login and follows redirects)
       await HNWriteAPI.login(username.trim(), password);
-
-      // Wait a bit for cookies to settle
       await new Promise<void>((resolve) => setTimeout(resolve, 500));
 
-      // Extract cookies using native cookie manager (more reliable than header parsing)
       const cookies: Cookies = await CookieManager.get(
         "https://news.ycombinator.com"
       );
 
-      // Convert Cookies object to Record<string, string>
       const cookieRecord: Record<string, string> = {};
       for (const [key, cookie] of Object.entries(cookies)) {
         if (
@@ -109,49 +89,70 @@ export default function LoginModal() {
         }
       }
 
-      // Validate we got session cookie
       if (!cookieRecord["user"]) {
         throw new Error("Login succeeded but no session cookie found");
       }
 
-      // Store cookies securely
       await SecureStore.setItemAsync(
         "hn_cookies",
         JSON.stringify(cookieRecord)
       );
 
-      // Update auth context with username
       await contextLogin(cookieRecord, username.trim());
 
-      // Dismiss the modal after successful login
       if (router.canGoBack()) {
         router.back();
       } else {
-        router.replace("/(tabs)/settings");
+        router.replace("/(tabs)/profile");
       }
     } catch (err) {
-      setLoading(false);
-
       if (isAuthError(err)) {
-        // Use the error message from HNAuthError
         setError(err.message);
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("Login failed. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const acceptGuidelines = async () => {
+    try {
+      await AsyncStorage.setItem(GUIDELINES_ACCEPTED_KEY, "true");
+    } catch (error) {
+      reportError(error, { operation: "saveGuidelinesAcceptance" });
+    }
+    setGuidelinesAccepted(true);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {error && (
+      <Stack.Screen
+        options={{
+          headerTitle:
+            guidelinesAccepted === true
+              ? "Sign in to Hacker News"
+              : "Hacker News Guidelines",
+        }}
+      />
+      {guidelinesAccepted === false ? (
+        <GuidelinesContent
+          onAccept={() => {
+            void acceptGuidelines();
+          }}
+          onCancel={() => router.back()}
+        />
+      ) : null}
+
+      {error ? (
         <View style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>{error}</ThemedText>
         </View>
-      )}
+      ) : null}
 
-      {guidelinesAccepted && !loading && (
+      {guidelinesAccepted === true && !loading ? (
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>Username</ThemedText>
@@ -217,21 +218,26 @@ export default function LoginModal() {
               </ThemedText>
             </ThemedText>
             <ThemedText
-              style={[styles.infoText, { color: secondaryTextColor, marginTop: 16 }]}
+              style={[
+                styles.infoText,
+                { color: secondaryTextColor, marginTop: 16 },
+              ]}
             >
               Your password is sent directly to Hacker News and never stored in
               this app.
             </ThemedText>
           </View>
         </View>
-      )}
+      ) : null}
 
-      {loading && (
+      {loading || guidelinesAccepted === null ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#ff6600" />
-          <ThemedText style={styles.loadingText}>Signing you in...</ThemedText>
+          {loading ? (
+            <ThemedText style={styles.loadingText}>Signing you in...</ThemedText>
+          ) : null}
         </View>
-      )}
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -239,19 +245,6 @@ export default function LoginModal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  keyboardAvoid: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
   },
   formContainer: {
     flex: 1,

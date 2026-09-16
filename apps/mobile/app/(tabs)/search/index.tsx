@@ -1,9 +1,10 @@
 import { FlashList } from "@shopify/flash-list";
-import { useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
+import { EmptyState } from "@/components/empty-state";
 import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
 import { useSearchStories } from "@/hooks/use-search-stories";
@@ -16,9 +17,11 @@ import type { HNItem } from "@/lib/shared";
 
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
+  const router = useRouter();
   const { bottom } = useSafeAreaInsets();
   const textColor = useThemeColor({}, "text");
   const analytics = useAnalytics();
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const queryParam = params?.q;
   const rawQuery = Array.isArray(queryParam)
@@ -41,7 +44,6 @@ export default function SearchScreen() {
 
   const stories = data?.pages.flatMap((page) => page.hits) ?? [];
 
-  // Track search performed
   useEffect(() => {
     if (!isQueryEmpty && !isLoading && data) {
       analytics.track(AnalyticsEvent.SEARCH_PERFORMED, {
@@ -51,37 +53,73 @@ export default function SearchScreen() {
     }
   }, [trimmedQuery, isLoading, data, analytics, stories.length, isQueryEmpty]);
 
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+    };
+  }, []);
+
+  const handleSearchChange = (event: { nativeEvent: { text: string } }) => {
+    const value = event.nativeEvent.text ?? "";
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(() => {
+      router.setParams({ q: value.trim().length > 0 ? value : undefined });
+    }, 300);
+  };
+
+  const searchBar = (
+    <Stack.SearchBar
+      placeholder="Search stories"
+      hideWhenScrolling={false}
+      onChangeText={handleSearchChange}
+      tintColor={textColor}
+    />
+  );
+
   if (isQueryEmpty) {
     return (
-      <View style={[styles.centered, styles.placeholder]}>
-        <ThemedText type="title">Search Hacker News</ThemedText>
-        <ThemedText style={styles.placeholderText}>
-          Use the search bar above to find stories.
-        </ThemedText>
-      </View>
+      <>
+        {searchBar}
+        <EmptyState
+          title="Search Hacker News"
+          description="Use the search bar above to find stories."
+          systemImage="magnifyingglass"
+        />
+      </>
     );
   }
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={textColor} />
-      </View>
+      <>
+        {searchBar}
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={textColor} />
+        </View>
+      </>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.centered}>
-        <ThemedText selectable>Something went wrong while searching.</ThemedText>
-        <ThemedText style={styles.helperText} selectable>
-          {error?.message}
-        </ThemedText>
-      </View>
+      <>
+        {searchBar}
+        <EmptyState
+          title="Search failed"
+          description={error?.message ?? "Something went wrong while searching."}
+          systemImage="exclamationmark.triangle"
+        />
+      </>
     );
   }
 
   return (
+    <>
+      {searchBar}
     <FlashList<HNItem>
       data={stories}
       renderItem={({ item, index }) => (
@@ -111,22 +149,18 @@ export default function SearchScreen() {
         </View>
       }
       ListEmptyComponent={
-        <View style={styles.emptyState}>
-          <ThemedText>
-            No stories match &quot;
-            <ThemedText style={styles.helperHighlight}>
-              {trimmedQuery}
-            </ThemedText>
-            &quot;.
-          </ThemedText>
-        </View>
+        <EmptyState
+          title="No stories"
+          description={`No stories match “${trimmedQuery}”.`}
+          systemImage="doc.text.magnifyingglass"
+        />
       }
       ListFooterComponent={
         isFetchingNextPage ? (
           <View style={styles.footer}>
             <ActivityIndicator size="small" color={textColor} />
           </View>
-        ) : null
+        ) : undefined
       }
       onEndReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -135,22 +169,18 @@ export default function SearchScreen() {
       }}
       onEndReachedThreshold={0.5}
       onRefresh={() => {
-        // Only trigger refetch if not already loading or refetching
         if (!isLoading && !isRefetching) {
           hapticImpact();
           refetch();
         }
       }}
       refreshing={isRefetching}
-      // onScrollBeginDrag={() => Keyboard.dismiss()}
     />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   centered: {
     flex: 1,
     justifyContent: "center",
@@ -170,22 +200,8 @@ const styles = StyleSheet.create({
   helperHighlight: {
     fontWeight: "600",
   },
-  emptyState: {
-    paddingHorizontal: 16,
-    paddingVertical: 40,
-    alignItems: "center",
-  },
   footer: {
     paddingVertical: 20,
     alignItems: "center",
-  },
-  placeholder: {
-    paddingHorizontal: 24,
-    gap: 12,
-  },
-  placeholderText: {
-    fontSize: 16,
-    textAlign: "center",
-    opacity: 0.7,
   },
 });

@@ -5,6 +5,10 @@ export default function Layout() {
   return (
     <LargeTitleStack>
       <Stack.Screen name="index" options={{ title: "Settings" }} />
+      <Stack.Screen
+        name="blocked-users"
+        options={{ title: "Blocked Users" }}
+      />
     </LargeTitleStack>
   );
 }

@@ -1,14 +1,15 @@
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "expo-router/react-navigation";
-import {
   MutationCache,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { router, Stack } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  router,
+  Stack,
+  ThemeProvider,
+} from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
@@ -77,10 +78,18 @@ const queryClient = new QueryClient({
   }),
 });
 
+function ModalCloseButton({ color }: { color: string }) {
+  return (
+    <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
+      <IconSymbol name="xmark" size={20} color={color} weight="light" />
+    </Pressable>
+  );
+}
+
 function RootLayoutContent() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
-  const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
+  const textColor = useThemeColor({}, "text");
   const { isAuthenticated } = useHNAuth();
   const posthog = usePostHog();
   useWidgetAnalytics();
@@ -189,16 +198,7 @@ function RootLayoutContent() {
                 ? "transparent"
                 : backgroundColor,
             },
-            headerRight: () => (
-              <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
-                <IconSymbol
-                  name="xmark"
-                  size={20}
-                  color={textColor}
-                  weight="light"
-                />
-              </Pressable>
-            ),
+            headerRight: () => <ModalCloseButton color={textColor} />,
           }}
         />
         <Stack.Screen
@@ -220,16 +220,7 @@ function RootLayoutContent() {
                 ? "transparent"
                 : backgroundColor,
             },
-            headerRight: () => (
-              <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
-                <IconSymbol
-                  name="xmark"
-                  size={20}
-                  color={textColor}
-                  weight="light"
-                />
-              </Pressable>
-            ),
+            headerRight: () => <ModalCloseButton color={textColor} />,
           }}
         />
       </Stack>

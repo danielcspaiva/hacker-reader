@@ -1,11 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { getItems } from "@/lib/shared/api/hn-api";
 import type { HNItem } from "@/lib/shared/types";
+import { useQuery } from "@tanstack/react-query";
 
-/**
- * Hook to fetch user's submissions (stories and comments).
- * Shared between profile screen (for count) and submissions screen (for list).
- */
 export function useUserSubmissions(submittedIds: number[] | undefined) {
   return useQuery<HNItem[]>({
     queryKey: ["submissions", submittedIds],
@@ -13,14 +9,12 @@ export function useUserSubmissions(submittedIds: number[] | undefined) {
       if (!submittedIds || submittedIds.length === 0) {
         return [];
       }
-      // Fetch first 50 submissions (can be paginated later)
-      const ids = submittedIds.slice(0, 50);
-      return getItems(ids);
+      const items = await getItems(submittedIds.slice(0, 50));
+      return items.filter((item) => !item.deleted && !item.dead);
     },
     enabled: !!submittedIds && submittedIds.length > 0,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    // Return empty array when query is disabled
     placeholderData: [],
   });
 }

@@ -2,60 +2,21 @@ import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Spacing } from "@/constants/theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { type HNItem } from "@/lib/shared";
+import { stripHTML, timeAgo, type HNItem } from "@/lib/shared";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Link } from "expo-router";
 import { StyleSheet, View } from "react-native";
-
-/**
- * Parse HTML entities and basic tags from HN comment text
- */
-function parseHTMLText(html: string): string {
-  return html
-    .replace(/<p>/g, "\n\n")
-    .replace(/<\/p>/g, "")
-    .replace(/<i>(.*?)<\/i>/g, "$1")
-    .replace(/<b>(.*?)<\/b>/g, "$1")
-    .replace(/<a[^>]*>(.*?)<\/a>/g, "$1")
-    .replace(/&#x2F;/g, "/")
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .trim();
-}
-
-/**
- * Format timestamp to readable string
- */
-function timeAgo(timestamp: number): string {
-  const seconds = Math.floor(Date.now() / 1000 - timestamp);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  return "just now";
-}
 
 interface SubmissionCommentCardProps {
   comment: HNItem;
 }
 
-/**
- * Comment card component for displaying user's comment submissions
- * Shows a preview of the comment text and links to the parent story/comment
- * Matches the styling of StoryCard with GlassView
- */
 export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
   const borderColor = useThemeColor({}, "border");
   const mutedColor = useThemeColor({}, "tabIconDefault");
 
   // Parse and truncate comment text for preview
-  const commentText = comment.text ? parseHTMLText(comment.text) : "";
+  const commentText = comment.text ? stripHTML(comment.text) : "";
   const preview =
     commentText.length > 200
       ? commentText.substring(0, 200) + "..."

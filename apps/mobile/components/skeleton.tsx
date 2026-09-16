@@ -1,12 +1,12 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useEffect, useState } from "react";
-import { Animated, StyleSheet, View, ViewStyle } from "react-native";
+import { Animated, StyleSheet, View, type ViewProps } from "react-native";
 
 interface SkeletonProps {
   width?: number | string;
   height?: number;
   borderRadius?: number;
-  style?: ViewStyle;
+  style?: ViewProps["style"];
 }
 
 export function Skeleton({

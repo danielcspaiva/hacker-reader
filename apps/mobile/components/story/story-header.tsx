@@ -8,7 +8,7 @@ import { timeAgo } from "@/lib/shared";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Link, useIsPreview } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { HTMLText } from "./html-text";
 
 // Negative margin needed for iOS 26+ header behavior to allow proper
@@ -84,22 +84,21 @@ export function StoryHeader({ story }: StoryHeaderProps) {
         {story.url && (
           <>
             {!hasPreview && (
-              <TouchableOpacity onPress={() => openURL(story.url!)}>
+              <Pressable onPress={() => openURL(story.url!)}>
                 <ThemedText
                   type="bodySmall"
                   style={[styles.url, { color: tintColor }]}
                 >
                   {story.url}
                 </ThemedText>
-              </TouchableOpacity>
+              </Pressable>
             )}
-            <TouchableOpacity
+            <Pressable
               onPress={() => openURL(story.url!)}
               accessibilityRole="link"
-              activeOpacity={0.8}
             >
               <LinkPreview url={story.url} />
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
         {story.text && <HTMLText html={story.text} style={styles.storyText} />}

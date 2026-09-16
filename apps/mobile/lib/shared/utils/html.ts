@@ -4,36 +4,41 @@ interface ParsedHTMLPart {
   url?: string;
 }
 
-/**
- * Decodes HTML entities to their character equivalents
- */
 function decodeEntities(text: string): string {
   return text
-    .replace(/&#x2F;/g, "/")
-    .replace(/&#x27;/g, "'")
+    .replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
+      String.fromCharCode(Number.parseInt(hex, 16))
+    )
+    .replace(/&#([0-9]+);/g, (_, dec) =>
+      String.fromCharCode(Number.parseInt(dec, 10))
+    )
     .replace(/&quot;/g, '"')
-    .replace(/&gt;/g, ">")
+    .replace(/&#x27;/g, "'")
     .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&");
 }
 
-/**
- * Parses HTML string and extracts text and links into structured parts
- * Handles HN comment/story HTML format with <p> tags and <a> tags
- * @param html Raw HTML string from HN API
- * @returns Array of parsed parts (text and links) or null if no HTML
- */
+export function stripHTML(html: string): string {
+  return decodeEntities(
+    html
+      .replace(/<p>/g, "\n\n")
+      .replace(/<\/p>/g, "")
+      .replace(/<i>(.*?)<\/i>/g, "$1")
+      .replace(/<b>(.*?)<\/b>/g, "$1")
+      .replace(/<a[^>]*>(.*?)<\/a>/g, "$1")
+  ).trim();
+}
+
 export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
   if (!html) return null;
 
-  // Replace paragraph tags with newlines
   let processed = html
     .replace(/<p>/g, "\n\n")
     .replace(/<\/p>/g, "")
     .replace(/<i>/g, "")
     .replace(/<\/i>/g, "");
 
-  // Process all elements (links, code blocks, and text) in order
   const combinedRegex =
     /(<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>)|(<pre><code>([\s\S]*?)<\/code><\/pre>)|(<code>(.*?)<\/code>)/g;
   const parts: ParsedHTMLPart[] = [];
@@ -41,7 +46,6 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
   let match;
 
   while ((match = combinedRegex.exec(processed)) !== null) {
-    // Add text before this element
     if (match.index > lastIndex) {
       const textBefore = decodeEntities(
         processed.substring(lastIndex, match.index)
@@ -51,9 +55,7 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
       }
     }
 
-    // Check which pattern matched
     if (match[1]) {
-      // Link matched: <a href="url">text</a>
       parts.push({
         type: "link",
         content: decodeEntities(match[3]),
@@ -76,7 +78,6 @@ export function parseHTMLWithLinks(html?: string): ParsedHTMLPart[] | null {
     lastIndex = match.index + match[0].length;
   }
 
-  // Add remaining text
   if (lastIndex < processed.length) {
     const textAfter = decodeEntities(processed.substring(lastIndex));
     if (textAfter.trim()) {

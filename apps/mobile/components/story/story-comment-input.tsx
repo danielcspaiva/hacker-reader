@@ -16,6 +16,7 @@ import {
   StyleSheet,
   TextInput,
   View,
+  type TextInputInstance,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -52,7 +53,7 @@ export function StoryCommentInput({
 
   const [commentText, setCommentText] = useState("");
   const [isManuallyOpened, setIsManuallyOpened] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInputInstance>(null);
 
   // The input is visible when the user explicitly opened it, or whenever a reply
   // target is set. Deriving this (rather than syncing replyTarget into state via

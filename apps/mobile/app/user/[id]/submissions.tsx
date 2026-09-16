@@ -45,18 +45,10 @@ export default function UserSubmissionsScreen() {
 
   const isLoading = isLoadingUser || isLoadingSubmissions;
 
-  // Separate stories and comments
-  const stories = Array.isArray(submissions)
-    ? submissions.filter(
-        (item) => item.type === "story" && !item.deleted && !item.dead
-      )
-    : [];
-
-  const comments = Array.isArray(submissions)
-    ? submissions.filter(
-        (item) => item.type === "comment" && !item.deleted && !item.dead
-      )
-    : [];
+  const stories = (submissions ?? []).filter((item) => item.type === "story");
+  const comments = (submissions ?? []).filter(
+    (item) => item.type === "comment"
+  );
 
   // Get current items based on selected type
   const currentItems = selectedType === "stories" ? stories : comments;

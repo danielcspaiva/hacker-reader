@@ -1,7 +1,7 @@
+import { EmptyState } from "@/components/empty-state";
 import { CommentItem } from "@/components/story/comment-item";
 import { StoryCommentInput } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
-import { ThemedText } from "@/components/themed-text";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useStory } from "@/hooks/use-story";
@@ -20,9 +20,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function EmptyComments() {
   return (
-    <View style={styles.centered}>
-      <ThemedText style={styles.noComments}>No comments yet</ThemedText>
-    </View>
+    <EmptyState
+      title="No comments yet"
+      description="Be the first to reply."
+      systemImage="bubble.left.and.bubble.right"
+    />
   );
 }
 
@@ -216,9 +218,10 @@ export default function StoryDetailScreen() {
       <>
         {screenOptions}
         <View style={[styles.container, { backgroundColor }]}>
-          <View style={styles.centered}>
-            <ThemedText>Story not found</ThemedText>
-          </View>
+          <EmptyState
+            title="Story not found"
+            systemImage="exclamationmark.triangle"
+          />
         </View>
       </>
     );
@@ -290,8 +293,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 32,
     paddingHorizontal: 16,
-  },
-  noComments: {
-    opacity: 0.5,
   },
 });
