@@ -12,5 +12,6 @@ Fixes
 • A storage error could erase saved bookmarks, votes or blocked users
 • Posting a comment could wrongly report a failure
 • The comment box stayed locked for several seconds after posting
+• Voting or commenting on some threads could sign you out
 • Network errors showed "No stories found" instead of a Try again button
 • VoiceOver now reads each story card's title, site and counts

@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Network errors showed "No stories found" instead of an error with retry
 - The first theme change after launch was not tracked
 - VoiceOver read story and submission cards as a blank object instead of their title, site and counts
+- Voting, commenting, flagging or deleting on a thread where a comment mentioned "login" signed you out with "Session Expired"
 
 ## [1.2.0] - 2025-11-11
 

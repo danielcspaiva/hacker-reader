@@ -337,3 +337,31 @@ describe("parseDeleteLink", () => {
     assert.equal(err.code, "NOT_LOGGED_IN");
   });
 });
+
+describe("signed-in pages whose comments mention login", () => {
+  // The header of a signed-in page links to logout; the comment says "login".
+  const signedIn = `<span class="pagetop"><a id="me" href="user?id=appstorereview">appstorereview</a> | <a id='logout' rel='nofollow' href="logout?auth=abc&amp;goto=item%3Fid%3D4">logout</a></span>
+<div class="commtext c00">You have to login with SSO first.</div>`;
+
+  it("flag -> INSUFFICIENT_KARMA, not NOT_LOGGED_IN", () => {
+    assert.equal(
+      thrown(() => parseFlagLink(signedIn, 4)).code,
+      "INSUFFICIENT_KARMA"
+    );
+  });
+
+  it("vote, comment and delete do not report NOT_LOGGED_IN", () => {
+    assert.notEqual(
+      thrown(() => parseVoteLink(signedIn, 4)).code,
+      "NOT_LOGGED_IN"
+    );
+    assert.equal(
+      thrown(() => parseCommentFormHmac(signedIn)).code,
+      "PARSE_ERROR"
+    );
+    assert.notEqual(
+      thrown(() => parseDeleteLink(signedIn, 4)).code,
+      "NOT_LOGGED_IN"
+    );
+  });
+});

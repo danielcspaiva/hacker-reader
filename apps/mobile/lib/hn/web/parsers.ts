@@ -38,6 +38,17 @@ function extractTextContent(html: string): string {
   );
 }
 
+/**
+ * A signed-in HN page always links to `logout?auth=...` in its header. Comment
+ * text can say "login", so the word alone must not end the session.
+ */
+function isSignedOutPage(html: string): boolean {
+  return (
+    !/href=["']?logout\?/i.test(html) &&
+    extractTextContent(html).toLowerCase().includes("login")
+  );
+}
+
 function escapeForRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -172,7 +183,7 @@ export function parseVoteLink(html: string, itemId: number): string {
     // Smart error detection
     const text = extractTextContent(html).toLowerCase();
 
-    if (text.includes("login")) {
+    if (isSignedOutPage(html)) {
       throw new HNAuthError(
         "Session expired - please log in again",
         "NOT_LOGGED_IN"
@@ -249,9 +260,7 @@ export function parseCommentFormHmac(html: string): string {
   );
 
   if (!rawHmac) {
-    const text = extractTextContent(html).toLowerCase();
-
-    if (text.includes("login")) {
+    if (isSignedOutPage(html)) {
       throw new HNAuthError(
         "Session expired - please log in again",
         "NOT_LOGGED_IN"
@@ -302,9 +311,7 @@ export function parseFlagLink(html: string, itemId: number): string {
     })();
 
   if (!fallbackFlagLink) {
-    const text = extractTextContent(html).toLowerCase();
-
-    if (text.includes("login")) {
+    if (isSignedOutPage(html)) {
       throw new HNAuthError(
         "Session expired - please log in again",
         "NOT_LOGGED_IN"
@@ -343,9 +350,7 @@ export function parseDeleteLink(html: string, itemId: number): string {
   const deleteLink = match ? decodeAttributeValue(match[0]) : null;
 
   if (!deleteLink) {
-    const text = extractTextContent(html).toLowerCase();
-
-    if (text.includes("login")) {
+    if (isSignedOutPage(html)) {
       throw new HNAuthError(
         "Session expired - please log in again",
         "NOT_LOGGED_IN"
