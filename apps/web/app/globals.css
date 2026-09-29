@@ -2,57 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tokens mirror apps/mobile/constants/colors.ts: warm paper by day, warm
+   charcoal ("HN at night") in dark mode, never pure black. */
 :root {
-  /* HN Brand Colors */
-  --hn-orange: #ff6600;
-  --hn-orange-hover: #ff7700;
-
-  /* Light Theme */
-  --background: #ffffff;
-  --background-secondary: #f5f0e8;
-  --foreground: #1a1410;
-  --foreground-secondary: #665c4f;
-  --foreground-muted: #8a7f6d;
-  --border: #e5ddd0;
-  --card-bg: #ffffff;
-
-  /* Semantic Colors */
-  --accent: var(--hn-orange);
-  --accent-hover: var(--hn-orange-hover);
+  --background: #fcfbf7;
+  --card: #f4f2e9;
+  --muted: #e9e6da;
+  --foreground: #1f1b16;
+  --muted-foreground: #6a645a;
+  --tertiary-foreground: #8a8377;
+  --primary: #ff6600;
+  --primary-foreground: #1f1b16;
+  --primary-ink: #b04400;
+  --primary-wash: #ff660024;
+  --separator: #3c2d1418;
+  color-scheme: light;
 }
 
-/* Dark theme using class selector (for next-themes) */
 .dark {
-  /* Dark Theme */
-  --background: #0a0a0a;
-  --background-secondary: #0f0f0f;
-  --foreground: #f0f0f0;
-  --foreground-secondary: #a8a8a8;
-  --foreground-muted: #8a8a8a;
-  --border: #333333;
-  --card-bg: #1a1a1a;
-}
-
-/* Also support system preference for better compatibility */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    /* Dark Theme */
-    --background: #0a0a0a;
-    --background-secondary: #0f0f0f;
-    --foreground: #f0f0f0;
-    --foreground-secondary: #a8a8a8;
-    --foreground-muted: #8a8a8a;
-    --border: #333333;
-    --card-bg: #1a1a1a;
-  }
+  --background: #17130f;
+  --card: #272119;
+  --muted: #2d2721;
+  --foreground: #f3ede3;
+  --muted-foreground: #a9a194;
+  --tertiary-foreground: #857d70;
+  --primary: #ff7a1f;
+  --primary-foreground: #1a1208;
+  --primary-ink: #ff8f45;
+  --primary-wash: #ff7a1f2e;
+  --separator: #f3ede31a;
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Roboto",
+    "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,23 +49,22 @@ body {
     text-wrap: balance;
   }
 
-  /* HN-specific utilities */
-  .gradient-hn {
-    background: linear-gradient(135deg, var(--hn-orange) 0%, #ff8833 100%);
+  .no-scrollbar {
+    scrollbar-width: none;
   }
 
-  .shadow-hn {
-    box-shadow: 0 4px 20px rgba(255, 102, 0, 0.1);
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+  /* Keep anchor targets clear of the sticky header. */
+  scroll-padding-top: 4rem;
 }
 
-/* Better focus styles */
 :focus-visible {
-  outline: 2px solid var(--hn-orange);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }

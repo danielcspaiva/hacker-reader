@@ -14,7 +14,8 @@ export function AppStoreBadge() {
         alt="Download on the App Store"
         width={160}
         height={53}
-        className="block dark:hidden h-[53px] w-auto"
+        className="block dark:hidden h-[53px]"
+        style={{ width: "auto" }}
       />
       {/* White badge for dark mode */}
       <Image
@@ -22,7 +23,8 @@ export function AppStoreBadge() {
         alt="Download on the App Store"
         width={160}
         height={53}
-        className="hidden dark:block h-[53px] w-auto"
+        className="hidden dark:block h-[53px]"
+        style={{ width: "auto" }}
       />
     </a>
   );

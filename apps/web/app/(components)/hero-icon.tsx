@@ -20,6 +20,7 @@ export function HeroIcon() {
           src="/ios-light.png"
           alt="HN Client App Icon"
           fill
+          sizes="128px"
           className="object-contain [filter:drop-shadow(0_20px_25px_rgba(0,0,0,0.15))_drop-shadow(0_8px_10px_rgba(0,0,0,0.1))]"
           priority
         />
@@ -35,6 +36,7 @@ export function HeroIcon() {
         src={iconSrc}
         alt="HN Client App Icon"
         fill
+        sizes="128px"
         className="object-contain [filter:drop-shadow(0_20px_25px_rgba(0,0,0,0.15))_drop-shadow(0_8px_10px_rgba(0,0,0,0.1))]"
         priority
       />
