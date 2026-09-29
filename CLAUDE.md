@@ -13,13 +13,16 @@ This project uses **pnpm** as its package manager (specified in `package.json`).
 ## Common Commands
 
 ### Development
+
 - `pnpm start` - Start the Expo development server
 - `pnpm ios` - Start on iOS simulator
 - `pnpm android` - Start on Android emulator
 - `pnpm web` - Start web version
 
 ### Code Quality
-- `pnpm lint` - Run ESLint for code linting
+
+- `pnpm lint` - oxlint then oxfmt --check
+- `pnpm format` - oxfmt write
 
 ### Reset
 
@@ -171,6 +174,7 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 ---
 
 ### Routing & Navigation
+
 - **File-based routing** using Expo Router (expo-router v6)
 - Routes are defined in the `app/` directory structure
 - Tab navigation via `app/(tabs)/` using `expo-router/unstable-native-tabs`
@@ -178,6 +182,7 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 - Main anchor point: `(tabs)` as defined in `app/_layout.tsx`
 
 ### Data Fetching Strategy
+
 The app uses a **React Query + HN API** architecture:
 
 1. **API Layer** (`lib/hn-api.ts`):
@@ -217,12 +222,14 @@ The app uses a **React Query + HN API** architecture:
 ### UI Components
 
 #### Performance-Critical Components
+
 - **FlashList** from `@shopify/flash-list` is used instead of FlatList for story lists
   - Significantly better performance for long lists
   - Used in all tab screens (`app/(tabs)/*/index.tsx`)
   - Requires `estimatedItemSize` or proper height handling
 
 #### Component Organization
+
 - `components/` - Reusable UI components
   - `story-card.tsx` - Individual story item with metadata and link preview
   - `link-preview.tsx` - OG image preview (compact mode for cards, full mode for story detail)
@@ -230,11 +237,13 @@ The app uses a **React Query + HN API** architecture:
   - `ui/` - Low-level UI primitives
 
 #### Link Previews
+
 - Fetches Open Graph metadata via `hooks/use-og-metadata.ts` and `lib/og-api.ts`
 - Two modes: `compact` (80x80 thumbnail in StoryCard) and full (story detail page)
 - Uses `expo-image` for optimized image loading
 
 ### Theme System
+
 - Auto theme switching based on system preference
 - `hooks/use-color-scheme.ts` - Platform-specific color scheme detection
 - `hooks/use-theme-color.ts` - Theme-aware color values
@@ -242,7 +251,9 @@ The app uses a **React Query + HN API** architecture:
 - React Navigation themes (DarkTheme/DefaultTheme) applied in root layout
 
 ### Comments System
+
 The comment tree is recursively rendered in `app/story/[id].tsx`:
+
 - Each `Comment` component fetches its own data via `useComment(id)`
 - Collapsible comment threads with reply count
 - HTML parsing with clickable links using custom `parseHTMLWithLinks` function
@@ -251,23 +262,28 @@ The comment tree is recursively rendered in `app/story/[id].tsx`:
 ## Key Technical Details
 
 ### TypeScript Configuration
+
 - React 19.1.0 with TypeScript ~5.9.2
 - File-based routing types auto-generated in `.expo/types/router.d.ts`
 - `expo-env.d.ts` provides Expo-specific types
 
 ### Platform Handling
+
 - Native tabs use SF Symbols for icons (`Icon sf="flame.fill"`)
 - Safe area insets handled via `react-native-safe-area-context`
 - Platform-specific padding for Android tab bar: `100 + bottom` in contentContainerStyle
 
 ### State Management
+
 - No global state management library (Redux, Zustand, etc.)
 - React Query handles all server state
 - Local UI state uses React hooks (useState)
 - **React Compiler enabled** - automatic memoization, no manual `useMemo`, `useCallback`, or `React.memo` needed
 
 ### HTML Handling
+
 Comments and story text contain HTML that needs parsing:
+
 - Custom `parseHTMLWithLinks` function in story detail screen
 - Decodes HTML entities (&#x2F;, &quot;, etc.)
 - Converts `<p>` tags to newlines

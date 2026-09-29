@@ -1,8 +1,10 @@
+import * as Sentry from "@sentry/react-native";
 import {
   MutationCache,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 import {
   DarkTheme,
   DefaultTheme,
@@ -12,9 +14,9 @@ import {
 } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
+import "react-native-reanimated";
 import { useEffect } from "react";
 import { Pressable } from "react-native";
-import "react-native-reanimated";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
@@ -28,8 +30,6 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { getAppMetadata } from "@/lib/analytics/tracking";
-import * as Sentry from "@sentry/react-native";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 // Initialize Sentry (but only send data in production via `enabled` flag)
 Sentry.init({
@@ -238,7 +238,12 @@ export default Sentry.wrap(function RootLayout() {
         enableSessionReplay: true,
         disabled: __DEV__,
       }}
-      autocapture
+      autocapture={{
+        captureTouches: true,
+        // expo-router never exposes NavigationContainer; PostHog's screen
+        // tracker calls useNavigation outside a navigator and LogBoxes.
+        captureScreens: false,
+      }}
       debug={__DEV__}
     >
       <QueryClientProvider client={queryClient}>

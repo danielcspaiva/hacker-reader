@@ -3,5 +3,7 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+  "oxc.enable": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode"
 }

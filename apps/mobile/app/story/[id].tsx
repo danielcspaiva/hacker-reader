@@ -1,4 +1,12 @@
+import { FlashList } from "@shopify/flash-list";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { EmptyState } from "@/components/empty-state";
+import { NativeProgress } from "@/components/native-progress";
 import { CommentItem } from "@/components/story/comment-item";
 import { StoryCommentInput } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
@@ -6,17 +14,11 @@ import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useStory } from "@/hooks/use-story";
 import { useStoryActions } from "@/hooks/use-story-actions";
-import { hapticImpact } from "@/lib/haptics";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
+import { hapticImpact } from "@/lib/haptics";
 import { flattenComments } from "@/lib/utils/comments";
-import { FlashList } from "@shopify/flash-list";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function EmptyComments() {
   return (
@@ -50,7 +52,6 @@ export default function StoryDetailScreen() {
 
   const { bottom } = useSafeAreaInsets();
 
-  // Story actions hook - use placeholder story when not loaded yet
   const placeholderStory = {
     id: Number(id),
     type: "story" as const,
@@ -145,14 +146,10 @@ export default function StoryDetailScreen() {
     setReplyTarget(null);
   };
 
-  // Render Stack.Screen immediately to prevent header title flash
-  // Use fetched story title if available, otherwise fall back to route param or loading state
-  const headerTitle = story?.title || (title as string) || "Story";
+  const titleParam = Array.isArray(title) ? title[0] : title;
+  const headerTitle = story?.title || titleParam || "Story";
 
-  // Native header items via Stack.Toolbar (expo-router): the bookmark toggle plus
-  // a tap-to-open "More" menu. This replaces the previous @expo/ui ContextMenu, which
-  // only opened on long-press — the wrong gesture for a header button. Stack.Toolbar is
-  // cross-platform (iOS + Android) as of SDK 56.
+  // Stack.Toolbar tap-opens; @expo/ui ContextMenu was long-press only.
   const screenOptions = !isInsidePreview && (
     <>
       <Stack.Screen
@@ -185,7 +182,11 @@ export default function StoryDetailScreen() {
           <Stack.Toolbar.MenuAction icon="eye.slash" onPress={handleHide}>
             Hide
           </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction icon="flag" destructive onPress={handleFlag}>
+          <Stack.Toolbar.MenuAction
+            icon="flag"
+            destructive
+            onPress={handleFlag}
+          >
             Flag
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
@@ -206,7 +207,7 @@ export default function StoryDetailScreen() {
         {screenOptions}
         <View style={[styles.container, { backgroundColor }]}>
           <View style={styles.centered}>
-            <ActivityIndicator size="large" color={textColor} />
+            <NativeProgress />
           </View>
         </View>
       </>

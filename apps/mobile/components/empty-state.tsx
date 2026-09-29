@@ -1,9 +1,10 @@
-import { ThemedText } from "@/components/themed-text";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { ContentUnavailableView, Host } from "@expo/ui/swift-ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
 import { Platform, StyleSheet, View } from "react-native";
 import type { SFSymbol } from "sf-symbols-typescript";
+
+import { ThemedText } from "@/components/themed-text";
+import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 
 export function EmptyState({
   title,

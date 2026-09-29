@@ -1,8 +1,9 @@
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+
 import { ThemedText } from "@/components/themed-text";
 import { HN_GUIDELINES_URL } from "@/constants/app-config";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 export function GuidelinesContent({
   onAccept,

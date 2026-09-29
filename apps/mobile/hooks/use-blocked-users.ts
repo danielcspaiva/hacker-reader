@@ -5,14 +5,15 @@
  * Uses React Query for state management and AsyncStorage for persistence.
  */
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
+
 import {
   blockUser as storageBlockUser,
   getBlockedUsers,
   unblockUser as storageUnblockUser,
   type BlockedUser,
 } from "@/lib/storage/blocked-users";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
 
 const BLOCKED_USERS_QUERY_KEY = ["blockedUsers"];
 
@@ -30,7 +31,6 @@ export function useBlockedUsers() {
     staleTime: Number.POSITIVE_INFINITY, // Never consider stale (manual invalidation only)
   });
 
-  // Create a Set of blocked usernames for fast lookup
   const blockedUsernames = useMemo(() => {
     return new Set(blockedUsers.map((u) => u.username));
   }, [blockedUsers]);
@@ -81,7 +81,6 @@ export function useBlockedUsers() {
     [unblockMutation]
   );
 
-  // Check if a user is blocked
   const isBlocked = useCallback(
     (username: string) => {
       return blockedUsernames.has(username);

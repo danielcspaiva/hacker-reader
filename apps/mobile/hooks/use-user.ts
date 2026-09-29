@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { getUser } from "@/lib/shared/api/hn-api";
 import type { HNUser } from "@/lib/shared/types";
 

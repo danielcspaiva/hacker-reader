@@ -1,6 +1,7 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { useEffect, useState } from "react";
 import { Animated, StyleSheet, View, type ViewProps } from "react-native";
+
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 interface SkeletonProps {
   width?: number | string;
@@ -45,8 +46,8 @@ export function Skeleton({
       style={[
         styles.container,
         {
-          width: typeof width === "number" ? width : Number(width),
-          height: typeof height === "number" ? height : Number(height),
+          width: Number(width),
+          height: Number(height),
           borderRadius,
           backgroundColor: borderColor,
         },

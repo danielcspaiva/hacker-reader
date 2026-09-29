@@ -6,11 +6,7 @@ export interface OGMetadata {
   siteName?: string;
 }
 
-/**
- * Decodes HTML entities in meta tag content
- */
 function decodeHTMLEntities(text: string): string {
-  // Named entity lookup map for common entities
   const namedEntities: Record<string, string> = {
     quot: '"',
     amp: "&",
@@ -53,42 +49,41 @@ function decodeHTMLEntities(text: string): string {
   );
 }
 
-const TIMEOUT_MS = 5000; // 5 second timeout
-const HEAD_SIZE_LIMIT = 50000; // 50KB should be enough for <head> section
+const TIMEOUT_MS = 5000;
+const HEAD_SIZE_LIMIT = 50000;
 
-/**
- * Type-safe fetch wrapper that handles AbortController signal type incompatibility
- * between React Native and Web APIs
- */
 async function fetchWithTimeout(
   input: RequestInfo | URL,
   init: RequestInit & { timeout?: number } = {}
 ): Promise<Response> {
-  const { timeout = TIMEOUT_MS, ...fetchInit } = init;
+  const { timeout = TIMEOUT_MS, signal: parentSignal, ...fetchInit } = init;
   const controller = new AbortController();
-
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+  const abortFromParent = () => controller.abort();
+  if (parentSignal?.aborted) {
+    controller.abort();
+  } else {
+    parentSignal?.addEventListener("abort", abortFromParent, { once: true });
+  }
+
   try {
-    // The signal types are compatible at runtime, just not in TypeScript.
-    // expo/fetch (the default in SDK 56) accepts string | Request, not URL.
-    const response = await fetch(input instanceof URL ? input.toString() : input, {
+    // expo/fetch accepts string | Request, not URL.
+    return await fetch(input instanceof URL ? input.toString() : input, {
       ...fetchInit,
+      // SAFETY: RN/expo fetch AbortSignal is the same runtime object as
+      // DOM AbortSignal; the mismatch is a lib type gap, not a value gap.
       signal: controller.signal as never,
     });
-    return response;
   } finally {
     clearTimeout(timeoutId);
+    parentSignal?.removeEventListener("abort", abortFromParent);
   }
 }
 
-/**
- * Extract all relevant meta tags in a single pass for better performance
- */
 function extractAllMetaTags(html: string): Record<string, string> {
   const metaTags: Record<string, string> = {};
 
-  // Single regex to capture all meta tags with property/name and content
   const metaRegex =
     /<meta[^>]*(?:property|name)=["']([^"']*)["'][^>]*content=["']([^"']*)["'][^>]*>|<meta[^>]*content=["']([^"']*)["'][^>]*(?:property|name)=["']([^"']*)["'][^>]*>/gi;
 
@@ -128,18 +123,11 @@ async function validateImageUrl(
     return false;
   }
 
-  const controller = new AbortController();
-  const abortFromParent = () => controller.abort();
-
-  if (parentSignal) {
-    parentSignal.addEventListener("abort", abortFromParent);
-  }
-
   try {
     const response = await fetchWithTimeout(imageUrl, {
       method: "HEAD",
       timeout: 4000,
-      signal: controller.signal as never,
+      signal: parentSignal,
     });
 
     if (!response.ok) {
@@ -154,10 +142,6 @@ async function validateImageUrl(
     return contentType.startsWith("image/");
   } catch {
     return false;
-  } finally {
-    if (parentSignal) {
-      parentSignal.removeEventListener("abort", abortFromParent);
-    }
   }
 }
 
@@ -169,42 +153,30 @@ export async function fetchOGMetadata(
     return null;
   }
 
-  const controller = new AbortController();
-  const abortHandler = () => controller.abort();
-
-  if (signal) {
-    signal.addEventListener("abort", abortHandler);
-  }
-
   try {
     const response = await fetchWithTimeout(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; HNClient/1.0)",
       },
-      signal: controller.signal as never,
+      signal,
     });
 
     if (!response.ok) {
       return null;
     }
 
-    // Read response as text (simpler and works across platforms)
     const fullText = await response.text();
 
-    // Truncate to HEAD_SIZE_LIMIT if needed (meta tags are in <head>)
     const text =
       fullText.length > HEAD_SIZE_LIMIT
         ? fullText.substring(0, HEAD_SIZE_LIMIT)
         : fullText;
 
-    // Extract just the head section for better performance
     const headMatch = text.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
     const headContent = headMatch ? headMatch[1] : text;
 
-    // Extract all meta tags in a single pass
     const metaTags = extractAllMetaTags(headContent);
 
-    // Get OG tags with Twitter fallbacks
     const rawImage = metaTags["og:image"] || metaTags["twitter:image"];
     const title = metaTags["og:title"] || metaTags["twitter:title"];
     const description =
@@ -215,7 +187,6 @@ export async function fetchOGMetadata(
 
     let image = rawImage ? resolveImageUrl(url, rawImage) : null;
 
-    // Ensure image URLs are absolute and HTTPS
     if (image?.startsWith("http://")) {
       image = image.replace("http://", "https://");
     }
@@ -242,9 +213,5 @@ export async function fetchOGMetadata(
       return null;
     }
     return null;
-  } finally {
-    if (signal) {
-      signal.removeEventListener("abort", abortHandler);
-    }
   }
 }

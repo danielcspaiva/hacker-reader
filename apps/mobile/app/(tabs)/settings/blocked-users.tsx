@@ -1,16 +1,11 @@
+import { Alert, Button, Section, SwipeActions, Text } from "@expo/ui/swift-ui";
+import { useState } from "react";
+
 import { EmptyState } from "@/components/empty-state";
 import { SwiftForm } from "@/components/swift-form";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { reportError } from "@/lib/observability";
 import { clearBlockedUsers } from "@/lib/storage/blocked-users";
-import {
-  Alert,
-  Button,
-  Section,
-  SwipeActions,
-  Text,
-} from "@expo/ui/swift-ui";
-import { useState } from "react";
 
 export default function BlockedUsersScreen() {
   const { blockedUsers, unblockUser, refresh } = useBlockedUsers();

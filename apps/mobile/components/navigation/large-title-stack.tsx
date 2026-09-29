@@ -1,9 +1,10 @@
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
 import type { ReactNode } from "react";
+
+import { Colors } from "@/constants/theme";
+import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 /**
  * Shared native Stack for the large-title tab screens (Feed, Bookmarks, Profile,
@@ -21,9 +22,11 @@ import type { ReactNode } from "react";
 export function LargeTitleStack({
   children,
   headerTransparent = isLiquidGlassAvailable(),
+  headerLargeTitle = true,
 }: {
   children?: ReactNode;
   headerTransparent?: boolean;
+  headerLargeTitle?: boolean;
 }) {
   const { colorScheme, colorPalette } = useColorSchemeContext();
   const tintColor = useThemeColor({}, "tint");
@@ -36,7 +39,7 @@ export function LargeTitleStack({
     <Stack
       screenOptions={{
         headerTransparent,
-        headerLargeTitle: true,
+        headerLargeTitle,
         headerLargeTitleShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",
         headerTintColor: tintColor,

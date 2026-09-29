@@ -1,6 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { getItems } from "@/lib/shared/api/hn-api";
 import type { HNItem } from "@/lib/shared/types";
-import { useQuery } from "@tanstack/react-query";
 
 export function useUserSubmissions(submittedIds: number[] | undefined) {
   return useQuery<HNItem[]>({

@@ -9,6 +9,7 @@
 [![Download on the App Store](https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83)](https://apps.apple.com/us/app/hacker-reader/id6754137305)
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Monorepo Layout](#monorepo-layout)
@@ -76,13 +77,13 @@ pnpm dev
 # Mobile targets
 pnpm mobile        # Expo dev server
 pnpm mobile:ios    # Launch iOS simulator
-pnpm mobile:lint   # Expo workspace linting
+pnpm mobile:lint   # oxlint in apps/mobile
 
 # Web targets
 pnpm web           # Next.js dev server
 pnpm web:build     # Production build
 pnpm web:start     # Start production server
-pnpm web:lint      # Next.js workspace linting
+pnpm web:lint      # oxlint in apps/web
 ```
 
 ### Environment Setup
@@ -93,12 +94,13 @@ pnpm web:lint      # Next.js workspace linting
 ## Development Workflow
 
 - Prefer TypeScript everywhere with explicit return types on exported functions.
-- Default formatting is two-space indentation with trailing commas; the existing ESLint config enforces it.
+- Default formatting is two-space indentation with trailing commas; oxfmt enforces it.
 - Before opening a PR, run:
 
 ```bash
 pnpm typecheck
-pnpm lint
+pnpm lint          # oxlint, then oxfmt --check
+pnpm format        # oxfmt write
 pnpm mobile    # smoke-test the Expo app
 pnpm web       # smoke-test the marketing site
 ```
@@ -120,6 +122,7 @@ pnpm web       # smoke-test the marketing site
 - **Home Screen Widgets**: Three widget sizes (small/medium/large) displaying Top Stories with auto-updates every 30 minutes, deep linking to stories, and offline support via cached data
 
 **Core Libraries** (`apps/mobile/lib/shared/`):
+
 - **API Clients**: HN API, Algolia search, Open Graph metadata fetching
 - **Authentication**: Secure session wrapper, HTML parsers, rate limiting, write operations
 - **Types**: Fully typed interfaces for `HNItem`, `HNUser`, `AlgoliaStory`, etc.

@@ -1,18 +1,19 @@
 import { FlashList } from "@shopify/flash-list";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect, useRef } from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
+import { NativeProgress } from "@/components/native-progress";
 import { StoryCard } from "@/components/story-card";
 import { ThemedText } from "@/components/themed-text";
-import { useSearchStories } from "@/hooks/use-search-stories";
-import { hapticImpact } from "@/lib/haptics";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useSearchStories } from "@/hooks/use-search-stories";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
+import { hapticImpact } from "@/lib/haptics";
 import type { HNItem } from "@/lib/shared";
 
 export default function SearchScreen() {
@@ -98,7 +99,7 @@ export default function SearchScreen() {
       <>
         {searchBar}
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={textColor} />
+          <NativeProgress />
         </View>
       </>
     );
@@ -110,7 +111,9 @@ export default function SearchScreen() {
         {searchBar}
         <EmptyState
           title="Search failed"
-          description={error?.message ?? "Something went wrong while searching."}
+          description={
+            error?.message ?? "Something went wrong while searching."
+          }
           systemImage="exclamationmark.triangle"
         />
       </>
@@ -120,62 +123,62 @@ export default function SearchScreen() {
   return (
     <>
       {searchBar}
-    <FlashList<HNItem>
-      data={stories}
-      renderItem={({ item, index }) => (
-        <StoryCard story={item} index={index + 1} />
-      )}
-      keyExtractor={(item) => item.id.toString()}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[
-        styles.listContent,
-        {
-          paddingBottom: Platform.select({
-            android: 100 + bottom,
-            default: bottom,
-          }),
-        },
-      ]}
-      keyboardDismissMode="on-drag"
-      keyboardShouldPersistTaps="handled"
-      ListHeaderComponent={
-        <View style={styles.helperContainer}>
-          <ThemedText style={styles.helperText}>
-            Showing results for{" "}
-            <ThemedText style={styles.helperHighlight}>
-              {trimmedQuery}
+      <FlashList<HNItem>
+        data={stories}
+        renderItem={({ item, index }) => (
+          <StoryCard story={item} index={index + 1} />
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={[
+          styles.listContent,
+          {
+            paddingBottom: Platform.select({
+              android: 100 + bottom,
+              default: bottom,
+            }),
+          },
+        ]}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        ListHeaderComponent={
+          <View style={styles.helperContainer}>
+            <ThemedText style={styles.helperText}>
+              Showing results for{" "}
+              <ThemedText style={styles.helperHighlight}>
+                {trimmedQuery}
+              </ThemedText>
             </ThemedText>
-          </ThemedText>
-        </View>
-      }
-      ListEmptyComponent={
-        <EmptyState
-          title="No stories"
-          description={`No stories match “${trimmedQuery}”.`}
-          systemImage="doc.text.magnifyingglass"
-        />
-      }
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <View style={styles.footer}>
-            <ActivityIndicator size="small" color={textColor} />
           </View>
-        ) : undefined
-      }
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
         }
-      }}
-      onEndReachedThreshold={0.5}
-      onRefresh={() => {
-        if (!isLoading && !isRefetching) {
-          hapticImpact();
-          refetch();
+        ListEmptyComponent={
+          <EmptyState
+            title="No stories"
+            description={`No stories match “${trimmedQuery}”.`}
+            systemImage="doc.text.magnifyingglass"
+          />
         }
-      }}
-      refreshing={isRefetching}
-    />
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footer}>
+              <NativeProgress size="small" />
+            </View>
+          ) : undefined
+        }
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        onRefresh={() => {
+          if (!isLoading && !isRefetching) {
+            hapticImpact();
+            refetch();
+          }
+        }}
+        refreshing={isRefetching}
+      />
     </>
   );
 }

@@ -18,6 +18,8 @@ type IconMapping = Record<
  * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
+// SAFETY: mapping keys are the SF Symbols this app actually renders;
+// expo-symbols' name union is the full catalog and cannot be listed here.
 const MAPPING = {
   "house.fill": "home",
   "paperplane.fill": "send",

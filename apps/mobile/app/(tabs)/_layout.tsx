@@ -1,8 +1,10 @@
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { NativeTabs } from "expo-router/native-tabs";
 import React from "react";
+
+import { Colors } from "@/constants/theme";
+import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { FeedCategoryProvider } from "@/contexts/feed-category-context";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export default function TabLayout() {
   const { colorScheme, colorPalette } = useColorSchemeContext();
@@ -13,47 +15,49 @@ export default function TabLayout() {
       : Colors.light[colorPalette].background;
 
   return (
-    <NativeTabs
-      tintColor={tintColor}
-      backgroundColor={backgroundColor}
-      minimizeBehavior="onScrollDown"
-      tabBarRespectsIMEInsets
-    >
-      <NativeTabs.Trigger name="feed">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "newspaper", selected: "newspaper.fill" }}
-          md={{ default: "article", selected: "article" }}
-        />
-        <NativeTabs.Trigger.Label>Stories</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="bookmarks">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "bookmark", selected: "bookmark.fill" }}
-          md={{ default: "bookmark", selected: "bookmark" }}
-        />
-        <NativeTabs.Trigger.Label>Bookmarks</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "person", selected: "person.fill" }}
-          md={{ default: "person", selected: "person" }}
-        />
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "gearshape", selected: "gearshape.fill" }}
-          md={{ default: "settings", selected: "settings" }}
-        />
-        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="search" role="search">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "magnifyingglass", selected: "magnifyingglass" }}
-          md={{ default: "search", selected: "search" }}
-        />
-        <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
+    <FeedCategoryProvider>
+      <NativeTabs
+        tintColor={tintColor}
+        backgroundColor={backgroundColor}
+        minimizeBehavior="onScrollDown"
+        tabBarRespectsIMEInsets
+      >
+        <NativeTabs.Trigger name="feed">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: "newspaper", selected: "newspaper.fill" }}
+            md={{ default: "article", selected: "article" }}
+          />
+          <NativeTabs.Trigger.Label>Stories</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="bookmarks">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: "bookmark", selected: "bookmark.fill" }}
+            md={{ default: "bookmark", selected: "bookmark" }}
+          />
+          <NativeTabs.Trigger.Label>Bookmarks</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="profile">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: "person", selected: "person.fill" }}
+            md={{ default: "person", selected: "person" }}
+          />
+          <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="settings">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: "gearshape", selected: "gearshape.fill" }}
+            md={{ default: "settings", selected: "settings" }}
+          />
+          <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="search" role="search">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: "magnifyingglass", selected: "magnifyingglass" }}
+            md={{ default: "search", selected: "search" }}
+          />
+          <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+      </NativeTabs>
+    </FeedCategoryProvider>
   );
 }

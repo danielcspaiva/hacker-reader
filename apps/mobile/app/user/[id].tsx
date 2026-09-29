@@ -1,18 +1,13 @@
+import { Button, Label, ProgressView, Section, Text } from "@expo/ui/swift-ui";
+import { font, foregroundStyle } from "@expo/ui/swift-ui/modifiers";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { StyleSheet, View } from "react-native";
+
 import { SwiftForm } from "@/components/swift-form";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import { formatMemberSince, stripHTML } from "@/lib/shared";
-import {
-  Button,
-  Label,
-  ProgressView,
-  Section,
-  Text,
-} from "@expo/ui/swift-ui";
-import { font, foregroundStyle } from "@expo/ui/swift-ui/modifiers";
-import { router, Stack, useLocalSearchParams } from "expo-router";
-import { StyleSheet, View } from "react-native";
 
 export default function UserProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -63,10 +58,7 @@ export default function UserProfileScreen() {
               {user.about ? (
                 <Section title="About">
                   <Text
-                    modifiers={[
-                      font({ size: 15 }),
-                      foregroundStyle(textColor),
-                    ]}
+                    modifiers={[font({ size: 15 }), foregroundStyle(textColor)]}
                   >
                     {stripHTML(user.about)}
                   </Text>

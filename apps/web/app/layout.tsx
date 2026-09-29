@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
+
 import "./globals.css";
 import { ThemeProvider } from "./theme-provider";
 

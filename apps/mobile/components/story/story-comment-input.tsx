@@ -1,11 +1,3 @@
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useHNAuth } from "@/contexts/hn-auth-context";
-import { useCommentMutation } from "@/hooks/use-comment-mutation";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { hapticImpact, hapticSelection } from "@/lib/haptics";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -19,6 +11,15 @@ import {
   type TextInputInstance,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { ThemedText } from "@/components/themed-text";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Colors } from "@/constants/theme";
+import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useCommentMutation } from "@/hooks/use-comment-mutation";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { hapticImpact, hapticSelection } from "@/lib/haptics";
 
 interface ReplyTarget {
   commentId: number;

@@ -1,11 +1,12 @@
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { Link } from "expo-router";
+import { StyleSheet, View } from "react-native";
+
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Spacing } from "@/constants/theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { stripHTML, timeAgo, type HNItem } from "@/lib/shared";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { Link } from "expo-router";
-import { StyleSheet, View } from "react-native";
 
 interface SubmissionCommentCardProps {
   comment: HNItem;

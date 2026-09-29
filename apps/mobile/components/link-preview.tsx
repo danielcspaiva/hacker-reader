@@ -1,8 +1,11 @@
-import { useOGMetadata } from "@/hooks/use-og-metadata";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Image } from "expo-image";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+
+import { NativeProgress } from "@/components/native-progress";
+import { useOGMetadata } from "@/hooks/use-og-metadata";
+import { useThemeColor } from "@/hooks/use-theme-color";
+
 import { ThemedText } from "./themed-text";
 
 interface LinkPreviewProps {
@@ -14,8 +17,6 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
   const { data: metadata, isLoading } = useOGMetadata(url);
   const borderColor = useThemeColor({}, "border");
   const backgroundColor = useThemeColor({}, "background");
-  const textColor = useThemeColor({}, "text");
-
   if (isLoading) {
     if (compact) {
       return (
@@ -23,7 +24,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
           <View
             style={[styles.thumbnailLoading, { borderColor, backgroundColor }]}
           >
-            <ActivityIndicator size="small" color={textColor} />
+            <NativeProgress size="small" />
           </View>
         </View>
       );
@@ -31,7 +32,7 @@ export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
     return (
       <View style={[styles.container, { borderColor, backgroundColor }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={textColor} />
+          <NativeProgress size="small" />
         </View>
       </View>
     );

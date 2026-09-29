@@ -1,8 +1,14 @@
+import { Host, Picker, Text } from "@expo/ui/swift-ui";
+import {
+  frame,
+  glassEffect,
+  pickerStyle,
+  tag,
+} from "@expo/ui/swift-ui/modifiers";
+import { StyleSheet, View } from "react-native";
+
 import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { hapticSelection } from "@/lib/haptics";
-import { Host, Picker, Text } from "@expo/ui/swift-ui";
-import { frame, glassEffect, pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
-import { StyleSheet, View } from "react-native";
 
 export type SubmissionType = "stories" | "comments";
 
@@ -20,7 +26,7 @@ export function SubmissionTypeFilter({
   submissionType,
   onSelectType,
 }: SubmissionTypeFilterProps) {
-  const types = Object.keys(SUBMISSION_TYPE_LABELS) as SubmissionType[];
+  const types: SubmissionType[] = ["stories", "comments"];
   const { colorScheme } = useColorSchemeContext();
 
   const handleSelectionChange = (nextType: SubmissionType) => {

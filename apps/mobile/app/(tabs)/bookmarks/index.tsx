@@ -1,13 +1,14 @@
-import { EmptyState } from "@/components/empty-state";
-import { StoryCard } from "@/components/story-card";
-import { useBookmarks } from "@/hooks/use-bookmarks";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { hapticImpact } from "@/lib/haptics";
-import { type HNItem } from "@/lib/shared";
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useEffect, useRef } from "react";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { EmptyState } from "@/components/empty-state";
+import { NativeProgress } from "@/components/native-progress";
+import { StoryCard } from "@/components/story-card";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { hapticImpact } from "@/lib/haptics";
+import { type HNItem } from "@/lib/shared";
 
 export default function BookmarksScreen() {
   const {
@@ -16,7 +17,6 @@ export default function BookmarksScreen() {
     refetch,
     isRefetching,
   } = useBookmarks();
-  const textColor = useThemeColor({}, "text");
   const { bottom } = useSafeAreaInsets();
   const listRef = useRef<FlashListRef<HNItem>>(null);
   const previousCountRef = useRef(stories.length);
@@ -33,7 +33,7 @@ export default function BookmarksScreen() {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color={textColor} />
+        <NativeProgress />
       </View>
     );
   }

@@ -12,13 +12,11 @@ const ROOT_DIR = path.join(__dirname, "..");
 const ENV_LOCAL_PATH = path.join(ROOT_DIR, ".env.local");
 const XCODE_ENV_LOCAL_PATH = path.join(ROOT_DIR, "ios", ".xcode.env.local");
 
-// Check if .env.local exists
 if (!fs.existsSync(ENV_LOCAL_PATH)) {
   console.log("⚠️  No .env.local file found. Skipping .xcode.env.local sync.");
   process.exit(0);
 }
 
-// Check if ios folder exists
 if (!fs.existsSync(path.join(ROOT_DIR, "ios"))) {
   console.log("⚠️  iOS folder not found. Run prebuild first.");
   process.exit(0);

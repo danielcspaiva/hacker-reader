@@ -7,6 +7,9 @@ async function fetchJSON<T>(path: string): Promise<T> {
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
   }
+  // SAFETY: Firebase JSON at this path is the typed HN payload; callers
+  // only read fields on HNItem/HNUser/number[] and treat missing data as
+  // undefined rather than trusting extra keys.
   return response.json() as Promise<T>;
 }
 

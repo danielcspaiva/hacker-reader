@@ -1,3 +1,10 @@
+import {
+  useInfiniteQuery,
+  useQueryClient,
+  type InfiniteData,
+  type QueryClient,
+} from "@tanstack/react-query";
+
 import type { Category } from "@/components/category-filter";
 import {
   fetchOGMetadata,
@@ -9,11 +16,6 @@ import {
   getTopStories,
   type HNItem,
 } from "@/lib/shared";
-import {
-  useInfiniteQuery,
-  useQueryClient,
-  type QueryClient,
-} from "@tanstack/react-query";
 
 export const PAGE_SIZE = 30;
 
@@ -25,7 +27,6 @@ export const STORY_CATEGORIES: Category[] = [
   "jobs",
 ];
 
-// Map category to the appropriate API fetcher function
 const CATEGORY_FETCHERS = {
   top: getTopStories,
   new: getNewStories,
@@ -49,20 +50,20 @@ async function fetchCategoryPage(
   const ids = await CATEGORY_FETCHERS[category](pageParam, PAGE_SIZE);
   const items = await getItems(ids);
 
-  // Populate individual item caches for reuse across different views
   items.forEach((item) => {
     queryClient.setQueryData(["item", item.id], item);
   });
 
-  // Prefetch OG metadata only for the foreground category to avoid a render
-  // waterfall; background-prefetched categories fetch OG data on demand.
+  // Prefetch OG only for the foreground category; background warming
+  // fetches OG on demand to avoid a render waterfall.
   if (prefetchOG) {
     items.forEach((item) => {
-      if (item.url) {
+      const url = item.url;
+      if (url) {
         queryClient.prefetchQuery({
-          queryKey: ["og-metadata", item.url],
-          queryFn: ({ signal }) => fetchOGMetadata(item.url!, signal),
-          staleTime: 60 * 60 * 1000, // 1 hour
+          queryKey: ["og-metadata", url],
+          queryFn: ({ signal }) => fetchOGMetadata(url, signal),
+          staleTime: 60 * 60 * 1000,
         });
       }
     });
@@ -85,10 +86,16 @@ function getStoriesNextPageParam(
 export function useStories(category: Category) {
   const queryClient = useQueryClient();
 
-  return useInfiniteQuery<HNItem[], Error>({
+  return useInfiniteQuery<
+    HNItem[],
+    Error,
+    InfiniteData<HNItem[]>,
+    ["stories", Category],
+    number
+  >({
     queryKey: ["stories", category],
     queryFn: ({ pageParam }) =>
-      fetchCategoryPage(queryClient, category, pageParam as number, {
+      fetchCategoryPage(queryClient, category, pageParam, {
         prefetchOG: true,
       }),
     getNextPageParam: getStoriesNextPageParam,
@@ -103,14 +110,20 @@ export function useStories(category: Category) {
 export function prefetchCategory(queryClient: QueryClient, category: Category) {
   if (queryClient.getQueryData(["stories", category])) return;
 
-  return queryClient.prefetchInfiniteQuery({
+  return queryClient.prefetchInfiniteQuery<
+    HNItem[],
+    Error,
+    InfiniteData<HNItem[]>,
+    ["stories", Category],
+    number
+  >({
     queryKey: ["stories", category],
     queryFn: ({ pageParam }) =>
-      fetchCategoryPage(queryClient, category, pageParam as number, {
+      fetchCategoryPage(queryClient, category, pageParam, {
         prefetchOG: false,
       }),
     initialPageParam: 0,
     getNextPageParam: getStoriesNextPageParam,
-    pages: 1, // Only prefetch the first page
+    pages: 1,
   });
 }

@@ -1,7 +1,9 @@
-import { Spacing } from "@/constants/theme";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { StyleSheet, View } from "react-native";
+
+import { Spacing } from "@/constants/theme";
+import { useThemeColor } from "@/hooks/use-theme-color";
+
 import { Skeleton } from "./skeleton";
 
 export function StoryCardSkeleton() {

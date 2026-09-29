@@ -1,10 +1,11 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Alert } from "react-native";
+
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment, StoryWithComments } from "@/hooks/use-story";
 import { reportError } from "@/lib/observability";
 import { comment } from "@/lib/shared/api";
 import { isAuthError } from "@/lib/shared/auth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Alert } from "react-native";
 
 interface ReplyTarget {
   commentId: number;
@@ -67,13 +68,11 @@ export function useCommentMutation({
       return newCommentId;
     },
     onSuccess: async (newCommentId, postedText) => {
-      // Call the provided onSuccess callback
       onSuccess?.();
 
       if (newCommentId) {
         // We have the comment ID and text! Add directly to cache without waiting for HN API
         try {
-          // Add the comment directly to the cache using the data we already have
           queryClient.setQueryData<StoryWithComments>(
             ["story", storyId],
             (oldData) => {

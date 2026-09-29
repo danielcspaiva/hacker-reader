@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+
 import { AppStoreBadge } from "./(components)/app-store-badge";
 import { HeroIcon } from "./(components)/hero-icon";
 import { ThemeToggle } from "./(components)/theme-toggle";

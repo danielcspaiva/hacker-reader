@@ -6,7 +6,12 @@ import { AppState, Platform } from "react-native";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import type { WidgetSize } from "@/lib/analytics/tracking";
+
 import { useAnalytics } from "./use-analytics";
+
+function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
 
 type StoredWidgetKey = string;
 
@@ -44,9 +49,8 @@ const ReactNativeWidgetExtension: {
   Platform.OS === "ios"
     ? (() => {
         try {
-          const module =
-            require("react-native-widget-extension/build/ReactNativeWidgetExtensionModule").default;
-          return module;
+          return require("react-native-widget-extension/build/ReactNativeWidgetExtensionModule")
+            .default;
         } catch {
           return null;
         }
@@ -84,8 +88,7 @@ function parseWidgetTap(url: string): ParsedWidgetTap | null {
     if (queryParams.source !== "widget") return null;
 
     const sizeParam = queryParams.widgetSize;
-    const size =
-      typeof sizeParam === "string" ? mapFamilyToSize(sizeParam) : undefined;
+    const size = isString(sizeParam) ? mapFamilyToSize(sizeParam) : undefined;
     if (!size) return null;
 
     const { widgetKind } = queryParams;
@@ -112,8 +115,7 @@ function parseWidgetTap(url: string): ParsedWidgetTap | null {
           storyId = numericStoryId;
         }
       } else if (segments.length === 1) {
-        const host =
-          typeof parsed.hostname === "string" ? parsed.hostname : undefined;
+        const host = isString(parsed.hostname) ? parsed.hostname : undefined;
         if (host === "story") {
           const numericStoryId = Number(segments[0]);
           if (Number.isFinite(numericStoryId)) {
@@ -126,7 +128,7 @@ function parseWidgetTap(url: string): ParsedWidgetTap | null {
     return {
       size,
       storyId,
-      kind: typeof widgetKind === "string" ? widgetKind : undefined,
+      kind: isString(widgetKind) ? widgetKind : undefined,
     };
   } catch {
     return null;
@@ -141,7 +143,7 @@ export function useWidgetAnalytics() {
     if (!isReady || Platform.OS !== "ios") return;
     if (
       !ReactNativeWidgetExtension ||
-      typeof ReactNativeWidgetExtension.getCurrentConfigurations !== "function"
+      ReactNativeWidgetExtension.getCurrentConfigurations == null
     ) {
       return;
     }

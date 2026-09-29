@@ -1,8 +1,9 @@
+import { StyleSheet, View } from "react-native";
+
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo, type HNItem } from "@/lib/shared";
-import { StyleSheet, View } from "react-native";
 
 interface StoryCardMetadataProps {
   story: HNItem;
@@ -23,7 +24,10 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
           size={13}
           color={iconColor}
         />
-        <ThemedText type="bodySmall" style={[styles.metadataText, styles.numeric]}>
+        <ThemedText
+          type="bodySmall"
+          style={[styles.metadataText, styles.numeric]}
+        >
           {story.score}
         </ThemedText>
       </View>
@@ -63,7 +67,10 @@ export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
           size={13}
           color={iconColor}
         />
-        <ThemedText type="bodySmall" style={[styles.metadataText, styles.numeric]}>
+        <ThemedText
+          type="bodySmall"
+          style={[styles.metadataText, styles.numeric]}
+        >
           {story.descendants || 0}
         </ThemedText>
       </View>

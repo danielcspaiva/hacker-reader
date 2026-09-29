@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { usePostHog } from "posthog-react-native";
 import { createContext, use, useEffect, useState, useRef } from "react";
 import { useColorScheme as useSystemColorScheme } from "react-native";
 import UserInterfaceStyle from "react-native-user-interface-style";
-import { usePostHog } from "posthog-react-native";
+
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/tracking";
 

@@ -1,12 +1,3 @@
-import { GuidelinesContent } from "@/components/guidelines-content";
-import { ThemedText } from "@/components/themed-text";
-import { GUIDELINES_ACCEPTED_KEY } from "@/constants/app-config";
-import { useHNAuth } from "@/contexts/hn-auth-context";
-import { useExternalLink } from "@/hooks/use-external-link";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { reportError } from "@/lib/observability";
-import * as HNWriteAPI from "@/lib/shared/api/hn-write-api";
-import { isAuthError } from "@/lib/shared/auth/errors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Cookies } from "@react-native-cookies/cookies";
 import CookieManager from "@react-native-cookies/cookies";
@@ -21,6 +12,25 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { GuidelinesContent } from "@/components/guidelines-content";
+import { ThemedText } from "@/components/themed-text";
+import { GUIDELINES_ACCEPTED_KEY } from "@/constants/app-config";
+import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useExternalLink } from "@/hooks/use-external-link";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { reportError } from "@/lib/observability";
+import * as HNWriteAPI from "@/lib/shared/api/hn-write-api";
+import { isAuthError } from "@/lib/shared/auth/errors";
+
+function isCookieWithValue(cookie: unknown): cookie is { value: string } {
+  return (
+    typeof cookie === "object" &&
+    cookie !== null &&
+    "value" in cookie &&
+    typeof cookie.value === "string"
+  );
+}
 
 export default function LoginModal() {
   const textColor = useThemeColor({}, "text");
@@ -80,11 +90,7 @@ export default function LoginModal() {
 
       const cookieRecord: Record<string, string> = {};
       for (const [key, cookie] of Object.entries(cookies)) {
-        if (
-          typeof cookie === "object" &&
-          cookie !== null &&
-          "value" in cookie
-        ) {
+        if (isCookieWithValue(cookie)) {
           cookieRecord[key] = cookie.value;
         }
       }
@@ -208,7 +214,9 @@ export default function LoginModal() {
           </TouchableOpacity>
 
           <View style={styles.infoContainer}>
-            <ThemedText style={[styles.infoText, { color: secondaryTextColor }]}>
+            <ThemedText
+              style={[styles.infoText, { color: secondaryTextColor }]}
+            >
               Don&apos;t have an account?{" "}
               <ThemedText
                 style={[styles.infoText, styles.link]}
@@ -234,7 +242,9 @@ export default function LoginModal() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#ff6600" />
           {loading ? (
-            <ThemedText style={styles.loadingText}>Signing you in...</ThemedText>
+            <ThemedText style={styles.loadingText}>
+              Signing you in...
+            </ThemedText>
           ) : null}
         </View>
       ) : null}

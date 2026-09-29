@@ -1,3 +1,22 @@
+import {
+  Alert,
+  Button as SwiftUIButton,
+  ConfirmationDialog,
+  Host,
+  Image,
+  Menu,
+  Text,
+} from "@expo/ui/swift-ui";
+import { frame } from "@expo/ui/swift-ui/modifiers";
+import { Link } from "expo-router";
+import { useState, type ReactNode } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
+
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { useHNAuth } from "@/contexts/hn-auth-context";
@@ -7,15 +26,7 @@ import type { Comment as CommentType } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { hapticImpact, hapticSelection, Haptics } from "@/lib/haptics";
 import { timeAgo } from "@/lib/shared";
-import { Button as SwiftUIButton, Host, Image, Menu } from "@expo/ui/swift-ui";
-import { frame } from "@expo/ui/swift-ui/modifiers";
-import { Link } from "expo-router";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  LinearTransition,
-} from "react-native-reanimated";
+
 import { HTMLText } from "./html-text";
 
 interface CommentItemProps {
@@ -25,6 +36,34 @@ interface CommentItemProps {
   onToggleCollapse: (id: number) => void;
   onReply: (commentId: number, username: string) => void;
   storyId: number;
+}
+
+function CommentOverflowMenu({
+  textColor,
+  isAuthenticated,
+  onReply,
+  children,
+}: {
+  textColor: string;
+  isAuthenticated: boolean;
+  onReply: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Menu
+      label={<Image systemName="ellipsis" color={textColor} size={18} />}
+      modifiers={[frame({ width: 32, height: 32 })]}
+    >
+      {isAuthenticated ? (
+        <SwiftUIButton
+          systemImage="arrowshape.turn.up.left"
+          onPress={onReply}
+          label="Reply"
+        />
+      ) : null}
+      {children}
+    </Menu>
+  );
 }
 
 export function CommentItem({
@@ -40,54 +79,28 @@ export function CommentItem({
   const { blockUser } = useBlockedUsers();
   const textColor = useThemeColor({}, "text");
   const deleteCommentMutation = useDeleteCommentMutation({ storyId });
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [notice, setNotice] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
-  // Check if this is the logged-in user's own comment
   const isOwnComment = username && comment.by === username;
 
   const handleBlockUser = async () => {
     hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await blockUser(comment.by);
-      Alert.alert(
-        "User Blocked",
-        `You will no longer see content from ${comment.by}. You can unblock them in Settings.`,
-        [{ text: "OK" }]
-      );
+      setNotice({
+        title: "User Blocked",
+        message: `You will no longer see content from ${comment.by}. You can unblock them in Settings.`,
+      });
     } catch {
-      Alert.alert("Error", "Failed to block user. Please try again.", [
-        { text: "OK" },
-      ]);
+      setNotice({
+        title: "Error",
+        message: "Failed to block user. Please try again.",
+      });
     }
-  };
-
-  const handleDeleteComment = () => {
-    if (!isAuthenticated) {
-      Alert.alert(
-        "Login Required",
-        "You must be logged in to delete comments.",
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
-    Alert.alert(
-      "Delete Comment",
-      "Are you sure you want to delete this comment? This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
-            deleteCommentMutation.mutate(comment.id);
-          },
-        },
-      ]
-    );
   };
 
   const handleReply = () => {
@@ -140,33 +153,74 @@ export function CommentItem({
           )}
         </View>
         <Host matchContents style={styles.moreButton}>
-          <Menu
-            label={<Image systemName="ellipsis" color={textColor} size={18} />}
-            modifiers={[frame({ width: 32, height: 32 })]}
-          >
-            {isAuthenticated && (
-              <SwiftUIButton
-                systemImage="arrowshape.turn.up.left"
-                onPress={handleReply}
-                label="Reply"
-              />
-            )}
-            {isOwnComment ? (
-              <SwiftUIButton
-                systemImage="trash"
-                onPress={handleDeleteComment}
-                role="destructive"
-                label="Delete Comment"
-              />
-            ) : (
-              <SwiftUIButton
-                systemImage="nosign"
-                onPress={handleBlockUser}
-                role="destructive"
-                label="Block User"
-              />
-            )}
-          </Menu>
+          {isOwnComment ? (
+            <ConfirmationDialog
+              title="Delete Comment"
+              isPresented={deleteOpen}
+              onIsPresentedChange={setDeleteOpen}
+            >
+              <ConfirmationDialog.Trigger>
+                <CommentOverflowMenu
+                  textColor={textColor}
+                  isAuthenticated={isAuthenticated}
+                  onReply={handleReply}
+                >
+                  <SwiftUIButton
+                    systemImage="trash"
+                    onPress={() => setDeleteOpen(true)}
+                    role="destructive"
+                    label="Delete Comment"
+                  />
+                </CommentOverflowMenu>
+              </ConfirmationDialog.Trigger>
+              <ConfirmationDialog.Message>
+                <Text>
+                  Are you sure you want to delete this comment? This action
+                  cannot be undone.
+                </Text>
+              </ConfirmationDialog.Message>
+              <ConfirmationDialog.Actions>
+                <SwiftUIButton label="Cancel" role="cancel" />
+                <SwiftUIButton
+                  label="Delete"
+                  role="destructive"
+                  onPress={() => {
+                    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
+                    deleteCommentMutation.mutate(comment.id);
+                  }}
+                />
+              </ConfirmationDialog.Actions>
+            </ConfirmationDialog>
+          ) : (
+            <Alert
+              title={notice?.title ?? ""}
+              isPresented={notice !== null}
+              onIsPresentedChange={(presented) => {
+                if (!presented) setNotice(null);
+              }}
+            >
+              <Alert.Trigger>
+                <CommentOverflowMenu
+                  textColor={textColor}
+                  isAuthenticated={isAuthenticated}
+                  onReply={handleReply}
+                >
+                  <SwiftUIButton
+                    systemImage="nosign"
+                    onPress={handleBlockUser}
+                    role="destructive"
+                    label="Block User"
+                  />
+                </CommentOverflowMenu>
+              </Alert.Trigger>
+              <Alert.Message>
+                <Text>{notice?.message ?? ""}</Text>
+              </Alert.Message>
+              <Alert.Actions>
+                <SwiftUIButton label="OK" role="cancel" />
+              </Alert.Actions>
+            </Alert>
+          )}
         </Host>
       </View>
       {!isCollapsed && (
@@ -180,7 +234,6 @@ export function CommentItem({
     </Animated.View>
   );
 
-  // Wrap with nested borders for each depth level
   for (let i = depth - 1; i >= 0; i--) {
     content = (
       <View

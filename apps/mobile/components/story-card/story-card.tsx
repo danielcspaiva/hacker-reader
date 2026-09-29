@@ -1,3 +1,8 @@
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { Image } from "expo-image";
+import { Link } from "expo-router";
+import { StyleSheet, View } from "react-native";
+
 import { LinkPreview } from "@/components/link-preview";
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -6,10 +11,7 @@ import { useIsBookmarked } from "@/hooks/use-bookmarks";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { getDomain, type HNItem } from "@/lib/shared";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { Image } from "expo-image";
-import { Link } from "expo-router";
-import { StyleSheet, View } from "react-native";
+
 import { StoryCardMetadata } from "./story-card-metadata";
 
 export interface StoryCardProps {
@@ -23,7 +25,7 @@ export interface StoryCardProps {
  * Shows story title, metadata, optional link preview, and actions
  * Supports long-press context menu for vote/bookmark/share actions
  */
-export function StoryCard({ story, index }: StoryCardProps) {
+export function StoryCard({ story, index: _index }: StoryCardProps) {
   const actions = useStoryActions(story);
   const { data: isBookmarked = false } = useIsBookmarked(story.id);
   const borderColor = useThemeColor({}, "border");

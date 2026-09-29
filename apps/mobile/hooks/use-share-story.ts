@@ -1,7 +1,8 @@
-import { reportError } from "@/lib/observability";
-import type { HNItem } from "@/lib/shared";
 import { useCallback } from "react";
 import { Alert, Platform, Share } from "react-native";
+
+import { reportError } from "@/lib/observability";
+import type { HNItem } from "@/lib/shared";
 
 type ShareableStory = Pick<HNItem, "id" | "title" | "url">;
 

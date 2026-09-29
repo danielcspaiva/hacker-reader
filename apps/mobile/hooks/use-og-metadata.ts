@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { fetchOGMetadata, type OGMetadata } from "@/lib/shared";
 
 export function useOGMetadata(url?: string) {

@@ -19,14 +19,16 @@
     "web:start": "pnpm --filter @hn/web start",
     "web:lint": "pnpm --filter @hn/web lint",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
-    "format": "pnpm -r format",
+    "lint": "oxlint && oxfmt --check",
+    "format": "oxfmt",
     "clean": "pnpm -r exec rm -rf node_modules .expo dist .next",
     "reset": "pnpm clean && rm -rf node_modules pnpm-lock.yaml && pnpm install"
   },
   "devDependencies": {
+    "@oxlint/plugins": "^1.83.0",
     "concurrently": "^9.1.2",
-    "prettier": "^3.4.2",
+    "oxfmt": "^0.68.0",
+    "oxlint": "^1.83.0",
     "typescript": "~5.9.2"
   },
   "pnpm": {

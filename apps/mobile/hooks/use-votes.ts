@@ -1,6 +1,7 @@
-import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
+
+import { reportError } from "@/lib/observability";
 
 const VOTES_STORAGE_KEY = "hn-votes";
 

@@ -5,11 +5,13 @@
  * All tracking functions are type-safe and follow naming conventions.
  */
 
-import type { Category } from "@/components/category-filter";
-import { reportError } from "@/lib/observability";
 import * as Application from "expo-application";
 import { usePostHog } from "posthog-react-native";
 import { Platform } from "react-native";
+
+import type { Category } from "@/components/category-filter";
+import { reportError } from "@/lib/observability";
+
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
 

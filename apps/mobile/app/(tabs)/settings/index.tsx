@@ -1,18 +1,3 @@
-import { SwiftForm } from "@/components/swift-form";
-import {
-  ANDROID_PLAY_STORE_URL,
-  APP_NAME,
-  APP_VERSION,
-  HN_GUIDELINES_URL,
-  IOS_APP_STORE_URL,
-  REPO_URL,
-} from "@/constants/app-config";
-import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
-import { useBlockedUsers } from "@/hooks/use-blocked-users";
-import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
-import { useExternalLink } from "@/hooks/use-external-link";
-import { useHiddenStories } from "@/hooks/use-hidden-items";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import {
   Alert,
   Button,
@@ -32,6 +17,22 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Platform } from "react-native";
 import type { SFSymbol } from "sf-symbols-typescript";
+
+import { SwiftForm } from "@/components/swift-form";
+import {
+  ANDROID_PLAY_STORE_URL,
+  APP_NAME,
+  APP_VERSION,
+  HN_GUIDELINES_URL,
+  IOS_APP_STORE_URL,
+  REPO_URL,
+} from "@/constants/app-config";
+import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
+import { useBlockedUsers } from "@/hooks/use-blocked-users";
+import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
+import { useExternalLink } from "@/hooks/use-external-link";
+import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type DialogButtonProps = {
   title: string;

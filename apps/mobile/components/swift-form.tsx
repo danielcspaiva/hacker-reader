@@ -1,8 +1,9 @@
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { Form, Host } from "@expo/ui/swift-ui";
 import { frame } from "@expo/ui/swift-ui/modifiers";
 import type { ReactNode } from "react";
 import { StyleSheet } from "react-native";
+
+import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 
 const formFill = frame({
   maxWidth: Number.MAX_SAFE_INTEGER,

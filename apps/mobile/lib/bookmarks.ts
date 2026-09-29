@@ -1,5 +1,6 @@
-import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { reportError } from "@/lib/observability";
 
 const BOOKMARKS_KEY = "@hn_bookmarks";
 
@@ -12,12 +13,9 @@ export interface BookmarkedStory {
  * Type guard for a persisted bookmark record.
  */
 function isBookmarkedStory(value: unknown): value is BookmarkedStory {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as BookmarkedStory).id === "number" &&
-    typeof (value as BookmarkedStory).bookmarkedAt === "number"
-  );
+  if (typeof value !== "object" || value === null) return false;
+  if (!("id" in value) || !("bookmarkedAt" in value)) return false;
+  return typeof value.id === "number" && typeof value.bookmarkedAt === "number";
 }
 
 /**
@@ -51,7 +49,6 @@ export async function addBookmark(storyId: number): Promise<void> {
   try {
     const bookmarks = await getBookmarks();
 
-    // Check if already bookmarked
     if (bookmarks.some((b) => b.id === storyId)) {
       return;
     }

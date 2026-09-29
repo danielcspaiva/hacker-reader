@@ -1,5 +1,6 @@
-import { LargeTitleStack } from "@/components/navigation/large-title-stack";
 import { Stack } from "expo-router";
+
+import { LargeTitleStack } from "@/components/navigation/large-title-stack";
 
 export default function Layout() {
   return (

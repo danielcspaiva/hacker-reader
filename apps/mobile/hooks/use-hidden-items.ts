@@ -6,10 +6,11 @@
  * Uses React Query for state management and cache invalidation.
  */
 
-import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
+
+import { reportError } from "@/lib/observability";
 
 const HIDDEN_STORIES_KEY = "@hidden_stories";
 const HIDDEN_COMMENTS_KEY = "@hidden_comments";

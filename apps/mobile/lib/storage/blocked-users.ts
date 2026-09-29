@@ -5,8 +5,9 @@
  * Blocked users' stories and comments are filtered from the app.
  */
 
-import { reportError } from "@/lib/observability";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { reportError } from "@/lib/observability";
 
 const BLOCKED_USERS_KEY = "@blocked_users";
 
@@ -19,11 +20,10 @@ export interface BlockedUser {
  * Type guard for a persisted blocked-user record.
  */
 function isBlockedUser(value: unknown): value is BlockedUser {
+  if (typeof value !== "object" || value === null) return false;
+  if (!("username" in value) || !("blockedAt" in value)) return false;
   return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as BlockedUser).username === "string" &&
-    typeof (value as BlockedUser).blockedAt === "number"
+    typeof value.username === "string" && typeof value.blockedAt === "number"
   );
 }
 
@@ -69,7 +69,6 @@ export async function blockUser(username: string): Promise<void> {
   try {
     const users = await getBlockedUsers();
 
-    // Check if already blocked
     if (users.some((u) => u.username === username)) {
       return;
     }

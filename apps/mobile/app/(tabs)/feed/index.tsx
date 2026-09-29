@@ -1,45 +1,51 @@
-import { CategoryFilter, type Category } from "@/components/category-filter";
-import { StoryCardSkeleton } from "@/components/story-card-skeleton";
-import { ThemedText } from "@/components/themed-text";
-import { useAnalytics } from "@/hooks/use-analytics";
-import { useBlockedUsers } from "@/hooks/use-blocked-users";
-import { useHiddenStories } from "@/hooks/use-hidden-items";
-import { useStories } from "@/hooks/use-stories";
-import { hapticImpact } from "@/lib/haptics";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
-import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
-import { type HNItem } from "@/lib/shared";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Stack } from "expo-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
+  Button,
+  Host,
+  HStack,
+  Image as SwiftImage,
+  Menu,
+  Text,
+} from "@expo/ui/swift-ui";
+import { buttonStyle, menuStyle } from "@expo/ui/swift-ui/modifiers";
+import { Stack } from "expo-router";
+import { useCallback, useEffect, useRef } from "react";
+import {
   FlatList,
+  Image,
   Platform,
+  Pressable,
   StyleSheet,
   View,
 } from "react-native";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import {
+  CATEGORY_ICONS,
+  CATEGORY_LABELS,
+  type Category,
+} from "@/components/category-filter";
+import { EmptyState } from "@/components/empty-state";
+import { NativeProgress } from "@/components/native-progress";
 import { StoryCard } from "@/components/story-card";
-
-const AnimatedFlatList = Animated.FlatList;
-
-const HEADER_SCROLL_OFFSET = isLiquidGlassAvailable() ? 100 : 90;
+import { StoryCardSkeleton } from "@/components/story-card-skeleton";
+import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { useFeedCategory } from "@/contexts/feed-category-context";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { useBlockedUsers } from "@/hooks/use-blocked-users";
+import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { STORY_CATEGORIES, useStories } from "@/hooks/use-stories";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
+import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
+import { hapticImpact, hapticSelection } from "@/lib/haptics";
+import { type HNItem } from "@/lib/shared";
 
 export default function FeedScreen() {
-  const [category, setCategory] = useState<Category>("top");
+  const { category, setCategory } = useFeedCategory();
   const analytics = useAnalytics();
   const { isHidden } = useHiddenStories();
   const { isBlocked } = useBlockedUsers();
+  const { colorScheme } = useColorSchemeContext();
 
   const {
     data,
@@ -51,19 +57,16 @@ export default function FeedScreen() {
     isFetchingNextPage,
   } = useStories(category);
 
-  // Filter out hidden stories and stories from blocked users
   const allStories = data?.pages.flatMap((page) => page) ?? [];
   const stories = allStories.filter(
     (story) => !isHidden(story.id) && (!story.by || !isBlocked(story.by))
   );
 
-  // Background warming of all categories is handled once globally by
-  // useAppPrefetch() in the root layout, so no per-screen prefetch is needed.
+  const { bottom, top } = useSafeAreaInsets();
+  const backgroundColor = useThemeColor({}, "background");
+  const flatListRef = useRef<FlatList>(null);
+  const scrollOffsetY = useRef(0);
 
-  const { bottom } = useSafeAreaInsets();
-  const textColor = useThemeColor({}, "text");
-
-  // Track infinite scroll
   const currentPage = useRef(0);
   useEffect(() => {
     const newPageCount = data?.pages.length ?? 0;
@@ -76,44 +79,16 @@ export default function FeedScreen() {
     currentPage.current = newPageCount;
   }, [data?.pages.length, category, analytics]);
 
-  // Animation setup for sticky header
-  const flatListRef = useRef<FlatList>(null);
-  const animatedTranslateY = useSharedValue(0);
-  const scrollOffsetY = useRef(0);
-  const backgroundColor = useThemeColor({}, "background");
-  const isLiquidGlass = isLiquidGlassAvailable();
-  const { top } = useSafeAreaInsets();
-
-  // Animated scroll handler for sticky header (runs on UI thread)
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    animatedTranslateY.value = interpolate(
-      event.contentOffset.y,
-      [-HEADER_SCROLL_OFFSET, 0],
-      [0, HEADER_SCROLL_OFFSET],
-      Extrapolation.CLAMP
-    );
-  });
-
-  const stickyHeaderStyle = useAnimatedStyle(() => {
-    if (Platform.OS !== "ios") {
-      return {};
-    }
-
-    return {
-      transform: [{ translateY: animatedTranslateY.value }],
-      backgroundColor: isLiquidGlass ? "transparent" : backgroundColor,
-    };
-  });
-
   const handleSelectCategory = useCallback(
     (newCategory: Category) => {
+      if (newCategory === category) return;
+      hapticSelection();
       analytics.track(AnalyticsEvent.CATEGORY_CHANGED, {
         [AnalyticsProperty.FROM_CATEGORY]: category,
         [AnalyticsProperty.TO_CATEGORY]: newCategory,
       });
       setCategory(newCategory);
 
-      // Scroll to top if user has scrolled down
       if (scrollOffsetY.current > 10) {
         flatListRef.current?.scrollToOffset({
           offset: -30 - top,
@@ -121,31 +96,66 @@ export default function FeedScreen() {
         });
       }
     },
-    [analytics, category, top]
-  );
-
-  const renderStickyHeader = useMemo(
-    () => (
-      <Animated.View style={stickyHeaderStyle}>
-        <CategoryFilter
-          category={category}
-          onSelectCategory={handleSelectCategory}
-        />
-      </Animated.View>
-    ),
-    [category, handleSelectCategory, stickyHeaderStyle]
+    [analytics, category, setCategory, top]
   );
 
   return (
     <>
       <Stack.Screen
         options={{
-          title: "Stories",
+          title: CATEGORY_LABELS[category],
           headerShown: true,
           headerLargeTitle: true,
+          unstable_headerLeftItems: () => [
+            {
+              type: "custom",
+              hidesSharedBackground: true,
+              element: (
+                <Pressable
+                  accessibilityLabel="Hacker Reader"
+                  onPress={() => {
+                    flatListRef.current?.scrollToOffset({
+                      offset: -30 - top,
+                      animated: true,
+                    });
+                  }}
+                  hitSlop={8}
+                >
+                  <Image
+                    source={require("@/assets/images/ybook.png")}
+                    style={styles.logo}
+                  />
+                </Pressable>
+              ),
+            },
+          ],
+          headerRight: () => (
+            <Host matchContents colorScheme={colorScheme}>
+              <Menu
+                label={
+                  <HStack spacing={6}>
+                    <SwiftImage systemName={CATEGORY_ICONS[category]} />
+                    <Text>{CATEGORY_LABELS[category]}</Text>
+                  </HStack>
+                }
+                modifiers={[menuStyle("button"), buttonStyle("plain")]}
+              >
+                {STORY_CATEGORIES.map((cat) => (
+                  <Button
+                    key={cat}
+                    label={CATEGORY_LABELS[cat]}
+                    systemImage={
+                      cat === category ? "checkmark" : CATEGORY_ICONS[cat]
+                    }
+                    onPress={() => handleSelectCategory(cat)}
+                  />
+                ))}
+              </Menu>
+            </Host>
+          ),
         }}
       />
-      <AnimatedFlatList<HNItem | null>
+      <FlatList<HNItem | null>
         ref={flatListRef}
         data={isPending ? Array(10).fill(null) : stories}
         renderItem={({ item, index }) =>
@@ -160,22 +170,18 @@ export default function FeedScreen() {
         }
         contentInsetAdjustmentBehavior="automatic"
         scrollToOverflowEnabled
-        ListHeaderComponent={renderStickyHeader}
-        stickyHeaderIndices={[0]}
-        onScroll={scrollHandler}
         onScrollBeginDrag={(e) => {
           scrollOffsetY.current = e.nativeEvent.contentOffset.y;
         }}
-        scrollEventThrottle={16}
         style={{ backgroundColor }}
         contentContainerStyle={{
+          paddingTop: 0,
           paddingBottom: Platform.select({
             android: 100 + bottom,
             default: 0,
           }),
         }}
         onRefresh={() => {
-          // Only trigger refetch if not already loading or refetching
           if (!isPending && !isRefetching) {
             hapticImpact();
             refetch();
@@ -189,14 +195,12 @@ export default function FeedScreen() {
         }}
         onEndReachedThreshold={0.3}
         ListEmptyComponent={
-          <View style={styles.centered}>
-            <ThemedText>No stories found</ThemedText>
-          </View>
+          <EmptyState title="No stories found" systemImage="newspaper" />
         }
         ListFooterComponent={
           isFetchingNextPage ? (
             <View style={styles.footer}>
-              <ActivityIndicator size="small" color={textColor} />
+              <NativeProgress size="small" />
             </View>
           ) : undefined
         }
@@ -206,10 +210,9 @@ export default function FeedScreen() {
 }
 
 const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  logo: {
+    width: 32,
+    height: 32,
   },
   footer: {
     paddingVertical: 20,

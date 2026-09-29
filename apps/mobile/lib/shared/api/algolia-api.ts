@@ -39,6 +39,8 @@ async function fetchJSON<T>(path: string): Promise<T> {
     throw new Error(`Algolia API error: ${response.status}`);
   }
 
+  // SAFETY: Algolia JSON at this path matches T (story/search hits).
+  // Callers only read declared fields; extra keys are ignored.
   const data = (await response.json()) as T;
   return data;
 }

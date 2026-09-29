@@ -1,8 +1,9 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
 import { clearBookmarks } from "@/lib/bookmarks";
 import { reportError } from "@/lib/observability";
-import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function useClearBookmarks() {
   const queryClient = useQueryClient();

@@ -1,7 +1,8 @@
-import { reportError } from "@/lib/observability";
 import * as WebBrowser from "expo-web-browser";
 import { useCallback } from "react";
 import { Alert } from "react-native";
+
+import { reportError } from "@/lib/observability";
 
 /**
  * Hook for opening external URLs in browser with error handling.

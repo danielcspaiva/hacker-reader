@@ -1,14 +1,16 @@
+import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { Link, useIsPreview } from "expo-router";
+import { Pressable, StyleSheet, View } from "react-native";
+
 import { LinkPreview } from "@/components/link-preview";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
+import { useExternalLink } from "@/hooks/use-external-link";
 import { useOGMetadata } from "@/hooks/use-og-metadata";
 import type { StoryWithComments } from "@/hooks/use-story";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { timeAgo } from "@/lib/shared";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Link, useIsPreview } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
-import { Pressable, StyleSheet, View } from "react-native";
+
 import { HTMLText } from "./html-text";
 
 // Negative margin needed for iOS 26+ header behavior to allow proper
@@ -23,10 +25,7 @@ export function StoryHeader({ story }: StoryHeaderProps) {
   const isInsidePreview = useIsPreview();
   const tintColor = useThemeColor({}, "tint");
   const { data: metadata, isLoading } = useOGMetadata(story.url || "");
-
-  const openURL = async (url: string) => {
-    await WebBrowser.openBrowserAsync(url);
-  };
+  const openLink = useExternalLink();
 
   // Show URL text as fallback when no OG preview available
   const hasPreview = !isLoading && metadata && metadata.image;
@@ -84,7 +83,7 @@ export function StoryHeader({ story }: StoryHeaderProps) {
         {story.url && (
           <>
             {!hasPreview && (
-              <Pressable onPress={() => openURL(story.url!)}>
+              <Pressable onPress={() => openLink(story.url!)}>
                 <ThemedText
                   type="bodySmall"
                   style={[styles.url, { color: tintColor }]}
@@ -94,7 +93,7 @@ export function StoryHeader({ story }: StoryHeaderProps) {
               </Pressable>
             )}
             <Pressable
-              onPress={() => openURL(story.url!)}
+              onPress={() => openLink(story.url!)}
               accessibilityRole="link"
             >
               <LinkPreview url={story.url} />

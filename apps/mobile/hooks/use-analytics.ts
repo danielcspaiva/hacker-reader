@@ -19,6 +19,9 @@
  * ```
  */
 
+import { usePostHog } from "posthog-react-native";
+import { useCallback } from "react";
+
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import {
   identifyUser,
@@ -27,8 +30,6 @@ import {
   trackEvent,
   type EventProperties,
 } from "@/lib/analytics/tracking";
-import { usePostHog } from "posthog-react-native";
-import { useCallback } from "react";
 
 export interface Analytics {
   /**

@@ -1,10 +1,11 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Alert } from "react-native";
+
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import type { Comment, StoryWithComments } from "@/hooks/use-story";
 import { reportError } from "@/lib/observability";
 import { deleteComment } from "@/lib/shared/api/hn-write-api";
 import { isAuthError } from "@/lib/shared/auth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Alert } from "react-native";
 
 interface UseDeleteCommentMutationOptions {
   storyId: number;
@@ -88,8 +89,7 @@ export function useDeleteCommentMutation({
 
       return { previousData };
     },
-    onSuccess: (deletedCommentId) => {
-      // Call the provided onSuccess callback
+    onSuccess: (_deletedCommentId) => {
       onSuccess?.();
 
       Alert.alert(

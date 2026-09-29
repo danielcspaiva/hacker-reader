@@ -5,14 +5,15 @@
  * Manages session persistence via expo-secure-store.
  */
 
-import { createContext, use, useState, useEffect, ReactNode } from "react";
-import * as SecureStore from "expo-secure-store";
 import CookieManager from "@react-native-cookies/cookies";
+import * as SecureStore from "expo-secure-store";
 import { usePostHog } from "posthog-react-native";
-import { SecureSession } from "@/lib/shared/auth";
+import { createContext, use, useState, useEffect, ReactNode } from "react";
+
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { trackEvent, resetUser } from "@/lib/analytics/tracking";
 import { reportError } from "@/lib/observability";
+import { SecureSession } from "@/lib/shared/auth";
 
 interface HNAuthContextValue {
   session: SecureSession | null;
