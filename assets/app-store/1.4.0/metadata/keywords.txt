@@ -1,0 +1,1 @@
+HN,Show HN,Ask HN,hackernews,YC,Y Combinator,tech,startup,programming,developer,coding,widget

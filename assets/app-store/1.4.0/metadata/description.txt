@@ -1,0 +1,60 @@
+Hacker Reader is a calm, native Hacker News client. Warm paper in Light Mode, warm charcoal in Dark Mode, serif story pages, comment threads that are easy to follow, and widgets that keep the top stories on your Home Screen and Lock Screen.
+
+BROWSE FIVE STORY FEEDS
+• Top Stories - what's ranking on HN right now
+• New Stories - recently submitted content
+• Ask HN - questions and discussions from the community
+• Show HN - projects, products and creations shared by users
+• Jobs - openings at YC companies
+• Switch feeds from the menu in the header, with infinite scrolling and pull to refresh
+• Numbered cards show the site's icon and domain, points, comments, author and age, plus a thumbnail when the page has one
+• Long-press a card to peek at the story, upvote, bookmark, share or hide it
+
+READ AND FOLLOW THE CONVERSATION
+• Story pages open with a serif headline, a large link preview and the byline
+• Ask HN and Show HN posts are labeled, with their full text
+• Articles open in an in-app browser
+• Nested comments with quiet orange depth rails
+• Tap a comment's header to collapse its thread and see how many replies are hidden
+• The original poster is marked OP
+
+INTERACT WITH THE COMMUNITY
+Sign in with your Hacker News account to:
+• Upvote stories with a tap on the points, or from the long-press menu
+• Post comments and replies
+• Delete your recent comments
+• Flag stories (HN karma rules apply)
+No account is needed to browse, bookmark stories for later, hide stories or block users you'd rather not see.
+
+PROFILES AND SEARCH
+• Tap a username in a thread or on a story page to see their karma, member-since date, bio and recent stories and comments
+• Tap a comment in someone's submissions to jump to it in the thread
+• Once you sign in, the Profile tab shows your own karma and submissions
+• Search Hacker News stories by keyword, powered by Algolia's HN Search, with your recent searches kept
+
+HOME SCREEN AND LOCK SCREEN WIDGETS
+• Small shows the top story, Medium the top 2, Large the top 7
+• A Lock Screen widget with the top 3 headlines
+• Points, comments and age at a glance on the Home Screen
+• Widgets refresh on their own when stories go stale, even with the app closed
+• Light, dark and tinted Home Screens are supported
+• Tap a story to open it in the app
+
+A WARM, NATIVE DESIGN
+• Warm paper in Light Mode, warm charcoal in Dark Mode, never pure black
+• Follows your system, or pick Light or Dark in Settings
+• Solid reading surfaces with HN orange accents
+• Native iOS tabs, menus and toolbars, SF Symbols and subtle haptics
+• Link previews with Open Graph images
+
+PRIVACY & SECURITY
+• Sign in with a native form: your password goes straight to Hacker News over HTTPS and is never stored in the app
+• Your session is kept in the iOS Keychain
+• Bookmarks, hidden stories and blocked users are stored on your device
+• Open source - read the code on GitHub
+
+Hacker Reader is designed and built by an indie developer who loves Hacker News and wanted a calmer way to read it. It's built with React Native, Expo and SwiftUI.
+
+Questions or feedback? Open an issue on GitHub, find me on X at @danielcspaiva, or reach out via the support URL.
+
+Not affiliated with Y Combinator or Hacker News. Built using the official HN API (https://github.com/HackerNews/API) and Algolia's HN Search API.

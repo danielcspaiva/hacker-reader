@@ -1,0 +1,15 @@
+A complete redesign. Warm paper in Light Mode, warm charcoal in Dark Mode, solid cards and HN orange accents.
+
+• Numbered story cards with a square thumbnail and the site's icon
+• Story pages with a serif headline and a large link preview. Tap the points to upvote
+• Comment threads with quiet orange depth rails, much faster on stories with 1,000+ comments
+• Rebuilt Home Screen widgets and a new Lock Screen widget, all kept up to date even with the app closed
+• Tap a comment in someone's submissions to jump to it in the thread
+• A launch screen that matches Light and Dark Mode
+• Blocking a comment author now asks first
+
+Fixes
+• A storage error could erase saved bookmarks, votes or blocked users
+• Posting a comment could wrongly report a failure
+• The comment box stayed locked for several seconds after posting
+• Network errors showed "No stories found" instead of a Try again button

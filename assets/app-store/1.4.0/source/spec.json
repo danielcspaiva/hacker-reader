@@ -1,0 +1,64 @@
+{
+  "targets": [
+    { "name": "iphone-69", "width": 1320, "height": 2868 },
+    { "name": "iphone-65", "width": 1284, "height": 2778 }
+  ],
+  "shots": [
+    {
+      "id": "feed",
+      "raw": "raw/feed-light.png",
+      "theme": "light",
+      "headline": "A calm, native|HN reader",
+      "accent": "calm",
+      "subline": "Top, New, Ask, Show and Jobs,|with thumbnails and site icons"
+    },
+    {
+      "id": "story",
+      "raw": "raw/story-light.png",
+      "theme": "light",
+      "headline": "Every story,|typeset",
+      "accent": "typeset",
+      "subline": "Serif headlines and big link previews,|upvote with your HN account"
+    },
+    {
+      "id": "comments",
+      "raw": "raw/comments-dark.png",
+      "theme": "dark",
+      "headline": "Threads you|can follow",
+      "accent": "follow",
+      "subline": "Quiet orange rails|and collapsible threads"
+    },
+    {
+      "id": "widgets",
+      "raw": "raw/widgets-light.png",
+      "theme": "light",
+      "headline": "Top stories,|at a glance",
+      "accent": "at a glance",
+      "subline": "Home and Lock Screen widgets|that refresh themselves"
+    },
+    {
+      "id": "dark",
+      "raw": "raw/split-walk.png",
+      "theme": "dark",
+      "headline": "A warmer|Dark Mode",
+      "accent": "warmer",
+      "subline": "Warm charcoal, never pure black,|follows your system"
+    },
+    {
+      "id": "search",
+      "raw": "raw/search-light.png",
+      "theme": "light",
+      "headline": "Years of HN,|searchable",
+      "accent": "searchable",
+      "subline": "Search stories by keyword,|including the all-time classics"
+    },
+    {
+      "id": "bookmarks",
+      "raw": "raw/bookmarks-dark.png",
+      "theme": "dark",
+      "headline": "Stories saved|for later",
+      "accent": "later",
+      "subline": "Bookmark any story,|no account needed"
+    }
+  ]
+}
