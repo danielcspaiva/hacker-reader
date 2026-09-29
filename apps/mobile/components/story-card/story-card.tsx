@@ -8,6 +8,7 @@ import { Card, ICON_GLYPHS, Icon, Text } from "@/components/ui";
 import { Radius } from "@/constants/theme";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
+import { timeAgo } from "@/lib/format/time";
 import { getDomain } from "@/lib/format/url";
 import type { HNItem } from "@/lib/hn";
 
@@ -55,10 +56,24 @@ export function StoryCard({ story, rank }: StoryCardProps) {
   const actions = useStoryActions(story);
   const { isBookmarked } = actions;
   const domain = getDomain(story.url);
+  const points = story.score ?? 0;
+  const comments = story.descendants || 0;
+  const accessibilityLabel = [
+    rank !== undefined ? `${rank}. ${story.title ?? ""}` : story.title,
+    domain,
+    `${points} ${points === 1 ? "point" : "points"}`,
+    `${comments} ${comments === 1 ? "comment" : "comments"}`,
+    story.by && `by ${story.by}`,
+    timeAgo(story.time || 0),
+    isBookmarked && "Bookmarked",
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <LinkCard
       href={`/story/${story.id}`}
+      accessibilityLabel={accessibilityLabel}
       menu={
         <Link.Menu>
           <Link.MenuAction

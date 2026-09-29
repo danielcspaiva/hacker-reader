@@ -11,13 +11,23 @@ import { hapticSelection } from "@/lib/haptics";
 
 interface LinkCardProps {
   href: ComponentProps<typeof Link>["href"];
+  /**
+   * What VoiceOver reads for the whole card. `Link` renders as one text
+   * element, so without it the nested views collapse into "￼".
+   */
+  accessibilityLabel: string;
   /** Long-press menu actions (`Link.Menu`). */
   menu?: ReactNode;
   children: ReactNode;
 }
 
 /** A Card that navigates: scales on press, selection haptic, peek preview. */
-export function LinkCard({ href, menu, children }: LinkCardProps) {
+export function LinkCard({
+  href,
+  accessibilityLabel,
+  menu,
+  children,
+}: LinkCardProps) {
   const scale = useSharedValue(1);
   const animated = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -27,6 +37,7 @@ export function LinkCard({ href, menu, children }: LinkCardProps) {
     <Animated.View style={[{ marginBottom: CARD_GAP }, animated]}>
       <Link
         href={href}
+        accessibilityLabel={accessibilityLabel}
         onPressIn={() => {
           scale.value = withTiming(0.98, { duration: 90 });
         }}

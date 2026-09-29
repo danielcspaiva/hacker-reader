@@ -26,6 +26,7 @@ export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
   return (
     <LinkCard
       href={`/story/${storyId ?? comment.parent}?commentId=${comment.id}`}
+      accessibilityLabel={`${label ?? "Comment"}, ${timeAgo(comment.time ?? 0)}, ${preview}`}
     >
       <Card padding={14} style={styles.card}>
         <View style={styles.context}>
