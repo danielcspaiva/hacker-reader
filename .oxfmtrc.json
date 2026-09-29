@@ -42,6 +42,7 @@
     "*.pbxproj",
     "*.xcscheme",
     "ios",
+    "apps/mobile/test/fixtures",
     "android",
     "tooling/oxlint-plugins/anti-slop",
     ".agents",

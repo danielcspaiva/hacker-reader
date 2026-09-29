@@ -26,7 +26,7 @@ This project and everyone participating in it is expected to uphold a respectful
 ### Prerequisites
 
 - Node.js 18 or newer
-- pnpm 8+
+- pnpm 12 (pinned via `packageManager`)
 - Xcode (for iOS development) or Android Studio (for Android)
 - Git
 
@@ -74,10 +74,12 @@ pnpm web           # Start Next.js dev server
 hn-client/
 ├── apps/
 │   ├── mobile/              # React Native + Expo app
-│   │   ├── lib/
-│   │   │   └── shared/      # HN API, auth, types, utilities
+│   │   ├── lib/hn/          # HN API, auth, local stores, types
+│   │   ├── lib/format/      # time and URL formatting
+│   │   ├── lib/html/        # entity decoding and HTML parsing
 │   │   ├── hooks/           # React Query hooks
-│   │   ├── components/      # UI components
+│   │   ├── components/ui/   # design-system primitives
+│   │   ├── components/      # feature components
 │   │   └── app/             # Expo Router screens
 │   └── web/                 # Next.js marketing site + AI backend (future)
 └── docs/                    # Documentation
@@ -85,13 +87,12 @@ hn-client/
 
 ### Working with Shared Code
 
-The mobile app contains all HN API clients, authentication, and utilities in `apps/mobile/lib/shared/`:
+The mobile app contains all HN API clients, authentication, and utilities in `apps/mobile/lib/` (`hn/`, `format/`, `html/`):
 
 ```typescript
-// Import from shared library (mobile app only)
-import { getTopStories, type HNItem } from "@/lib/shared/api";
-import { SecureSession } from "@/lib/shared/auth";
-import { timeAgo } from "@/lib/shared/utils";
+// Import from the app's lib (mobile app only)
+import { getCategoryStoryIds, SecureSession, type HNItem } from "@/lib/hn";
+import { timeAgo } from "@/lib/format/time";
 ```
 
 The web app will have its own implementation when AI backend features are added.
@@ -223,13 +224,14 @@ hooks/
   use-stories.test.ts      # Hook tests
 
 lib/
-  hn-api.ts                # API utilities
-  og-api.ts                # External API clients
+  hn/read/firebase.ts      # HN API clients
+  link-preview/og.ts       # External API clients
 ```
 
 ### Testing
 
-- Manual testing required (no automated tests yet)
+- Run `pnpm --filter @hn/mobile test` (Node tests for the HN layer and widget helpers; see `apps/mobile/test/README.md`), plus `pnpm typecheck` and `pnpm lint`
+- UI is tested manually
 - Test on both iOS and Android when possible
 - Verify dark mode support
 - Check different screen sizes
@@ -292,7 +294,7 @@ Support the project and get premium access:
 
 ### Nice to Have
 
-- 🧪 **Testing** - Set up automated tests
+- 🧪 **Testing** - Extend the automated tests beyond the HN layer (components, hooks)
 - 🚀 **Performance** - Profile and optimize bottlenecks
 - 📦 **CI/CD** - Improve build and deployment automation
 

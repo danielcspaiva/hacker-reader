@@ -5,6 +5,31 @@ All notable changes to Hacker Reader will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-09-29
+
+### Added
+
+- Premium redesign of every screen: warm HN palette (light paper / dark charcoal), solid cards, native header toolbars and tabs; Liquid Glass only on chrome
+- Story cards with square thumbnails that grow with long titles, rank, favicon and tabular counts
+- Story detail hero with a tappable points pill for upvoting, continuous single-orange thread rails, scroll-to-comment from submissions
+- Home screen widgets rebuilt on `expo-widgets` (small, medium, large, lock screen) with the app logo; they refresh themselves when stale, even with the app closed
+- Splash screen that matches light and dark mode and fades into the first screen
+
+### Changed
+
+- Upgraded to Expo SDK 58 (preview) / React Native 0.88 and pnpm 12; ESLint/Prettier replaced by oxlint/oxfmt
+- HN data layer reorganised under `lib/hn` (read API, authenticated HTML client, parsers, local stores) with node tests
+- Comment threads on 1,000+ comment stories scroll much faster (lean rows, cached HTML parsing, one native action sheet)
+- Blocking a comment author now asks for confirmation, like blocking a story author
+
+### Fixed
+
+- A failed local-storage read could overwrite saved bookmarks, votes or blocked users
+- Posting a comment could be reported as failed when another comment on the page contained "blank"
+- The comment box stayed locked for 5–8 seconds after posting
+- Network errors showed "No stories found" instead of an error with retry
+- The first theme change after launch was not tracked
+
 ## [1.2.0] - 2025-11-11
 
 ### Added
