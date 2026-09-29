@@ -1,4 +1,15 @@
 packages:
   - "apps/*"
 
+allowBuilds:
+  "@sentry/cli": true
+  sharp: true
+
 nodeLinker: hoisted
+
+overrides:
+  react: 19.3.0
+  react-dom: 19.3.0
+
+patchedDependencies:
+  expo-widgets: patches/expo-widgets.patch
