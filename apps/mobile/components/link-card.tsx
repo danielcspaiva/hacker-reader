@@ -12,8 +12,9 @@ import { hapticSelection } from "@/lib/haptics";
 interface LinkCardProps {
   href: ComponentProps<typeof Link>["href"];
   /**
-   * What VoiceOver reads for the whole card. `Link` renders as one text
-   * element, so without it the nested views collapse into "￼".
+   * What VoiceOver reads for the whole card. It sits on the wrapper view:
+   * `Link` renders as a text element whose accessibility is cached, so a
+   * recycled cell would keep reading the previous card.
    */
   accessibilityLabel: string;
   /** Long-press menu actions (`Link.Menu`). */
@@ -34,10 +35,14 @@ export function LinkCard({
   }));
 
   return (
-    <Animated.View style={[{ marginBottom: CARD_GAP }, animated]}>
+    <Animated.View
+      style={[{ marginBottom: CARD_GAP }, animated]}
+      accessible
+      accessibilityRole="link"
+      accessibilityLabel={accessibilityLabel}
+    >
       <Link
         href={href}
-        accessibilityLabel={accessibilityLabel}
         onPressIn={() => {
           scale.value = withTiming(0.98, { duration: 90 });
         }}

@@ -8,7 +8,7 @@ import { Card, ICON_GLYPHS, Icon, Text } from "@/components/ui";
 import { Radius } from "@/constants/theme";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
-import { timeAgo } from "@/lib/format/time";
+import { timeAgoSpoken } from "@/lib/format/time";
 import { getDomain } from "@/lib/format/url";
 import type { HNItem } from "@/lib/hn";
 
@@ -64,7 +64,8 @@ export function StoryCard({ story, rank }: StoryCardProps) {
     `${points} ${points === 1 ? "point" : "points"}`,
     `${comments} ${comments === 1 ? "comment" : "comments"}`,
     story.by && `by ${story.by}`,
-    timeAgo(story.time || 0),
+    timeAgoSpoken(story.time || 0),
+    actions.hasVoted && "Upvoted",
     isBookmarked && "Bookmarked",
   ]
     .filter(Boolean)

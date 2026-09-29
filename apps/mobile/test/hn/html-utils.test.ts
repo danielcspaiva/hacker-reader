@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it, mock } from "node:test";
 
-import { formatMemberSince, timeAgo } from "@/lib/format/time";
+import { formatMemberSince, timeAgo, timeAgoSpoken } from "@/lib/format/time";
 import { getDomain } from "@/lib/format/url";
 import { parseHTMLWithLinks, stripHTML } from "@/lib/html/parse";
 
@@ -162,6 +162,27 @@ describe("timeAgo (current behavior)", () => {
 
   it("future timestamps read as now", () => {
     assert.equal(at(-120), "now");
+  });
+});
+
+describe("timeAgoSpoken", () => {
+  const NOW_MS = 1_700_000_000_000;
+  const now = NOW_MS / 1000;
+
+  function at(secondsAgo: number): string {
+    mock.timers.reset();
+    mock.timers.enable({ apis: ["Date"], now: NOW_MS });
+    return timeAgoSpoken(now - secondsAgo);
+  }
+
+  it("uses the same buckets as timeAgo, spelled out", () => {
+    assert.equal(at(30), "just now");
+    assert.equal(at(60), "1 minute ago");
+    assert.equal(at(3599), "59 minutes ago");
+    assert.equal(at(3600), "1 hour ago");
+    assert.equal(at(86400 * 2), "2 days ago");
+    assert.equal(at(86400 * 7), "1 week ago");
+    assert.equal(at(86400 * 365 * 19), "19 years ago");
   });
 });
 

@@ -4,7 +4,7 @@ import { LinkCard } from "@/components/link-card";
 import { Card, Icon, INLINE_ICON_SIZE, Text } from "@/components/ui";
 import { useCommentContext } from "@/hooks/use-comment-context";
 import { useTheme } from "@/hooks/use-theme";
-import { timeAgo } from "@/lib/format/time";
+import { timeAgo, timeAgoSpoken } from "@/lib/format/time";
 import type { HNItem } from "@/lib/hn";
 import { stripHTML } from "@/lib/html/parse";
 
@@ -26,7 +26,15 @@ export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
   return (
     <LinkCard
       href={`/story/${storyId ?? comment.parent}?commentId=${comment.id}`}
-      accessibilityLabel={`${label ?? "Comment"}, ${timeAgo(comment.time ?? 0)}, ${preview}`}
+      accessibilityLabel={[
+        !label || label.startsWith("Reply to")
+          ? (label ?? "Comment")
+          : `Comment on ${label}`,
+        timeAgoSpoken(comment.time ?? 0),
+        preview,
+      ]
+        .filter(Boolean)
+        .join(", ")}
     >
       <Card padding={14} style={styles.card}>
         <View style={styles.context}>
