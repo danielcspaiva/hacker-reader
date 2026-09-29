@@ -1,118 +1,71 @@
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { Link } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Spacing } from "@/constants/theme";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { stripHTML, timeAgo, type HNItem } from "@/lib/shared";
+import { LinkCard } from "@/components/link-card";
+import { Card, Icon, INLINE_ICON_SIZE, Text } from "@/components/ui";
+import { useCommentContext } from "@/hooks/use-comment-context";
+import { useTheme } from "@/hooks/use-theme";
+import { timeAgo } from "@/lib/format/time";
+import type { HNItem } from "@/lib/hn";
+import { stripHTML } from "@/lib/html/parse";
 
 interface SubmissionCommentCardProps {
   comment: HNItem;
 }
 
+const PREVIEW_LENGTH = 220;
+
 export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
-  const borderColor = useThemeColor({}, "border");
-  const mutedColor = useThemeColor({}, "tabIconDefault");
+  const { colors } = useTheme();
+  const { label, storyId } = useCommentContext(comment);
 
-  // Parse and truncate comment text for preview
-  const commentText = comment.text ? stripHTML(comment.text) : "";
+  const text = comment.text ? stripHTML(comment.text) : "";
   const preview =
-    commentText.length > 200
-      ? commentText.substring(0, 200) + "..."
-      : commentText;
-
+    text.length > PREVIEW_LENGTH
+      ? `${text.substring(0, PREVIEW_LENGTH).trimEnd()}...`
+      : text;
   return (
-    <GlassView
-      glassEffectStyle="regular"
-      style={[styles.container, { borderColor }]}
+    <LinkCard
+      href={`/story/${storyId ?? comment.parent}?commentId=${comment.id}`}
     >
-      <Link href={`/story/${comment.parent}?commentId=${comment.id}`}>
-        <Link.Trigger>
-          <View style={styles.content}>
-            {/* Comment type indicator */}
-            <View style={styles.header}>
-              <IconSymbol
-                name="bubble.left.and.bubble.right"
-                size={14}
-                color={mutedColor}
-              />
-              <ThemedText type="caption" style={styles.typeLabel}>
-                Comment
-              </ThemedText>
-              {comment.deleted && (
-                <ThemedText
-                  type="caption"
-                  style={[styles.deletedBadge, { color: "red" }]}
-                >
-                  Deleted
-                </ThemedText>
-              )}
-            </View>
-
-            {/* Comment preview */}
-            {!comment.deleted && (
-              <ThemedText
-                type="body"
-                style={styles.commentText}
-                numberOfLines={4}
-              >
-                {preview}
-              </ThemedText>
-            )}
-
-            {/* Metadata */}
-            <View style={styles.metadata}>
-              <ThemedText type="caption" style={styles.metadataText}>
-                {timeAgo(comment.time || 0)}
-              </ThemedText>
-            </View>
-          </View>
-        </Link.Trigger>
-
-        {/* Preview modal */}
-        <Link.Preview />
-      </Link>
-    </GlassView>
+      <Card padding={14} style={styles.card}>
+        <View style={styles.context}>
+          <Icon
+            name="reply"
+            size={INLINE_ICON_SIZE.caption}
+            color={colors.mutedForeground}
+          />
+          <Text
+            variant="caption"
+            tone="muted"
+            weight="medium"
+            numberOfLines={1}
+            style={styles.contextText}
+          >
+            {label ?? "Comment"}
+          </Text>
+          <Text variant="caption" tone="tertiary" numeric>
+            {timeAgo(comment.time ?? 0)}
+          </Text>
+        </View>
+        <Text variant="callout" numberOfLines={5}>
+          {preview}
+        </Text>
+      </Card>
+    </LinkCard>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: Spacing.lg,
-    borderRadius: 16,
-    borderCurve: "continuous",
-    borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
-    marginBottom: Spacing.lg,
+  card: {
+    width: "100%",
+    gap: 8,
   },
-  content: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-  },
-  header: {
+  context: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Spacing.sm,
-    gap: Spacing.xs,
+    gap: 6,
   },
-  typeLabel: {
-    fontWeight: "600",
-    opacity: 0.6,
-  },
-  deletedBadge: {
-    fontWeight: "600",
-    marginLeft: "auto",
-  },
-  commentText: {
-    marginBottom: Spacing.sm,
-    lineHeight: 22,
-  },
-  metadata: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  metadataText: {
-    opacity: 0.6,
+  contextText: {
+    flex: 1,
   },
 });

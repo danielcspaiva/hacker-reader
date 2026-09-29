@@ -1,148 +1,212 @@
-import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Link, useIsPreview } from "expo-router";
+import { Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { LinkPreview } from "@/components/link-preview";
-import { ThemedText } from "@/components/themed-text";
-import { Spacing } from "@/constants/theme";
+import { Badge, Card, Icon, INLINE_ICON_SIZE, Text } from "@/components/ui";
+import { GUTTER } from "@/constants/theme";
 import { useExternalLink } from "@/hooks/use-external-link";
-import { useOGMetadata } from "@/hooks/use-og-metadata";
-import type { StoryWithComments } from "@/hooks/use-story";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { timeAgo } from "@/lib/shared";
+import { useTheme } from "@/hooks/use-theme";
+import { timeAgo } from "@/lib/format/time";
+import { getDomain } from "@/lib/format/url";
+import { hapticImpact, hapticSelection } from "@/lib/haptics";
+import type { StoryWithComments } from "@/lib/hn";
 
 import { HTMLText } from "./html-text";
 
-// Negative margin needed for iOS 26+ header behavior to allow proper
-// large-to-regular title transitions with multi-line large titles
-const IOS_26_HEADER_MARGIN_OFFSET = -56;
-
 interface StoryHeaderProps {
   story: StoryWithComments;
+  hasVoted: boolean;
+  onVote: () => void;
 }
 
-export function StoryHeader({ story }: StoryHeaderProps) {
-  const isInsidePreview = useIsPreview();
-  const tintColor = useThemeColor({}, "tint");
-  const { data: metadata, isLoading } = useOGMetadata(story.url || "");
+const KIND_PREFIX = /^(ask|show|launch) hn:?\s*/i;
+
+interface SplitTitle {
+  kind: string | null;
+  title: string;
+}
+
+/** "Ask HN: x" becomes the badge "Ask HN" and the title "x". */
+function splitKind(title: string): SplitTitle {
+  const match = KIND_PREFIX.exec(title);
+  if (!match) return { kind: null, title };
+  const name = match[1];
+  return {
+    kind: `${name.charAt(0).toUpperCase()}${name.slice(1).toLowerCase()} HN`,
+    title: title.slice(match[0].length),
+  };
+}
+
+export function StoryHeader({ story, hasVoted, onVote }: StoryHeaderProps) {
+  const { colors } = useTheme();
   const openLink = useExternalLink();
 
-  // Show URL text as fallback when no OG preview available
-  const hasPreview = !isLoading && metadata && metadata.image;
+  const domain = getDomain(story.url);
+  // The badge already names the kind, so the hero drops the "Ask HN:" prefix.
+  const { kind, title } = splitKind(story.title ?? "");
+  const url = story.url;
 
   return (
-    <>
-      <View
-        style={[
-          styles.container,
-          {
-            marginTop:
-              isLiquidGlassAvailable() && !isInsidePreview
-                ? IOS_26_HEADER_MARGIN_OFFSET
-                : 0,
-          },
-        ]}
-      >
-        <ThemedText type="title" style={styles.title} selectable>
-          {story.title}
-        </ThemedText>
-        <View style={styles.metadata}>
-          <ThemedText
-            type="bodySmall"
-            style={[styles.metadataText, styles.numeric]}
-          >
-            {story.score} points by{" "}
-          </ThemedText>
+    <View style={styles.container}>
+      <View style={styles.hero}>
+        {domain || kind ? (
+          <View style={styles.eyebrow}>
+            {kind ? (
+              <Badge label={kind} tone="primary" variant="solid" />
+            ) : null}
+            {domain ? (
+              <Badge label={domain} tone="neutral" icon="link" />
+            ) : null}
+          </View>
+        ) : null}
+        <Text variant="headline" serif selectable accessibilityRole="header">
+          {title}
+        </Text>
+        <View style={styles.byline}>
+          <Text variant="callout" tone="muted">
+            by{" "}
+          </Text>
           <Link href={`/user/${story.by}`} asChild>
-            <ThemedText type="bodySmall" style={styles.metadataText}>
-              {story.by}
-            </ThemedText>
-          </Link>
-          <ThemedText type="bodySmall" style={styles.metadataText}>
-            {" "}
-            •{" "}
-          </ThemedText>
-          <ThemedText type="bodySmall" style={styles.metadataText}>
-            {timeAgo(story.time || 0)}
-          </ThemedText>
-          {story.descendants !== undefined && (
-            <>
-              <ThemedText type="bodySmall" style={styles.metadataText}>
-                {" "}
-                •{" "}
-              </ThemedText>
-              <ThemedText
-                type="bodySmall"
-                style={[styles.metadataText, styles.numeric]}
-              >
-                {story.descendants} comments
-              </ThemedText>
-            </>
-          )}
-        </View>
-        {story.url && (
-          <>
-            {!hasPreview && (
-              <Pressable onPress={() => openLink(story.url!)}>
-                <ThemedText
-                  type="bodySmall"
-                  style={[styles.url, { color: tintColor }]}
-                >
-                  {story.url}
-                </ThemedText>
-              </Pressable>
-            )}
             <Pressable
-              onPress={() => openLink(story.url!)}
+              hitSlop={10}
               accessibilityRole="link"
+              accessibilityLabel={`Profile of ${story.by}`}
+              onPressIn={() => hapticSelection()}
             >
-              <LinkPreview url={story.url} />
+              <Text variant="callout" tone="primary" weight="semibold">
+                {story.by}
+              </Text>
             </Pressable>
-          </>
-        )}
-        {story.text && <HTMLText html={story.text} style={styles.storyText} />}
+          </Link>
+          <Text variant="callout" tone="muted">
+            {" "}
+            · {timeAgo(story.time || 0)}
+          </Text>
+        </View>
+        <View style={styles.stats}>
+          <Pressable
+            onPress={() => {
+              hapticImpact();
+              onVote();
+            }}
+            accessibilityRole="button"
+            accessibilityState={{ selected: hasVoted }}
+            accessibilityLabel={`${story.score ?? 0} points. ${hasVoted ? "Remove upvote" : "Upvote"}`}
+            style={({ pressed }) => [
+              styles.votePill,
+              {
+                backgroundColor: hasVoted ? colors.primaryWash : colors.muted,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Icon
+              name="upvote"
+              size={INLINE_ICON_SIZE.callout}
+              weight="semibold"
+              color={hasVoted ? colors.primaryInk : colors.foreground}
+            />
+            <Text
+              variant="callout"
+              weight="semibold"
+              numeric
+              tone={hasVoted ? "primary" : "default"}
+            >
+              {story.score ?? 0}
+            </Text>
+            <Text variant="callout" tone={hasVoted ? "primary" : "muted"}>
+              points
+            </Text>
+          </Pressable>
+          {story.descendants !== undefined ? (
+            <View style={styles.stat}>
+              <Icon
+                name="comments"
+                size={INLINE_ICON_SIZE.callout}
+                weight="semibold"
+                color={colors.mutedForeground}
+              />
+              <Text variant="callout" weight="semibold" numeric>
+                {story.descendants}
+              </Text>
+              <Text variant="callout" tone="muted">
+                comments
+              </Text>
+            </View>
+          ) : null}
+        </View>
       </View>
+
+      {url ? (
+        <LinkPreview
+          url={url}
+          onPress={() => void openLink(url)}
+          accessibilityLabel={`Read article${domain ? ` on ${domain}` : ""}`}
+        />
+      ) : null}
+
+      {story.text ? (
+        <Card padding={18}>
+          <HTMLText html={story.text} variant="body" />
+        </Card>
+      ) : null}
+
       <View style={styles.commentsHeader}>
-        <ThemedText type="bodyLarge" style={styles.commentsTitle}>
-          Comments {story.descendants ? `(${story.descendants})` : ""}
-        </ThemedText>
+        <Text variant="subtitle">Comments</Text>
+        {story.descendants ? (
+          <Text variant="subtitle" tone="tertiary" numeric>
+            {story.descendants}
+          </Text>
+        ) : null}
       </View>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
+    paddingHorizontal: GUTTER,
+    paddingTop: 8,
+    gap: 16,
   },
-  title: {
-    marginBottom: Spacing.md,
+  hero: {
+    gap: 10,
   },
-  metadata: {
+  eyebrow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  byline: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: Spacing.md,
+    alignItems: "center",
   },
-  metadataText: {
-    opacity: 0.6,
+  stats: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
   },
-  numeric: {
-    fontVariant: ["tabular-nums"],
+  votePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderCurve: "continuous",
   },
-  url: {
-    marginBottom: Spacing.md,
-  },
-  storyText: {
-    marginTop: Spacing.md,
+  stat: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
   },
   commentsHeader: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing["2xl"],
-    paddingBottom: Spacing.lg,
-  },
-  commentsTitle: {
-    fontWeight: "600",
-    opacity: 0.8,
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
 });

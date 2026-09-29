@@ -1,89 +1,89 @@
-import { Alert, Button, Section, SwipeActions, Text } from "@expo/ui/swift-ui";
-import { useState } from "react";
+import { Alert } from "react-native";
 
-import { EmptyState } from "@/components/empty-state";
-import { SwiftForm } from "@/components/swift-form";
+import {
+  Button,
+  EmptyState,
+  ListRow,
+  ListSection,
+  Screen,
+  ScrollScreen,
+} from "@/components/ui";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
-import { reportError } from "@/lib/observability";
-import { clearBlockedUsers } from "@/lib/storage/blocked-users";
+import { confirmDestructive } from "@/lib/confirm-destructive";
+import { Haptics, hapticNotify } from "@/lib/haptics";
 
 export default function BlockedUsersScreen() {
-  const { blockedUsers, unblockUser, refresh } = useBlockedUsers();
-  const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const { blockedUsers, unblockUser, clearAll } = useBlockedUsers();
 
   const handleUnblock = async (username: string) => {
     try {
       await unblockUser(username);
-      await refresh();
-    } catch (error) {
-      reportError(error, { operation: "unblockUser" });
+      hapticNotify(Haptics.NotificationFeedbackType.Success);
+    } catch {
+      // Reported by useBlockedUsers.
     }
   };
 
   const handleClearAll = async () => {
     try {
-      await clearBlockedUsers();
-      await refresh();
-    } catch (error) {
-      reportError(error, { operation: "clearBlockedUsers" });
+      await clearAll();
+      hapticNotify(Haptics.NotificationFeedbackType.Success);
+    } catch {
+      // Reported by useBlockedUsers.
     }
+  };
+
+  const confirmUnblock = (username: string) => {
+    Alert.alert(`Unblock ${username}?`, "Their content will show up again.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Unblock", onPress: () => void handleUnblock(username) },
+    ]);
+  };
+
+  const confirmClearAll = () => {
+    confirmDestructive({
+      title: "Unblock all users?",
+      message: "You will see content from everyone you previously blocked.",
+      confirmLabel: "Unblock all",
+      onConfirm: handleClearAll,
+    });
   };
 
   if (blockedUsers.length === 0) {
     return (
-      <EmptyState
-        title="No blocked users"
-        description="You can block users from story cards and comments."
-        systemImage="person.fill.xmark"
-      />
+      <Screen>
+        <EmptyState
+          icon="block"
+          title="No blocked users"
+          message="You can block users from story cards and comments."
+        />
+      </Screen>
     );
   }
 
   return (
-    <SwiftForm>
-      <Section title={`${blockedUsers.length} blocked`}>
+    <ScrollScreen gap={24}>
+      <ListSection
+        title={`${blockedUsers.length} blocked`}
+        footer="Blocked users' stories and comments are hidden everywhere."
+      >
         {blockedUsers.map((user) => (
-          <SwipeActions key={user.username}>
-            <Button systemImage="person.fill.xmark" label={user.username} />
-            <SwipeActions.Actions edge="trailing">
-              <Button
-                role="destructive"
-                label="Unblock"
-                onPress={() => handleUnblock(user.username)}
-              />
-            </SwipeActions.Actions>
-          </SwipeActions>
+          <ListRow
+            key={user.username}
+            title={user.username}
+            subtitle="Tap to unblock"
+            chevron={false}
+            onPress={() => confirmUnblock(user.username)}
+          />
         ))}
-      </Section>
-      <Section>
-        <Alert
-          title="Unblock all users?"
-          isPresented={confirmClearAll}
-          onIsPresentedChange={setConfirmClearAll}
-        >
-          <Alert.Trigger>
-            <Button
-              role="destructive"
-              systemImage="trash"
-              label="Unblock all"
-              onPress={() => setConfirmClearAll(true)}
-            />
-          </Alert.Trigger>
-          <Alert.Message>
-            <Text>
-              You will see content from everyone you previously blocked.
-            </Text>
-          </Alert.Message>
-          <Alert.Actions>
-            <Button label="Cancel" role="cancel" />
-            <Button
-              label="Unblock all"
-              role="destructive"
-              onPress={handleClearAll}
-            />
-          </Alert.Actions>
-        </Alert>
-      </Section>
-    </SwiftForm>
+      </ListSection>
+      <Button
+        label="Unblock all"
+        variant="destructive"
+        size="lg"
+        fullWidth
+        onPress={confirmClearAll}
+      />
+    </ScrollScreen>
   );
 }

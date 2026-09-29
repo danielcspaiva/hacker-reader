@@ -4,48 +4,29 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
-import {
-  DarkTheme,
-  DefaultTheme,
-  router,
-  Stack,
-  ThemeProvider,
-} from "expo-router";
+import { Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import "react-native-reanimated";
 import { useEffect } from "react";
-import { Pressable } from "react-native";
 
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import {
-  ColorSchemeProvider,
-  useColorSchemeContext,
-} from "@/contexts/color-scheme-context";
+import { useHeaderOptions } from "@/components/navigation/header-options";
+import { useNavigationTheme } from "@/components/navigation/navigation-theme";
+import { ColorSchemeProvider } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useTheme } from "@/hooks/use-theme";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
+import { useWidgetSync } from "@/hooks/use-widget-sync";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { getAppMetadata } from "@/lib/analytics/tracking";
 
-// Initialize Sentry (but only send data in production via `enabled` flag)
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-
-  // Adds more context data to events (IP address, cookies, user, etc.)
-  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
   sendDefaultPii: true,
-
-  // Enable Logs in production
   enableLogs: true,
-
-  // Set environment
   environment: __DEV__ ? "development" : "production",
-
-  // Only send errors in production
   enabled: !__DEV__,
 });
 
@@ -54,15 +35,19 @@ export const unstable_settings = {
 };
 
 // The `meta.invalidates` contract is declared in `@/types/react-query`.
-// Create a client with declarative, scoped mutation invalidation
+
+// Held until ColorSchemeProvider resolves the saved appearance, then faded out
+// over a root view already painted in the page colour.
+void SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ fade: true, duration: 250 });
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 2 * 60 * 1000, // 2 minutes - shorter to ensure fresher data
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      staleTime: 2 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       retry: 2,
-      refetchOnWindowFocus: true, // Always refetch when app comes to foreground
+      refetchOnWindowFocus: true,
     },
   },
   mutationCache: new MutationCache({
@@ -78,153 +63,52 @@ const queryClient = new QueryClient({
   }),
 });
 
-function ModalCloseButton({ color }: { color: string }) {
-  return (
-    <Pressable style={{ padding: 8 }} onPress={() => router.back()}>
-      <IconSymbol name="xmark" size={20} color={color} weight="light" />
-    </Pressable>
-  );
-}
-
 function RootLayoutContent() {
-  const { colorScheme, colorPalette } = useColorSchemeContext();
-  const backgroundColor = useThemeColor({}, "background");
-  const textColor = useThemeColor({}, "text");
+  const { scheme, colors } = useTheme();
   const { isAuthenticated } = useHNAuth();
   const posthog = usePostHog();
+  const navigationTheme = useNavigationTheme();
+  const detailHeader = { ...useHeaderOptions("inline"), headerShown: true };
+  const sheetHeader = useHeaderOptions("sheet");
   useWidgetAnalytics();
+  useWidgetSync();
 
-  // Prefetch all categories on app open for instant category switching
   useAppPrefetch();
 
-  // Register super properties when app state changes
   useEffect(() => {
     if (posthog) {
       const metadata = getAppMetadata();
 
       posthog.register({
         ...metadata,
-        [AnalyticsProperty.COLOR_SCHEME]: colorScheme,
+        [AnalyticsProperty.COLOR_SCHEME]: scheme,
         [AnalyticsProperty.IS_AUTHENTICATED]: isAuthenticated,
       });
     }
-  }, [posthog, colorScheme, isAuthenticated]);
-
-  const customDarkTheme = {
-    ...DarkTheme,
-    colors: {
-      ...DarkTheme.colors,
-      background: Colors.dark[colorPalette].background,
-      card: Colors.dark[colorPalette].background,
-      text: Colors.dark[colorPalette].text,
-      border: Colors.dark[colorPalette].border,
-    },
-  };
-
-  const customLightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      background: Colors.light[colorPalette].background,
-      card: Colors.light[colorPalette].background,
-      text: Colors.light[colorPalette].text,
-      border: Colors.light[colorPalette].border,
-    },
-  };
+  }, [posthog, scheme, isAuthenticated]);
 
   return (
-    <ThemeProvider
-      value={colorScheme === "dark" ? customDarkTheme : customLightTheme}
-    >
+    <ThemeProvider value={navigationTheme}>
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: {
-            backgroundColor:
-              colorScheme === "dark"
-                ? Colors.dark[colorPalette].background
-                : Colors.light[colorPalette].background,
-          },
+          contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="story/[id]"
-          options={{
-            headerShown: true,
-            headerTransparent: true,
-            headerBackButtonDisplayMode: "minimal",
-            headerLargeTitle: true,
-            headerLargeTitleShadowVisible: false,
-            headerBlurEffect: isLiquidGlassAvailable()
-              ? "none"
-              : "systemMaterial",
-            headerLargeTitleStyle: {
-              color:
-                colorScheme === "dark"
-                  ? Colors.dark[colorPalette].background
-                  : Colors.light[colorPalette].background,
-              fontSize: 1,
-            },
-            headerTintColor:
-              colorScheme === "dark"
-                ? Colors.dark[colorPalette].text
-                : Colors.light[colorPalette].text,
-            headerStyle: {
-              backgroundColor: isLiquidGlassAvailable()
-                ? "transparent"
-                : colorScheme === "dark"
-                  ? Colors.dark[colorPalette].background
-                  : Colors.light[colorPalette].background,
-            },
-          }}
-        />
+        <Stack.Screen name="(tabs)" options={{ title: "Hacker Reader" }} />
+        <Stack.Screen name="story/[id]" options={detailHeader} />
+        <Stack.Screen name="user/[id]" options={detailHeader} />
+        <Stack.Screen name="user/[id]/submissions" options={detailHeader} />
         <Stack.Screen
           name="auth/login"
           options={{
-            presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
-            sheetGrabberVisible: false,
+            ...sheetHeader,
             sheetAllowedDetents: [0.8],
-            headerShown: true,
-            headerTransparent: false,
-            headerStyle: {
-              backgroundColor: isLiquidGlassAvailable()
-                ? "transparent"
-                : backgroundColor,
-            },
             headerTitle: "Sign in to Hacker News",
-            contentStyle: {
-              backgroundColor: isLiquidGlassAvailable()
-                ? "transparent"
-                : backgroundColor,
-            },
-            headerRight: () => <ModalCloseButton color={textColor} />,
-          }}
-        />
-        <Stack.Screen
-          name="auth/guidelines"
-          options={{
-            presentation: isLiquidGlassAvailable() ? "formSheet" : "modal",
-            sheetGrabberVisible: false,
-            headerShown: true,
-            headerTransparent: false,
-            sheetAllowedDetents: [0.9],
-            headerStyle: {
-              backgroundColor: isLiquidGlassAvailable()
-                ? "transparent"
-                : backgroundColor,
-            },
-            headerTitle: "Hacker News Guidelines",
-            contentStyle: {
-              backgroundColor: isLiquidGlassAvailable()
-                ? "transparent"
-                : backgroundColor,
-            },
-            headerRight: () => <ModalCloseButton color={textColor} />,
           }}
         />
       </Stack>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
     </ThemeProvider>
   );
 }

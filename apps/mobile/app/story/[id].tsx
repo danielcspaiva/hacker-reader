@@ -1,298 +1,71 @@
-import { FlashList } from "@shopify/flash-list";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StyleSheet, View } from "react-native";
 
-import { EmptyState } from "@/components/empty-state";
-import { NativeProgress } from "@/components/native-progress";
-import { CommentItem } from "@/components/story/comment-item";
-import { StoryCommentInput } from "@/components/story/story-comment-input";
-import { StoryHeader } from "@/components/story/story-header";
-import { useAnalytics } from "@/hooks/use-analytics";
-import { useBlockedUsers } from "@/hooks/use-blocked-users";
+import { ErrorState } from "@/components/error-state";
+import { StoryDetail } from "@/components/story/story-detail";
+import { StoryDetailSkeleton } from "@/components/story/story-detail-skeleton";
+import { EmptyState } from "@/components/ui";
 import { useStory } from "@/hooks/use-story";
-import { useStoryActions } from "@/hooks/use-story-actions";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
-import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
-import { hapticImpact } from "@/lib/haptics";
-import { flattenComments } from "@/lib/utils/comments";
-
-function EmptyComments() {
-  return (
-    <EmptyState
-      title="No comments yet"
-      description="Be the first to reply."
-      systemImage="bubble.left.and.bubble.right"
-    />
-  );
-}
+import { useTheme } from "@/hooks/use-theme";
 
 export default function StoryDetailScreen() {
-  const { id, title } = useLocalSearchParams();
-  const analytics = useAnalytics();
-  const { isBlocked } = useBlockedUsers();
+  const { id, commentId } = useLocalSearchParams<{
+    id: string;
+    commentId?: string;
+  }>();
   const {
     data: story,
     isLoading,
+    isError,
     refetch,
     isRefetching,
   } = useStory(Number(id));
-
-  const textColor = useThemeColor({}, "text");
-
+  const { colors } = useTheme();
   const isInsidePreview = useIsPreview();
-  const themeBackgroundColor = useThemeColor({}, "background");
-  const previewBackgroundColor = useThemeColor({}, "previewBackground");
-  const backgroundColor = isInsidePreview
-    ? previewBackgroundColor
-    : themeBackgroundColor;
 
-  const { bottom } = useSafeAreaInsets();
-
-  const placeholderStory = {
-    id: Number(id),
-    type: "story" as const,
-    by: "",
-    time: 0,
-    title: "",
-    score: 0,
-  };
-  const {
-    isBookmarked,
-    hasVoted,
-    handleBookmark,
-    handleShare,
-    handleHide,
-    handleVote,
-    handleFlag,
-    handleBlockUser,
-  } = useStoryActions(story || placeholderStory);
-
-  // Track story viewed
-  useEffect(() => {
-    if (story && !isLoading && !isInsidePreview) {
-      analytics.track(AnalyticsEvent.STORY_VIEWED, {
-        [AnalyticsProperty.STORY_ID]: story.id,
-        [AnalyticsProperty.STORY_TITLE]: story.title,
-        [AnalyticsProperty.STORY_SCORE]: story.score,
-        [AnalyticsProperty.HAS_URL]: !!story.url,
-        [AnalyticsProperty.COMMENT_COUNT]: story.descendants || 0,
-      });
-    }
-  }, [story, isLoading, isInsidePreview, analytics]);
-
-  // Centralized collapse state
-  const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
-
-  // Reply state
-  const [replyTarget, setReplyTarget] = useState<{
-    commentId: number;
-    username: string;
-  } | null>(null);
-
-  // Flatten comments when story or collapse state changes
-  const allFlatComments = !story?.comments
-    ? []
-    : flattenComments(story.comments, 0, collapsedIds);
-
-  // Filter out comments from blocked users
-  const flatComments = allFlatComments.filter(
-    (item) => !isBlocked(item.comment.by)
-  );
-
-  const toggleCollapse = (commentId: number) => {
-    setCollapsedIds((prev) => {
-      const next = new Set(prev);
-
-      if (next.has(commentId)) {
-        next.delete(commentId);
-      } else {
-        next.add(commentId);
-
-        // Track comment collapse - find comment recursively in tree
-        if (story?.comments) {
-          const findComment = (
-            comments: typeof story.comments
-          ): (typeof story.comments)[0] | undefined => {
-            for (const comment of comments) {
-              if (comment.id === commentId) return comment;
-              const found = findComment(comment.children);
-              if (found) return found;
-            }
-            return undefined;
-          };
-
-          const comment = findComment(story.comments);
-          if (comment) {
-            analytics.track(AnalyticsEvent.COMMENT_COLLAPSED, {
-              [AnalyticsProperty.COMMENT_ID]: commentId,
-              [AnalyticsProperty.CHILD_COUNT]: comment.children?.length || 0,
-            });
-          }
-        }
-      }
-      return next;
-    });
-  };
-
-  const handleReply = (commentId: number, username: string) => {
-    setReplyTarget({ commentId, username });
-  };
-
-  const handleCancelReply = () => {
-    setReplyTarget(null);
-  };
-
-  const titleParam = Array.isArray(title) ? title[0] : title;
-  const headerTitle = story?.title || titleParam || "Story";
-
-  // Stack.Toolbar tap-opens; @expo/ui ContextMenu was long-press only.
-  const screenOptions = !isInsidePreview && (
-    <>
-      <Stack.Screen
-        options={{
-          title: headerTitle,
-          headerBlurEffect: isLiquidGlassAvailable()
-            ? "none"
-            : "systemMaterial",
-        }}
-      />
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          icon={isBookmarked ? "bookmark.fill" : "bookmark"}
-          tintColor={textColor}
-          onPress={handleBookmark}
-        />
-        <Stack.Toolbar.Menu icon="ellipsis" tintColor={textColor}>
-          <Stack.Toolbar.MenuAction
-            icon={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
-            onPress={handleVote}
-          >
-            {hasVoted ? "Unvote" : "Upvote"}
-          </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction
-            icon="square.and.arrow.up"
-            onPress={handleShare}
-          >
-            Share
-          </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction icon="eye.slash" onPress={handleHide}>
-            Hide
-          </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction
-            icon="flag"
-            destructive
-            onPress={handleFlag}
-          >
-            Flag
-          </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction
-            icon="nosign"
-            destructive
-            onPress={handleBlockUser}
-          >
-            Block User
-          </Stack.Toolbar.MenuAction>
-        </Stack.Toolbar.Menu>
-      </Stack.Toolbar>
-    </>
-  );
-
+  let body;
   if (isLoading) {
-    return (
-      <>
-        {screenOptions}
-        <View style={[styles.container, { backgroundColor }]}>
-          <View style={styles.centered}>
-            <NativeProgress />
-          </View>
-        </View>
-      </>
+    body = <StoryDetailSkeleton />;
+  } else if (story) {
+    body = (
+      <StoryDetail
+        story={story}
+        commentId={commentId}
+        isInsidePreview={isInsidePreview}
+        onRefresh={() => void refetch()}
+        isRefreshing={isRefetching}
+      />
     );
-  }
-
-  if (!story) {
-    return (
-      <>
-        {screenOptions}
-        <View style={[styles.container, { backgroundColor }]}>
-          <EmptyState
-            title="Story not found"
-            systemImage="exclamationmark.triangle"
-          />
-        </View>
-      </>
+  } else if (isError) {
+    body = (
+      <ErrorState
+        title="Couldn't load this story"
+        onRetry={() => void refetch()}
+      />
     );
+  } else {
+    body = <EmptyState icon="warning" title="Story not found" />;
   }
 
   return (
     <>
-      {screenOptions}
-      <FlashList
-        data={flatComments}
-        renderItem={({ item }) => (
-          <CommentItem
-            comment={item.comment}
-            depth={item.depth}
-            isCollapsed={collapsedIds.has(item.comment.id)}
-            onToggleCollapse={toggleCollapse}
-            onReply={handleReply}
-            storyId={Number(id)}
-          />
-        )}
-        keyExtractor={(item) => item.comment.id.toString()}
-        getItemType={(item) => {
-          const isCollapsed = collapsedIds.has(item.comment.id);
-          return `comment-depth-${item.depth}-${
-            isCollapsed ? "collapsed" : "expanded"
-          }`;
-        }}
-        ListHeaderComponent={<StoryHeader story={story} />}
-        ListEmptyComponent={<EmptyComments />}
-        contentInsetAdjustmentBehavior="automatic"
-        automaticallyAdjustContentInsets={true}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        onRefresh={() => {
-          // Only trigger refetch if not already loading or refetching
-          if (!isLoading && !isRefetching) {
-            hapticImpact();
-            refetch();
-          }
-        }}
-        refreshing={isRefetching}
-        style={{ backgroundColor }}
-        contentContainerStyle={{
-          backgroundColor,
-          paddingBottom: Platform.select({
-            android: 100 + bottom,
-            default: 0,
-          }),
-        }}
-      />
-
-      {/* Story Comment Input */}
-      <StoryCommentInput
-        storyId={Number(id)}
-        replyTarget={replyTarget}
-        onCancelReply={handleCancelReply}
-      />
+      {isInsidePreview ? null : <Stack.Screen options={{ title: "" }} />}
+      <View
+        style={[
+          styles.fill,
+          {
+            backgroundColor: isInsidePreview ? colors.card : colors.background,
+          },
+        ]}
+      >
+        {body}
+      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  fill: {
     flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 32,
-    paddingHorizontal: 16,
   },
 });

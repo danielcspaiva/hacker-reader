@@ -6,14 +6,6 @@ export default function UserSubmissionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   return (
-    <UserSubmissionsList
-      userId={id ?? null}
-      title={`${id}'s Submissions`}
-      screenOptions={{
-        headerShown: true,
-        headerBackButtonDisplayMode: "minimal",
-        headerTransparent: true,
-      }}
-    />
+    <UserSubmissionsList userId={id ?? null} title={`${id}'s Submissions`} />
   );
 }

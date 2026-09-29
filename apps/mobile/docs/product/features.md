@@ -33,7 +33,7 @@ Each story displays:
 - **Title** - Story headline (clickable to open in browser)
 - **Metadata** - Points, author, time posted, comment count
 - **Domain** - Extracted domain name from URL
-- **Link Preview** - Open Graph image thumbnail (80x80px compact mode)
+- **Link Preview** - Open Graph image as a flush, full-height panel on the card's right edge (about 104pt wide); cards without an image use the full width
 - **Context Menu** - Long-press for upvote/unvote (when authenticated)
 
 #### Infinite Scrolling
@@ -63,7 +63,7 @@ Each story displays:
 
 ### Navigation
 
-- **Tab Navigation** - Five tabs for each story category
+- **Tab Navigation** - Native tabs: Stories (category picked in the header), Bookmarks, Profile, Settings, Search
 - **Stack Navigation** - Story details pushed onto stack
 - **File-based Routing** - Expo Router with typed routes
 - **Deep Linking** - Support for story URLs and widget deep links
@@ -72,68 +72,23 @@ Each story displays:
 
 ## iOS Widgets
 
-> **Note**: iOS widgets are only available in native builds (not Expo Go). Requires iOS 16.2+.
+> **Note**: iOS widgets are only available in native builds (not Expo Go). Built with `expo-widgets`; requires iOS 16.4+.
 
 ### Widget Sizes
 
-#### Small Widget
-
-- Displays **3 top stories**
-- Compact layout with titles only
-- Single tap opens main app feed
-- Perfect for at-a-glance updates
-
-#### Medium Widget
-
-- Displays **5 top stories**
-- Shows title, points, and comment count
-- Individual story taps deep link to story detail
-- Balanced size for home screen
-
-#### Large Widget
-
-- Displays **10 top stories**
-- Complete metadata (points, author, comments)
-- Scrollable list of stories
-- Maximum information density
+- **Small** - the #1 story as a hero card (up to 4 lines of title); tap opens that story
+- **Medium** - **2 top stories** with points, comments, domain and age; each row deep links to its story
+- **Large** - **7 top stories**, same row layout
+- **Lock screen (rectangular)** - 3 one-line titles; tap opens the top story
 
 ### Widget Features
 
-#### Automatic Updates
-
-- Timeline refreshes every **30 minutes**
-- Fetches latest top stories from HN API
-- Smart caching for offline fallback
-- Background updates managed by iOS
-
-#### Data Synchronization
-
-- **App Group Sharing** - `group.com.danielcspaiva.hnclient`
-- Shared UserDefaults for cached stories
-- Widget works offline with cached data
-- Future: Bidirectional sync with main app
-
-#### Deep Linking
-
-- URL scheme: `hnclient://story/{id}`
-- Tapping stories opens app to detail page
-- Small widget opens main feed
-- Medium/Large widgets have per-story links
-
-#### Styling
-
-- Matches app theme (HN orange #ff6600)
-- Full dark mode support
-- SF Symbols icons: =% flame.fill,  arrow.up, =d person.fill, =P clock.fill
-- Typography consistent with app design
-
-#### Technical Implementation
-
-- Built with `react-native-widget-extension` Expo config plugin
-- Native Swift using SwiftUI and WidgetKit
-- All Swift code in `apps/mobile/widgets/` (CNG-compliant)
-- Widget extension auto-generated during prebuild
-- Direct HN API integration (https://hacker-news.firebaseio.com/v0/)
+- **Two ways to stay fresh** - the app refreshes the timeline on launch, on foreground and after a Top feed pull-to-refresh; independently, a self-refreshing timeline provider (added by a config plugin) refetches the stories itself when the stored ones are older than 30 minutes, so the widget updates with the app closed
+- A 12 hour timeline (24 entries, 30 minutes apart) keeps relative ages correct between refreshes
+- Shows "Updated Nh ago" after 6 hours without a refresh
+- The app logo reaches the widget through the App Group container (the extension cannot read the app bundle)
+- Dark mode and tinted/vibrant rendering supported
+- App Group: `group.com.danielcspaiva.hnclient`
 
 ---
 
@@ -143,21 +98,21 @@ Each story displays:
 
 ### Login System
 
-#### WebView Authentication
+#### Native Login
 
-- **Official HN Login** - Uses actual Hacker News website in WebView
-- **No Credential Storage** - App never handles passwords directly
-- **Cookie Extraction** - Automatic cookie capture via `@react-native-cookies/cookies`
+- **Direct HN login** - a native form POSTs the credentials straight to news.ycombinator.com over HTTPS; nothing is stored by the app
+- **HN Guidelines** - shown on the login sheet until accepted once
+- **Cookie Extraction** - session cookies captured via `@react-native-cookies/cookies`
 - **Secure Storage** - Cookies stored in device keychain/keystore via `expo-secure-store`
 - **Session Persistence** - Stay logged in across app restarts
 
 #### Login Flow
 
-1. User taps "Login" in Settings
-2. WebView opens official HN login page
-3. User enters credentials on HN website
-4. App extracts session cookies automatically
-5. Cookies stored securely, WebView closes
+1. User taps "Log in" in the Profile tab
+2. The login sheet opens; first time, the HN Guidelines are shown for acceptance
+3. User enters username and password in the native form
+4. App submits them to HN and extracts the session cookies
+5. Cookies stored securely, the sheet closes
 6. User now authenticated for all actions
 
 #### Security Features
@@ -222,7 +177,7 @@ Each story displays:
 - Automatic OG metadata extraction from story URLs
 - Displays preview images, titles, and descriptions
 - Two display modes:
-  - **Compact** - 80x80px thumbnail in story cards
+  - **Compact** - edge-to-edge image panel (about 104pt wide, full card height) on story cards
   - **Full** - Large image in story detail page
 - Powered by `expo-image` for optimized loading
 - Graceful fallback for URLs without OG data
@@ -245,22 +200,17 @@ Each story displays:
 
 #### Color Palette
 
-- **Light Mode**
-  - Background: White/Light Gray
-  - Text: Dark Gray/Black
-  - Accent: HN Orange (#ff6600)
+- **Light Mode** - light warm page (`#FCFBF7`) with slightly deeper `#F4F2E9` cards and dark warm text
+- **Dark Mode** - warm deep charcoal-brown (`#17130F`), never pure black
+- **Accent** - HN orange; text-safe orange (`primaryInk`) for links and small text
 
-- **Dark Mode** (Lights-Out)
-  - Background: True Black/Dark Gray
-  - Text: White/Light Gray
-  - Accent: HN Orange (#ff6600)
+Full token table, contrast ratios and component contract: [`docs/design-language.md`](../design-language.md).
 
-#### Theme-Aware Components
+#### Theme-Aware Building Blocks
 
-- `ThemedView` - Containers with theme colors
-- `ThemedText` - Typography with theme colors
-- `useThemeColor` - Hook for dynamic colors
-- Automatic icon tinting
+- `useTheme()` - `{ scheme, colors }`, the one way to read colours
+- `Text`, `Card`, `ListSection` and the other primitives in `components/ui/`
+- Automatic icon tinting; the splash screen and root view follow the resolved scheme
 
 ### Gesture & Interaction
 
@@ -398,7 +348,8 @@ Each story displays:
 
 #### Code Quality
 
-- ESLint for linting
+- oxlint and oxfmt for linting and formatting
+- Node tests for the HN layer (`pnpm test`)
 - Consistent code style
 - React best practices
 - Modern JavaScript/TypeScript features
@@ -411,7 +362,7 @@ Each story displays:
 
 - [x] Comment posting UI implementation
 - [x] Comment deletion
-- [ ] User profiles
+- [x] User profiles
 - [x] Search functionality (Algolia-powered)
 - [ ] Favorites list screen
 - [x] Share stories
@@ -440,10 +391,10 @@ Each story displays:
 
 ### Minimum Requirements
 
-- **iOS**: 16.2+ (16.2+ for widgets)
+- **iOS**: 16.4+ (widgets)
 - **Android**: 5.0+ (API Level 21+)
-- **Expo SDK**: 54+
-- **React Native**: 0.76+
+- **Expo SDK**: 58
+- **React Native**: 0.88
 - **Node.js**: 18+
 - **Package Manager**: pnpm
 

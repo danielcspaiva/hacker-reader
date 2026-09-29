@@ -1,60 +1,43 @@
 import { NativeTabs } from "expo-router/native-tabs";
-import React from "react";
+import { Platform } from "react-native";
 
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
+import { tabIcon } from "@/components/ui";
 import { FeedCategoryProvider } from "@/contexts/feed-category-context";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useTheme } from "@/hooks/use-theme";
 
+// Triggers stay literal JSX: NativeTabs has crashed on mapped/non-literal
+// children, so only the icon props come from the shared helper.
 export default function TabLayout() {
-  const { colorScheme, colorPalette } = useColorSchemeContext();
-  const tintColor = useThemeColor({}, "tint");
-  const backgroundColor =
-    colorScheme === "dark"
-      ? Colors.dark[colorPalette].background
-      : Colors.light[colorPalette].background;
+  const { colors } = useTheme();
 
   return (
     <FeedCategoryProvider>
       <NativeTabs
-        tintColor={tintColor}
-        backgroundColor={backgroundColor}
-        minimizeBehavior="onScrollDown"
+        tintColor={colors.primary}
+        backgroundColor={
+          Platform.OS === "android" ? colors.background : undefined
+        }
+        minimizeBehavior="never"
         tabBarRespectsIMEInsets
       >
         <NativeTabs.Trigger name="feed">
-          <NativeTabs.Trigger.Icon
-            sf={{ default: "newspaper", selected: "newspaper.fill" }}
-            md={{ default: "article", selected: "article" }}
-          />
+          <NativeTabs.Trigger.Icon {...tabIcon("stories", "storiesFilled")} />
           <NativeTabs.Trigger.Label>Stories</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="bookmarks">
-          <NativeTabs.Trigger.Icon
-            sf={{ default: "bookmark", selected: "bookmark.fill" }}
-            md={{ default: "bookmark", selected: "bookmark" }}
-          />
+          <NativeTabs.Trigger.Icon {...tabIcon("bookmark", "bookmarkFilled")} />
           <NativeTabs.Trigger.Label>Bookmarks</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
-          <NativeTabs.Trigger.Icon
-            sf={{ default: "person", selected: "person.fill" }}
-            md={{ default: "person", selected: "person" }}
-          />
+          <NativeTabs.Trigger.Icon {...tabIcon("user", "userFilled")} />
           <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="settings">
-          <NativeTabs.Trigger.Icon
-            sf={{ default: "gearshape", selected: "gearshape.fill" }}
-            md={{ default: "settings", selected: "settings" }}
-          />
+          <NativeTabs.Trigger.Icon {...tabIcon("settings", "settingsFilled")} />
           <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="search" role="search">
-          <NativeTabs.Trigger.Icon
-            sf={{ default: "magnifyingglass", selected: "magnifyingglass" }}
-            md={{ default: "search", selected: "search" }}
-          />
+          <NativeTabs.Trigger.Icon {...tabIcon("search")} />
           <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       </NativeTabs>

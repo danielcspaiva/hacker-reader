@@ -1,66 +1,143 @@
-import * as WebBrowser from "expo-web-browser";
-import type { StyleProp, TextStyle } from "react-native";
-import { View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { parseHTMLWithLinks } from "@/lib/shared";
+import { Text, type TextVariant } from "@/components/ui";
+import { Fonts, Radius } from "@/constants/theme";
+import { useExternalLink } from "@/hooks/use-external-link";
+import { useTheme } from "@/hooks/use-theme";
+import { hapticSelection } from "@/lib/haptics";
+import { getBlocks, type Span } from "@/lib/html/blocks";
 
 interface HTMLTextProps {
   html?: string;
-  style?: StyleProp<TextStyle>;
+  variant?: Extract<TextVariant, "body" | "callout">;
 }
 
-export function HTMLText({ html, style }: HTMLTextProps) {
-  const tintColor = useThemeColor({}, "tint");
-  const backgroundColor = useThemeColor({}, "codeBackground");
+export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
+  const { colors } = useTheme();
+  const openLink = useExternalLink();
 
   if (!html) return null;
 
-  const parts = parseHTMLWithLinks(html);
+  const blocks = getBlocks(html);
+  if (blocks.length === 0) return null;
 
-  if (!parts) return null;
+  const renderSpans = (spans: Span[], quoted: boolean) =>
+    spans.map((span, index) => {
+      if (span.type === "link") {
+        return (
+          <Text
+            key={index}
+            variant={variant}
+            tone="primary"
+            weight="medium"
+            accessibilityRole="link"
+            onPress={() => {
+              hapticSelection();
+              void openLink(span.url);
+            }}
+          >
+            {span.content}
+          </Text>
+        );
+      }
+      if (span.type === "code") {
+        return (
+          <Text
+            key={index}
+            variant="caption"
+            style={{
+              fontFamily: Fonts.mono,
+              backgroundColor: colors.codeBackground,
+            }}
+          >
+            {` ${span.content} `}
+          </Text>
+        );
+      }
+      return (
+        <Text key={index} variant={variant} tone={quoted ? "muted" : "default"}>
+          {span.content}
+        </Text>
+      );
+    });
 
   return (
-    <ThemedText style={style} selectable>
-      {parts.map((part, index) => {
-        if (part.type === "link") {
-          return (
-            <ThemedText
-              key={index}
-              style={{ color: tintColor }}
-              onPress={() => part.url && WebBrowser.openBrowserAsync(part.url)}
-            >
-              {part.content}
-            </ThemedText>
-          );
-        }
-        if (part.type === "code") {
+    <View style={styles.container}>
+      {blocks.map((block, index) => {
+        if (block.kind === "code") {
           return (
             <View
               key={index}
-              style={{
-                backgroundColor,
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-                borderRadius: 4,
-                alignSelf: "flex-start",
-                marginVertical: 2,
-              }}
+              style={[
+                styles.codeBlock,
+                { backgroundColor: colors.codeBackground },
+              ]}
             >
-              <ThemedText
-                style={{
-                  fontFamily: "monospace",
-                  fontSize: 13,
-                }}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.codeContent}
               >
-                {part.content}
-              </ThemedText>
+                <Text
+                  variant="caption"
+                  selectable
+                  style={{ fontFamily: Fonts.mono }}
+                >
+                  {block.content}
+                </Text>
+              </ScrollView>
             </View>
           );
         }
-        return <ThemedText key={index}>{part.content}</ThemedText>;
+
+        if (block.kind === "quote") {
+          return (
+            <View key={index} style={styles.quote}>
+              <View
+                style={[
+                  styles.quoteBar,
+                  { backgroundColor: colors.tertiaryForeground },
+                ]}
+              />
+              <Text variant={variant} style={styles.quoteText} selectable>
+                {renderSpans(block.spans, true)}
+              </Text>
+            </View>
+          );
+        }
+
+        return (
+          <Text key={index} variant={variant} selectable>
+            {renderSpans(block.spans, false)}
+          </Text>
+        );
       })}
-    </ThemedText>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 10,
+  },
+  codeBlock: {
+    borderRadius: Radius.control,
+    borderCurve: "continuous",
+    overflow: "hidden",
+  },
+  codeContent: {
+    padding: 12,
+  },
+  quote: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  quoteBar: {
+    width: 3,
+    borderRadius: 2,
+    borderCurve: "continuous",
+  },
+  quoteText: {
+    flex: 1,
+  },
+});

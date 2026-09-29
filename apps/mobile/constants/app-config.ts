@@ -16,11 +16,3 @@ export const IOS_APP_STORE_URL =
 
 export const ANDROID_PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.danielcspaiva.hnclient";
-
-export const AppConfig = {
-  name: APP_NAME,
-  version: APP_VERSION,
-  repoUrl: REPO_URL,
-  iosStoreUrl: IOS_APP_STORE_URL,
-  androidStoreUrl: ANDROID_PLAY_STORE_URL,
-} as const;

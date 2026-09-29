@@ -4,7 +4,7 @@ import { LargeTitleStack } from "@/components/navigation/large-title-stack";
 
 export default function Layout() {
   return (
-    <LargeTitleStack headerTransparent>
+    <LargeTitleStack>
       <Stack.Screen name="index" options={{ title: "Top" }} />
     </LargeTitleStack>
   );

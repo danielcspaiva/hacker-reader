@@ -1,156 +1,127 @@
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { Image } from "expo-image";
+import { Image, type ImageStyle } from "expo-image";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { NativeProgress } from "@/components/native-progress";
+import { Card, Icon, INLINE_ICON_SIZE, Skeleton, Text } from "@/components/ui";
 import { useOGMetadata } from "@/hooks/use-og-metadata";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useTheme } from "@/hooks/use-theme";
 
-import { ThemedText } from "./themed-text";
-
-interface LinkPreviewProps {
-  url: string;
-  compact?: boolean;
-}
-
-export function LinkPreview({ url, compact = false }: LinkPreviewProps) {
-  const { data: metadata, isLoading } = useOGMetadata(url);
-  const borderColor = useThemeColor({}, "border");
-  const backgroundColor = useThemeColor({}, "background");
-  if (isLoading) {
-    if (compact) {
-      return (
-        <View style={styles.thumbnailContainer}>
-          <View
-            style={[styles.thumbnailLoading, { borderColor, backgroundColor }]}
-          >
-            <NativeProgress size="small" />
-          </View>
-        </View>
-      );
+type LinkPreviewProps =
+  | {
+      url: string;
+      compact: true;
+      /** Sizes the image panel; the parent decides where it sits. */
+      style: ImageStyle;
     }
-    return (
-      <View style={[styles.container, { borderColor, backgroundColor }]}>
-        <View style={styles.loadingContainer}>
-          <NativeProgress size="small" />
-        </View>
-      </View>
-    );
-  }
+  | {
+      url: string;
+      compact?: false;
+      /** Opens the article; the whole card is the tap target. */
+      onPress: () => void;
+      accessibilityLabel?: string;
+    };
 
-  if (!metadata || !metadata.image) {
-    return null;
-  }
+/**
+ * Open Graph preview. Compact: just the image (or its skeleton), sized by
+ * `style`, for the flush panel on a story card; renders nothing when the page
+ * has no image. Full: a pressable card with image, site info and the article
+ * URL for story detail.
+ */
+export function LinkPreview(props: LinkPreviewProps) {
+  const { url } = props;
+  const { data: metadata, isLoading } = useOGMetadata(url);
+  const { colors } = useTheme();
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const image =
+    metadata?.image && metadata.image !== failedImage ? metadata.image : null;
 
-  if (compact) {
+  if (props.compact) {
+    if (isLoading) {
+      return <Skeleton radius={0} style={props.style} />;
+    }
+    if (!image) return null;
     return (
-      <View style={styles.thumbnailContainer}>
-        {metadata.image && (
-          <Image
-            source={{ uri: metadata.image }}
-            style={[styles.thumbnail, { borderColor, backgroundColor }]}
-            contentFit="cover"
-            transition={200}
-          />
-        )}
-      </View>
+      <Image
+        source={{ uri: image }}
+        onError={() => setFailedImage(image)}
+        style={[{ backgroundColor: colors.muted }, props.style]}
+        contentFit="cover"
+        transition={200}
+        accessibilityIgnoresInvertColors
+      />
     );
   }
 
   return (
-    <GlassView
-      glassEffectStyle="regular"
-      style={[styles.container, { borderColor }]}
+    <Card
+      padding={0}
+      onPress={props.onPress}
+      accessibilityRole="link"
+      accessibilityLabel={props.accessibilityLabel}
     >
-      <View style={styles.imageContainer}>
-        {metadata.image && (
-          <Image
-            source={{ uri: metadata.image }}
-            style={[styles.image, { backgroundColor }]}
-            contentFit="cover"
-            transition={200}
+      {isLoading ? (
+        <Skeleton radius={0} style={styles.image} />
+      ) : image ? (
+        <Image
+          source={{ uri: image }}
+          onError={() => setFailedImage(image)}
+          style={[styles.image, { backgroundColor: colors.muted }]}
+          contentFit="cover"
+          transition={200}
+          accessibilityIgnoresInvertColors
+        />
+      ) : null}
+      <View style={styles.text}>
+        {metadata?.siteName ? (
+          <Text variant="label" tone="muted" numberOfLines={1}>
+            {metadata.siteName}
+          </Text>
+        ) : null}
+        {metadata?.title ? (
+          <Text variant="subtitle" numberOfLines={2}>
+            {metadata.title}
+          </Text>
+        ) : null}
+        {metadata?.description ? (
+          <Text variant="callout" tone="muted" numberOfLines={2}>
+            {metadata.description}
+          </Text>
+        ) : null}
+        <View style={styles.urlRow}>
+          <Text
+            variant="callout"
+            tone="primary"
+            numberOfLines={1}
+            style={styles.url}
+          >
+            {url}
+          </Text>
+          <Icon
+            name="external"
+            size={INLINE_ICON_SIZE.caption}
+            color={colors.tertiaryForeground}
           />
-        )}
-      </View>
-      {(metadata.title || metadata.description) && (
-        <View>
-          {metadata.title && (
-            <ThemedText style={styles.title} numberOfLines={2}>
-              {metadata.title}
-            </ThemedText>
-          )}
-          {metadata.description && (
-            <ThemedText style={styles.description} numberOfLines={2}>
-              {metadata.description}
-            </ThemedText>
-          )}
-          {metadata.siteName && (
-            <ThemedText style={styles.siteName}>{metadata.siteName}</ThemedText>
-          )}
         </View>
-      )}
-    </GlassView>
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 24,
-    borderCurve: "continuous",
-    borderWidth: isLiquidGlassAvailable() ? 0 : 1,
-    overflow: "hidden",
-    marginTop: 8,
-    padding: 16,
-  },
-  thumbnailContainer: {
-    marginLeft: 8,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    borderCurve: "continuous",
-    borderWidth: 1,
-  },
-  thumbnailLoading: {
-    width: 80,
-    height: 80,
-    borderRadius: 6,
-    borderCurve: "continuous",
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   image: {
     width: "100%",
-    aspectRatio: 1.91, // Standard OG image ratio (1200x630)
+    height: undefined,
+    aspectRatio: 1.91,
   },
-  loadingContainer: {
-    width: "100%",
-    aspectRatio: 1.91, // Standard OG image ratio (1200x630)
+  text: {
+    padding: 16,
+    gap: 4,
+  },
+  urlRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 12,
+    paddingTop: 4,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  description: {
-    fontSize: 13,
-    opacity: 0.7,
-    marginBottom: 6,
-    lineHeight: 18,
-  },
-  siteName: {
-    fontSize: 12,
-    opacity: 0.5,
-  },
-  imageContainer: {
-    borderRadius: 8,
-    borderCurve: "continuous",
-    overflow: "hidden",
-    marginBottom: 16,
-  },
+  url: { flex: 1 },
 });

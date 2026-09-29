@@ -1,99 +1,82 @@
 import { StyleSheet, View } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { timeAgo, type HNItem } from "@/lib/shared";
+import { Icon, INLINE_ICON_SIZE, Text } from "@/components/ui";
+import { useTheme } from "@/hooks/use-theme";
+import { timeAgo } from "@/lib/format/time";
+import type { HNItem } from "@/lib/hn";
 
 interface StoryCardMetadataProps {
   story: HNItem;
   hasVoted: boolean;
 }
 
-/**
- * Story metadata display (points, author, time, comments)
- */
+/** Points and comments on the left, author and age on the right. */
 export function StoryCardMetadata({ story, hasVoted }: StoryCardMetadataProps) {
-  const iconColor = useThemeColor({}, "icon");
+  const { colors } = useTheme();
+  const comments = story.descendants || 0;
+  const points = story.score ?? 0;
 
   return (
-    <View style={styles.metadata}>
-      <View style={styles.metadataItem}>
-        <IconSymbol
-          name={hasVoted ? "arrow.up.circle.fill" : "arrow.up"}
-          size={13}
-          color={iconColor}
-        />
-        <ThemedText
-          type="bodySmall"
-          style={[styles.metadataText, styles.numeric]}
-        >
-          {story.score}
-        </ThemedText>
+    <View style={styles.row}>
+      <View
+        style={styles.stats}
+        accessible
+        accessibilityLabel={`${points} points, ${comments} comments`}
+      >
+        <View style={styles.stat}>
+          <Icon
+            name="upvote"
+            size={INLINE_ICON_SIZE.caption}
+            weight="semibold"
+            color={hasVoted ? colors.primaryInk : colors.mutedForeground}
+          />
+          <Text
+            variant="caption"
+            weight="semibold"
+            numeric
+            tone={hasVoted ? "primary" : "muted"}
+          >
+            {points}
+          </Text>
+        </View>
+        <View style={styles.stat}>
+          <Icon
+            name="comments"
+            size={INLINE_ICON_SIZE.caption}
+            weight="semibold"
+            color={colors.mutedForeground}
+          />
+          <Text variant="caption" weight="semibold" numeric tone="muted">
+            {comments}
+          </Text>
+        </View>
       </View>
-
-      <ThemedText type="bodySmall" style={styles.metadataText}>
-        {" "}
-        •{" "}
-      </ThemedText>
-
-      <View style={styles.metadataItem}>
-        <IconSymbol name="person" size={13} color={iconColor} />
-        <ThemedText type="bodySmall" style={styles.metadataText}>
-          {story.by}
-        </ThemedText>
-      </View>
-
-      <ThemedText type="bodySmall" style={styles.metadataText}>
-        {" "}
-        •{" "}
-      </ThemedText>
-
-      <View style={styles.metadataItem}>
-        <IconSymbol name="clock" size={13} color={iconColor} />
-        <ThemedText type="bodySmall" style={styles.metadataText}>
-          {timeAgo(story.time || 0)}
-        </ThemedText>
-      </View>
-
-      <ThemedText type="bodySmall" style={styles.metadataText}>
-        {" "}
-        •{" "}
-      </ThemedText>
-
-      <View style={styles.metadataItem}>
-        <IconSymbol
-          name="bubble.left.and.bubble.right"
-          size={13}
-          color={iconColor}
-        />
-        <ThemedText
-          type="bodySmall"
-          style={[styles.metadataText, styles.numeric]}
-        >
-          {story.descendants || 0}
-        </ThemedText>
-      </View>
+      <Text variant="caption" tone="muted" numberOfLines={1} style={styles.by}>
+        {story.by ? `${story.by} · ` : ""}
+        {timeAgo(story.time || 0)}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  metadata: {
-    marginTop: 8,
+  row: {
     flexDirection: "row",
-    flexWrap: "wrap",
     alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
   },
-  metadataItem: {
+  stats: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  stat: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
   },
-  metadataText: {
-    opacity: 0.6,
-  },
-  numeric: {
-    fontVariant: ["tabular-nums"],
+  by: {
+    flexShrink: 1,
   },
 });
