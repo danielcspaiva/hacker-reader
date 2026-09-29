@@ -20,7 +20,7 @@ export default function ProfileScreen() {
               Sign in to Hacker News
             </Text>
             <Text variant="callout" tone="muted" style={styles.center}>
-              Vote, favorite and keep your karma and submissions one tap away.
+              Vote, comment and keep your karma and submissions one tap away.
             </Text>
           </View>
           <Button
