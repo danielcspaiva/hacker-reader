@@ -51,6 +51,5 @@ export enum AnalyticsEvent {
   SETTINGS_VIEWED = "settings_viewed",
 
   // Widget Interactions (iOS only)
-  WIDGET_ADDED = "widget_added",
   WIDGET_TAPPED = "widget_tapped",
 }

@@ -1,7 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-import { prefetchCategory, STORY_CATEGORIES } from "@/hooks/use-stories";
+import { prefetchCategory } from "@/hooks/use-stories";
+import { STORY_CATEGORIES } from "@/lib/hn";
 
 /**
  * Prefetch all categories on app open for instant category switching.

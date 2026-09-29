@@ -1,8 +1,7 @@
-import { useCallback } from "react";
 import { Alert, Platform, Share } from "react-native";
 
-import { reportError } from "@/lib/observability";
-import type { HNItem } from "@/lib/shared";
+import type { HNItem } from "@/lib/hn";
+import { reportError } from "@/lib/observability/report-error";
 
 type ShareableStory = Pick<HNItem, "id" | "title" | "url">;
 
@@ -26,7 +25,7 @@ type ShareableStory = Pick<HNItem, "id" | "title" | "url">;
  * ```
  */
 export function useShareStory() {
-  return useCallback(async (story: ShareableStory) => {
+  return async (story: ShareableStory) => {
     try {
       const url =
         story.url || `https://news.ycombinator.com/item?id=${story.id}`;
@@ -56,5 +55,5 @@ export function useShareStory() {
         "Could not share this story. Please try again."
       );
     }
-  }, []);
+  };
 }

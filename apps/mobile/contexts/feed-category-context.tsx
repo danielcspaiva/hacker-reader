@@ -1,10 +1,10 @@
 import { createContext, use, useState, type ReactNode } from "react";
 
-import type { Category } from "@/components/category-filter";
+import type { StoryCategory } from "@/lib/hn";
 
 type FeedCategoryContextValue = {
-  category: Category;
-  setCategory: (category: Category) => void;
+  category: StoryCategory;
+  setCategory: (category: StoryCategory) => void;
 };
 
 const FeedCategoryContext = createContext<FeedCategoryContextValue | null>(
@@ -12,7 +12,7 @@ const FeedCategoryContext = createContext<FeedCategoryContextValue | null>(
 );
 
 export function FeedCategoryProvider({ children }: { children: ReactNode }) {
-  const [category, setCategory] = useState<Category>("top");
+  const [category, setCategory] = useState<StoryCategory>("top");
 
   return (
     <FeedCategoryContext value={{ category, setCategory }}>

@@ -20,12 +20,10 @@
  */
 
 import { usePostHog } from "posthog-react-native";
-import { useCallback } from "react";
 
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import {
   identifyUser,
-  registerSuperProperties,
   resetUser,
   trackEvent,
   type EventProperties,
@@ -57,15 +55,6 @@ export interface Analytics {
   reset: () => void;
 
   /**
-   * Register properties that persist across all events
-   */
-  registerSuper: (properties: {
-    [AnalyticsProperty.COLOR_SCHEME]?: "light" | "dark";
-    [AnalyticsProperty.IS_AUTHENTICATED]?: boolean;
-    [AnalyticsProperty.HAS_WIDGET_INSTALLED]?: boolean;
-  }) => void;
-
-  /**
    * Check if PostHog is initialized
    */
   isReady: boolean;
@@ -77,49 +66,31 @@ export interface Analytics {
 export function useAnalytics(): Analytics {
   const posthog = usePostHog();
 
-  const track = useCallback(
-    <E extends keyof EventProperties>(
-      event: E,
-      properties?: EventProperties[E]
-    ) => {
-      trackEvent(posthog, event, properties);
-    },
-    [posthog]
-  );
+  const track = <E extends keyof EventProperties>(
+    event: E,
+    properties?: EventProperties[E]
+  ) => {
+    trackEvent(posthog, event, properties);
+  };
 
-  const identify = useCallback(
-    (
-      username: string,
-      properties?: {
-        [AnalyticsProperty.USER_KARMA]?: number;
-        [AnalyticsProperty.ACCOUNT_AGE_DAYS]?: number;
-      }
-    ) => {
-      identifyUser(posthog, username, properties);
-    },
-    [posthog]
-  );
+  const identify = (
+    username: string,
+    properties?: {
+      [AnalyticsProperty.USER_KARMA]?: number;
+      [AnalyticsProperty.ACCOUNT_AGE_DAYS]?: number;
+    }
+  ) => {
+    identifyUser(posthog, username, properties);
+  };
 
-  const reset = useCallback(() => {
+  const reset = () => {
     resetUser(posthog);
-  }, [posthog]);
-
-  const registerSuper = useCallback(
-    (properties: {
-      [AnalyticsProperty.COLOR_SCHEME]?: "light" | "dark";
-      [AnalyticsProperty.IS_AUTHENTICATED]?: boolean;
-      [AnalyticsProperty.HAS_WIDGET_INSTALLED]?: boolean;
-    }) => {
-      registerSuperProperties(posthog, properties);
-    },
-    [posthog]
-  );
+  };
 
   return {
     track,
     identify,
     reset,
-    registerSuper,
     isReady: !!posthog,
   };
 }

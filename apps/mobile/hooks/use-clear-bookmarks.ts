@@ -2,8 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
-import { clearBookmarks } from "@/lib/bookmarks";
-import { reportError } from "@/lib/observability";
+import { hnKeys } from "@/lib/hn";
+import { clearBookmarks } from "@/lib/hn/local/bookmarks";
+import { reportError } from "@/lib/observability/report-error";
 
 export function useClearBookmarks() {
   const queryClient = useQueryClient();
@@ -21,10 +22,9 @@ export function useClearBookmarks() {
     try {
       setIsClearing(true);
       await clearBookmarks();
-      queryClient.setQueryData<number[]>(["bookmarks"], []);
-      queryClient.setQueryData(["bookmarks", "stories"], []);
-      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
-      queryClient.invalidateQueries({ queryKey: ["bookmark"] });
+      queryClient.setQueryData<number[]>(hnKeys.bookmarks(), []);
+      queryClient.setQueryData(hnKeys.bookmarkedStories(), []);
+      queryClient.invalidateQueries({ queryKey: hnKeys.bookmarks() });
     } catch (error) {
       reportError(error, { operation: "clearBookmarks" });
     } finally {

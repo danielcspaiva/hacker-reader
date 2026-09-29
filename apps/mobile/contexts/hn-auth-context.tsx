@@ -12,8 +12,8 @@ import { createContext, use, useState, useEffect, ReactNode } from "react";
 
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { trackEvent, resetUser } from "@/lib/analytics/tracking";
-import { reportError } from "@/lib/observability";
-import { SecureSession } from "@/lib/shared/auth";
+import { SecureSession, parseStoredCookies } from "@/lib/hn";
+import { reportError } from "@/lib/observability/report-error";
 
 interface HNAuthContextValue {
   session: SecureSession | null;
@@ -41,8 +41,9 @@ export function HNAuthProvider({ children }: { children: ReactNode }) {
     try {
       const cookiesJson = await SecureStore.getItemAsync("hn_cookies");
       const storedUsername = await SecureStore.getItemAsync("hn_username");
-      if (cookiesJson) {
-        const cookies = JSON.parse(cookiesJson);
+      // Corrupted storage parses to null and is treated as logged out.
+      const cookies = cookiesJson ? parseStoredCookies(cookiesJson) : null;
+      if (cookies) {
         setSession(new SecureSession(cookies));
         setUsername(storedUsername);
       }

@@ -1,6 +1,6 @@
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 
-import { searchStories, type HNItem } from "@/lib/shared";
+import { hnKeys, mapHitToHNItem, searchStories, type HNItem } from "@/lib/hn";
 
 const HITS_PER_PAGE = 30;
 
@@ -8,25 +8,6 @@ interface SearchStoriesPage {
   hits: HNItem[];
   page: number;
   nbPages: number;
-}
-
-function mapHitToHNItem(
-  hit: Awaited<ReturnType<typeof searchStories>>["hits"][number]
-): HNItem {
-  const parsedId = Number.parseInt(hit.objectID, 10);
-  const id = Number.isNaN(parsedId) ? hit.created_at_i : parsedId;
-
-  return {
-    id,
-    title: hit.title ?? undefined,
-    url: hit.url ?? undefined,
-    by: hit.author ?? undefined,
-    score: hit.points ?? undefined,
-    descendants: hit.num_comments ?? undefined,
-    time: hit.created_at_i ?? undefined,
-    text: hit.story_text ?? undefined,
-    type: "story",
-  };
 }
 
 export function useSearchStories(query: string) {
@@ -39,7 +20,7 @@ export function useSearchStories(query: string) {
     ["algolia-search", string],
     number
   >({
-    queryKey: ["algolia-search", trimmedQuery],
+    queryKey: hnKeys.search(trimmedQuery),
     queryFn: async ({ pageParam }) => {
       const currentPage = pageParam;
       const response = await searchStories(
@@ -49,7 +30,7 @@ export function useSearchStories(query: string) {
       );
 
       return {
-        hits: response.hits.map(mapHitToHNItem),
+        hits: response.hits.flatMap((hit) => mapHitToHNItem(hit) ?? []),
         page: response.page,
         nbPages: response.nbPages,
       };

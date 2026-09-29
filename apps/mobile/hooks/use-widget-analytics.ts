@@ -1,247 +1,17 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 import { useEffect, useRef } from "react";
-import { AppState, Platform } from "react-native";
+import { Platform } from "react-native";
 
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
-import type { WidgetSize } from "@/lib/analytics/tracking";
+import { parseWidgetTap } from "@/lib/widgets/tap";
 
 import { useAnalytics } from "./use-analytics";
 
-function isString(value: unknown): value is string {
-  return typeof value === "string";
-}
-
-type StoredWidgetKey = string;
-
-type NativeWidgetConfiguration = {
-  kind?: string;
-  family?: string;
-};
-
-type NormalizedWidgetConfiguration = {
-  key: StoredWidgetKey;
-  kind: string;
-  size: WidgetSize;
-};
-
-type ParsedWidgetTap = {
-  size: WidgetSize;
-  storyId?: number;
-  kind?: string;
-};
-
-const WIDGET_CONFIG_STORAGE_KEY = "@hn/widgets/configurations";
-
-const FAMILY_TO_SIZE: Record<string, WidgetSize> = {
-  systemSmall: "small",
-  systemMedium: "medium",
-  systemLarge: "large",
-  small: "small",
-  medium: "medium",
-  large: "large",
-};
-
-const ReactNativeWidgetExtension: {
-  getCurrentConfigurations?: () => Promise<NativeWidgetConfiguration[]>;
-} | null =
-  Platform.OS === "ios"
-    ? (() => {
-        try {
-          return require("react-native-widget-extension/build/ReactNativeWidgetExtensionModule")
-            .default;
-        } catch {
-          return null;
-        }
-      })()
-    : null;
-
-function mapFamilyToSize(family?: string): WidgetSize | undefined {
-  if (!family) return undefined;
-  return FAMILY_TO_SIZE[family];
-}
-
-function normalizeConfiguration(
-  config: NativeWidgetConfiguration
-): NormalizedWidgetConfiguration | null {
-  if (!config.kind) return null;
-
-  const size = mapFamilyToSize(config.family);
-  if (!size) return null;
-
-  return {
-    key: `${config.kind}:${size}`,
-    kind: config.kind,
-    size,
-  };
-}
-
-function parseWidgetTap(url: string): ParsedWidgetTap | null {
-  try {
-    const parsed = Linking.parse(url);
-    if (!parsed?.path && !parsed?.hostname) {
-      return null;
-    }
-
-    const queryParams = parsed.queryParams ?? {};
-    if (queryParams.source !== "widget") return null;
-
-    const sizeParam = queryParams.widgetSize;
-    const size = isString(sizeParam) ? mapFamilyToSize(sizeParam) : undefined;
-    if (!size) return null;
-
-    const { widgetKind } = queryParams;
-
-    let storyId: number | undefined;
-
-    const regexMatch = url.match(/:\/\/story\/(\d+)/);
-    if (regexMatch?.[1]) {
-      const numericStoryId = Number(regexMatch[1]);
-      if (Number.isFinite(numericStoryId)) {
-        storyId = numericStoryId;
-      }
-    }
-
-    if (!storyId) {
-      const segments = (parsed.path ?? "")
-        .split("/")
-        .map((segment) => segment.trim())
-        .filter((segment) => segment.length > 0);
-
-      if (segments.length >= 2 && segments[0] === "story") {
-        const numericStoryId = Number(segments[1]);
-        if (Number.isFinite(numericStoryId)) {
-          storyId = numericStoryId;
-        }
-      } else if (segments.length === 1) {
-        const host = isString(parsed.hostname) ? parsed.hostname : undefined;
-        if (host === "story") {
-          const numericStoryId = Number(segments[0]);
-          if (Number.isFinite(numericStoryId)) {
-            storyId = numericStoryId;
-          }
-        }
-      }
-    }
-
-    return {
-      size,
-      storyId,
-      kind: isString(widgetKind) ? widgetKind : undefined,
-    };
-  } catch {
-    return null;
-  }
-}
-
+/** Tracks taps on widget story rows, from a cold start and while running. */
 export function useWidgetAnalytics() {
-  const { track, registerSuper, isReady } = useAnalytics();
+  const { track, isReady } = useAnalytics();
   const hasProcessedInitialUrl = useRef(false);
-
-  useEffect(() => {
-    if (!isReady || Platform.OS !== "ios") return;
-    if (
-      !ReactNativeWidgetExtension ||
-      ReactNativeWidgetExtension.getCurrentConfigurations == null
-    ) {
-      return;
-    }
-
-    let isCancelled = false;
-    let syncInFlight = false;
-
-    const syncWidgetConfigurations = async () => {
-      if (syncInFlight || isCancelled) {
-        return;
-      }
-
-      syncInFlight = true;
-
-      try {
-        const configurationsRaw =
-          await ReactNativeWidgetExtension?.getCurrentConfigurations?.();
-        // `configurationsRaw` is already typed; the guard narrows away the
-        // undefined case, and normalizeConfiguration validates each entry below.
-        const configurations = Array.isArray(configurationsRaw)
-          ? configurationsRaw
-          : [];
-
-        const normalized = configurations
-          .map(normalizeConfiguration)
-          .filter(
-            (config): config is NormalizedWidgetConfiguration => config !== null
-          );
-
-        const uniqueConfigMap = new Map<
-          string,
-          NormalizedWidgetConfiguration
-        >();
-        normalized.forEach((config) => {
-          if (!uniqueConfigMap.has(config.key)) {
-            uniqueConfigMap.set(config.key, config);
-          }
-        });
-        const uniqueConfigurations = Array.from(uniqueConfigMap.values());
-
-        const currentKeys = uniqueConfigurations.map((config) => config.key);
-        const storedRaw = await AsyncStorage.getItem(WIDGET_CONFIG_STORAGE_KEY);
-        let storedKeys: StoredWidgetKey[] = [];
-        if (storedRaw) {
-          try {
-            const parsed: unknown = JSON.parse(storedRaw);
-            if (Array.isArray(parsed)) {
-              storedKeys = parsed.filter(
-                (key): key is StoredWidgetKey => typeof key === "string"
-              );
-            }
-          } catch {
-            // Failed to parse stored widget configurations
-          }
-        }
-
-        const currentSet = new Set(currentKeys);
-        const storedSet = new Set(storedKeys);
-
-        const newConfigurations = uniqueConfigurations.filter(
-          (config) => !storedSet.has(config.key)
-        );
-
-        newConfigurations.forEach((config) => {
-          track(AnalyticsEvent.WIDGET_ADDED, {
-            [AnalyticsProperty.WIDGET_KIND]: config.kind,
-            [AnalyticsProperty.WIDGET_SIZE]: config.size,
-          });
-        });
-
-        await AsyncStorage.setItem(
-          WIDGET_CONFIG_STORAGE_KEY,
-          JSON.stringify(Array.from(currentSet))
-        );
-
-        registerSuper({
-          [AnalyticsProperty.HAS_WIDGET_INSTALLED]: currentSet.size > 0,
-        });
-      } catch {
-        // Failed to sync widget configurations
-      } finally {
-        syncInFlight = false;
-      }
-    };
-
-    syncWidgetConfigurations();
-
-    const subscription = AppState.addEventListener("change", (nextState) => {
-      if (nextState === "active") {
-        syncWidgetConfigurations();
-      }
-    });
-
-    return () => {
-      isCancelled = true;
-      subscription.remove();
-    };
-  }, [isReady, track, registerSuper]);
 
   useEffect(() => {
     if (!isReady || Platform.OS !== "ios") {
@@ -249,38 +19,28 @@ export function useWidgetAnalytics() {
     }
 
     const handleUrl = (url: string) => {
-      const payload = parseWidgetTap(url);
-      if (!payload) return;
+      const tap = parseWidgetTap(url);
+      if (!tap) return;
 
       track(AnalyticsEvent.WIDGET_TAPPED, {
-        [AnalyticsProperty.WIDGET_SIZE]: payload.size,
-        [AnalyticsProperty.STORY_ID]: payload.storyId,
-        [AnalyticsProperty.WIDGET_KIND]: payload.kind,
+        [AnalyticsProperty.WIDGET_SIZE]: tap.size,
+        [AnalyticsProperty.STORY_ID]: tap.storyId,
       });
     };
 
-    const processInitialUrl = async () => {
-      if (hasProcessedInitialUrl.current) {
-        return;
-      }
+    if (!hasProcessedInitialUrl.current) {
       hasProcessedInitialUrl.current = true;
-
-      try {
-        const initialUrl = await Linking.getInitialURL();
-        if (initialUrl) {
-          handleUrl(initialUrl);
-        }
-      } catch {
-        // Failed to read initial URL
-      }
-    };
-
-    processInitialUrl();
+      Linking.getInitialURL()
+        .then((initialUrl) => {
+          if (initialUrl) handleUrl(initialUrl);
+        })
+        .catch(() => {
+          // No initial URL to read.
+        });
+    }
 
     const subscription = Linking.addEventListener("url", (event) => {
-      if (event?.url) {
-        handleUrl(event.url);
-      }
+      handleUrl(event.url);
     });
 
     return () => {

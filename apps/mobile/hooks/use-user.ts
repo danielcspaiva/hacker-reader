@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getUser } from "@/lib/shared/api/hn-api";
-import type { HNUser } from "@/lib/shared/types";
+import { getUser, hnKeys, type HNUser } from "@/lib/hn";
 
 /**
  * Hook for fetching HN user data from the API.
@@ -22,8 +21,8 @@ import type { HNUser } from "@/lib/shared/types";
  * ```
  */
 export function useUser(username: string | null) {
-  return useQuery<HNUser>({
-    queryKey: ["user", username],
+  return useQuery<HNUser | null>({
+    queryKey: hnKeys.user(username),
     queryFn: () => {
       if (!username) {
         throw new Error("Username is required");

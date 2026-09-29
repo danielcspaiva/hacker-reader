@@ -2,10 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
 import { useHNAuth } from "@/contexts/hn-auth-context";
-import type { Comment, StoryWithComments } from "@/hooks/use-story";
-import { reportError } from "@/lib/observability";
-import { deleteComment } from "@/lib/shared/api/hn-write-api";
-import { isAuthError } from "@/lib/shared/auth";
+import { presentHNWriteError } from "@/hooks/present-hn-write-error";
+import type { StoryWithComments } from "@/lib/hn";
+import { deleteComment, hnKeys, removeComment, requireSession } from "@/lib/hn";
 
 interface UseDeleteCommentMutationOptions {
   storyId: number;
@@ -47,41 +46,27 @@ export function useDeleteCommentMutation({
 
   return useMutation({
     mutationFn: async (commentId: number) => {
-      if (!session) {
-        throw new Error("Not authenticated");
-      }
-      await deleteComment(commentId, session);
+      await deleteComment(commentId, requireSession(session));
       return commentId;
     },
     onMutate: async (commentId) => {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({ queryKey: ["story", storyId] });
+      await queryClient.cancelQueries({ queryKey: hnKeys.story(storyId) });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<StoryWithComments>([
-        "story",
-        storyId,
-      ]);
+      const previousData = queryClient.getQueryData<StoryWithComments>(
+        hnKeys.story(storyId)
+      );
 
       // Optimistically remove the comment from cache
       queryClient.setQueryData<StoryWithComments>(
-        ["story", storyId],
+        hnKeys.story(storyId),
         (oldData) => {
           if (!oldData) return oldData;
 
-          // Recursively remove the comment from the tree
-          const removeComment = (comments: Comment[]): Comment[] => {
-            return comments
-              .filter((comment) => comment.id !== commentId)
-              .map((comment) => ({
-                ...comment,
-                children: removeComment(comment.children),
-              }));
-          };
-
           return {
             ...oldData,
-            comments: removeComment(oldData.comments),
+            comments: removeComment(oldData.comments, commentId),
             descendants: Math.max(0, (oldData.descendants || 0) - 1),
           };
         }
@@ -101,47 +86,19 @@ export function useDeleteCommentMutation({
     onError: (error, _commentId, context) => {
       // Rollback optimistic update on error
       if (context?.previousData) {
-        queryClient.setQueryData(["story", storyId], context.previousData);
+        queryClient.setQueryData(hnKeys.story(storyId), context.previousData);
       }
 
-      if (isAuthError(error)) {
-        switch (error.code) {
-          case "NOT_LOGGED_IN":
-            logout();
-            Alert.alert("Session Expired", "Please log in again to continue", [
-              { text: "OK" },
-            ]);
-            break;
-          case "RATE_LIMITED":
-            Alert.alert(
-              "Slow Down",
-              "You're performing actions too quickly. Please wait a moment.",
-              [{ text: "OK" }]
-            );
-            break;
-          case "PARSE_ERROR":
-            Alert.alert(
-              "Cannot Delete",
-              error.message || "This comment cannot be deleted at this time.",
-              [{ text: "OK" }]
-            );
-            break;
-          default:
-            Alert.alert("Error", error.message, [{ text: "OK" }]);
-        }
-      } else {
-        // Unexpected failure (not an expected auth case) — report it.
-        reportError(error, { operation: "deleteComment" });
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to delete comment. Please try again.";
-        Alert.alert("Error", errorMessage, [{ text: "OK" }]);
-      }
+      presentHNWriteError(error, {
+        logout,
+        operation: "deleteComment",
+        context: { storyId },
+        failureMessage: "Failed to delete comment. Please try again.",
+      });
     },
     onSettled: () => {
       // Refetch to ensure consistency (but don't wait for it)
-      queryClient.invalidateQueries({ queryKey: ["story", storyId] });
+      queryClient.invalidateQueries({ queryKey: hnKeys.story(storyId) });
     },
   });
 }

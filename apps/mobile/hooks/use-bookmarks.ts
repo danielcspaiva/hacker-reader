@@ -1,23 +1,35 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { hapticImpact, Haptics } from "@/lib/haptics";
+import { getItem, hnKeys, type HNItem } from "@/lib/hn";
 import {
   addBookmark,
   getBookmarkIds,
-  isBookmarked,
   removeBookmark,
-} from "@/lib/bookmarks";
-import { hapticImpact, Haptics } from "@/lib/haptics";
-import { getItem, type HNItem } from "@/lib/shared";
+} from "@/lib/hn/local/bookmarks";
+import { reportError } from "@/lib/observability/report-error";
+
+async function readBookmarkIds(): Promise<number[]> {
+  try {
+    return await getBookmarkIds();
+  } catch (error) {
+    reportError(error, { operation: "getBookmarkIds" });
+    throw error;
+  }
+}
+
+const bookmarkIdsOptions = {
+  queryKey: hnKeys.bookmarks(),
+  queryFn: readBookmarkIds,
+  staleTime: 0, // Always fresh - we want to see updates immediately
+  retry: false,
+} as const;
 
 /**
  * Hook to get all bookmarked story IDs
  */
 export function useBookmarkIds() {
-  return useQuery<number[], Error>({
-    queryKey: ["bookmarks"],
-    queryFn: getBookmarkIds,
-    staleTime: 0, // Always fresh - we want to see updates immediately
-  });
+  return useQuery<number[], Error>(bookmarkIdsOptions);
 }
 
 /**
@@ -27,40 +39,38 @@ export function useBookmarks() {
   const queryClient = useQueryClient();
 
   return useQuery<HNItem[], Error>({
-    queryKey: ["bookmarks", "stories"],
+    queryKey: hnKeys.bookmarkedStories(),
     queryFn: async () => {
-      const ids = await getBookmarkIds();
+      const ids = await readBookmarkIds();
 
       // Fetch stories in parallel, trying cache first
       const stories = await Promise.all(
         ids.map(async (id) => {
           // Try to get from cache first
-          const cached = queryClient.getQueryData<HNItem>(["item", id]);
+          const cached = queryClient.getQueryData<HNItem>(hnKeys.item(id));
           if (cached) return cached;
 
           // Fetch from API if not cached
           const item = await getItem(id);
-          // Update cache for future use
-          queryClient.setQueryData(["item", id], item);
+          if (item) queryClient.setQueryData(hnKeys.item(id), item);
           return item;
         })
       );
 
-      // Filter out any null/undefined items (deleted stories)
-      return stories.filter(Boolean);
+      return stories.filter((story) => story !== null);
     },
     staleTime: 0, // Always fresh
+    retry: false,
   });
 }
 
 /**
- * Hook to check if a specific story is bookmarked
+ * Whether a story is bookmarked, derived from the shared bookmark-id list.
  */
 export function useIsBookmarked(storyId: number) {
-  return useQuery<boolean, Error>({
-    queryKey: ["bookmark", "check", storyId],
-    queryFn: () => isBookmarked(storyId),
-    staleTime: 0,
+  return useQuery<number[], Error, boolean>({
+    ...bookmarkIdsOptions,
+    select: (ids) => ids.includes(storyId),
   });
 }
 
@@ -82,54 +92,26 @@ export function useBookmarkMutation() {
       // Haptic feedback for instant user feedback
       hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
 
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["bookmarks"] });
-      await queryClient.cancelQueries({
-        queryKey: ["bookmark", "check", storyId],
-      });
+      await queryClient.cancelQueries({ queryKey: hnKeys.bookmarks() });
+      const previousIds = queryClient.getQueryData<number[]>(
+        hnKeys.bookmarks()
+      );
 
-      // Snapshot previous values
-      const previousIds = queryClient.getQueryData<number[]>(["bookmarks"]);
-      const previousCheck = queryClient.getQueryData<boolean>([
-        "bookmark",
-        "check",
-        storyId,
-      ]);
+      queryClient.setQueryData<number[]>(hnKeys.bookmarks(), (old = []) =>
+        add ? [storyId, ...old] : old.filter((id) => id !== storyId)
+      );
 
-      // Optimistically update bookmark check
-      queryClient.setQueryData(["bookmark", "check", storyId], add);
-
-      // Optimistically update bookmark IDs list
-      if (add) {
-        queryClient.setQueryData<number[]>(["bookmarks"], (old = []) => [
-          storyId,
-          ...old,
-        ]);
-      } else {
-        queryClient.setQueryData<number[]>(["bookmarks"], (old = []) =>
-          old.filter((id) => id !== storyId)
-        );
-      }
-
-      return { previousIds, previousCheck };
+      return { previousIds };
     },
-    onError: (err, { storyId }, context) => {
-      // Rollback on error
+    onError: (error, { storyId }, context) => {
       if (context?.previousIds) {
-        queryClient.setQueryData(["bookmarks"], context.previousIds);
+        queryClient.setQueryData(hnKeys.bookmarks(), context.previousIds);
       }
-      if (context?.previousCheck !== undefined) {
-        queryClient.setQueryData(
-          ["bookmark", "check", storyId],
-          context.previousCheck
-        );
-      }
-      // The underlying storage error is reported by lib/bookmarks; here we only
-      // need to roll back the optimistic update.
+      reportError(error, { operation: "bookmark", storyId });
     },
     onSettled: () => {
       // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      queryClient.invalidateQueries({ queryKey: hnKeys.bookmarks() });
     },
   });
 }

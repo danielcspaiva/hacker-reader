@@ -1,39 +1,20 @@
 import {
+  infiniteQueryOptions,
   useInfiniteQuery,
   useQueryClient,
-  type InfiniteData,
   type QueryClient,
 } from "@tanstack/react-query";
 
-import type { Category } from "@/components/category-filter";
 import {
-  fetchOGMetadata,
-  getAskStories,
+  getCategoryStoryIds,
   getItems,
-  getJobStories,
-  getNewStories,
-  getShowStories,
-  getTopStories,
+  hnKeys,
   type HNItem,
-} from "@/lib/shared";
+  type StoryCategory,
+} from "@/lib/hn";
+import { fetchOGMetadata } from "@/lib/link-preview/og";
 
-export const PAGE_SIZE = 30;
-
-export const STORY_CATEGORIES: Category[] = [
-  "top",
-  "new",
-  "ask",
-  "show",
-  "jobs",
-];
-
-const CATEGORY_FETCHERS = {
-  top: getTopStories,
-  new: getNewStories,
-  ask: getAskStories,
-  show: getShowStories,
-  jobs: getJobStories,
-} as const;
+const PAGE_SIZE = 30;
 
 /**
  * Fetch one page of a category and populate the per-item cache so detail views
@@ -43,15 +24,15 @@ const CATEGORY_FETCHERS = {
  */
 async function fetchCategoryPage(
   queryClient: QueryClient,
-  category: Category,
+  category: StoryCategory,
   pageParam: number,
   { prefetchOG }: { prefetchOG: boolean }
 ): Promise<HNItem[]> {
-  const ids = await CATEGORY_FETCHERS[category](pageParam, PAGE_SIZE);
+  const ids = await getCategoryStoryIds(category, pageParam, PAGE_SIZE);
   const items = await getItems(ids);
 
   items.forEach((item) => {
-    queryClient.setQueryData(["item", item.id], item);
+    queryClient.setQueryData(hnKeys.item(item.id), item);
   });
 
   // Prefetch OG only for the foreground category; background warming
@@ -61,7 +42,7 @@ async function fetchCategoryPage(
       const url = item.url;
       if (url) {
         queryClient.prefetchQuery({
-          queryKey: ["og-metadata", url],
+          queryKey: hnKeys.ogMetadata(url),
           queryFn: ({ signal }) => fetchOGMetadata(url, signal),
           staleTime: 60 * 60 * 1000,
         });
@@ -83,47 +64,39 @@ function getStoriesNextPageParam(
   return allPages.length * PAGE_SIZE;
 }
 
-export function useStories(category: Category) {
-  const queryClient = useQueryClient();
-
-  return useInfiniteQuery<
-    HNItem[],
-    Error,
-    InfiniteData<HNItem[]>,
-    ["stories", Category],
-    number
-  >({
-    queryKey: ["stories", category],
+function storiesQueryOptions(
+  queryClient: QueryClient,
+  category: StoryCategory,
+  { prefetchOG }: { prefetchOG: boolean }
+) {
+  return infiniteQueryOptions({
+    queryKey: hnKeys.stories(category),
     queryFn: ({ pageParam }) =>
-      fetchCategoryPage(queryClient, category, pageParam, {
-        prefetchOG: true,
-      }),
-    getNextPageParam: getStoriesNextPageParam,
+      fetchCategoryPage(queryClient, category, pageParam, { prefetchOG }),
     initialPageParam: 0,
+    getNextPageParam: getStoriesNextPageParam,
   });
+}
+
+export function useStories(category: StoryCategory) {
+  const queryClient = useQueryClient();
+  return useInfiniteQuery(
+    storiesQueryOptions(queryClient, category, { prefetchOG: true })
+  );
 }
 
 /**
  * Warm the first page of a category in the background for instant switching.
  * No-ops if the category is already cached. Skips OG prefetch to save bandwidth.
  */
-export function prefetchCategory(queryClient: QueryClient, category: Category) {
-  if (queryClient.getQueryData(["stories", category])) return;
+export function prefetchCategory(
+  queryClient: QueryClient,
+  category: StoryCategory
+) {
+  if (queryClient.getQueryData(hnKeys.stories(category))) return;
 
-  return queryClient.prefetchInfiniteQuery<
-    HNItem[],
-    Error,
-    InfiniteData<HNItem[]>,
-    ["stories", Category],
-    number
-  >({
-    queryKey: ["stories", category],
-    queryFn: ({ pageParam }) =>
-      fetchCategoryPage(queryClient, category, pageParam, {
-        prefetchOG: false,
-      }),
-    initialPageParam: 0,
-    getNextPageParam: getStoriesNextPageParam,
+  return queryClient.prefetchInfiniteQuery({
+    ...storiesQueryOptions(queryClient, category, { prefetchOG: false }),
     pages: 1,
   });
 }

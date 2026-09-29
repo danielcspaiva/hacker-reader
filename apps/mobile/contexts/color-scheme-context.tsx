@@ -1,21 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SplashScreen from "expo-splash-screen";
+import * as SystemUI from "expo-system-ui";
 import { usePostHog } from "posthog-react-native";
-import { createContext, use, useEffect, useState, useRef } from "react";
-import { useColorScheme as useSystemColorScheme } from "react-native";
-import UserInterfaceStyle from "react-native-user-interface-style";
+import { createContext, use, useEffect, useState } from "react";
+import {
+  Appearance,
+  useColorScheme as useSystemColorScheme,
+} from "react-native";
 
+import { Colors, type ColorScheme } from "@/constants/theme";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/tracking";
 
 type ColorSchemePreference = "system" | "light" | "dark";
-type ColorScheme = "light" | "dark";
-type ColorPalette = "lights-out";
 
 interface ColorSchemeContextType {
   colorScheme: ColorScheme;
   preference: ColorSchemePreference;
   setPreference: (preference: ColorSchemePreference) => void;
-  colorPalette: ColorPalette;
 }
 
 const ColorSchemeContext = createContext<ColorSchemeContextType | undefined>(
@@ -33,33 +35,31 @@ export function ColorSchemeProvider({
   const [preference, setPreferenceState] =
     useState<ColorSchemePreference>("system");
   const [isLoaded, setIsLoaded] = useState(false);
-  const colorPalette: ColorPalette = "lights-out";
   const posthog = usePostHog();
-  const isFirstLoad = useRef(true);
 
   // Load preferences from storage on mount
+  // The splash stays up until this resolves, so a storage failure must still
+  // finish loading (falling back to "system") rather than hang on the splash.
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((schemeValue) => {
-      if (
-        schemeValue === "light" ||
-        schemeValue === "dark" ||
-        schemeValue === "system"
-      ) {
-        setPreferenceState(schemeValue);
-      }
-      setIsLoaded(true);
-    });
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((schemeValue) => {
+        if (
+          schemeValue === "light" ||
+          schemeValue === "dark" ||
+          schemeValue === "system"
+        ) {
+          setPreferenceState(schemeValue);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => setIsLoaded(true));
   }, []);
 
   const setPreference = (newPreference: ColorSchemePreference) => {
-    // Track theme change (skip tracking on first load)
-    if (!isFirstLoad.current) {
-      trackEvent(posthog, AnalyticsEvent.THEME_CHANGED, {
-        from_theme: preference,
-        to_theme: newPreference,
-      });
-    }
-    isFirstLoad.current = false;
+    trackEvent(posthog, AnalyticsEvent.THEME_CHANGED, {
+      from_theme: preference,
+      to_theme: newPreference,
+    });
 
     setPreferenceState(newPreference);
     AsyncStorage.setItem(STORAGE_KEY, newPreference);
@@ -75,13 +75,22 @@ export function ColorSchemeProvider({
         : "light"
       : preference;
 
-  // Sync iOS interface style with user's theme preference
   useEffect(() => {
     // When preference is 'system', use 'unspecified' to follow system appearance
     // Otherwise, force the user's chosen light/dark preference
-    const styleToSet = preference === "system" ? "unspecified" : colorScheme;
-    UserInterfaceStyle.setStyle(styleToSet);
+    Appearance.setColorScheme(
+      preference === "system" ? "unspecified" : colorScheme
+    );
   }, [colorScheme, preference]);
+
+  // The root view shows behind every screen transition and under the splash
+  // fade, so it tracks the resolved page colour; the splash lifts only once the
+  // app can paint in the right scheme.
+  useEffect(() => {
+    if (!isLoaded) return;
+    void SystemUI.setBackgroundColorAsync(Colors[colorScheme].background);
+    SplashScreen.hide();
+  }, [isLoaded, colorScheme]);
 
   // Don't render until we've loaded the preferences
   if (!isLoaded) {
@@ -90,7 +99,7 @@ export function ColorSchemeProvider({
 
   return (
     <ColorSchemeContext.Provider
-      value={{ colorScheme, preference, setPreference, colorPalette }}
+      value={{ colorScheme, preference, setPreference }}
     >
       {children}
     </ColorSchemeContext.Provider>
