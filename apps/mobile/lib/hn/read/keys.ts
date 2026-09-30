@@ -14,6 +14,11 @@ export const hnKeys = {
   ],
   item: (id: number): ["item", number] => ["item", id],
   story: (id: number): ["story", number] => ["story", id],
+  /** The AI summary of one story (Pro). */
+  storySummary: (id: number): ["story-summary", number] => [
+    "story-summary",
+    id,
+  ],
   user: (username: string | null): ["user", string | null] => [
     "user",
     username,

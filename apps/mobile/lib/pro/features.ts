@@ -43,7 +43,7 @@ export const PRO_FEATURES: readonly ProFeature[] = [
     description: "Summaries of long threads and articles.",
     icon: "summary",
     hue: "indigo",
-    status: "coming_soon",
+    status: "available",
   },
   {
     id: "daily_digest",

@@ -27,6 +27,9 @@ import { AnalyticsProperty } from "./posthog-properties";
 /** Where a submission started: a menu, the profile tab, or a shared link. */
 export type SubmitSource = "feed_menu" | "profile" | "share";
 
+/** Where a summary was requested: the story's more menu or the header pill. */
+export type SummarySource = "menu" | "pill";
+
 export type WidgetSize = "small" | "medium" | "large" | "accessory";
 
 /**
@@ -203,6 +206,19 @@ export interface EventProperties {
   [AnalyticsEvent.NOTIFICATION_OPENED]: {
     /** What sent it: "reply", later others. */
     [AnalyticsProperty.NOTIFICATION_KIND]: string;
+  };
+  [AnalyticsEvent.SUMMARY_REQUESTED]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.COMMENT_COUNT]: number;
+    [AnalyticsProperty.SUMMARY_SOURCE]: SummarySource;
+  };
+  [AnalyticsEvent.SUMMARY_VIEWED]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.COMMENT_COUNT]: number;
+  };
+  [AnalyticsEvent.SUMMARY_COMMENT_LINK_TAPPED]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.COMMENT_ID]: number;
   };
 
   // Widget Interactions

@@ -140,6 +140,14 @@ function RootLayoutContent() {
           }}
         />
         <Stack.Screen
+          name="story/[id]/summary"
+          options={{
+            ...sheetHeader,
+            sheetAllowedDetents: [0.9],
+            headerTitle: "Summary",
+          }}
+        />
+        <Stack.Screen
           name="discuss"
           options={{
             ...sheetHeader,

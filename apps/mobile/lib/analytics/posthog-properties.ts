@@ -72,6 +72,7 @@ export enum AnalyticsProperty {
   // Pro
   PRO_FEATURE = "feature",
   PRO_PLAN = "plan",
+  SUMMARY_SOURCE = "source",
 
   // Replies & notifications
   REPLY_COUNT = "reply_count",

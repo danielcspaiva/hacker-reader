@@ -77,6 +77,9 @@ export enum AnalyticsEvent {
   REPLY_NOTIFICATIONS_ENABLED = "reply_notifications_enabled",
   REPLY_NOTIFICATIONS_DISABLED = "reply_notifications_disabled",
   NOTIFICATION_OPENED = "notification_opened",
+  SUMMARY_REQUESTED = "summary_requested",
+  SUMMARY_VIEWED = "summary_viewed",
+  SUMMARY_COMMENT_LINK_TAPPED = "summary_comment_link_tapped",
 
   // Widget Interactions (iOS only)
   WIDGET_TAPPED = "widget_tapped",

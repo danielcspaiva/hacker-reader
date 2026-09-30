@@ -171,6 +171,23 @@ export default function PrivacyPage() {
                   notification token, and the Hacker News username you choose to
                   share for reply notifications.
                 </>,
+                <>
+                  <strong>AI summaries:</strong> when you ask for one, the story
+                  ID is sent to our server, which fetches the story&apos;s
+                  public Hacker News comments and its article and sends that
+                  public text to{" "}
+                  <a
+                    className={linkClass}
+                    href="https://www.anthropic.com/legal/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Anthropic
+                  </a>{" "}
+                  to write the summary. No personal data is involved (no
+                  usernames are sent). Summaries are cached on our server for up
+                  to 7 days and shared between Pro users.
+                </>,
               ]}
             />
             <p>

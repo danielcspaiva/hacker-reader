@@ -11,6 +11,7 @@ import { timeAgo } from "@/lib/format/time";
 import { getDomain } from "@/lib/format/url";
 import { hapticImpact, hapticSelection } from "@/lib/haptics";
 import type { StoryWithComments } from "@/lib/hn";
+import { shouldOfferSummaryPill } from "@/lib/pro/summary";
 
 import { HTMLText } from "./html-text";
 
@@ -18,6 +19,8 @@ interface StoryHeaderProps {
   story: StoryWithComments;
   hasVoted: boolean;
   onVote: () => void;
+  /** Opens the AI summary (Pro); the pill shows only on long threads. */
+  onSummarize?: () => void;
   /** Bottom edge of the hero title, in list content coordinates. */
   onTitleBottomChange?: (bottom: number) => void;
 }
@@ -44,6 +47,7 @@ export function StoryHeader({
   story,
   hasVoted,
   onVote,
+  onSummarize,
   onTitleBottomChange,
 }: StoryHeaderProps) {
   const heroY = useRef(0);
@@ -162,6 +166,33 @@ export function StoryHeader({
             </View>
           ) : null}
         </View>
+        {onSummarize && shouldOfferSummaryPill(story.descendants) ? (
+          <Pressable
+            onPress={() => {
+              hapticSelection();
+              onSummarize();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={`Summarize ${story.descendants} comments`}
+            style={({ pressed }) => [
+              styles.summaryPill,
+              {
+                backgroundColor: colors.primaryWash,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Icon
+              name="summarize"
+              size={INLINE_ICON_SIZE.callout}
+              weight="semibold"
+              color={colors.primaryInk}
+            />
+            <Text variant="callout" tone="primary" weight="semibold">
+              {`Summarize ${story.descendants} comments`}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {url ? (
@@ -219,6 +250,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderCurve: "continuous",
+  },
+  summaryPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,

@@ -30,6 +30,7 @@ import {
 } from "@/hooks/use-scroll-to-comment";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useStoryVisit } from "@/hooks/use-story-visit";
+import { useSummarizeStory } from "@/hooks/use-summarize-story";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { hapticImpact } from "@/lib/haptics";
@@ -76,6 +77,7 @@ export function StoryDetail({
   const { isBlocked } = useBlockedUsers();
   const isOffline = useIsOffline();
   const actions = useStoryActions(story, "story_detail");
+  const summarize = useSummarizeStory(story);
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
   // Story title shows in the nav bar once the hero title scrolls under it.
   const titleBottom = useRef(Infinity);
@@ -189,6 +191,7 @@ export function StoryDetail({
             )}
             onCollapseAll={collapseAllThreads}
             onExpandAll={expandAllThreads}
+            onSummarize={summarize && (() => summarize("menu"))}
           />
         </>
       )}
@@ -218,6 +221,11 @@ export function StoryDetail({
               story={story}
               hasVoted={actions.hasVoted}
               onVote={actions.handleVote}
+              onSummarize={
+                summarize && !isInsidePreview
+                  ? () => summarize("pill")
+                  : undefined
+              }
               onTitleBottomChange={(bottom) => {
                 titleBottom.current = bottom;
               }}
