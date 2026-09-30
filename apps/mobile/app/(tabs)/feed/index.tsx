@@ -1,6 +1,6 @@
 import type { FlashListRef } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 
 import { ErrorState } from "@/components/error-state";
@@ -15,12 +15,14 @@ import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useStories } from "@/hooks/use-stories";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
+import { yesterdayDay } from "@/lib/format/day";
 import { hapticSelection } from "@/lib/haptics";
 import { STORY_CATEGORIES, type HNItem, type StoryCategory } from "@/lib/hn";
 import { syncTopStoriesWidget } from "@/lib/widgets/sync";
 
 export default function FeedScreen() {
   const { category, setCategory } = useFeedCategory();
+  const router = useRouter();
   const analytics = useAnalytics();
   const { isHidden } = useHiddenStories();
   const { isBlocked } = useBlockedUsers();
@@ -109,6 +111,19 @@ export default function FeedScreen() {
               {CATEGORY_LABELS[cat]}
             </Stack.Toolbar.MenuAction>
           ))}
+          <Stack.Toolbar.Menu inline title="">
+            <Stack.Toolbar.MenuAction
+              icon={ICON_GLYPHS.pastFrontPages.ios}
+              onPress={() =>
+                router.push({
+                  pathname: "/front/[day]",
+                  params: { day: yesterdayDay() },
+                })
+              }
+            >
+              Past Front Pages…
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
       </Stack.Toolbar>
       <ListScreen<HNItem>

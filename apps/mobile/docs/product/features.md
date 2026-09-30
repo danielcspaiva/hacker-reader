@@ -16,15 +16,20 @@ This document provides a comprehensive overview of all features available in the
 
 ### Story Browsing
 
-Browse Hacker News stories across five different categories:
+Browse Hacker News stories across six categories, plus past front pages:
 
 #### Categories
 
 - **Top Stories** =% - The most popular stories currently on HN
+- **Best Stories** - Highest-voted recent stories (Firebase `beststories`)
 - **New Stories** ( - Recently submitted stories
 - **Ask HN** =� - Questions and discussions from the community
 - **Show HN** =� - Projects, products, and creations shared by users
 - **Jobs** =� - Job postings from YC companies and startups
+
+#### Past Front Pages
+
+"Past Front Pages…" in the feed menu opens a day's front page (Algolia `front_page`, ranked by points), like news.ycombinator.com/front. Defaults to yesterday; previous/next day buttons in the header and a native date picker. Days are UTC. Deep link: `hnclient://front/YYYY-MM-DD`.
 
 #### Story Cards
 

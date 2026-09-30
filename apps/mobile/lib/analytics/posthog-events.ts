@@ -23,6 +23,8 @@ export enum AnalyticsEvent {
   CATEGORY_CHANGED = "category_changed",
   INFINITE_SCROLL_TRIGGERED = "infinite_scroll_triggered",
 
+  PAST_FRONT_PAGE_VIEWED = "past_front_page_viewed",
+
   // Search
   SEARCH_PERFORMED = "search_performed",
   SEARCH_RESULT_CLICKED = "search_result_clicked",

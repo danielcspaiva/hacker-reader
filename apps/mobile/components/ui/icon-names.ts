@@ -9,6 +9,7 @@ type GlyphName = Exclude<SymbolViewProps["name"], string>;
 export const ICON_GLYPHS = {
   // navigation
   chevronRight: { ios: "chevron.right", android: "chevron_right" },
+  chevronLeft: { ios: "chevron.left", android: "chevron_left" },
   chevronDown: { ios: "chevron.down", android: "expand_more" },
   chevronUp: { ios: "chevron.up", android: "expand_less" },
   close: { ios: "xmark", android: "close" },
@@ -42,7 +43,9 @@ export const ICON_GLYPHS = {
   calendar: { ios: "calendar", android: "calendar_today" },
   // categories and tabs
   top: { ios: "flame", android: "local_fire_department" },
+  best: { ios: "trophy", android: "emoji_events" },
   new: { ios: "clock", android: "schedule" },
+  pastFrontPages: { ios: "calendar.badge.clock", android: "history" },
   ask: { ios: "questionmark.bubble", android: "help" },
   show: { ios: "sparkle", android: "auto_awesome" },
   jobs: { ios: "briefcase", android: "work" },

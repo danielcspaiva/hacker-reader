@@ -102,6 +102,7 @@ function RootLayoutContent() {
       >
         <Stack.Screen name="(tabs)" options={{ title: "Hacker Reader" }} />
         <Stack.Screen name="story/[id]" options={detailHeader} />
+        <Stack.Screen name="front/[day]" options={detailHeader} />
         <Stack.Screen name="user/[id]" options={detailHeader} />
         <Stack.Screen name="user/[id]/submissions" options={detailHeader} />
         <Stack.Screen

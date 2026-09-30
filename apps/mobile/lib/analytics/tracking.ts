@@ -57,6 +57,10 @@ export interface EventProperties {
     [AnalyticsProperty.PAGE_NUMBER]: number;
   };
 
+  [AnalyticsEvent.PAST_FRONT_PAGE_VIEWED]: {
+    [AnalyticsProperty.DAY]: string;
+  };
+
   // Search
   [AnalyticsEvent.SEARCH_PERFORMED]: {
     [AnalyticsProperty.QUERY]: string;

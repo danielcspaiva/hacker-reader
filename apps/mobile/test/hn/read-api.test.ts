@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
 
 import type { StoryCategory } from "@/lib/hn/constants";
-import { getStoryWithComments, searchStories } from "@/lib/hn/read/algolia";
+import {
+  getFrontPageStories,
+  getStoryWithComments,
+  searchStories,
+} from "@/lib/hn/read/algolia";
 import {
   getItem,
   getItems,
@@ -24,6 +28,7 @@ describe("firebase hn-api", () => {
   it("story lists hit the right endpoint and slice by offset/limit", async () => {
     const endpoints: [StoryCategory, string][] = [
       ["top", "topstories"],
+      ["best", "beststories"],
       ["new", "newstories"],
       ["ask", "askstories"],
       ["show", "showstories"],
@@ -100,6 +105,34 @@ describe("algolia-api", () => {
     assert.equal(
       fake.calls[0].url,
       "https://hn.algolia.com/api/v1/search?query=rust+%26+go&page=2&hitsPerPage=10&tags=story"
+    );
+  });
+
+  it("getFrontPageStories filters by front_page and day, sorted by points", async () => {
+    const hit = (objectID: string, points: number | null) => ({
+      objectID,
+      title: `t${objectID}`,
+      url: null,
+      author: "a",
+      points,
+      num_comments: 0,
+      created_at_i: 1,
+    });
+    fake = installFetch([
+      {
+        json: {
+          hits: [hit("1", 5), hit("x", 99), hit("2", 50), hit("3", null)],
+        },
+      },
+    ]);
+    const items = await getFrontPageStories(100, 200);
+    assert.equal(
+      fake.calls[0].url,
+      "https://hn.algolia.com/api/v1/search?tags=front_page&numericFilters=created_at_i%3E%3D100%2Ccreated_at_i%3C200&hitsPerPage=30"
+    );
+    assert.deepEqual(
+      items.map((item) => item.id),
+      [2, 1, 3]
     );
   });
 

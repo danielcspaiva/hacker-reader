@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React Native Hacker News client built with Expo and file-based routing (expo-router). The app displays stories from Hacker News across five categories (Top, New, Ask, Show, Jobs) with infinite scrolling, link previews, and a comment system.
+This is a React Native Hacker News client built with Expo and file-based routing (expo-router). The app displays stories from Hacker News across six categories (Top, Best, New, Ask, Show, Jobs) plus past front pages by date with infinite scrolling, link previews, and a comment system.
 
 ## Package Manager
 
@@ -162,6 +162,13 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 - **Comment results** render `SubmissionCommentCard` with `known` story context from the hit (`story_id`, `story_title`), so no per-card lookups; tapping opens the story scrolled to the comment.
 - `search_performed` carries sort, scope, date range, min points and `has_author_filter`.
 
+### Past Front Pages (Mobile)
+
+- Feed header menu, inline section "Past Front Pages…" pushes `app/front/[day].tsx` (root stack, deep link `hnclient://front/YYYY-MM-DD`; invalid day means yesterday, future days clamp to today).
+- `getFrontPageStories(start, end)` (`lib/hn/read/algolia.ts`): Algolia `tags=front_page` + `created_at_i` window, sorted by points, mapped with `mapHitToHNItem`; `useFrontPage(day)` with `hnKeys.frontPage(day)`.
+- Days are UTC (as on HN); pure helpers in `lib/format/day.ts` (tests: `test/hn/day.test.ts`). Header toolbar has previous/next day (next disabled today); `components/front/day-picker.ios.tsx` is a native compact SwiftUI `DatePicker` row.
+- Analytics: `past_front_page_viewed` with `day`. The widget stays Top-only.
+
 ### Routing & Navigation
 
 - **File-based routing** using Expo Router (expo-router v6)
@@ -185,7 +192,7 @@ The app uses a **React Query + HN API** architecture:
    - `getItem`/`getUser` return `HNItem | null` / `HNUser | null` (Firebase answers `null` for a missing item); callers handle null
 
 2. **React Query Hooks** (`hooks/use-stories.ts`, `hooks/use-story.ts`):
-   - `useStories(category)` - Single hook accepting a `StoryCategory` ('top' | 'new' | 'ask' | 'show' | 'jobs', from `@/lib/hn`)
+   - `useStories(category)` - Single hook accepting a `StoryCategory` ('top' | 'best' | 'new' | 'ask' | 'show' | 'jobs', from `@/lib/hn`)
      - Uses `useInfiniteQuery` with dynamic query key `['stories', category]`
      - Maps category to appropriate API fetcher (`getCategoryStoryIds`)
      - Only one query active at a time - switching categories reuses cached data instantly
@@ -204,7 +211,7 @@ The app uses a **React Query + HN API** architecture:
    - Automatic caching by React Query - switching between categories is instant after first load
 
 4. **Smart Prefetching Strategy** (`hooks/use-app-prefetch.ts`):
-   - **Global prefetch on app open** - All 5 categories prefetched automatically
+   - **Global prefetch on app open** - All 6 categories prefetched automatically
    - Triggered from `app/_layout.tsx` when app mounts (not tied to specific screen)
    - Waits 1.5s after mount to allow initial category (Top) to load first
    - Warms the first page of every category in parallel via `prefetchCategory` (from `hooks/use-stories.ts`)
