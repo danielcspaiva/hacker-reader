@@ -126,6 +126,12 @@
       "sourceType": "github",
       "skillPath": "packages/skills/skills/argent-tv-interact/SKILL.md",
       "computedHash": "d6e529a7e9829b39e14fe1a21d3c7b9cd9d67df042ae3e21801860c8d070007e"
+    },
+    "aso": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/aso/SKILL.md",
+      "computedHash": "45b98500bdeea02472f468e0390010e15cd162b5a4a9769d4cb33fbbc459ad33"
     }
   }
 }
