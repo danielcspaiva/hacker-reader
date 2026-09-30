@@ -16,6 +16,7 @@ import { ProProvider } from "@/contexts/pro-context";
 import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
+import { useICloudSync } from "@/hooks/use-icloud-sync";
 import { useNotificationRouting } from "@/hooks/use-notification-routing";
 import { useReplyNotificationsSync } from "@/hooks/use-reply-notifications-sync";
 import { useTheme } from "@/hooks/use-theme";
@@ -92,6 +93,7 @@ function RootLayoutContent() {
   useWidgetSync();
   useNotificationRouting();
   useReplyNotificationsSync();
+  useICloudSync();
 
   useAppPrefetch();
   // Keeps the bookmark ids live: the cache persister needs them to know which

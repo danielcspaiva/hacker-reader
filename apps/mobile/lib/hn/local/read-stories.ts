@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   isReadStoryEntry,
+  MAX_READ_STORIES,
   markRead,
   recordVisit,
   removeReadEntry,
@@ -46,6 +47,15 @@ export function markStoryRead(story: {
 
 export function markStoryUnread(id: number): Promise<ReadStoryEntry[]> {
   return store.update((entries) => removeReadEntry(entries, id));
+}
+
+/** Replaces the list, newest first and capped (iCloud sync applying merged changes). */
+export async function replaceReadStories(
+  entries: ReadStoryEntry[]
+): Promise<void> {
+  await store.update(() =>
+    [...entries].sort((a, b) => b.readAt - a.readAt).slice(0, MAX_READ_STORIES)
+  );
 }
 
 export function clearReadStories(): Promise<void> {

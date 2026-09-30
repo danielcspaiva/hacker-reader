@@ -57,7 +57,7 @@ function paywallState(input: {
 function heroSubtitle(isPro: boolean, featureTitle: string | undefined) {
   if (isPro) return "Thank you for paying for the servers.";
   if (featureTitle) return `${featureTitle} is part of Pro.`;
-  return "Reply alerts, summaries and sync: the features that need a server.";
+  return "Reply alerts, summaries and digests: the features that need a server.";
 }
 
 export default function ProScreen() {

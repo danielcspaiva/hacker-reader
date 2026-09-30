@@ -10,7 +10,6 @@ export const PRO_FEATURES = [
   "keyword_alerts",
   "ai_summaries",
   "daily_digest",
-  "icloud_sync",
   "alternate_icons",
 ] as const;
 

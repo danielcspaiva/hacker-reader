@@ -22,6 +22,11 @@ export function hideId(id: number): Promise<number[]> {
   return store.update((ids) => (ids.includes(id) ? ids : [...ids, id]));
 }
 
+/** Replaces the list (iCloud sync applying merged changes). */
+export async function replaceHiddenIds(ids: number[]): Promise<void> {
+  await store.update(() => ids);
+}
+
 export function clearHiddenIds(): Promise<void> {
   return store.clear();
 }

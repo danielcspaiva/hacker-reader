@@ -117,6 +117,7 @@
         }
       ],
       "./plugins/with-widget-self-refresh",
+      "./plugins/with-icloud-kv",
       [
         "expo-sharing",
         {

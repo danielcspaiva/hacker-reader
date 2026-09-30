@@ -83,6 +83,14 @@ export enum AnalyticsProperty {
   WIDGET_SIZE = "widget_size",
   WIDGET_KIND = "widget_kind",
 
+  // iCloud sync
+  SYNC_ENABLED = "enabled",
+  SYNC_PULLED_COUNT = "pulled_count",
+  SYNC_REMOVED_COUNT = "removed_count",
+  SYNC_PUSHED_COUNT = "pushed_count",
+  SYNC_TRIMMED_COUNT = "trimmed_count",
+  SYNC_PROBLEM_COUNT = "problem_count",
+
   // General
   URL = "url",
 }

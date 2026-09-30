@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import {
   createJsonListStore,
+  subscribeToStoreWrites,
   type KeyValueStorage,
 } from "@/lib/hn/local/json-list-store";
 
@@ -105,5 +106,22 @@ describe("createJsonListStore", () => {
     const store = createJsonListStore({ key: "k", guard: isNumber, storage });
     await store.clear();
     assert.equal(data.has("k"), false);
+  });
+});
+
+describe("subscribeToStoreWrites", () => {
+  it("notifies after a write or clear, not after a failed write", async () => {
+    const { storage, state } = fakeStorage();
+    const store = createJsonListStore({ key: "k", guard: isNumber, storage });
+    const seen: string[] = [];
+    const unsubscribe = subscribeToStoreWrites((key) => seen.push(key));
+    await store.update((items) => [...items, 1]);
+    await store.clear();
+    state.failWrites = true;
+    await assert.rejects(store.update((items) => [...items, 2]));
+    state.failWrites = false;
+    unsubscribe();
+    await store.update((items) => [...items, 3]);
+    assert.deepEqual(seen, ["k", "k"]);
   });
 });

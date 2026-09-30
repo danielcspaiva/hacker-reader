@@ -220,6 +220,17 @@ export interface EventProperties {
     [AnalyticsProperty.STORY_ID]: number;
     [AnalyticsProperty.COMMENT_ID]: number;
   };
+  // iCloud sync
+  [AnalyticsEvent.ICLOUD_SYNC_TOGGLED]: {
+    [AnalyticsProperty.SYNC_ENABLED]: boolean;
+  };
+  [AnalyticsEvent.ICLOUD_SYNC_COMPLETED]: {
+    [AnalyticsProperty.SYNC_PULLED_COUNT]: number;
+    [AnalyticsProperty.SYNC_REMOVED_COUNT]: number;
+    [AnalyticsProperty.SYNC_PUSHED_COUNT]: number;
+    [AnalyticsProperty.SYNC_TRIMMED_COUNT]: number;
+    [AnalyticsProperty.SYNC_PROBLEM_COUNT]: number;
+  };
 
   // Widget Interactions
   // Offline

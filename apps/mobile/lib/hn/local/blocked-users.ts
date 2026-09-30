@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { createJsonListStore } from "./json-list-store";
 
-const BLOCKED_USERS_KEY = "@blocked_users";
+export const BLOCKED_USERS_KEY = "@blocked_users";
 
 export interface BlockedUser {
   username: string;
@@ -43,6 +43,15 @@ export async function blockUser(username: string): Promise<void> {
 
 export async function unblockUser(username: string): Promise<void> {
   await store.update((users) => users.filter((u) => u.username !== username));
+}
+
+/** Replaces the list (iCloud sync applying merged changes). */
+export async function replaceBlockedUsers(users: BlockedUser[]): Promise<void> {
+  await store.update(() => users);
+}
+
+export function isBlockedUserRecord(value: unknown): value is BlockedUser {
+  return isBlockedUser(value);
 }
 
 export function clearBlockedUsers(): Promise<void> {

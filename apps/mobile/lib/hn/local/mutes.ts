@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { normalizeMuteValue, type Mute, type MuteKind } from "../mutes-match";
 import { createJsonListStore } from "./json-list-store";
 
-const MUTES_KEY = "@mutes";
+export const MUTES_KEY = "@mutes";
 
 function isMute(value: unknown): value is Mute {
   if (typeof value !== "object" || value === null) return false;
@@ -49,6 +49,15 @@ export async function addMute(
       : [...mutes, { kind, value, createdAt: Date.now() }]
   );
   return value;
+}
+
+/** Replaces the list (iCloud sync applying merged changes). */
+export async function replaceMutes(mutes: Mute[]): Promise<void> {
+  await store.update(() => mutes);
+}
+
+export function isMuteRecord(value: unknown): value is Mute {
+  return isMute(value);
 }
 
 export async function removeMute(kind: MuteKind, value: string): Promise<void> {

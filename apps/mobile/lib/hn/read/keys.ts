@@ -65,5 +65,7 @@ export const hnKeys = {
   blockedUsers: (): ["blockedUsers"] => ["blockedUsers"],
   searchOptions: (): ["search-options"] => ["search-options"],
   mutes: (): ["mutes"] => ["mutes"],
+  /** iCloud sync status (preference, availability, last synced time). */
+  icloudSync: (): ["icloud-sync"] => ["icloud-sync"],
   recentSearches: (): ["recent-searches"] => ["recent-searches"],
 };

@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { createJsonListStore } from "./json-list-store";
 
-const BOOKMARKS_KEY = "@hn_bookmarks";
+export const BOOKMARKS_KEY = "@hn_bookmarks";
 
 export interface BookmarkedStory {
   id: number;
@@ -39,6 +39,22 @@ export async function addBookmark(storyId: number): Promise<void> {
 
 export async function removeBookmark(storyId: number): Promise<void> {
   await store.update((bookmarks) => bookmarks.filter((b) => b.id !== storyId));
+}
+
+/** Replaces the list (iCloud sync applying merged changes). */
+export async function replaceBookmarks(
+  bookmarks: BookmarkedStory[]
+): Promise<void> {
+  await store.update(() => bookmarks);
+}
+
+/** Every stored bookmark with its timestamp. Throws if storage fails. */
+export function getBookmarkRecords(): Promise<BookmarkedStory[]> {
+  return store.read();
+}
+
+export function isBookmarkRecord(value: unknown): value is BookmarkedStory {
+  return isBookmarkedStory(value);
 }
 
 export function clearBookmarks(): Promise<void> {
