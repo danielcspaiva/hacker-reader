@@ -26,6 +26,7 @@ import { useAppIcon } from "@/hooks/use-app-icon";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
+import { useDailyDigest } from "@/hooks/use-daily-digest";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useICloudSyncStatus } from "@/hooks/use-icloud-sync-status";
@@ -40,6 +41,7 @@ import { timeAgoSpoken } from "@/lib/format/time";
 import { hapticNotify, Haptics } from "@/lib/haptics";
 import { reportError } from "@/lib/observability/report-error";
 import { MANAGE_SUBSCRIPTIONS_URL } from "@/lib/pro/constants";
+import { formatDigestHour } from "@/lib/pro/digest";
 import { queryPersister } from "@/lib/query-cache/persister";
 import { TEXT_SIZE_LABELS, TEXT_SIZES } from "@/lib/text/text-size";
 
@@ -74,6 +76,7 @@ export default function SettingsScreen() {
   const { isAvailable: proAvailable, isPro, deleteProData } = usePro();
   const { restorePurchases, isRestoring } = useRestorePurchases();
   const replyNotifications = useReplyNotifications();
+  const dailyDigest = useDailyDigest();
   const { supported: appIconSupported, current: appIcon } = useAppIcon();
   const { alerts, forget: forgetAlerts } = useAlerts();
 
@@ -82,6 +85,7 @@ export default function SettingsScreen() {
       await deleteProData();
       await replyNotifications.forget();
       await forgetAlerts();
+      await dailyDigest.forget();
       hapticNotify(Haptics.NotificationFeedbackType.Success);
       Alert.alert("Pro data deleted", "Your server-side Pro data was removed.");
     } catch (error) {
@@ -136,6 +140,16 @@ export default function SettingsScreen() {
               }
             />
           ) : null}
+          <ListRow
+            leading={<IconTile name="digest" hue="amber" />}
+            title="Daily Digest"
+            subtitle="The day's best stories each morning"
+            value={
+              dailyDigest.isOn ? formatDigestHour(dailyDigest.hour) : "Off"
+            }
+            chevron
+            onPress={() => router.push("/(tabs)/settings/digest")}
+          />
           {isPro ? (
             <ListRow
               leading={<IconTile name="keywordAlert" hue="red" />}

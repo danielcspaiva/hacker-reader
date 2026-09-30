@@ -10,6 +10,14 @@
     {
       "path": "/api/cron/alerts",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/digest-build",
+      "schedule": "0,30 5 * * *"
+    },
+    {
+      "path": "/api/cron/digest-send",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

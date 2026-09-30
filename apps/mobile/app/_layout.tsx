@@ -17,6 +17,7 @@ import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAlertsSync } from "@/hooks/use-alerts-sync";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
+import { useDailyDigestSync } from "@/hooks/use-daily-digest-sync";
 import { useICloudSync } from "@/hooks/use-icloud-sync";
 import { useNotificationRouting } from "@/hooks/use-notification-routing";
 import { useReplyNotificationsSync } from "@/hooks/use-reply-notifications-sync";
@@ -94,6 +95,7 @@ function RootLayoutContent() {
   useWidgetSync();
   useNotificationRouting();
   useReplyNotificationsSync();
+  useDailyDigestSync();
   useICloudSync();
   useAlertsSync();
 
@@ -125,6 +127,7 @@ function RootLayoutContent() {
         <Stack.Screen name="(tabs)" options={{ title: "Hacker Reader" }} />
         <Stack.Screen name="story/[id]" options={detailHeader} />
         <Stack.Screen name="front/[day]" options={detailHeader} />
+        <Stack.Screen name="digest/[date]" options={detailHeader} />
         <Stack.Screen name="user/[id]" options={detailHeader} />
         <Stack.Screen name="user/[id]/submissions" options={detailHeader} />
         <Stack.Screen

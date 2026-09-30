@@ -1,4 +1,5 @@
 import { parseAlerts, type AlertRule } from "./alerts-match";
+import { parseDigestPref, type DigestPref } from "./digest/prefs";
 import { entitlementKey } from "./entitlement";
 import {
   isBoolean,
@@ -13,7 +14,8 @@ import type { Store } from "./store";
 export type Platform = "ios" | "android";
 
 export type PrefValue = boolean | number | string | string[] | AlertRule[];
-export type Prefs = { [key: string]: PrefValue };
+/** `digest` is a structured pref (`digest/prefs.ts`); the rest are flat or alert lists. */
+export type Prefs = { [key: string]: PrefValue | DigestPref };
 
 export type Device = {
   installId: string;
@@ -102,6 +104,12 @@ function parsePrefs(
 
   const prefs: Prefs = {};
   for (const [key, entry] of entries) {
+    if (key === "digest") {
+      const digest = parseDigestPref(entry);
+      if (!digest.ok) return { ok: false, errors: [digest.error] };
+      prefs.digest = digest.value;
+      continue;
+    }
     if (!PREF_KEY.test(key)) {
       return {
         ok: false,

@@ -1,5 +1,5 @@
 /**
- * Opens the story a tapped push notification points to, from a cold start and
+ * Opens the story or digest a tapped push notification points to, from a cold start and
  * while the app runs. Foreground notifications are shown as banners.
  */
 
@@ -9,7 +9,10 @@ import { useEffect, useRef } from "react";
 
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
-import { parseNotificationTarget } from "@/lib/notifications/target";
+import {
+  isDigestTarget,
+  parseNotificationTarget,
+} from "@/lib/notifications/target";
 import { reportError } from "@/lib/observability/report-error";
 
 import { useAnalytics } from "./use-analytics";
@@ -48,8 +51,15 @@ export function useNotificationRouting() {
       track(AnalyticsEvent.NOTIFICATION_OPENED, {
         [AnalyticsProperty.NOTIFICATION_KIND]: target.kind,
       });
-      const id = String(target.storyId);
       try {
+        if (isDigestTarget(target)) {
+          router.push({
+            pathname: "/digest/[date]",
+            params: { date: target.date, source: "notification" },
+          });
+          return;
+        }
+        const id = String(target.storyId);
         if (target.commentId === undefined) {
           router.push({ pathname: "/story/[id]", params: { id } });
         } else {

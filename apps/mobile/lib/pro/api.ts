@@ -1,5 +1,6 @@
 import { fetchWithTimeout } from "@/lib/hn/fetch-timeout";
 
+import { parseDigest, type Digest, type DigestPrefValue } from "./digest";
 import { isJsonObject, isJsonString, type JsonValue } from "./json";
 import { parseSummaryResult, type StorySummaryResult } from "./summary";
 
@@ -18,7 +19,8 @@ export interface DeviceRegistration {
       | number
       | string
       | string[]
-      | { id: string; query: string; minPoints: number }[];
+      | { id: string; query: string; minPoints: number }[]
+      | DigestPrefValue;
   };
 }
 
@@ -108,6 +110,13 @@ export function createProApi(configuredUrl: string = proApiBaseUrl()) {
       ),
     getMe: (installId: string) =>
       request<ProMe>(baseUrl, installId, "GET", "/api/v1/me"),
+    getDigest: async (installId: string, date: string): Promise<Digest> => {
+      const path = `/api/v1/digest/${date}`;
+      const body = await request<JsonValue>(baseUrl, installId, "GET", path);
+      const digest = parseDigest(body);
+      if (!digest) throw new ProApiError(502, path, "invalid_response");
+      return digest;
+    },
     /** `generating` (HTTP 202) means: ask again in a few seconds. */
     getStorySummary: async (
       installId: string,

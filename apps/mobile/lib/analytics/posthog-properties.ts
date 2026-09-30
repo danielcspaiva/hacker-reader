@@ -73,6 +73,9 @@ export enum AnalyticsProperty {
   PRO_FEATURE = "feature",
   PRO_PLAN = "plan",
   SUMMARY_SOURCE = "source",
+  DIGEST_HOUR = "hour",
+  DIGEST_DATE = "date",
+  DIGEST_SOURCE = "digest_source",
 
   // Replies & notifications
   REPLY_COUNT = "reply_count",
