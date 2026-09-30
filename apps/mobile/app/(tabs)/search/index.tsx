@@ -1,24 +1,41 @@
-import { FlashList } from "@shopify/flash-list";
-import { useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useEffect } from "react";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { StyleSheet, View } from "react-native";
+import type { SearchBarCommands } from "react-native-screens";
 
+import { ErrorState } from "@/components/error-state";
 import { StoryCard } from "@/components/story-card";
-import { ThemedText } from "@/components/themed-text";
-import { useSearchStories } from "@/hooks/use-search-stories";
-import { hapticImpact } from "@/lib/haptics";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { StoryCardSkeleton } from "@/components/story-card-skeleton";
+import {
+  Button,
+  EmptyState,
+  IconTile,
+  ListRow,
+  ListScreen,
+  ListSection,
+  ScrollScreen,
+  Text,
+} from "@/components/ui";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useRecentSearches } from "@/hooks/use-recent-searches";
+import { useSearchStories } from "@/hooks/use-search-stories";
+import { useTheme } from "@/hooks/use-theme";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
-import type { HNItem } from "@/lib/shared";
+import type { HNItem } from "@/lib/hn";
+
+const SEARCH_DEBOUNCE_MS = 300;
+const SUGGESTIONS = ["Show HN", "Rust", "SQLite", "AI"];
 
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
-  const { bottom } = useSafeAreaInsets();
-  const textColor = useThemeColor({}, "text");
+  const router = useRouter();
+  const { colors } = useTheme();
   const analytics = useAnalytics();
+  const searchBarRef = useRef<SearchBarCommands>(null);
+  const { recentSearches, addSearch, clearSearches } = useRecentSearches();
+  // What the search bar holds right now; the `q` param follows it after a pause.
+  const [draft, setDraft] = useState<string | null>(null);
 
   const queryParam = params?.q;
   const rawQuery = Array.isArray(queryParam)
@@ -36,156 +53,165 @@ export default function SearchScreen() {
     isRefetching,
     refetch,
     isError,
-    error,
   } = useSearchStories(trimmedQuery);
 
   const stories = data?.pages.flatMap((page) => page.hits) ?? [];
 
-  // Track search performed
+  const firstPageCount = data?.pages[0]?.hits.length;
+  const hasResults =
+    !isQueryEmpty && !isLoading && firstPageCount !== undefined;
+
   useEffect(() => {
-    if (!isQueryEmpty && !isLoading && data) {
+    if (hasResults) {
       analytics.track(AnalyticsEvent.SEARCH_PERFORMED, {
         [AnalyticsProperty.QUERY]: trimmedQuery,
-        [AnalyticsProperty.RESULTS_COUNT]: stories.length,
+        [AnalyticsProperty.RESULTS_COUNT]: firstPageCount,
       });
     }
-  }, [trimmedQuery, isLoading, data, analytics, stories.length, isQueryEmpty]);
+  }, [trimmedQuery, hasResults, firstPageCount, analytics]);
+
+  useEffect(() => {
+    if (hasResults) addSearch(trimmedQuery);
+  }, [trimmedQuery, hasResults, addSearch]);
+
+  useEffect(() => {
+    if (draft === null) return;
+    const timer = setTimeout(() => {
+      router.setParams({ q: draft.trim().length > 0 ? draft : undefined });
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [draft, router]);
+
+  const runSearch = (term: string) => {
+    setDraft(null);
+    searchBarRef.current?.setText(term);
+    router.setParams({ q: term });
+  };
+
+  const searchBar = (
+    <Stack.SearchBar
+      ref={searchBarRef}
+      placeholder="Search stories"
+      hideWhenScrolling={false}
+      onChangeText={(event) => setDraft(event.nativeEvent.text ?? "")}
+      tintColor={colors.primary}
+      textColor={colors.foreground}
+      hintTextColor={colors.mutedForeground}
+      headerIconColor={colors.mutedForeground}
+    />
+  );
+
+  let content: ReactNode;
 
   if (isQueryEmpty) {
-    return (
-      <View style={[styles.centered, styles.placeholder]}>
-        <ThemedText type="title">Search Hacker News</ThemedText>
-        <ThemedText style={styles.placeholderText}>
-          Use the search bar above to find stories.
-        </ThemedText>
-      </View>
+    const hasRecents = recentSearches.length > 0;
+    content = (
+      <ScrollScreen keyboardShouldPersistTaps="handled" gap={24}>
+        {hasRecents ? (
+          <ListSection
+            title="Recent"
+            accessory={
+              <Button
+                label="Clear"
+                variant="ghost"
+                size="sm"
+                accessibilityLabel="Clear recent searches"
+                onPress={() => clearSearches()}
+              />
+            }
+          >
+            {recentSearches.map((term) => (
+              <ListRow
+                key={term}
+                title={term}
+                leading={<IconTile name="time" hue="gray" />}
+                chevron
+                onPress={() => runSearch(term)}
+              />
+            ))}
+          </ListSection>
+        ) : (
+          <EmptyState
+            fill={false}
+            icon="searchEmpty"
+            title="Search Hacker News"
+            message="Find stories, projects and discussions from across the site."
+          />
+        )}
+        <ListSection
+          title="Try searching"
+          footer="Results come from Algolia's Hacker News index."
+        >
+          {SUGGESTIONS.map((term) => (
+            <ListRow
+              key={term}
+              title={term}
+              leading={<IconTile name="search" hue="orange" />}
+              chevron
+              onPress={() => runSearch(term)}
+            />
+          ))}
+        </ListSection>
+      </ScrollScreen>
     );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={textColor} />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return (
-      <View style={styles.centered}>
-        <ThemedText selectable>Something went wrong while searching.</ThemedText>
-        <ThemedText style={styles.helperText} selectable>
-          {error?.message}
-        </ThemedText>
-      </View>
+  } else {
+    content = (
+      <ListScreen<HNItem>
+        data={stories}
+        isLoading={isLoading}
+        skeleton={<StoryCardSkeleton />}
+        skeletonCount={5}
+        renderItem={({ item }) => <StoryCard story={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        ListHeaderComponent={
+          !isLoading && stories.length > 0 ? (
+            <View style={styles.helper}>
+              <Text variant="caption" tone="muted">
+                Results for{" "}
+                <Text variant="caption" weight="semibold">
+                  {trimmedQuery}
+                </Text>
+              </Text>
+            </View>
+          ) : undefined
+        }
+        empty={
+          isError ? (
+            <ErrorState
+              title="Search failed"
+              message="Something went wrong while searching. Try again."
+              onRetry={() => void refetch()}
+            />
+          ) : (
+            <EmptyState
+              icon="searchEmpty"
+              title="No stories"
+              message={`No stories match “${trimmedQuery}”.`}
+            />
+          )
+        }
+        onLoadMore={hasNextPage ? () => void fetchNextPage() : undefined}
+        isLoadingMore={isFetchingNextPage}
+        onEndReachedThreshold={0.5}
+        refreshing={isRefetching}
+        onRefresh={() => void refetch()}
+      />
     );
   }
 
   return (
-    <FlashList<HNItem>
-      data={stories}
-      renderItem={({ item, index }) => (
-        <StoryCard story={item} index={index + 1} />
-      )}
-      keyExtractor={(item) => item.id.toString()}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[
-        styles.listContent,
-        {
-          paddingBottom: Platform.select({
-            android: 100 + bottom,
-            default: bottom,
-          }),
-        },
-      ]}
-      keyboardDismissMode="on-drag"
-      keyboardShouldPersistTaps="handled"
-      ListHeaderComponent={
-        <View style={styles.helperContainer}>
-          <ThemedText style={styles.helperText}>
-            Showing results for{" "}
-            <ThemedText style={styles.helperHighlight}>
-              {trimmedQuery}
-            </ThemedText>
-          </ThemedText>
-        </View>
-      }
-      ListEmptyComponent={
-        <View style={styles.emptyState}>
-          <ThemedText>
-            No stories match &quot;
-            <ThemedText style={styles.helperHighlight}>
-              {trimmedQuery}
-            </ThemedText>
-            &quot;.
-          </ThemedText>
-        </View>
-      }
-      ListFooterComponent={
-        isFetchingNextPage ? (
-          <View style={styles.footer}>
-            <ActivityIndicator size="small" color={textColor} />
-          </View>
-        ) : null
-      }
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }}
-      onEndReachedThreshold={0.5}
-      onRefresh={() => {
-        // Only trigger refetch if not already loading or refetching
-        if (!isLoading && !isRefetching) {
-          hapticImpact();
-          refetch();
-        }
-      }}
-      refreshing={isRefetching}
-      // onScrollBeginDrag={() => Keyboard.dismiss()}
-    />
+    <>
+      {searchBar}
+      {content}
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  listContent: {
-    paddingTop: 12,
-  },
-  helperContainer: {
-    paddingHorizontal: 16,
+  helper: {
+    paddingHorizontal: 4,
     paddingBottom: 12,
-  },
-  helperText: {
-    fontSize: 13,
-    opacity: 0.6,
-  },
-  helperHighlight: {
-    fontWeight: "600",
-  },
-  emptyState: {
-    paddingHorizontal: 16,
-    paddingVertical: 40,
-    alignItems: "center",
-  },
-  footer: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  placeholder: {
-    paddingHorizontal: 24,
-    gap: 12,
-  },
-  placeholderText: {
-    fontSize: 16,
-    textAlign: "center",
-    opacity: 0.7,
   },
 });

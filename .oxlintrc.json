@@ -1,0 +1,92 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "oxc",
+    "import",
+    "react",
+    "unicorn",
+    "typescript",
+    "nextjs",
+    "jsx-a11y"
+  ],
+  "jsPlugins": [
+    "./tooling/oxlint-plugins/comments.mjs",
+    {
+      "name": "anti-slop",
+      "specifier": "./tooling/oxlint-plugins/anti-slop/index.ts"
+    }
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "builtin": true,
+    "es2022": true
+  },
+  "settings": {
+    "react": {
+      "version": "19.2.3"
+    }
+  },
+  "ignorePatterns": [
+    "**/node_modules",
+    "**/.pnpm-store",
+    "**/dist",
+    "**/.next",
+    "**/.expo",
+    "**/.turbo",
+    "**/.cache",
+    "**/*.tsbuildinfo",
+    "**/coverage",
+    "**/ios/",
+    "**/android/",
+    "tooling/oxlint-plugins/anti-slop/",
+    "**/.agents/",
+    "**/.claude/",
+    "**/.codex/",
+    "**/.cursor/",
+    "**/.gemini/",
+    "**/.kiro/",
+    "**/.opencode/",
+    "**/.zed/",
+    "**/.vscode/",
+    "**/web-build/"
+  ],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/jsx-key": "error",
+    "react/immutability": "off",
+    "react/set-state-in-effect": "off",
+    "jsx-a11y/aria-role": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "nextjs/no-assign-module-variable": "off",
+    "eqeqeq": ["warn", "smart"],
+    "no-var": "error",
+    "anti-slop/no-chained-type-assertions": "error",
+    "anti-slop/no-conditional-empty-object-spread": "error",
+    "anti-slop/no-known-value-widening": "error",
+    "anti-slop/no-object-parameters": "error",
+    "anti-slop/no-reflect-apply": "error",
+    "anti-slop/no-reflect-get": "error",
+    "anti-slop/no-runtime-typeof": ["error", { "allowInTypeGuards": true }],
+    "anti-slop/no-shape-in-symbol-names": "error",
+    "anti-slop/no-unknown-parameters": "error",
+    "anti-slop/no-unknown-returns": "error",
+    "anti-slop/no-unknown-type-aliases": "error",
+    "anti-slop/no-unsafe-dictionary-type": "error",
+    "anti-slop/no-widen-then-assert": "error",
+    "anti-slop/require-safety-comment-for-type-assertion": "error",
+    "comments/no-decision-log-comments": "error",
+    "comments/no-narrating-comments": "error",
+    "comments/no-nested-ternary": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+      "rules": {
+        "typescript/no-require-imports": "off"
+      }
+    }
+  ]
+}

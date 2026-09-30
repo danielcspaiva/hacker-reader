@@ -1,240 +1,254 @@
-import { ThemedText } from "@/components/themed-text";
-import { Spacing } from "@/constants/theme";
-import { useHNAuth } from "@/contexts/hn-auth-context";
-import { useBlockedUsers } from "@/hooks/use-blocked-users";
-import { useDeleteCommentMutation } from "@/hooks/use-delete-comment-mutation";
-import type { Comment as CommentType } from "@/hooks/use-story";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { hapticImpact, hapticSelection, Haptics } from "@/lib/haptics";
-import { timeAgo } from "@/lib/shared";
-import { Button as SwiftUIButton, Host, Image, Menu } from "@expo/ui/swift-ui";
-import { frame } from "@expo/ui/swift-ui/modifiers";
-import { Link } from "expo-router";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import { router } from "expo-router";
+import { useEffect, useRef } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   FadeIn,
-  FadeOut,
-  LinearTransition,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
+
+import { Badge, Icon, Text } from "@/components/ui";
+import { GUTTER, withAlpha } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
+import { timeAgo } from "@/lib/format/time";
+import { hapticSelection } from "@/lib/haptics";
+import type { Comment as CommentType } from "@/lib/hn";
+
 import { HTMLText } from "./html-text";
+
+const MAX_RAILS = 5;
+const RAIL_WIDTH = 2;
+const RAIL_SPACING = 6;
+const RAIL_TO_TEXT = 10;
 
 interface CommentItemProps {
   comment: CommentType;
   depth: number;
+  replyCount: number;
   isCollapsed: boolean;
-  onToggleCollapse: (id: number) => void;
-  onReply: (commentId: number, username: string) => void;
-  storyId: number;
+  isOP: boolean;
+  isHighlighted?: boolean;
+  onToggleCollapse: (comment: CommentType) => void;
+  onOpenActions: (comment: CommentType) => void;
 }
 
+/**
+ * One row of a thread. Kept presentational and native-view-free so FlashList
+ * can recycle it cheaply on 1,000+ comment stories: actions are lifted to the
+ * screen and open a single native sheet on demand.
+ */
 export function CommentItem({
   comment,
   depth,
+  replyCount,
   isCollapsed,
+  isOP,
+  isHighlighted = false,
   onToggleCollapse,
-  onReply,
-  storyId,
+  onOpenActions,
 }: CommentItemProps) {
-  const borderColor = useThemeColor({}, "border");
-  const { isAuthenticated, username } = useHNAuth();
-  const { blockUser } = useBlockedUsers();
-  const textColor = useThemeColor({}, "text");
-  const deleteCommentMutation = useDeleteCommentMutation({ storyId });
+  const { colors } = useTheme();
 
-  // Check if this is the logged-in user's own comment
-  const isOwnComment = username && comment.by === username;
+  const hasChildren = replyCount > 0;
+  const railCount = Math.min(depth, MAX_RAILS);
+  const reduceMotion = useReducedMotion();
 
-  const handleBlockUser = async () => {
-    hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
-    try {
-      await blockUser(comment.by);
-      Alert.alert(
-        "User Blocked",
-        `You will no longer see content from ${comment.by}. You can unblock them in Settings.`,
-        [{ text: "OK" }]
-      );
-    } catch {
-      Alert.alert("Error", "Failed to block user. Please try again.", [
-        { text: "OK" },
-      ]);
-    }
-  };
-
-  const handleDeleteComment = () => {
-    if (!isAuthenticated) {
-      Alert.alert(
-        "Login Required",
-        "You must be logged in to delete comments.",
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
-    Alert.alert(
-      "Delete Comment",
-      "Are you sure you want to delete this comment? This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            hapticImpact(Haptics.ImpactFeedbackStyle.Medium);
-            deleteCommentMutation.mutate(comment.id);
-          },
-        },
-      ]
-    );
-  };
-
-  const handleReply = () => {
+  const toggle = () => {
     hapticSelection();
-    onReply(comment.id, comment.by);
+    onToggleCollapse(comment);
   };
 
-  if (!comment.text) {
-    return null;
-  }
+  // Chevron points down when collapsed, up when expanded. Rows are recycled by
+  // FlashList, so snap (never tween) when the row now shows another comment.
+  const rotation = useSharedValue(isCollapsed ? 0 : 180);
+  const shownId = useRef<number | null>(null);
+  useEffect(() => {
+    const target = isCollapsed ? 0 : 180;
+    if (reduceMotion || shownId.current !== comment.id) {
+      rotation.value = target;
+    } else {
+      rotation.value = withTiming(target, { duration: 180 });
+    }
+    shownId.current = comment.id;
+  }, [comment.id, isCollapsed, reduceMotion, rotation]);
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
 
-  let content = (
-    <Animated.View
-      layout={LinearTransition.duration(200)}
+  return (
+    <View
       style={[
-        styles.comment,
-        {
-          borderLeftColor: borderColor,
+        styles.container,
+        isHighlighted && {
+          backgroundColor: withAlpha(colors.primary, 0.1),
+          borderRadius: 12,
+          borderCurve: "continuous",
+        },
+        depth === 0 && {
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: colors.separator,
         },
       ]}
     >
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Link href={`/user/${comment.by}`}>
-            <Link.Trigger>
-              <ThemedText type="bodySmall" style={styles.author}>
-                {comment.by}
-              </ThemedText>
-            </Link.Trigger>
-            <Link.Preview />
-          </Link>
-          <ThemedText type="caption" style={styles.time}>
-            {" "}
-            • {timeAgo(comment.time)}
-          </ThemedText>
-          {comment.children && comment.children.length > 0 && (
-            <TouchableOpacity
-              onPress={() => {
-                hapticSelection();
-                onToggleCollapse(comment.id);
-              }}
-              activeOpacity={0.7}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <ThemedText type="caption" style={styles.collapseButton}>
-                {" "}
-                [{isCollapsed ? `+${comment.children.length}` : "−"}]
-              </ThemedText>
-            </TouchableOpacity>
-          )}
+      {railCount > 0 ? (
+        <View style={styles.rails}>
+          {Array.from({ length: railCount }, (_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.rail,
+                { backgroundColor: colors.rail[index % colors.rail.length] },
+              ]}
+            />
+          ))}
         </View>
-        <Host matchContents style={styles.moreButton}>
-          <Menu
-            label={<Image systemName="ellipsis" color={textColor} size={18} />}
-            modifiers={[frame({ width: 32, height: 32 })]}
-          >
-            {isAuthenticated && (
-              <SwiftUIButton
-                systemImage="arrowshape.turn.up.left"
-                onPress={handleReply}
-                label="Reply"
-              />
-            )}
-            {isOwnComment ? (
-              <SwiftUIButton
-                systemImage="trash"
-                onPress={handleDeleteComment}
-                role="destructive"
-                label="Delete Comment"
-              />
-            ) : (
-              <SwiftUIButton
-                systemImage="nosign"
-                onPress={handleBlockUser}
-                role="destructive"
-                label="Block User"
-              />
-            )}
-          </Menu>
-        </Host>
-      </View>
-      {!isCollapsed && (
-        <Animated.View
-          entering={FadeIn.duration(150)}
-          exiting={FadeOut.duration(150)}
-        >
-          <HTMLText html={comment.text} style={styles.text} />
-        </Animated.View>
-      )}
-    </Animated.View>
-  );
-
-  // Wrap with nested borders for each depth level
-  for (let i = depth - 1; i >= 0; i--) {
-    content = (
-      <View
-        key={i}
-        style={[styles.nestedBorder, { borderLeftColor: borderColor }]}
+      ) : null}
+      {/* Tapping anywhere on the body toggles the subtree. Inner pressables
+          (username, header, actions) and link spans handle their own taps;
+          accessible={false} keeps them individually reachable for VoiceOver,
+          whose collapse control is the header button. */}
+      <Pressable
+        style={styles.body}
+        accessible={false}
+        disabled={!hasChildren}
+        onPress={toggle}
       >
-        {content}
-      </View>
-    );
-  }
-
-  return <View style={styles.container}>{content}</View>;
+        <View style={styles.header}>
+          <Pressable
+            hitSlop={8}
+            accessibilityRole="link"
+            accessibilityLabel={`Profile of ${comment.by}`}
+            onPress={() => {
+              hapticSelection();
+              router.push(`/user/${comment.by}`);
+            }}
+          >
+            <Text
+              variant="callout"
+              weight="semibold"
+              tone={isOP ? "primary" : "default"}
+            >
+              {comment.by}
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={hasChildren ? toggle : undefined}
+            disabled={!hasChildren}
+            accessibilityRole="button"
+            accessibilityHint={
+              hasChildren
+                ? isCollapsed
+                  ? "Shows the replies"
+                  : "Hides the replies"
+                : undefined
+            }
+            accessibilityLabel={
+              isCollapsed
+                ? `Expand comment by ${comment.by}, ${replyCount} replies`
+                : `Collapse comment by ${comment.by}`
+            }
+            style={({ pressed }) => [
+              styles.headerMain,
+              pressed ? styles.pressed : null,
+            ]}
+          >
+            {isOP ? <Badge label="OP" tone="primary" /> : null}
+            <Text variant="caption" tone="muted" numeric>
+              {timeAgo(comment.time)}
+            </Text>
+            {hasChildren ? (
+              <View style={styles.collapse}>
+                {isCollapsed ? (
+                  <Animated.View
+                    entering={reduceMotion ? undefined : FadeIn.duration(150)}
+                  >
+                    <Badge label={`+${replyCount}`} tone="neutral" />
+                  </Animated.View>
+                ) : null}
+                <Animated.View style={chevronStyle}>
+                  <Icon
+                    name="chevronDown"
+                    size={12}
+                    weight="semibold"
+                    color={colors.tertiaryForeground}
+                  />
+                </Animated.View>
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Comment actions"
+            onPress={() => {
+              hapticSelection();
+              onOpenActions(comment);
+            }}
+            style={({ pressed }) => [
+              styles.moreButton,
+              pressed ? styles.pressed : null,
+            ]}
+          >
+            <Icon name="more" size={16} color={colors.mutedForeground} />
+          </Pressable>
+        </View>
+        {isCollapsed ? null : (
+          <HTMLText html={comment.text} variant="callout" />
+        )}
+      </Pressable>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  // Vertical padding lives on the body, not the row, so rails span the full
+  // row height and join the rails of the rows above and below.
   container: {
-    paddingHorizontal: Spacing.lg,
+    flexDirection: "row",
+    marginHorizontal: GUTTER,
+    gap: RAIL_TO_TEXT,
   },
-  nestedBorder: {
-    paddingLeft: Spacing.md,
-    borderLeftWidth: 1,
+  rails: {
+    flexDirection: "row",
+    gap: RAIL_SPACING,
   },
-  comment: {
-    marginBottom: Spacing.lg,
-    paddingLeft: Spacing.md,
-    borderLeftWidth: 1,
+  rail: {
+    width: RAIL_WIDTH,
+  },
+  body: {
+    flex: 1,
+    gap: 6,
+    paddingTop: 12,
+    paddingBottom: 14,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: Spacing.sm,
+    gap: 8,
   },
-  headerLeft: {
+  pressed: {
+    opacity: 0.6,
+  },
+  headerMain: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    gap: 8,
+    minHeight: 32,
+  },
+  collapse: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginLeft: "auto",
+    paddingRight: 4,
   },
   moreButton: {
     width: 32,
     height: 32,
     alignItems: "center",
     justifyContent: "center",
-  },
-  author: {
-    fontWeight: "600",
-  },
-  time: {
-    opacity: 0.6,
-  },
-  collapseButton: {
-    opacity: 0.6,
-  },
-  text: {
-    marginBottom: Spacing.sm,
   },
 });

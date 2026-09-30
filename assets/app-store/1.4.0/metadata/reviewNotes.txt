@@ -1,0 +1,62 @@
+DEMO ACCOUNT
+Username: appstorereview
+Password: appstorereview
+
+Only voting, commenting and flagging need an account; bookmarks, hidden stories and blocked users are stored on the device.
+
+TESTING WITHOUT LOGIN
+1. Feeds
+- Opens on Stories (Top). Tabs: Stories, Bookmarks, Profile, Settings, Search (far right).
+- Switch feeds with the header's top-right icon button (a flame on Top; VoiceOver: "Category: Top"): Top, New, Ask, Show, Jobs.
+- Pull down to refresh; scroll to load more.
+
+2. Story page
+- Tap a card to open a story. On a link post, tap the link preview to read the article in an in-app browser.
+- Header: Bookmark button and More actions (...): Share, Open in Browser (link posts), Hide, Flag, Block User.
+- Touch and hold a story card in any list: Upvote, Bookmark, Share, More > Hide / Flag / Block User.
+
+3. Comments
+- Tap the header (age and chevron) of a comment with replies to collapse the thread ("+N" = hidden replies); tap again to expand.
+- A comment's ... button: Block User; signed in, also Reply (Delete Comment instead of Block User on your own).
+
+4. Search tab: type in "Search stories" or tap a suggestion (Show HN, Rust, SQLite, AI).
+5. Bookmarks tab: saved stories; ... > Clear All Bookmarks empties it.
+6. User profiles: tap a username (story page byline or comment header) for karma, member since, bio and Submissions (Stories / Comments); tap a comment to open its thread.
+7. Settings: Appearance (System / Light / Dark); Blocked Users (tap to unblock, or Unblock all); Hidden Posts (tap to unhide all); Clear Cache; Clear Bookmarks.
+
+TESTING WITH LOGIN
+8. Sign in
+- Profile tab > "Sign in".
+- First time only, the "Hacker News Guidelines" sheet appears: tap "Accept & Continue".
+- In "Sign in to Hacker News" enter the demo credentials and tap "Sign in".
+- Profile then shows appstorereview and its karma (Submissions appears once it has posted).
+
+For 9-11 use a recent Top or New story: HN blocks votes on job posts, and comments on job posts or threads over two weeks old.
+
+9. Upvote (stories only)
+- Tap the points pill on a story page, or long-press a card > Upvote. The pill turns orange; the count updates on a later refresh. Tap it again, or Unvote, to remove it.
+- Signed out, this shows "Sign In Required".
+
+10. Comment
+- On a story page tap the orange pencil button at the bottom right ("Add a comment"), type, tap send ("Post comment"). It appears in the thread (at the end, or after a few seconds).
+- Reply: comment ... > Reply. Remove yours: ... > Delete Comment.
+
+11. Flag (pick a story with few comments): More actions > Flag > Flag. This reports it to HN moderators, but HN requires karma to flag, so the demo account (karma 1) gets "Insufficient Karma". Hide and Block User always work.
+
+12. Sign out: Profile tab > scroll down > "Sign out" (red) > confirm. The sign-in card returns, the pencil button disappears, browsing still works.
+
+TESTING iOS WIDGETS
+Open the app once first; before that, widgets may show "Open Hacker Reader to load stories".
+13. Home Screen: touch and hold empty space > Edit > Add Widget > search "Hacker Reader" > HN Top Stories.
+- Small: the #1 top story; tap opens it.
+- Medium: top 2 stories; Large: top 7. Tap a row for that story, elsewhere for the app.
+14. Lock Screen: touch and hold it > Customize > Lock Screen > tap the widget area > Hacker Reader. Shows the top 3 headlines; tap opens the #1 story.
+Widgets refresh themselves about every 30 minutes and on app open.
+
+COMMON ISSUES & NOTES
+- Accounts are created on news.ycombinator.com (the sign-in sheet links there). The app has no sign-up and keeps only the HN username and session cookie (Keychain) until sign out.
+- All content is hosted by Hacker News (Y Combinator), not this app.
+- No paid features, subscriptions or in-app purchases.
+- App is a Hacker News client, just like Octal, Hackers, Hacker Feed, and Hacki.
+
+Questions? Please contact me. Thank you for testing!

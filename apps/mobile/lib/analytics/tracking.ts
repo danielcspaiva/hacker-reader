@@ -5,15 +5,17 @@
  * All tracking functions are type-safe and follow naming conventions.
  */
 
-import type { Category } from "@/components/category-filter";
-import { reportError } from "@/lib/observability";
 import * as Application from "expo-application";
 import { usePostHog } from "posthog-react-native";
 import { Platform } from "react-native";
+
+import type { StoryCategory } from "@/lib/hn";
+import { reportError } from "@/lib/observability/report-error";
+
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
 
-export type WidgetSize = "small" | "medium" | "large";
+export type WidgetSize = "small" | "medium" | "large" | "accessory";
 
 /**
  * Type-safe event properties for each analytics event
@@ -31,7 +33,7 @@ export interface EventProperties {
   [AnalyticsEvent.STORY_VIEWED]: {
     [AnalyticsProperty.STORY_ID]: number;
     [AnalyticsProperty.STORY_TITLE]?: string;
-    [AnalyticsProperty.CATEGORY]?: Category;
+    [AnalyticsProperty.CATEGORY]?: StoryCategory;
     [AnalyticsProperty.STORY_SCORE]?: number;
     [AnalyticsProperty.HAS_URL]?: boolean;
     [AnalyticsProperty.COMMENT_COUNT]?: number;
@@ -42,11 +44,11 @@ export interface EventProperties {
     [AnalyticsProperty.URL]: string;
   };
   [AnalyticsEvent.CATEGORY_CHANGED]: {
-    [AnalyticsProperty.FROM_CATEGORY]: Category;
-    [AnalyticsProperty.TO_CATEGORY]: Category;
+    [AnalyticsProperty.FROM_CATEGORY]: StoryCategory;
+    [AnalyticsProperty.TO_CATEGORY]: StoryCategory;
   };
   [AnalyticsEvent.INFINITE_SCROLL_TRIGGERED]: {
-    [AnalyticsProperty.CATEGORY]: Category;
+    [AnalyticsProperty.CATEGORY]: StoryCategory;
     [AnalyticsProperty.PAGE_NUMBER]: number;
   };
 
@@ -64,7 +66,7 @@ export interface EventProperties {
   // Engagement Actions
   [AnalyticsEvent.STORY_UPVOTED]: {
     [AnalyticsProperty.STORY_ID]: number;
-    [AnalyticsProperty.CATEGORY]?: Category;
+    [AnalyticsProperty.CATEGORY]?: StoryCategory;
   };
   [AnalyticsEvent.STORY_UNVOTED]: {
     [AnalyticsProperty.STORY_ID]: number;
@@ -118,14 +120,9 @@ export interface EventProperties {
   [AnalyticsEvent.SETTINGS_VIEWED]: Record<string, never>;
 
   // Widget Interactions
-  [AnalyticsEvent.WIDGET_ADDED]: {
-    [AnalyticsProperty.WIDGET_KIND]: string;
-    [AnalyticsProperty.WIDGET_SIZE]: WidgetSize;
-  };
   [AnalyticsEvent.WIDGET_TAPPED]: {
     [AnalyticsProperty.WIDGET_SIZE]: WidgetSize;
-    [AnalyticsProperty.STORY_ID]?: number;
-    [AnalyticsProperty.WIDGET_KIND]?: string;
+    [AnalyticsProperty.STORY_ID]: number;
   };
 }
 
@@ -205,28 +202,5 @@ export function resetUser(posthog: ReturnType<typeof usePostHog>) {
     posthog.reset();
   } catch (error) {
     reportError(error, { operation: "resetUser" });
-  }
-}
-
-/**
- * Register super properties (set once per session)
- */
-export function registerSuperProperties(
-  posthog: ReturnType<typeof usePostHog>,
-  properties: {
-    [AnalyticsProperty.COLOR_SCHEME]?: "light" | "dark";
-    [AnalyticsProperty.IS_AUTHENTICATED]?: boolean;
-    [AnalyticsProperty.HAS_WIDGET_INSTALLED]?: boolean;
-  }
-) {
-  if (!posthog) {
-    console.warn("[Analytics] PostHog not initialized");
-    return;
-  }
-
-  try {
-    posthog.register(properties);
-  } catch (error) {
-    reportError(error, { operation: "registerSuperProperties" });
   }
 }

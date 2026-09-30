@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react-native";
  * Extra context attached to a reported error (shows up under "Additional Data"
  * in Sentry). Keep keys short and values JSON-serializable.
  */
-export type ErrorContext = Record<string, unknown>;
+export type ErrorContext = Record<string, string | number | boolean | null>;
 
 /**
  * Report an unexpected error to Sentry (and surface it on the console in dev).
@@ -28,11 +28,7 @@ export function reportError(error: unknown, context?: ErrorContext): void {
     console.error(error, context);
   }
 
-  const normalized =
-    error instanceof Error ? error : new Error(String(error));
+  const normalized = error instanceof Error ? error : new Error(String(error));
 
-  Sentry.captureException(
-    normalized,
-    context ? { extra: context } : undefined
-  );
+  Sentry.captureException(normalized, context ? { extra: context } : undefined);
 }

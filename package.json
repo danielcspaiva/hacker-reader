@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "private": true,
-  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67",
+  "packageManager": "pnpm@12.6.0",
   "scripts": {
     "dev": "concurrently \"pnpm mobile\" \"pnpm web\" --names \"mobile,web\" --prefix-colors \"cyan,magenta\"",
     "mobile": "pnpm --filter @hn/mobile start",
     "mobile:ios": "pnpm --filter @hn/mobile ios",
-    "mobile:ios:widgets": "pnpm --filter @hn/mobile ios:widgets",
     "mobile:prebuild": "pnpm --filter @hn/mobile prebuild:ios",
     "mobile:prebuild:clean": "pnpm --filter @hn/mobile prebuild:clean",
     "mobile:android": "pnpm --filter @hn/mobile android",
@@ -19,20 +18,17 @@
     "web:start": "pnpm --filter @hn/web start",
     "web:lint": "pnpm --filter @hn/web lint",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
-    "format": "pnpm -r format",
+    "test": "pnpm --filter @hn/mobile test",
+    "lint": "oxlint && oxfmt --check",
+    "format": "oxfmt",
     "clean": "pnpm -r exec rm -rf node_modules .expo dist .next",
     "reset": "pnpm clean && rm -rf node_modules pnpm-lock.yaml && pnpm install"
   },
   "devDependencies": {
+    "@oxlint/plugins": "^1.86.0",
     "concurrently": "^9.1.2",
-    "prettier": "^3.4.2",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
     "typescript": "~5.9.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "react": "19.2.3",
-      "react-dom": "19.2.3"
-    }
   }
 }

@@ -52,11 +52,9 @@ export enum AnalyticsProperty {
   PLATFORM = "platform",
   COLOR_SCHEME = "color_scheme",
   IS_AUTHENTICATED = "is_authenticated",
-  HAS_WIDGET_INSTALLED = "has_widget_installed",
 
   // Widget
   WIDGET_SIZE = "widget_size",
-  WIDGET_KIND = "widget_kind",
 
   // General
   URL = "url",

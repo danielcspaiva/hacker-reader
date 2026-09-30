@@ -5,6 +5,7 @@
 ## TL;DR - Privacy-First Approach
 
 Hacker Reader is designed with privacy as a core principle:
+
 - ✅ **No account required** to browse content
 - ✅ **No tracking** across apps or websites
 - ✅ **No data sale** to third parties
@@ -14,10 +15,12 @@ Hacker Reader is designed with privacy as a core principle:
 ## Quick Summary
 
 ### What We Collect (Minimal & Anonymous)
+
 - **Crash reports** (via Sentry) - Not linked to you
 - **Anonymous analytics** (via PostHog) - Not linked to you
 
 ### What We DON'T Collect
+
 - ❌ Personal information (name, email, phone)
 - ❌ Location data
 - ❌ Browsing history or stories you read
@@ -32,6 +35,7 @@ For the complete privacy policy, please visit:
 **🔗 https://hackerreader.app/privacy**
 
 The full policy includes detailed information about:
+
 - Data collection practices
 - Third-party services (Sentry, PostHog)
 - Data storage and security
@@ -42,6 +46,7 @@ The full policy includes detailed information about:
 ## Data Storage
 
 ### On Your Device (Never Leaves)
+
 - **Login cookies**: iOS Keychain (hardware-encrypted)
 - **Bookmarks**: Local AsyncStorage
 - **Cache**: Local storage
@@ -50,12 +55,14 @@ The full policy includes detailed information about:
 **None of this data leaves your device.**
 
 ### On Third-Party Servers
+
 - **Crash reports**: Sentry (anonymized, 90-day retention)
 - **Analytics events**: PostHog (anonymized, 90-day retention)
 
 ## Anonymous Analytics Explained
 
 Even when you log in with your Hacker News account, we **NEVER** link analytics to your username. Instead:
+
 - We use a random anonymous ID for all analytics
 - We track authentication status as a boolean flag (logged in: true/false)
 - We cannot identify who you are in our analytics data
@@ -66,6 +73,7 @@ This allows us to understand how logged-in users behave differently without comp
 ## Your Rights
 
 You have the right to:
+
 - **Access** your data (essentially none linked to you)
 - **Delete** your data (uninstall app)
 - **Opt-out** of analytics (toggle coming in v1.1)
@@ -74,12 +82,14 @@ You have the right to:
 ## Contact
 
 Questions about privacy?
+
 - **Email**: privacy@hackerreader.app
 - **Response time**: Within 30 days
 
 ## Open Source Transparency
 
 This project is fully open source. You can:
+
 - Review the code on [GitHub](https://github.com/danielcspaiva/hacker-reader)
 - Audit our data collection practices
 - Submit privacy-related issues or pull requests
@@ -95,6 +105,7 @@ This project is fully open source. You can:
 ## Third-Party Services
 
 ### Sentry (Crash Reporting)
+
 - **Purpose**: Monitor crashes and errors
 - **Privacy Policy**: https://sentry.io/privacy/
 - **Compliance**: GDPR, SOC 2 certified
@@ -102,6 +113,7 @@ This project is fully open source. You can:
 - **How to disable for self-hosted builds**: Leave `EXPO_PUBLIC_SENTRY_DSN` and `SENTRY_AUTH_TOKEN` unset (or remove them from `.env`) before building; the app skips initializing Sentry when those values are absent.
 
 ### PostHog (Analytics)
+
 - **Purpose**: Understand feature usage
 - **Privacy Policy**: https://posthog.com/privacy
 - **Compliance**: GDPR compliant

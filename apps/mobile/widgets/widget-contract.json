@@ -1,0 +1,9 @@
+{
+  "storyCount": 8,
+  "candidateCount": 10,
+  "entryCount": 24,
+  "entrySpacingMinutes": 30,
+  "staleAfterMinutes": 30,
+  "reloadAfterMinutes": 30,
+  "timelineKeyFormat": "__expo_widgets_{name}_timeline"
+}

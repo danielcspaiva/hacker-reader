@@ -1,0 +1,23 @@
+A complete redesign. Clean white cards in Light Mode, warm charcoal in Dark Mode, and orange accents that match the app icon.
+
+• New Home Screen widgets that put the #1 story front and center, with more top stories alongside. They fill every size cleanly and stay up to date even with the app closed
+• A new Lock Screen widget with the top three stories
+• Numbered story cards with a square thumbnail and the site's icon
+• Story pages with a serif headline and a large link preview. The title moves into the navigation bar as you scroll. Tap the points to upvote
+• Tap any comment to collapse or expand its replies
+• Comment threads with quiet orange depth rails, much faster on stories with 1,000+ comments
+• A Liquid Glass compose button, and a comment box that sits right on the keyboard
+• Switch between Top, New, Ask, Show and Jobs from the menu in the top-right corner
+• Tap a comment in someone's submissions to jump to it in the thread
+• A launch screen that matches Light and Dark Mode
+• Blocking a comment author now asks first
+
+Fixes
+• Upvoting a story you had already voted on showed "Something Went Wrong"
+• Clearer messages when Hacker News asks you to slow down, verify you're human or sign in again
+• A storage error could erase saved bookmarks, votes or blocked users
+• Posting a comment could wrongly report a failure
+• The comment box stayed locked for several seconds after posting
+• Voting or commenting on some threads could sign you out
+• Network errors showed "No stories found" instead of a Try again button
+• VoiceOver now reads each story card's title, site and counts

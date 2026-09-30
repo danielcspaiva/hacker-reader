@@ -1,0 +1,12 @@
+diff --git a/bundle/react-stub.ts b/bundle/react-stub.ts
+index dc78634f06d13b7272197056d0f829ab9e0f793f..4219426800badb1f3a7d4101666d02a2867b0c13 100644
+--- a/bundle/react-stub.ts
++++ b/bundle/react-stub.ts
+@@ -28,3 +28,7 @@ export const createContext = <T>(defaultValue: T): StubContext<T> => ({
+ });
+ 
+ export const useContext = <T>(context: StubContext<T>): T => context._currentValue;
++
++// Patched: @expo/ui/swift-ui pulls in recycling/useRecycledRows, which calls `memo` at module scope.
++// The widget runtime never mounts these, so an identity stub is enough to let the bundle evaluate.
++export const memo = <T>(component: T): T => component;

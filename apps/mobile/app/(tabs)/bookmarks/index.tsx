@@ -1,115 +1,93 @@
-import { StoryCard } from "@/components/story-card";
-import { ThemedText } from "@/components/themed-text";
-import { useBookmarks } from "@/hooks/use-bookmarks";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { hapticImpact } from "@/lib/haptics";
-import { type HNItem } from "@/lib/shared";
-import { FlashList, FlashListRef } from "@shopify/flash-list";
+import type { FlashListRef } from "@shopify/flash-list";
+import { Stack } from "expo-router";
 import { useEffect, useRef } from "react";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-function EmptyState() {
-  return (
-    <View style={styles.emptyContainer}>
-      <ThemedText style={styles.emptyText}>No bookmarks yet</ThemedText>
-      <ThemedText style={styles.emptySubtext}>
-        Long press on any story to bookmark it
-      </ThemedText>
-    </View>
-  );
-}
+import { ErrorState } from "@/components/error-state";
+import { StoryCard } from "@/components/story-card";
+import { StoryCardSkeleton } from "@/components/story-card-skeleton";
+import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
+import { confirmDestructive } from "@/lib/confirm-destructive";
+import { type HNItem } from "@/lib/hn";
 
 export default function BookmarksScreen() {
   const {
     data: stories = [],
     isLoading,
+    isError,
     refetch,
     isRefetching,
   } = useBookmarks();
-  const textColor = useThemeColor({}, "text");
-  const { bottom } = useSafeAreaInsets();
+  const { bookmarkCount, isClearing, clearAll } = useClearBookmarks();
   const listRef = useRef<FlashListRef<HNItem>>(null);
   const previousCountRef = useRef(stories.length);
 
-  // Scroll to top when new bookmarks are added
   useEffect(() => {
     if (stories.length > previousCountRef.current && stories.length > 0) {
-      // New bookmark was added, scroll to top
       listRef.current?.scrollToTop({ animated: true });
     }
     previousCountRef.current = stories.length;
   }, [stories.length]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={textColor} />
-      </View>
-    );
-  }
+  const confirmClearAll = () => {
+    const noun = bookmarkCount === 1 ? "bookmark" : "bookmarks";
+    confirmDestructive({
+      title: `Remove ${bookmarkCount} ${noun}?`,
+      message:
+        "This removes every saved story from this device. It can't be undone.",
+      confirmLabel: "Remove All",
+      onConfirm: clearAll,
+    });
+  };
 
-  if (stories.length === 0) {
-    return (
-      <View style={styles.container}>
-        <EmptyState />
-      </View>
-    );
-  }
+  const toolbar =
+    stories.length > 0 ? (
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Menu
+          icon={ICON_GLYPHS.more.ios}
+          accessibilityLabel="Bookmark options"
+        >
+          <Stack.Toolbar.MenuAction
+            icon={ICON_GLYPHS.trash.ios}
+            destructive
+            disabled={isClearing}
+            onPress={confirmClearAll}
+          >
+            Clear All Bookmarks
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
+    ) : null;
 
   return (
-    <FlashList<HNItem>
-      ref={listRef}
-      data={stories}
-      ListHeaderComponent={<View style={{ paddingTop: 16 }} />}
-      renderItem={({ item, index }) => (
-        <StoryCard story={item} index={index + 1} />
-      )}
-      keyExtractor={(item) => item.id.toString()}
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{
-        paddingBottom: Platform.select({
-          android: 100 + bottom,
-          default: 0,
-        }),
-      }}
-      onRefresh={() => {
-        // Only trigger refetch if not already loading or refetching
-        if (!isLoading && !isRefetching) {
-          hapticImpact();
-          refetch();
+    <>
+      {toolbar}
+      <ListScreen<HNItem>
+        listRef={listRef}
+        data={stories}
+        isLoading={isLoading}
+        skeleton={<StoryCardSkeleton />}
+        skeletonCount={4}
+        renderItem={({ item }) => <StoryCard story={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        refreshing={isRefetching}
+        onRefresh={() => void refetch()}
+        empty={
+          isError ? (
+            <ErrorState
+              title="Couldn't load bookmarks"
+              onRetry={() => void refetch()}
+            />
+          ) : (
+            <EmptyState
+              icon="bookmark"
+              title="No Bookmarks Yet"
+              message="Tap the bookmark button on a story, or long press it in the feed, to save it here for later."
+            />
+          )
         }
-      }}
-      refreshing={isRefetching}
-    />
+      />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 64,
-  },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-    opacity: 0.7,
-  },
-  emptySubtext: {
-    fontSize: 15,
-    opacity: 0.5,
-    textAlign: "center",
-  },
-});

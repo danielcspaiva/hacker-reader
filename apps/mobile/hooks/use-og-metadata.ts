@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchOGMetadata, type OGMetadata } from "@/lib/shared";
+
+import { hnKeys } from "@/lib/hn";
+import { fetchOGMetadata, type OGMetadata } from "@/lib/link-preview/og";
 
 export function useOGMetadata(url?: string) {
   return useQuery<OGMetadata | null, Error>({
-    queryKey: ["og-metadata", url],
+    queryKey: hnKeys.ogMetadata(url),
     queryFn: ({ signal }) =>
       url ? fetchOGMetadata(url, signal) : Promise.resolve(null),
     enabled: !!url,

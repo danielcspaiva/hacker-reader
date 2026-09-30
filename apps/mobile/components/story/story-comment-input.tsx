@@ -1,14 +1,7 @@
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
-import { useHNAuth } from "@/contexts/hn-auth-context";
-import { useCommentMutation } from "@/hooks/use-comment-mutation";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { hapticImpact, hapticSelection } from "@/lib/haptics";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -16,71 +9,80 @@ import {
   StyleSheet,
   TextInput,
   View,
+  type TextInputInstance,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-interface ReplyTarget {
-  commentId: number;
-  username: string;
+import { Icon, Text } from "@/components/ui";
+import { Radius, withAlpha } from "@/constants/theme";
+import { useHNAuth } from "@/contexts/hn-auth-context";
+import {
+  useCommentMutation,
+  type ReplyTarget,
+} from "@/hooks/use-comment-mutation";
+import { useTheme } from "@/hooks/use-theme";
+import { hapticImpact, hapticSelection } from "@/lib/haptics";
+
+/** The open comment box: replying to a comment, or (null) commenting on the story. */
+export interface Composer {
+  replyTo: ReplyTarget | null;
 }
 
 interface StoryCommentInputProps {
   storyId: number;
-  replyTarget: ReplyTarget | null;
-  onCancelReply: () => void;
+  /** Null while the box is closed and only the compose button shows. */
+  composer: Composer | null;
+  onOpen: () => void;
+  onClose: () => void;
 }
 
 export function StoryCommentInput({
   storyId,
-  replyTarget,
-  onCancelReply,
+  composer,
+  onOpen,
+  onClose,
 }: StoryCommentInputProps) {
-  const textColor = useThemeColor({}, "text");
-  const { colorScheme, colorPalette } = useColorSchemeContext();
+  const { scheme, colors } = useTheme();
   const { isAuthenticated } = useHNAuth();
   const { bottom } = useSafeAreaInsets();
-  const isDark = colorScheme === "dark";
+
   const hasLiquidGlass = isLiquidGlassAvailable();
-  const backgroundColor =
-    colorScheme === "dark"
-      ? Colors.dark[colorPalette].background
-      : Colors.light[colorPalette].background;
-  const borderColor =
-    colorScheme === "dark"
-      ? Colors.dark[colorPalette].border
-      : Colors.light[colorPalette].border;
-
+  const [keyboardShown, setKeyboardShown] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const [isManuallyOpened, setIsManuallyOpened] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInputInstance>(null);
 
-  // The input is visible when the user explicitly opened it, or whenever a reply
-  // target is set. Deriving this (rather than syncing replyTarget into state via
-  // an effect) keeps a single source of truth; closing/posting clears the reply
-  // target in the parent, which collapses this back to false.
-  const isCommentInputVisible = isManuallyOpened || replyTarget !== null;
+  const replyTarget = composer?.replyTo ?? null;
+  const isCommentInputVisible = composer !== null;
 
-  // Comment mutation
   const commentMutation = useCommentMutation({
     storyId,
     replyTarget,
     onSuccess: () => {
-      // Clean up UI
       setCommentText("");
-      setIsManuallyOpened(false);
-      if (replyTarget) {
-        onCancelReply();
-      }
+      onClose();
     },
   });
 
-  // Focus input when it becomes visible
+  // KeyboardAvoidingView already lifts the card to the top of the keyboard,
+  // which covers the home indicator area. The safe-area margin only applies
+  // while the keyboard is down, otherwise it is added on top as a dead strip.
   useEffect(() => {
-    if (isCommentInputVisible) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-    }
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, () => setKeyboardShown(true));
+    const hide = Keyboard.addListener(hideEvent, () => setKeyboardShown(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isCommentInputVisible) return;
+    const timeout = setTimeout(() => inputRef.current?.focus(), 100);
+    return () => clearTimeout(timeout);
   }, [isCommentInputVisible]);
 
   const handlePostComment = () => {
@@ -93,11 +95,8 @@ export function StoryCommentInput({
   };
 
   const handleCloseCommentInput = () => {
-    setIsManuallyOpened(false);
     setCommentText("");
-    if (replyTarget) {
-      onCancelReply(); // Clear reply mode when closing input
-    }
+    onClose();
   };
 
   if (!isAuthenticated) {
@@ -107,96 +106,92 @@ export function StoryCommentInput({
   const placeholder = replyTarget
     ? `Reply to ${replyTarget.username}...`
     : "Add a comment...";
+  const canSend = commentText.trim().length > 0 && !commentMutation.isPending;
 
   return (
     <>
-      {/* Floating comment button */}
       {!isCommentInputVisible && (
-        <View
-          style={[
-            styles.floatingButtonContainer,
-            {
-              bottom: Platform.select({
-                ios: bottom + 16,
-                android: bottom + 16,
-                default: 16,
-              }),
-            },
-          ]}
-        >
+        <View style={[styles.fabContainer, { bottom: bottom + 16 }]}>
           <GlassView
             glassEffectStyle="regular"
+            // A translucent tint keeps the glass visible; an opaque one reads
+            // as a flat orange disc.
+            tintColor={withAlpha(colors.primary, 0.75)}
+            isInteractive
             style={[
-              styles.floatingButtonGlass,
-              !hasLiquidGlass && {
-                backgroundColor,
-                borderWidth: 1,
-                borderColor,
-              },
+              styles.fab,
+              !hasLiquidGlass && { backgroundColor: colors.primary },
             ]}
           >
             <Pressable
               onPress={() => {
                 hapticSelection();
-                setIsManuallyOpened(true);
+                onOpen();
               }}
-              style={[styles.floatingButton]}
+              accessibilityRole="button"
+              accessibilityLabel="Add a comment"
+              style={({ pressed }) => [
+                styles.fabPress,
+                !hasLiquidGlass && {
+                  opacity: pressed ? 0.85 : 1,
+                  transform: [{ scale: pressed ? 0.96 : 1 }],
+                },
+              ]}
             >
-              <IconSymbol
-                name="bubble.right"
+              <Icon
+                name="compose"
                 size={24}
-                color={textColor}
                 weight="medium"
+                color={colors.primaryForeground}
               />
             </Pressable>
           </GlassView>
         </View>
       )}
 
-      {/* Comment Input */}
       {isCommentInputVisible && (
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={0}
           style={styles.keyboardAvoidingContainer}
         >
-          <GlassView
-            glassEffectStyle="regular"
+          <View
             style={[
               styles.inputContainer,
               {
-                paddingBottom: Platform.select({
-                  ios: bottom || 8,
-                  android: 8,
-                  default: 8,
-                }),
-              },
-              !hasLiquidGlass && {
-                backgroundColor,
-                borderWidth: 1,
-                borderColor,
+                backgroundColor: colors.card,
+                marginBottom: keyboardShown ? 8 : Math.max(bottom, 8),
+                shadowColor: colors.foreground,
               },
             ]}
           >
-            {/* Header with close button */}
             <View style={styles.inputHeader}>
-              {replyTarget ? (
-                <ThemedText type="caption" style={styles.replyContextText}>
-                  Replying to {replyTarget.username}
-                </ThemedText>
-              ) : (
-                <View style={styles.spacer} />
-              )}
+              <Text
+                variant="caption"
+                tone="muted"
+                weight="medium"
+                numberOfLines={1}
+                style={styles.replyContext}
+              >
+                {replyTarget
+                  ? `Replying to ${replyTarget.username}`
+                  : "New comment"}
+              </Text>
               <Pressable
                 onPress={handleCloseCommentInput}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                style={styles.closeButton}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Close comment box"
+                style={({ pressed }) => [
+                  styles.closeButton,
+                  pressed ? styles.pressed : null,
+                ]}
               >
-                <IconSymbol
-                  name="xmark"
-                  size={16}
-                  color={`${textColor}40`}
-                  weight="medium"
+                <Icon
+                  name="close"
+                  size={12}
+                  weight="semibold"
+                  color={colors.mutedForeground}
                 />
               </Pressable>
             </View>
@@ -206,38 +201,55 @@ export function StoryCommentInput({
                 ref={inputRef}
                 style={[
                   styles.input,
-                  {
-                    color: textColor,
-                  },
+                  { color: colors.foreground, backgroundColor: colors.muted },
                 ]}
                 placeholder={placeholder}
-                placeholderTextColor={isDark ? "#8E8E93" : "#8E8E93"}
+                placeholderTextColor={colors.tertiaryForeground}
                 value={commentText}
                 onChangeText={setCommentText}
                 multiline
                 maxLength={5000}
                 editable={!commentMutation.isPending}
                 returnKeyType="default"
-                keyboardAppearance={colorScheme}
+                keyboardAppearance={scheme}
+                selectionColor={colors.primary}
               />
 
               <Pressable
                 onPress={handlePostComment}
-                disabled={!commentText.trim() || commentMutation.isPending}
-                style={styles.sendButton}
+                disabled={!canSend}
+                accessibilityRole="button"
+                accessibilityLabel="Post comment"
+                accessibilityState={{ disabled: !canSend }}
+                style={({ pressed }) => [
+                  styles.sendButton,
+                  {
+                    backgroundColor: canSend
+                      ? colors.primary
+                      : withAlpha(colors.tertiaryForeground, 0.25),
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
               >
                 {commentMutation.isPending ? (
-                  <ThemedText style={styles.sendButtonText}>...</ThemedText>
+                  <ActivityIndicator
+                    size="small"
+                    color={colors.primaryForeground}
+                  />
                 ) : (
-                  <IconSymbol
-                    name="paperplane.fill"
-                    size={20}
-                    color={!commentText.trim() ? `${textColor}40` : "#FF6600"}
+                  <Icon
+                    name="send"
+                    size={16}
+                    color={
+                      canSend
+                        ? colors.primaryForeground
+                        : colors.mutedForeground
+                    }
                   />
                 )}
               </Pressable>
             </View>
-          </GlassView>
+          </View>
         </KeyboardAvoidingView>
       )}
     </>
@@ -245,18 +257,21 @@ export function StoryCommentInput({
 }
 
 const styles = StyleSheet.create({
-  floatingButtonContainer: {
+  fabContainer: {
     position: "absolute",
     right: 16,
     zIndex: 100,
   },
-  floatingButtonGlass: {
-    borderRadius: 28,
-  },
-  floatingButton: {
+  fab: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: Radius.pill,
+    borderCurve: "continuous",
+    overflow: "hidden",
+  },
+  fabPress: {
+    width: 56,
+    height: 56,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -268,55 +283,57 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   inputContainer: {
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
-    borderRadius: 28,
-    marginBottom: 6,
+    marginHorizontal: 8,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    borderRadius: Radius.card,
+    borderCurve: "continuous",
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   inputHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingLeft: 16,
-    paddingRight: 4,
-    paddingVertical: 8,
-    marginBottom: 4,
+    paddingLeft: 8,
+    minHeight: 36,
   },
-  replyContextText: {
-    opacity: 0.7,
-    fontWeight: "500",
+  replyContext: {
     flex: 1,
   },
-  spacer: {
-    flex: 1,
+  pressed: {
+    opacity: 0.6,
   },
   closeButton: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     alignItems: "center",
     justifyContent: "center",
   },
   inputRow: {
     flexDirection: "row",
     alignItems: "flex-end",
-    paddingLeft: 12,
-    paddingRight: 4,
     gap: 8,
   },
   input: {
     flex: 1,
     fontSize: 17,
-    minHeight: 36,
+    minHeight: 40,
     maxHeight: 120,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: Radius.list,
+    borderCurve: "continuous",
   },
   sendButton: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    borderCurve: "continuous",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 2,
-  },
-  sendButtonText: {
-    fontSize: 16,
   },
 });

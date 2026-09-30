@@ -9,6 +9,7 @@
 [![Download on the App Store](https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83)](https://apps.apple.com/us/app/hacker-reader/id6754137305)
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Monorepo Layout](#monorepo-layout)
@@ -31,9 +32,9 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 ## Key Features
 
 - **Native mobile experience** – Browse Top, New, Show HN, Ask HN, and Jobs feeds with FlashList, themed layouts, haptic feedback, and deep React Query caching.
-- **HN account support** – Log in inside the app, manage a secure session, vote, favorite, post comments, and delete your own comments through the hardened write API wrappers with optimistic UI updates.
+- **HN account support** – Log in inside the app, manage a secure session, vote, post comments, and delete your own comments through the hardened write API wrappers with optimistic UI updates.
 - **Thoughtful reading tools** – Rich Open Graph link previews, nested comment threads with collapse controls, Algolia-powered search, and persistent bookmarks backed by AsyncStorage.
-- **iOS Widgets** – Three widget sizes (small/medium/large) displaying Top Stories with auto-updates every 30 minutes, deep linking, and offline support.
+- **iOS Widgets** – Small, medium and large home screen widgets plus a lock screen widget showing Top Stories, built with `expo-widgets` and refreshed on their own (every 30 minutes when stale), with deep links to stories.
 - **Web preview & landing** – A Next.js App Router marketing site showcasing the app.
 
 ## Monorepo Layout
@@ -42,10 +43,13 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 .
 ├── apps/
 │   ├── mobile/              # Expo + React Native app
-│   │   ├── lib/
-│   │   │   └── shared/      # HN API clients, auth, types, utilities
+│   │   ├── lib/hn/          # HN API clients, auth, local stores, types
+│   │   ├── lib/format/      # time and URL formatting
+│   │   ├── lib/html/        # entity decoding and HTML parsing
 │   │   ├── hooks/           # React Query hooks
-│   │   ├── components/      # UI components
+│   │   ├── components/ui/   # design-system primitives
+│   │   ├── components/      # feature components
+│   │   ├── widgets/         # iOS widget layout and provider
 │   │   └── app/             # Expo Router screens
 │   └── web/                 # Next.js App Router marketing site (AI backend coming)
 ├── package.json             # Root scripts and tooling
@@ -58,7 +62,7 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 ### Prerequisites
 
 - Node.js 18 or newer
-- pnpm 8+
+- pnpm 12 (pinned via `packageManager`)
 - Xcode (for iOS development)
 
 ### Installation
@@ -76,13 +80,14 @@ pnpm dev
 # Mobile targets
 pnpm mobile        # Expo dev server
 pnpm mobile:ios    # Launch iOS simulator
-pnpm mobile:lint   # Expo workspace linting
+pnpm mobile:lint   # oxlint in apps/mobile
+pnpm --filter @hn/mobile test   # Node tests for the HN layer
 
 # Web targets
 pnpm web           # Next.js dev server
 pnpm web:build     # Production build
 pnpm web:start     # Start production server
-pnpm web:lint      # Next.js workspace linting
+pnpm web:lint      # oxlint in apps/web
 ```
 
 ### Environment Setup
@@ -93,12 +98,13 @@ pnpm web:lint      # Next.js workspace linting
 ## Development Workflow
 
 - Prefer TypeScript everywhere with explicit return types on exported functions.
-- Default formatting is two-space indentation with trailing commas; the existing ESLint config enforces it.
+- Default formatting is two-space indentation with trailing commas; oxfmt enforces it.
 - Before opening a PR, run:
 
 ```bash
 pnpm typecheck
-pnpm lint
+pnpm lint          # oxlint, then oxfmt --check
+pnpm format        # oxfmt write
 pnpm mobile    # smoke-test the Expo app
 pnpm web       # smoke-test the marketing site
 ```
@@ -113,17 +119,18 @@ pnpm web       # smoke-test the marketing site
 **Package**: `@hn/mobile`
 
 - **Platform**: iOS (Android support coming soon)
-- **Framework**: Expo SDK 54 with React Compiler, Expo Router, and React Native 0.81
+- **Framework**: Expo SDK 58 (preview) with React Compiler, Expo Router, and React Native 0.88
 - **Features**: FlashList-driven feeds, story detail screens, bookmarks, search, and threaded comments with full posting and deletion capabilities
-- **Authentication**: Secure HN account login via in-app WebView with vote/favorite/comment/delete capabilities
-- **Theming**: System-aware dark mode with persisted preferences, custom color palettes, and glass effects
-- **Home Screen Widgets**: Three widget sizes (small/medium/large) displaying Top Stories with auto-updates every 30 minutes, deep linking to stories, and offline support via cached data
+- **Authentication**: Secure HN account login via a native login form with vote/comment/delete capabilities
+- **Theming**: System-aware light/dark themes on warm solid surfaces with a persisted preference; native iOS 26 chrome for headers and tabs (see `apps/mobile/docs/design-language.md`)
+- **Home Screen Widgets**: Small (1 story), medium (2), large (7) and lock screen widgets showing Top Stories, deep linking to stories, refreshed by the app and by a self-refreshing timeline provider
 
-**Core Libraries** (`apps/mobile/lib/shared/`):
+**Core Libraries** (`apps/mobile/lib/hn/`, `lib/link-preview/`, `lib/format/`, `lib/html/`):
+
 - **API Clients**: HN API, Algolia search, Open Graph metadata fetching
 - **Authentication**: Secure session wrapper, HTML parsers, rate limiting, write operations
 - **Types**: Fully typed interfaces for `HNItem`, `HNUser`, `AlgoliaStory`, etc.
-- **Utilities**: HTML sanitizers, relative time formatters, URL parsing
+- **Utilities**: HTML entity decoding and parsing, relative time formatters, URL parsing
 
 ### Web App (Next.js)
 

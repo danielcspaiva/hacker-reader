@@ -1,274 +1,162 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { Platform } from "react-native";
+
+import {
+  ListRow,
+  ListSection,
+  ListSlot,
+  ScrollScreen,
+  Segmented,
+  Text,
+  IconTile,
+} from "@/components/ui";
 import {
   ANDROID_PLAY_STORE_URL,
   APP_NAME,
   APP_VERSION,
+  HN_GUIDELINES_URL,
   IOS_APP_STORE_URL,
   REPO_URL,
 } from "@/constants/app-config";
-import { useColorSchemeContext } from "@/contexts/color-scheme-context";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
-import { useClearCache } from "@/hooks/use-clear-cache";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { clearBlockedUsers } from "@/lib/storage/blocked-users";
-import { Button, Form, Host, Picker, Section, Text } from "@expo/ui/swift-ui";
-import {
-  disabled,
-  foregroundStyle,
-  frame,
-  pickerStyle,
-  tag,
-} from "@expo/ui/swift-ui/modifiers";
-import { Alert, Platform, StyleSheet, View } from "react-native";
+import { confirmDestructive } from "@/lib/confirm-destructive";
+import { hapticNotify, Haptics } from "@/lib/haptics";
 
-const HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
-
-export default function SettingsScreen() {
-  const { colorScheme } = useColorSchemeContext();
-  const textColor = useThemeColor({}, "text");
-
-  // Custom hooks for all business logic
-  const { options, preference, setPreference } = useAppearanceSettings();
-  const { handleClearCache } = useClearCache();
-  const { handleClearBookmarks, clearBookmarksLabel, isClearing } =
-    useClearBookmarks();
-  const { count: hiddenCount, clearAll: clearHiddenStories } =
-    useHiddenStories();
-  const {
-    blockedUsers,
-    unblockUser,
-    refresh: refreshBlockedUsers,
-  } = useBlockedUsers();
-  const openLink = useExternalLink();
-
-  const handleOpenRepository = () => openLink(REPO_URL);
-  const handleRateApp = () => {
-    const rateUrl = Platform.select({
-      ios: IOS_APP_STORE_URL,
-      android: ANDROID_PLAY_STORE_URL,
-      default: IOS_APP_STORE_URL,
-    });
-    if (rateUrl) openLink(rateUrl);
-  };
-  const handleOpenWebsite = () => openLink("https://dcsp.dev");
-  const handleOpenGuidelines = () => openLink(HN_GUIDELINES_URL);
-  const handleClearHidden = () => {
-    if (hiddenCount === 0) {
-      Alert.alert("No Hidden Posts", "You haven't hidden any posts yet.");
-      return;
-    }
-
-    Alert.alert(
-      "Clear Hidden Posts",
-      `Unhide all ${hiddenCount} hidden posts?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear All",
-          style: "destructive",
-          onPress: clearHiddenStories,
-        },
-      ]
-    );
-  };
-
-  const handleManageBlockedUsers = () => {
-    if (blockedUsers.length === 0) {
-      Alert.alert(
-        "No Blocked Users",
-        "You haven't blocked any users yet. You can block users from story cards and comments."
-      );
-      return;
-    }
-
-    // Build the alert message showing all blocked users
-    const userList = blockedUsers.map((u) => u.username).join("\n");
-    const message = `Blocked users (${blockedUsers.length}):\n\n${userList}\n\nSelect a user to unblock:`;
-
-    // Create unblock actions for each user
-    const actions = blockedUsers.map((user) => ({
-      text: user.username,
-      onPress: async () => {
-        Alert.alert(
-          "Unblock User",
-          `Unblock ${user.username}? You will start seeing their content again.`,
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Unblock",
-              onPress: async () => {
-                try {
-                  await unblockUser(user.username);
-                  await refreshBlockedUsers();
-                  Alert.alert(
-                    "User Unblocked",
-                    `You will now see content from ${user.username}.`
-                  );
-                } catch {
-                  Alert.alert(
-                    "Error",
-                    "Failed to unblock user. Please try again."
-                  );
-                }
-              },
-            },
-          ]
-        );
-      },
-    }));
-
-    // Add clear all and cancel options
-    actions.push({
-      text: "Clear All",
-      onPress: async () => {
-        Alert.alert(
-          "Clear All Blocked Users",
-          `Unblock all ${blockedUsers.length} users?`,
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Clear All",
-              style: "destructive",
-              onPress: async () => {
-                try {
-                  await clearBlockedUsers();
-                  await refreshBlockedUsers();
-                  Alert.alert(
-                    "All Users Unblocked",
-                    "You will now see content from all previously blocked users."
-                  );
-                } catch {
-                  Alert.alert(
-                    "Error",
-                    "Failed to clear blocked users. Please try again."
-                  );
-                }
-              },
-            },
-          ]
-        );
-      },
-    });
-
-    actions.push({
-      text: "Cancel",
-      onPress: async () => {},
-    });
-
-    Alert.alert("Blocked Users", message, actions);
-  };
-
-  return (
-    <View style={styles.container}>
-      <Host style={styles.host} colorScheme={colorScheme}>
-        <Form
-          modifiers={[
-            frame({
-              maxWidth: Number.MAX_SAFE_INTEGER,
-              maxHeight: Number.MAX_SAFE_INTEGER,
-              alignment: "top",
-            }),
-          ]}
-        >
-          <Section title="Appearance">
-            <Picker
-              selection={preference}
-              onSelectionChange={setPreference}
-              modifiers={[pickerStyle("segmented")]}
-            >
-              {options.map((opt) => (
-                <Text key={opt.value} modifiers={[tag(opt.value)]}>
-                  {opt.label}
-                </Text>
-              ))}
-            </Picker>
-          </Section>
-
-          <Section title="Content & Safety">
-            <Button
-              onPress={handleOpenGuidelines}
-              systemImage="doc.text"
-              label="Hacker News Guidelines"
-              modifiers={[foregroundStyle(textColor)]}
-            />
-            <Button
-              onPress={handleManageBlockedUsers}
-              systemImage="person.fill.xmark"
-              label={
-                blockedUsers.length > 0
-                  ? `Blocked Users (${blockedUsers.length})`
-                  : "Blocked Users"
-              }
-              modifiers={[foregroundStyle(textColor)]}
-            />
-            <Button
-              onPress={handleClearHidden}
-              systemImage="eye.slash"
-              label={
-                hiddenCount > 0 ? `Hidden Posts (${hiddenCount})` : "Hidden Posts"
-              }
-              modifiers={[foregroundStyle(textColor)]}
-            />
-          </Section>
-
-          <Section title="Data">
-            <Button
-              onPress={handleClearCache}
-              systemImage="arrow.clockwise"
-              label="Clear Cache"
-              modifiers={[foregroundStyle(textColor)]}
-            />
-            <Button
-              onPress={handleClearBookmarks}
-              role="destructive"
-              systemImage="trash"
-              label={clearBookmarksLabel}
-              modifiers={[foregroundStyle("red"), disabled(isClearing)]}
-            />
-          </Section>
-
-          <Section title="Support">
-            <Button
-              onPress={handleOpenRepository}
-              systemImage="chevron.left.slash.chevron.right"
-              label="Check Source Code"
-              modifiers={[foregroundStyle(textColor)]}
-            />
-            <Button
-              onPress={handleRateApp}
-              systemImage="star"
-              label="Rate Hacker Reader"
-              modifiers={[foregroundStyle(textColor)]}
-            />
-          </Section>
-
-          <Section title="About">
-            <Button
-              onPress={handleOpenWebsite}
-              systemImage="globe"
-              label="Built by dcsp.dev"
-              modifiers={[foregroundStyle(textColor)]}
-            />
-            <Button
-              systemImage="info.circle"
-              label={`${APP_NAME} v${APP_VERSION}`}
-              modifiers={[foregroundStyle(textColor)]}
-            />
-          </Section>
-        </Form>
-      </Host>
-    </View>
-  );
+/** The hooks report their own failures; here only success gets feedback. */
+async function withSuccessHaptic(action: () => void | Promise<void>) {
+  try {
+    await action();
+    hapticNotify(Haptics.NotificationFeedbackType.Success);
+  } catch {
+    // Reported by the hook that owns the action.
+  }
 }
 
-const styles = StyleSheet.create({
-  host: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-});
+export default function SettingsScreen() {
+  const queryClient = useQueryClient();
+  const { options, preference, setPreference } = useAppearanceSettings();
+  const { bookmarkCount, isClearing, clearAll } = useClearBookmarks();
+  const { count: hiddenCount, clearAll: clearHiddenStories } =
+    useHiddenStories();
+  const { blockedUsers } = useBlockedUsers();
+  const openLink = useExternalLink();
+
+  const storeUrl = Platform.select({
+    ios: IOS_APP_STORE_URL,
+    android: ANDROID_PLAY_STORE_URL,
+    default: IOS_APP_STORE_URL,
+  });
+
+  return (
+    <ScrollScreen gap={24}>
+      <ListSection title="Appearance">
+        <ListSlot padding={12}>
+          <Segmented
+            options={options}
+            value={preference}
+            onChange={setPreference}
+          />
+        </ListSlot>
+      </ListSection>
+
+      <ListSection title="Content & Safety">
+        <ListRow
+          leading={<IconTile name="document" hue="gray" />}
+          title="Hacker News Guidelines"
+          chevron
+          onPress={() => openLink(HN_GUIDELINES_URL)}
+        />
+        <ListRow
+          leading={<IconTile name="block" hue="gray" />}
+          title="Blocked Users"
+          value={
+            blockedUsers.length > 0 ? String(blockedUsers.length) : undefined
+          }
+          chevron
+          onPress={() => router.push("/(tabs)/settings/blocked-users")}
+        />
+        <ListRow
+          leading={<IconTile name="hide" hue="gray" />}
+          title="Hidden Posts"
+          value={hiddenCount > 0 ? String(hiddenCount) : "None"}
+          disabled={hiddenCount === 0}
+          chevron={false}
+          onPress={() =>
+            confirmDestructive({
+              title: "Clear Hidden Posts",
+              message: `Unhide all ${hiddenCount} hidden posts?`,
+              confirmLabel: "Unhide All",
+              onConfirm: () => withSuccessHaptic(clearHiddenStories),
+            })
+          }
+        />
+      </ListSection>
+
+      <ListSection
+        title="Data"
+        footer="Clearing the cache reloads stories and comments from Hacker News."
+      >
+        <ListRow
+          leading={<IconTile name="refresh" hue="gray" />}
+          title="Clear Cache"
+          chevron={false}
+          onPress={() =>
+            confirmDestructive({
+              title: "Clear Cache",
+              message:
+                "This will clear all cached stories and comments. You'll need to reload them from Hacker News.",
+              confirmLabel: "Clear",
+              onConfirm: () => withSuccessHaptic(() => queryClient.clear()),
+            })
+          }
+        />
+        <ListRow
+          leading={<IconTile name="trash" hue="red" />}
+          title="Clear Bookmarks"
+          value={bookmarkCount > 0 ? String(bookmarkCount) : undefined}
+          destructive
+          chevron={false}
+          disabled={bookmarkCount === 0 || isClearing}
+          onPress={() =>
+            confirmDestructive({
+              title: "Clear All Bookmarks",
+              message: `Remove all ${bookmarkCount} bookmarks? This cannot be undone.`,
+              confirmLabel: "Clear All",
+              onConfirm: () => withSuccessHaptic(clearAll),
+            })
+          }
+        />
+      </ListSection>
+
+      <ListSection title="Support">
+        <ListRow
+          leading={<IconTile name="code" hue="gray" />}
+          title="Source Code"
+          chevron
+          onPress={() => openLink(REPO_URL)}
+        />
+        <ListRow
+          leading={<IconTile name="favorite" hue="orange" />}
+          title="Rate Hacker Reader"
+          chevron
+          onPress={() => openLink(storeUrl)}
+        />
+        <ListRow
+          leading={<IconTile name="link" hue="orange" />}
+          title="Built by dcsp.dev"
+          chevron
+          onPress={() => openLink("https://dcsp.dev")}
+        />
+      </ListSection>
+
+      <Text variant="caption" tone="tertiary" style={{ textAlign: "center" }}>
+        {APP_NAME} v{APP_VERSION}
+      </Text>
+    </ScrollScreen>
+  );
+}

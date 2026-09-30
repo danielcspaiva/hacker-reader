@@ -1,109 +1,62 @@
-import { Spacing } from "@/constants/theme";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { StyleSheet, View } from "react-native";
-import { Skeleton } from "./skeleton";
 
+import { thumbnailPanel } from "@/components/story-card/story-card";
+import { Card, Skeleton } from "@/components/ui";
+import { CARD_GAP } from "@/constants/theme";
+
+/** Mirrors StoryCard: text column (eyebrow, title, stats) beside a flush image panel. */
 export function StoryCardSkeleton() {
-  const borderColor = useThemeColor({}, "border");
-
   return (
-    <GlassView
-      glassEffectStyle="regular"
-      style={[styles.container, { borderColor }]}
-    >
-      <View style={styles.header}>
-        <View style={styles.content}>
-          {/* Top section - title and domain */}
-          <View style={styles.topSection}>
-            {/* Title row with bookmark indicator */}
-            <View style={styles.titleRow}>
-              <View style={styles.titleContainer}>
-                {/* Title - 2 lines matching bodyLarge (17px) */}
-                <Skeleton width="100%" height={17} style={styles.titleLine} />
-                <Skeleton width="85%" height={17} />
-              </View>
-              {/* Bookmark indicator placeholder */}
-              <Skeleton
-                width={16}
-                height={16}
-                borderRadius={4}
-                style={styles.bookmarkIndicator}
-              />
-            </View>
-
-            {/* Domain with favicon */}
-            <View style={styles.domainContainer}>
-              <Skeleton width={11} height={11} borderRadius={5.5} />
-              <Skeleton width={100} height={12} borderRadius={4} />
-            </View>
+    <Card padding={0} style={styles.card}>
+      <View style={styles.row}>
+        <View style={styles.body}>
+          <View style={styles.eyebrow}>
+            <Skeleton width={16} height={16} radius={5} />
+            <Skeleton width={110} height={12} radius={4} />
           </View>
-
-          {/* Metadata row */}
-          <View style={styles.metadata}>
-            <Skeleton width={50} height={14} borderRadius={4} />
-            <Skeleton width={60} height={14} borderRadius={4} />
-            <Skeleton width={45} height={14} borderRadius={4} />
+          <View style={styles.lines}>
+            <Skeleton height={17} radius={5} />
+            <Skeleton height={17} radius={5} />
+            <Skeleton width="60%" height={17} radius={5} />
+          </View>
+          <View style={styles.footer}>
+            <Skeleton width={90} height={12} radius={4} />
+            <Skeleton width={70} height={12} radius={4} />
           </View>
         </View>
-
-        {/* Link preview thumbnail - matches compact mode */}
-        <View style={styles.thumbnailContainer}>
-          <Skeleton width={80} height={80} borderRadius={8} />
-        </View>
+        <Skeleton height={0} style={thumbnailPanel} />
       </View>
-    </GlassView>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: Spacing.lg,
-    borderRadius: isLiquidGlassAvailable() ? 16 : 0,
-    borderCurve: "continuous",
-    borderWidth: isLiquidGlassAvailable() ? 0 : StyleSheet.hairlineWidth,
-    marginBottom: Spacing.lg,
+  card: {
+    marginBottom: CARD_GAP,
   },
-  header: {
+  row: {
     flexDirection: "row",
-    gap: Spacing.md,
-    paddingHorizontal: isLiquidGlassAvailable() ? Spacing.lg : 0,
-    paddingVertical: Spacing.lg,
+    alignItems: "stretch",
+    minHeight: 96,
   },
-  content: {
+  body: {
     flex: 1,
+    padding: 14,
+    gap: 8,
     justifyContent: "space-between",
-    minHeight: 70,
   },
-  topSection: {
-    flexShrink: 1,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: Spacing.sm,
-    marginBottom: Spacing.xs,
-  },
-  titleContainer: {
-    flex: 1,
-    gap: 6,
-  },
-  titleLine: {
-    marginBottom: 6,
-  },
-  bookmarkIndicator: {
-    marginTop: 2,
-  },
-  domainContainer: {
+  eyebrow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    minHeight: 18,
   },
-  metadata: {
+  lines: {
+    gap: 7,
+    paddingTop: 2,
+  },
+  footer: {
     flexDirection: "row",
-    gap: Spacing.md,
-  },
-  thumbnailContainer: {
-    marginLeft: Spacing.sm,
+    justifyContent: "space-between",
   },
 });

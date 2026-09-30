@@ -61,11 +61,7 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return (
-      <div className="fixed top-6 right-6 z-50">
-        <div className="w-12 h-12 rounded-lg bg-white dark:bg-[#1a1a1a] border border-[#e5ddd0] dark:border-[#333333] shadow-lg" />
-      </div>
-    );
+    return <div className="h-10 w-10 rounded-full bg-card" aria-hidden />;
   }
 
   const themes = [
@@ -77,21 +73,17 @@ export function ThemeToggle() {
   const currentTheme = theme || "system";
 
   return (
-    <div className="fixed top-6 right-6 z-50">
-      <button
-        onClick={() => {
-          const currentIndex = themes.findIndex(
-            (t) => t.value === currentTheme
-          );
-          const nextIndex = (currentIndex + 1) % themes.length;
-          setTheme(themes[nextIndex].value);
-        }}
-        className="w-12 h-12 rounded-lg bg-white dark:bg-[#1a1a1a] border border-[#e5ddd0] dark:border-[#333333] shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-[#1a1410] dark:text-[#f0f0f0] hover:scale-105 active:scale-95 hover:border-[#ff6600] dark:hover:border-[#ff6600]"
-        aria-label="Toggle theme"
-        title={`Current: ${themes.find((t) => t.value === currentTheme)?.label || "System"} (click to cycle)`}
-      >
-        {themes.find((t) => t.value === currentTheme)?.icon || <MonitorIcon />}
-      </button>
-    </div>
+    <button
+      onClick={() => {
+        const currentIndex = themes.findIndex((t) => t.value === currentTheme);
+        const nextIndex = (currentIndex + 1) % themes.length;
+        setTheme(themes[nextIndex].value);
+      }}
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground transition hover:text-ink active:scale-95"
+      aria-label="Toggle theme"
+      title={`Current: ${themes.find((t) => t.value === currentTheme)?.label || "System"} (click to cycle)`}
+    >
+      {themes.find((t) => t.value === currentTheme)?.icon || <MonitorIcon />}
+    </button>
   );
 }

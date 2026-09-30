@@ -1,7 +1,7 @@
-import { reportError } from "@/lib/observability";
 import * as WebBrowser from "expo-web-browser";
-import { useCallback } from "react";
 import { Alert } from "react-native";
+
+import { reportError } from "@/lib/observability/report-error";
 
 /**
  * Hook for opening external URLs in browser with error handling.
@@ -22,12 +22,12 @@ import { Alert } from "react-native";
  * ```
  */
 export function useExternalLink() {
-  return useCallback(async (url: string) => {
+  return async (url: string) => {
     try {
       await WebBrowser.openBrowserAsync(url);
     } catch (error) {
       reportError(error, { operation: "openExternalLink", url });
       Alert.alert("Unable to open link", "Please try again later.");
     }
-  }, []);
+  };
 }

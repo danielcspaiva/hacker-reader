@@ -5,9 +5,37 @@ All notable changes to Hacker Reader will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-09-29
+
+### Added
+
+- Premium redesign of every screen: warm HN palette (light paper / dark charcoal), solid cards, native header toolbars and tabs; Liquid Glass only on chrome
+- Story cards with square thumbnails that grow with long titles, rank, favicon and tabular counts
+- Story detail hero with a tappable points pill for upvoting, continuous single-orange thread rails, scroll-to-comment from submissions
+- Home screen widgets rebuilt on `expo-widgets` (small, medium, large, lock screen) with the app logo; they refresh themselves when stale, even with the app closed
+- Splash screen that matches light and dark mode and fades into the first screen
+
+### Changed
+
+- Upgraded to Expo SDK 58 (preview) / React Native 0.88 and pnpm 12; ESLint/Prettier replaced by oxlint/oxfmt
+- HN data layer reorganised under `lib/hn` (read API, authenticated HTML client, parsers, local stores) with node tests
+- Comment threads on 1,000+ comment stories scroll much faster (lean rows, cached HTML parsing, one native action sheet)
+- Blocking a comment author now asks for confirmation, like blocking a story author
+
+### Fixed
+
+- A failed local-storage read could overwrite saved bookmarks, votes or blocked users
+- Posting a comment could be reported as failed when another comment on the page contained "blank"
+- The comment box stayed locked for 5–8 seconds after posting
+- Network errors showed "No stories found" instead of an error with retry
+- The first theme change after launch was not tracked
+- VoiceOver read story and submission cards as a blank object instead of their title, site and counts
+- Voting, commenting, flagging or deleting on a thread where a comment mentioned "login" signed you out with "Session Expired"
+
 ## [1.2.0] - 2025-11-11
 
 ### Added
+
 - **Profile Tab** with complete user profile viewing
   - View user karma, account age, and bio
   - Browse user's submissions (stories and comments)
@@ -35,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced login screen with external link to HN account creation
 
 ### Changed
+
 - Moved authentication UI from Settings tab to dedicated Profile tab
 - Enhanced feed scroll behavior to auto-scroll to top when switching categories
 - Optimized category filter to remove unnecessary animation frame wrapper
@@ -45,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - App version bumped to 1.2.0 in `app.json`
 
 ### Performance
+
 - Category switching now instant after ~2 second warmup period
 - React Query cache reuse across profile and feed views
 - Individual item caches populated during prefetch for faster detail views
@@ -53,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2025-11-08
 
 ### Added
+
 - Comment deletion functionality with optimistic UI updates
 - New `use-comment-mutation` hook for streamlined comment posting
 - New `use-delete-comment-mutation` hook for deleting comments
@@ -60,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Vercel Analytics integration for web app traffic insights
 
 ### Changed
+
 - Refactored guidelines acceptance from modal component to dedicated screen route (`app/auth/guidelines.tsx`)
 - Enhanced login flow with native form that POSTs directly to Hacker News
 - Improved authentication reliability with direct credential submission
@@ -73,16 +105,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated HN authentication parsers with improved token extraction
 
 ### Improved
+
 - Error handling for unblocking users with better user feedback
 - Error handling for clearing blocked users
 - Story query hook with better cache management for comments
 
 ### Removed
+
 - `GuidelinesModal` component (replaced with screen route)
 
 ## [1.0.0] - 2025-11-07
 
 ### Added
+
 - Initial public release of Hacker Reader
 - Five HN feeds: Top, New, Show HN, Ask HN, and Jobs
 - FlashList-based infinite scrolling for optimal performance
@@ -114,11 +149,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Monorepo structure with pnpm workspaces
 
 ### Platform Support
+
 - iOS: Full support with native widgets
 - Web: Marketing site only (read-only)
 - Android: Coming in future release
 
 ### Technical Details
+
 - Expo SDK 54
 - React Native 0.81
 - React 19.1 with React Compiler
