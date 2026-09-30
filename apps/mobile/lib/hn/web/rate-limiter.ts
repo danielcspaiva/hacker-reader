@@ -30,7 +30,8 @@ export class HNRateLimiter {
       await new Promise<void>((resolve) => setTimeout(resolve, waitTime));
     }
 
-    this.actionTimestamps.push(now);
+    // Stamp after the wait: the action happens now, not when it was queued.
+    this.actionTimestamps.push(Date.now());
   }
 
   /**

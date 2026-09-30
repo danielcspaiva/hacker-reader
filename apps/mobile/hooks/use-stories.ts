@@ -26,10 +26,11 @@ async function fetchCategoryPage(
   queryClient: QueryClient,
   category: StoryCategory,
   pageParam: number,
-  { prefetchOG }: { prefetchOG: boolean }
+  { prefetchOG }: { prefetchOG: boolean },
+  signal?: AbortSignal
 ): Promise<HNItem[]> {
-  const ids = await getCategoryStoryIds(category, pageParam, PAGE_SIZE);
-  const items = await getItems(ids);
+  const ids = await getCategoryStoryIds(category, pageParam, PAGE_SIZE, signal);
+  const items = await getItems(ids, signal);
 
   items.forEach((item) => {
     queryClient.setQueryData(hnKeys.item(item.id), item);
@@ -71,8 +72,14 @@ function storiesQueryOptions(
 ) {
   return infiniteQueryOptions({
     queryKey: hnKeys.stories(category),
-    queryFn: ({ pageParam }) =>
-      fetchCategoryPage(queryClient, category, pageParam, { prefetchOG }),
+    queryFn: ({ pageParam, signal }) =>
+      fetchCategoryPage(
+        queryClient,
+        category,
+        pageParam,
+        { prefetchOG },
+        signal
+      ),
     initialPageParam: 0,
     getNextPageParam: getStoriesNextPageParam,
   });

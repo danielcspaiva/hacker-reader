@@ -44,7 +44,10 @@ export function useCommentActions({
                 message:
                   "Are you sure you want to delete this comment? This action cannot be undone.",
                 confirmLabel: "Delete",
-                onConfirm: () => deleteComment.mutate(comment.id),
+                onConfirm: () => {
+                  if (!deleteComment.isPending)
+                    deleteComment.mutate(comment.id);
+                },
               }),
           }
         : {

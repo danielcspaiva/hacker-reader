@@ -21,12 +21,13 @@ export function useSearchStories(query: string) {
     number
   >({
     queryKey: hnKeys.search(trimmedQuery),
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const currentPage = pageParam;
       const response = await searchStories(
         trimmedQuery,
         currentPage,
-        HITS_PER_PAGE
+        HITS_PER_PAGE,
+        signal
       );
 
       return {

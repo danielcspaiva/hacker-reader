@@ -53,7 +53,9 @@ export function useFlagStory(storyId: number) {
       title: "Flag Content",
       message: "Report this story as inappropriate?",
       confirmLabel: "Flag",
-      onConfirm: () => flagMutation.mutate(),
+      onConfirm: () => {
+        if (!flagMutation.isPending) flagMutation.mutate();
+      },
     });
   };
 }

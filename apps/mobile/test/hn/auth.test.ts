@@ -207,6 +207,16 @@ describe("describeHNWriteError", () => {
     }
   });
 
+  it("CANNOT_VOTE is Can't Vote: no logout, no report", () => {
+    const result = describeHNWriteError(
+      new HNAuthError("x", "CANNOT_VOTE"),
+      options
+    );
+    assert.equal(result.title, "Can't Vote");
+    assert.equal(result.logout, false);
+    assert.equal(result.report, false);
+  });
+
   it("RATE_LIMITED is Slow Down: no logout, no report", () => {
     const result = describeHNWriteError(
       new HNAuthError("x", "RATE_LIMITED"),
@@ -240,7 +250,7 @@ describe("describeHNWriteError", () => {
 
   it("other HN errors get the generic message and are not reported", () => {
     const result = describeHNWriteError(
-      new HNAuthError("x", "NETWORK_ERROR"),
+      new HNAuthError("x", "INVALID_CREDENTIALS"),
       options
     );
     assert.equal(result.message, "Failed to do it.");

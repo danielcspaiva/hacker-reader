@@ -7,17 +7,21 @@ import type {
   HNItem,
 } from "../types";
 
-const algoliaJSON = <T>(path: string) =>
-  fetchJSON<T>(ALGOLIA_URL, path, "Algolia API error");
+const algoliaJSON = <T>(path: string, signal?: AbortSignal) =>
+  fetchJSON<T>(ALGOLIA_URL, path, "Algolia API error", signal);
 
-export async function getStoryWithComments(id: number): Promise<AlgoliaStory> {
-  return algoliaJSON<AlgoliaStory>(`/items/${id}`);
+export async function getStoryWithComments(
+  id: number,
+  signal?: AbortSignal
+): Promise<AlgoliaStory> {
+  return algoliaJSON<AlgoliaStory>(`/items/${id}`, signal);
 }
 
 export async function searchStories(
   query: string,
   page = 0,
-  hitsPerPage = 30
+  hitsPerPage = 30,
+  signal?: AbortSignal
 ): Promise<AlgoliaSearchResponse> {
   const params = new URLSearchParams({
     query,
@@ -26,7 +30,10 @@ export async function searchStories(
     tags: "story",
   });
 
-  return algoliaJSON<AlgoliaSearchResponse>(`/search?${params.toString()}`);
+  return algoliaJSON<AlgoliaSearchResponse>(
+    `/search?${params.toString()}`,
+    signal
+  );
 }
 
 /** Map a search hit to an item; null for a hit without a numeric `objectID`. */

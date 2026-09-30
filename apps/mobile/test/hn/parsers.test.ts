@@ -119,9 +119,27 @@ describe("parseVoteLink", () => {
       assert.equal(thrown(() => parseVoteLink(html, 7)).code, "PARSE_ERROR");
     });
 
-    it("KNOWN QUIRK: fallback id= match is a prefix match (id=123 satisfies itemId 12)", () => {
+    it("fallback compares the whole id (id=123 does not satisfy itemId 12)", () => {
       const html = `<a href="vote?id=123&amp;how=up&amp;auth=z">`;
-      assert.equal(parseVoteLink(html, 12), "vote?id=123&how=up&auth=z");
+      assert.equal(thrown(() => parseVoteLink(html, 12)).code, "PARSE_ERROR");
+    });
+
+    it("fallback finds how= before id=, single quotes, absolute and slash-led URLs", () => {
+      assert.equal(
+        parseVoteLink(`<a href='vote?how=up&amp;id=7&amp;auth=z'>`, 7),
+        "vote?how=up&id=7&auth=z"
+      );
+      assert.equal(
+        parseVoteLink(
+          `<a href="https://news.ycombinator.com/vote?id=7&amp;how=up&amp;auth=z">`,
+          7
+        ),
+        "vote?id=7&how=up&auth=z"
+      );
+      assert.equal(
+        parseVoteLink(`<a href="/vote?id=7&amp;how=up&amp;auth=z">`, 7),
+        "vote?id=7&how=up&auth=z"
+      );
     });
   });
 
@@ -210,9 +228,9 @@ describe("parseUnvoteLink", () => {
     assert.equal(thrown(() => parseUnvoteLink(html, 9)).code, "PARSE_ERROR");
   });
 
-  it("KNOWN QUIRK: the raw-path fallback prefix-matches (id=99 satisfies itemId 9)", () => {
+  it("the raw-path fallback compares the whole id (id=99 does not satisfy itemId 9)", () => {
     const html = `<a id="un_99" href="vote?id=99&amp;how=un&amp;auth=b">`;
-    assert.equal(parseUnvoteLink(html, 9), "vote?id=99&how=un&auth=b");
+    assert.equal(thrown(() => parseUnvoteLink(html, 9)).code, "PARSE_ERROR");
   });
 
   it("falls back to a raw how=un path", () => {
@@ -323,9 +341,9 @@ describe("parseDeleteLink", () => {
     );
   });
 
-  it("missing otherwise -> PARSE_ERROR with the window-expired message", () => {
+  it("missing otherwise -> CANNOT_DELETE with the window-expired message", () => {
     const err = thrown(() => parseDeleteLink("<p>x</p>", 1));
-    assert.equal(err.code, "PARSE_ERROR");
+    assert.equal(err.code, "CANNOT_DELETE");
     assert.equal(
       err.message,
       "Delete link not found - this may not be your comment, or the deletion window has expired"
@@ -355,9 +373,10 @@ describe("signed-in pages whose comments mention login", () => {
       thrown(() => parseVoteLink(signedIn, 4)).code,
       "NOT_LOGGED_IN"
     );
+    // Signed in but no reply form: the item takes no replies, not a scraper break.
     assert.equal(
       thrown(() => parseCommentFormHmac(signedIn)).code,
-      "PARSE_ERROR"
+      "CANNOT_COMMENT"
     );
     assert.notEqual(
       thrown(() => parseDeleteLink(signedIn, 4)).code,

@@ -52,6 +52,9 @@ export function useStoryActions(story: HNItem): StoryActions {
       return;
     }
 
+    // A second tap while a vote is in flight would race it (the local state
+    // is optimistic, HN's is not yet).
+    if (toggleVote.isPending) return;
     hapticImpact();
     toggleVote.mutate(hasVoted);
   };

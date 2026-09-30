@@ -38,14 +38,26 @@ function extractTextContent(html: string): string {
   );
 }
 
+const LOGOUT_LINK = /href=["']?logout\?/i;
+
+/** A signed-in HN page always links to `logout?auth=...` in its header. */
+function isSignedInPage(html: string): boolean {
+  return LOGOUT_LINK.test(html);
+}
+
 /**
- * A signed-in HN page always links to `logout?auth=...` in its header. Comment
- * text can say "login", so the word alone must not end the session.
+ * Comment text can say "login", so the word alone must not end the session:
+ * a page is signed out only without the logout link. Besides the header's
+ * "login" link, HN answers a write from a dead session with a bare
+ * "You have to be logged in to vote." / "Please log in." page.
  */
 function isSignedOutPage(html: string): boolean {
+  if (isSignedInPage(html)) return false;
+  const text = extractTextContent(html).toLowerCase();
   return (
-    !/href=["']?logout\?/i.test(html) &&
-    extractTextContent(html).toLowerCase().includes("login")
+    text.includes("login") ||
+    text.includes("you have to be logged in") ||
+    text.includes("please log in")
   );
 }
 
@@ -140,22 +152,44 @@ function extractAttributeFromTag(
   return getAttributeValue(fragment, targetAttribute);
 }
 
+interface HNLink {
+  /** Decoded path + query, without a leading slash: `vote?id=1&how=up&auth=x`. */
+  path: string;
+  params: URLSearchParams;
+}
+
+type HNLinkPage = "vote" | "flag" | "delete-confirm";
+
+/**
+ * Every `<page>?...` link in the HTML that targets `itemId` (as `id` or `for`),
+ * whatever the quote style, attribute order or query-parameter order. The
+ * item id is compared as a whole number, so `id=1` never matches `id=123`.
+ */
+function findLinks(html: string, page: HNLinkPage, itemId: number): HNLink[] {
+  const pattern = new RegExp(
+    `(?:^|[^\\w-])(?:https?:\\/\\/news\\.ycombinator\\.com)?\\/?(${page}\\?[^"'<>\\s]*)`,
+    "gi"
+  );
+  const links: HNLink[] = [];
+  for (const match of html.matchAll(pattern)) {
+    const path = decodeAttributeValue(match[1]);
+    const params = new URLSearchParams(path.slice(path.indexOf("?") + 1));
+    if ((params.get("id") ?? params.get("for")) === String(itemId)) {
+      links.push({ path, params });
+    }
+  }
+  return links;
+}
+
 function findVotePath(
   html: string,
   itemId: number,
-  how: "up" | "un" | "fav" | "unfav"
+  how: "up" | "un"
 ): string | null {
-  const pattern = new RegExp(
-    `vote\\?[^"'<>\\s]*(?:id|for)=${itemId}[^"'<>\\s]*how=${how}[^"'<>\\s]*`,
-    "i"
+  const link = findLinks(html, "vote", itemId).find(
+    ({ params }) => params.get("how") === how
   );
-  const match = pattern.exec(html);
-  if (!match) {
-    return null;
-  }
-
-  const rawPath = match[0];
-  return decodeAttributeValue(rawPath);
+  return link?.path ?? null;
 }
 
 /**
@@ -243,6 +277,63 @@ export function parseUnvoteLink(html: string, itemId: number): string {
   return fallbackUnvoteLink;
 }
 
+export interface VoteState {
+  /** HN already holds this user's vote (an unvote link, or a `nosee` up arrow). */
+  voted: boolean;
+  /** Path of the up-vote link, when the page offers one. */
+  upLink: string | null;
+  /** Path of the unvote link, when the page offers one. */
+  unLink: string | null;
+}
+
+/**
+ * Read the signed-in user's vote state for an item from its page.
+ *
+ * HN hides the up arrow (class `nosee`) once voted and shows an `un_ID`
+ * "unvote" link instead; a voted item may lack the unvote link once its
+ * window has passed. Items that cannot be voted on (own submissions, jobs)
+ * have no arrow at all.
+ *
+ * @throws HNAuthError NOT_LOGGED_IN for a signed-out page, RATE_LIMITED for a
+ *   throttled bare page, CANNOT_VOTE when the item has no vote arrow
+ */
+export function parseVoteState(html: string, itemId: number): VoteState {
+  const rawUn =
+    extractAttributeFromTag(html, "a", "id", `un_${itemId}`, "href") ??
+    findVotePath(html, itemId, "un");
+  const unLink = rawUn ? decodeAttributeValue(rawUn) : null;
+
+  const upTag = findTagByAttribute(html, "a", "id", `up_${itemId}`);
+  const rawUp =
+    (upTag ? getAttributeValue(upTag, "href") : null) ??
+    findVotePath(html, itemId, "up");
+  const upLink = rawUp ? decodeAttributeValue(rawUp) : null;
+  const hidden = /\bnosee\b/i.test(
+    (upTag && getAttributeValue(upTag, "class")) ?? ""
+  );
+
+  if (unLink || hidden) {
+    return { voted: true, upLink, unLink };
+  }
+  if (upLink) {
+    return { voted: false, upLink, unLink: null };
+  }
+
+  if (isSignedOutPage(html)) {
+    throw new HNAuthError(
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
+    );
+  }
+  if (!isSignedInPage(html)) {
+    const text = extractTextContent(html).toLowerCase();
+    if (text.includes("slow down") || text.includes("too fast")) {
+      throw new HNAuthError("Rate limited - please wait", "RATE_LIMITED");
+    }
+  }
+  throw new HNAuthError(`Item ${itemId} has no vote arrow`, "CANNOT_VOTE");
+}
+
 /**
  * Parse comment form HMAC from an HN item page
  *
@@ -267,6 +358,15 @@ export function parseCommentFormHmac(html: string): string {
       );
     }
 
+    // A signed-in page with no reply form: the item takes no replies (older
+    // than HN's window, locked or dead). Not a markup break.
+    if (isSignedInPage(html)) {
+      throw new HNAuthError(
+        "This item is not accepting comments",
+        "CANNOT_COMMENT"
+      );
+    }
+
     throw new HNAuthError("Comment form HMAC not found", "PARSE_ERROR");
   }
 
@@ -274,58 +374,71 @@ export function parseCommentFormHmac(html: string): string {
   return decodeAttributeValue(rawHmac);
 }
 
+export interface FlagState {
+  /** HN already holds this user's flag (only an "unflag" link is offered). */
+  flagged: boolean;
+  /** Path of the flag link, when the page offers one. */
+  flagLink: string | null;
+}
+
 /**
- * Parse flag link from an HN item page
+ * Read the flag state of an item from its page. HN flips the same link to
+ * `flag?id=..&un=1` ("unflag") once flagged, so a `flag?id=` match alone is
+ * not enough: following it would unflag.
  *
- * Note: Flag links are only available to users with sufficient karma on HN.
- * If the link is not found, it likely means the user doesn't have permission.
+ * Flag links are only shown to users with sufficient karma; without one the
+ * user gets INSUFFICIENT_KARMA.
  *
- * @param html - HTML content of the item page
- * @param itemId - ID of the item to flag
- * @returns Flag link path
- * @throws HNAuthError if parsing fails
+ * @throws HNAuthError NOT_LOGGED_IN for a signed-out page, INSUFFICIENT_KARMA
+ *   when the page offers neither link
  */
-export function parseFlagLink(html: string, itemId: number): string {
-  // Try to find flag link by id attribute
-  const rawFlagLink = extractAttributeFromTag(
+export function parseFlagState(html: string, itemId: number): FlagState {
+  const rawIdLink = extractAttributeFromTag(
     html,
     "a",
     "id",
     `flag_${itemId}`,
     "href"
   );
+  const candidates = [
+    ...(rawIdLink ? [decodeAttributeValue(rawIdLink)] : []),
+    ...findLinks(html, "flag", itemId).map((link) => link.path),
+  ];
+  const isUnflag = (path: string) =>
+    new URLSearchParams(path.slice(path.indexOf("?") + 1)).has("un");
 
-  // Decode HTML entities from the extracted href attribute
-  const flagLink = rawFlagLink ? decodeAttributeValue(rawFlagLink) : null;
+  const flagLink = candidates.find((path) => !isUnflag(path)) ?? null;
+  if (flagLink) return { flagged: false, flagLink };
+  if (candidates.length > 0) return { flagged: true, flagLink: null };
 
-  // Also try pattern matching for flag links
-  const fallbackFlagLink =
-    flagLink ??
-    (() => {
-      const pattern = new RegExp(
-        `flag\\?[^"'<>\\s]*(?:id|for)=${itemId}[^"'<>\\s]*`,
-        "i"
-      );
-      const match = pattern.exec(html);
-      return match ? decodeAttributeValue(match[0]) : null;
-    })();
-
-  if (!fallbackFlagLink) {
-    if (isSignedOutPage(html)) {
-      throw new HNAuthError(
-        "Session expired - please log in again",
-        "NOT_LOGGED_IN"
-      );
-    }
-
-    // Flag link not present usually means insufficient karma
+  if (isSignedOutPage(html)) {
     throw new HNAuthError(
-      "Flag link not found - you may need more karma on Hacker News to flag content",
-      "INSUFFICIENT_KARMA"
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
     );
   }
 
-  return fallbackFlagLink;
+  // Flag link not present usually means insufficient karma
+  throw new HNAuthError(
+    "Flag link not found - you may need more karma on Hacker News to flag content",
+    "INSUFFICIENT_KARMA"
+  );
+}
+
+/**
+ * Parse flag link from an HN item page
+ *
+ * @param html - HTML content of the item page
+ * @param itemId - ID of the item to flag
+ * @returns Flag link path
+ * @throws HNAuthError if the link is missing, or the item is already flagged
+ */
+export function parseFlagLink(html: string, itemId: number): string {
+  const { flagLink } = parseFlagState(html, itemId);
+  if (!flagLink) {
+    throw new HNAuthError(`Item ${itemId} is already flagged`, "REJECTED");
+  }
+  return flagLink;
 }
 
 /**
@@ -340,14 +453,8 @@ export function parseFlagLink(html: string, itemId: number): string {
  * @throws HNAuthError if parsing fails
  */
 export function parseDeleteLink(html: string, itemId: number): string {
-  // Pattern match for delete-confirm links
   // Example: delete-confirm?id=45877116&amp;goto=item%3Fid%3D45853261
-  const pattern = new RegExp(
-    `delete-confirm\\?[^"'<>\\s]*id=${itemId}[^"'<>\\s]*`,
-    "i"
-  );
-  const match = pattern.exec(html);
-  const deleteLink = match ? decodeAttributeValue(match[0]) : null;
+  const deleteLink = findLinks(html, "delete-confirm", itemId)[0]?.path;
 
   if (!deleteLink) {
     if (isSignedOutPage(html)) {
@@ -363,7 +470,7 @@ export function parseDeleteLink(html: string, itemId: number): string {
     // - Already deleted
     throw new HNAuthError(
       "Delete link not found - this may not be your comment, or the deletion window has expired",
-      "PARSE_ERROR"
+      "CANNOT_DELETE"
     );
   }
 
@@ -386,19 +493,138 @@ export function parseDeleteConfirmForm(
   confirmHtml: string,
   itemId: number
 ): DeleteConfirmForm {
-  // Confirmation form: <input type="hidden" name="hmac" value="...">
-  const hmacMatch = confirmHtml.match(
-    /<input[^>]*name="hmac"[^>]*value="([^"]+)"/i
+  // Confirmation form: <input type="hidden" name="hmac" value="...">, in any
+  // attribute order and quote style.
+  const hmac = extractAttributeFromTag(
+    confirmHtml,
+    "input",
+    "name",
+    "hmac",
+    "value"
   );
-  if (!hmacMatch) {
+  if (!hmac) {
+    if (isSignedOutPage(confirmHtml)) {
+      throw new HNAuthError(
+        "Session expired - please log in again",
+        "NOT_LOGGED_IN"
+      );
+    }
     throw new HNAuthError("Delete confirmation HMAC not found", "PARSE_ERROR");
   }
 
-  const gotoMatch = confirmHtml.match(
-    /<input[^>]*name="goto"[^>]*value="([^"]+)"/i
+  const goto = extractAttributeFromTag(
+    confirmHtml,
+    "input",
+    "name",
+    "goto",
+    "value"
   );
   return {
-    hmac: hmacMatch[1],
-    goto: gotoMatch ? gotoMatch[1] : `item?id=${itemId}`,
+    hmac: decodeAttributeValue(hmac),
+    goto: goto ? decodeAttributeValue(goto) : `item?id=${itemId}`,
   };
+}
+
+/**
+ * The text of HN's own message in a response, or "" when there is none. HN
+ * reports errors either as a bare page whose body starts with the message
+ * ("You have to be logged in to vote.", "Bad login.", "No such item.",
+ * "You're posting too fast...", sometimes followed by a login form) or as an
+ * orange `<font>` message on a re-rendered form. Words elsewhere on a normal
+ * page ("blank" in `target="_blank"`, "slow down" in a comment) are not
+ * messages: a full HN page (`hnmain`) contributes only its orange messages.
+ */
+export function hnMessageText(html: string): string {
+  let preamble = "";
+  if (!/id\s*=\s*["']?hnmain/i.test(html)) {
+    const firstBlock = html.search(/<(table|form|textarea)\b/i);
+    preamble = extractTextContent(
+      firstBlock === -1 ? html : html.slice(0, firstBlock)
+    );
+  }
+  return [preamble, ...orangeMessages(html)].filter(Boolean).join(" ");
+}
+
+/** HN's orange `<font>` messages on a re-rendered form; the lone "*" marker is dropped. */
+export function orangeMessages(html: string): string[] {
+  return [
+    ...html.matchAll(
+      /<font\s[^>]*color\s*=\s*["']?#ff6600["']?[^>]*>([\s\S]*?)<\/font>/gi
+    ),
+  ]
+    .map((match) => extractTextContent(match[1]))
+    .filter((message) => message !== "" && message !== "*");
+}
+
+/**
+ * Map a known HN message (see `hnMessageText`) to its typed error, or null
+ * when it says nothing we recognise.
+ */
+export function classifyHNMessage(message: string): HNAuthError | null {
+  const text = message.toLowerCase();
+  if (
+    /not able to serve your requests|too fast|slow down|too many requests/.test(
+      text
+    )
+  ) {
+    return new HNAuthError(
+      "Rate limited by Hacker News - please wait",
+      "RATE_LIMITED"
+    );
+  }
+  if (text.includes("validation required")) {
+    return new HNAuthError(
+      "Hacker News wants to verify you are human",
+      "CAPTCHA_REQUIRED"
+    );
+  }
+  if (/you have to be logged in|please log in|bad login/.test(text)) {
+    return new HNAuthError(
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
+    );
+  }
+  if (text.includes("unknown or expired link")) {
+    return new HNAuthError("The link on the page expired", "EXPIRED_LINK");
+  }
+  if (text.includes("no such item")) {
+    return new HNAuthError("Item not found", "ITEM_NOT_FOUND");
+  }
+  return null;
+}
+
+/** Throws the typed error for a recognised HN message page; otherwise returns. */
+export function assertNoHNMessage(html: string): void {
+  const error = classifyHNMessage(hnMessageText(html));
+  if (error) throw error;
+}
+
+/**
+ * The id of the comment `username` just posted, read from the thread page HN
+ * redirects to: the highest comment id by that user above `parentId`. Null when
+ * none is found (the caller refetches instead of guessing).
+ */
+export function findOwnCommentId(
+  html: string,
+  username: string,
+  parentId: number
+): number | null {
+  const rows = [...html.matchAll(/<tr\b[^>]*>/gi)].flatMap((match) => {
+    const tag = match[0];
+    const isComment = /\bcomtr\b/.test(getAttributeValue(tag, "class") ?? "");
+    const id = Number.parseInt(getAttributeValue(tag, "id") ?? "", 10);
+    return isComment && Number.isInteger(id)
+      ? [{ id, start: match.index ?? 0 }]
+      : [];
+  });
+
+  const ids = rows.flatMap((row, index) => {
+    const segment = html.slice(row.start, rows[index + 1]?.start);
+    const author =
+      /class\s*=\s*["']?hnuser["']?[^>]*>(?:\s*<[^>]+>)*([^<]*)/i.exec(
+        segment
+      )?.[1];
+    return author?.trim() === username && row.id > parentId ? [row.id] : [];
+  });
+  return ids.length > 0 ? Math.max(...ids) : null;
 }

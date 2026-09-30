@@ -40,24 +40,34 @@ export function useBookmarks() {
 
   return useQuery<HNItem[], Error>({
     queryKey: hnKeys.bookmarkedStories(),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const ids = await readBookmarkIds();
 
-      // Fetch stories in parallel, trying cache first
-      const stories = await Promise.all(
+      // Fetch stories in parallel, trying cache first. One failed fetch must
+      // not empty the whole list, so settle them all and only fail when none
+      // resolved.
+      const settled = await Promise.allSettled(
         ids.map(async (id) => {
           // Try to get from cache first
           const cached = queryClient.getQueryData<HNItem>(hnKeys.item(id));
           if (cached) return cached;
 
           // Fetch from API if not cached
-          const item = await getItem(id);
+          const item = await getItem(id, signal);
           if (item) queryClient.setQueryData(hnKeys.item(id), item);
           return item;
         })
       );
 
-      return stories.filter((story) => story !== null);
+      const failed = settled.find(
+        (r): r is PromiseRejectedResult => r.status === "rejected"
+      );
+      if (failed && settled.every((r) => r.status === "rejected")) {
+        throw failed.reason;
+      }
+      return settled.flatMap((r) =>
+        r.status === "fulfilled" && r.value ? [r.value] : []
+      );
     },
     staleTime: 0, // Always fresh
     retry: false,

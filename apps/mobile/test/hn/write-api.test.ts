@@ -100,6 +100,72 @@ describe("authenticated request shape", () => {
   });
 });
 
+describe("vote / unvote reconcile with HN", () => {
+  const HEADER = `<a id="logout" href="logout?auth=L">logout</a>`;
+  const VOTED = `${HEADER}<a id='up_10' class='clicky nosee' href='vote?id=10&amp;how=up&amp;auth=A'></a><a id='un_10' class='clicky' href='vote?id=10&amp;how=un&amp;auth=B'>unvote</a>`;
+  const NOT_VOTED = `${HEADER}<a id='up_10' class='clicky' href='vote?id=10&amp;how=up&amp;auth=A'></a>`;
+  const NO_ARROW = `${HEADER}<span class="subtext">5 points by me</span>`;
+
+  it("vote resolves without a vote request when already voted", async () => {
+    fake = installFetch([{ body: VOTED }]);
+    await vote(10, fakeSession());
+    assert.equal(fake.calls.length, 1);
+  });
+
+  it("vote treats a nosee up arrow as voted", async () => {
+    fake = installFetch([
+      {
+        body: `${HEADER}<a id='up_10' class='clicky nosee' href='vote?id=10&amp;how=up&amp;auth=A'>`,
+      },
+    ]);
+    await vote(10, fakeSession());
+    assert.equal(fake.calls.length, 1);
+  });
+
+  it("unvote resolves without a request when not voted", async () => {
+    fake = installFetch([{ body: NOT_VOTED }]);
+    await unvote(10, fakeSession());
+    assert.equal(fake.calls.length, 1);
+  });
+
+  it("unvote still requests the un link when voted", async () => {
+    fake = installFetch([{ body: VOTED }, {}]);
+    await unvote(10, fakeSession());
+    assert.equal(
+      fake.calls[1].url,
+      "https://news.ycombinator.com/vote?id=10&how=un&auth=B"
+    );
+  });
+
+  it("unvote of a voted item with no unvote link is CANNOT_VOTE", async () => {
+    fake = installFetch([
+      { body: `${HEADER}<a id='up_10' class='clicky nosee' href='x'>` },
+    ]);
+    const err = await rejection(unvote(10, fakeSession()));
+    assert.equal(err.code, "CANNOT_VOTE");
+  });
+
+  it("a signed-in page with no arrow is CANNOT_VOTE for both", async () => {
+    fake = installFetch([{ body: NO_ARROW }, { body: NO_ARROW }]);
+    assert.equal(
+      (await rejection(vote(10, fakeSession()))).code,
+      "CANNOT_VOTE"
+    );
+    assert.equal(
+      (await rejection(unvote(10, fakeSession()))).code,
+      "CANNOT_VOTE"
+    );
+  });
+
+  it("a signed-out page is still NOT_LOGGED_IN for unvote", async () => {
+    fake = installFetch([{ body: "<p>login</p>" }]);
+    assert.equal(
+      (await rejection(unvote(10, fakeSession()))).code,
+      "NOT_LOGGED_IN"
+    );
+  });
+});
+
 describe("comment", () => {
   const FORM = `<form><input type="hidden" name="hmac" value="HM"></form>`;
 
@@ -170,20 +236,20 @@ describe("comment", () => {
       [
         "unknown or expired link",
         "Unknown or expired link.",
-        "NOT_LOGGED_IN",
-        "Session expired - please log in again",
+        "EXPIRED_LINK",
+        "The link on the page expired",
       ],
       [
         "submitting too fast",
         "You're submitting too fast.",
         "RATE_LIMITED",
-        "You are posting too fast. Please wait.",
+        "Rate limited by Hacker News - please wait",
       ],
       [
         "slow down",
         "Please slow down.",
         "RATE_LIMITED",
-        "You are posting too fast. Please wait.",
+        "Rate limited by Hacker News - please wait",
       ],
       [
         "insufficient karma",
@@ -197,11 +263,11 @@ describe("comment", () => {
         "INSUFFICIENT_KARMA",
         "Insufficient karma to comment",
       ],
-      ["blank", "This is blank", "PARSE_ERROR", "Comment cannot be blank"],
+      ["blank", "This is blank", "REJECTED", "Comment cannot be blank"],
       [
         "empty comment",
         "An empty comment",
-        "PARSE_ERROR",
+        "REJECTED",
         "Comment cannot be blank",
       ],
     ];
@@ -250,11 +316,11 @@ describe("comment", () => {
       assert.equal(err.code, "RATE_LIMITED");
     });
 
-    it("textarea error with a message -> PARSE_ERROR carrying that message", async () => {
+    it("textarea error with a message -> REJECTED carrying that message", async () => {
       const html = `<font color="#ff6600">Text is too long</font><br><font color="#ff6600">*</font><textarea name="text">`;
       fake = installFetch([{ body: FORM }, { body: html }]);
       const err = await rejection(comment(50, "x", fakeSession()));
-      assert.equal(err.code, "PARSE_ERROR");
+      assert.equal(err.code, "REJECTED");
       assert.equal(err.message, "HN rejected comment: Text is too long");
     });
 
@@ -262,7 +328,7 @@ describe("comment", () => {
       const html = `<font color="#ff6600">*</font><textarea name="text">`;
       fake = installFetch([{ body: FORM }, { body: html }]);
       const err = await rejection(comment(50, "x", fakeSession()));
-      assert.equal(err.code, "PARSE_ERROR");
+      assert.equal(err.code, "REJECTED");
       assert.equal(
         err.message,
         "HN rejected your comment. Possible reasons: comment too short, contains invalid characters, or account restrictions. Please try posting directly on news.ycombinator.com to see the specific error."
@@ -424,10 +490,10 @@ describe("login", () => {
     assert.equal((await rejection(login("u", "p"))).code, "BANNED");
   });
 
-  it("does not throw on non-2xx (unlike authenticated requests)", async () => {
+  it("a 5xx is NETWORK_ERROR, not a fake success", async () => {
     fake = installFetch([
       { status: 500, body: "ok", url: "https://news.ycombinator.com/news" },
     ]);
-    await login("u", "p");
+    assert.equal((await rejection(login("u", "p"))).code, "NETWORK_ERROR");
   });
 });

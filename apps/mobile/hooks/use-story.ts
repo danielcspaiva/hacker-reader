@@ -54,10 +54,10 @@ export function useStory(id: number) {
 
   return useQuery<StoryWithComments, Error>({
     queryKey: hnKeys.story(id),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const [hnItem, algoliaData] = await Promise.all([
-        getItem(id),
-        getStoryWithComments(id),
+        getItem(id, signal),
+        getStoryWithComments(id, signal),
       ]);
       if (!hnItem) throw new Error(`Story ${id} not found`);
 
@@ -66,7 +66,11 @@ export function useStory(id: number) {
 
       let missingComments: Comment[] = [];
       if (missingIds.length > 0) {
-        const missingHNItems = await getItems(missingIds);
+        // Algolia already gave the bulk of the thread; if the top-up fetch
+        // fails outright, show what we have instead of failing the screen.
+        const missingHNItems = await getItems(missingIds, signal).catch(
+          () => []
+        );
 
         missingComments = missingHNItems
           .map(convertHNItemToComment)

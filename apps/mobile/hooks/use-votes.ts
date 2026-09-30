@@ -80,6 +80,9 @@ export function useToggleVote(itemId: number) {
       hapticNotify(Haptics.NotificationFeedbackType.Error);
       if (context?.previousVotes) {
         queryClient.setQueryData(hnKeys.votes(), context.previousVotes);
+      } else {
+        // Nothing was cached to restore: reload the persisted list instead.
+        void queryClient.invalidateQueries({ queryKey: hnKeys.votes() });
       }
       presentHNWriteError(error, {
         logout,

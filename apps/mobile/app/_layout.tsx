@@ -49,6 +49,11 @@ const queryClient = new QueryClient({
       retry: 2,
       refetchOnWindowFocus: true,
     },
+    // HN writes (comment, delete, flag) are not safe to repeat blindly; a failed
+    // one is reported and the user decides. Reads above keep their retries.
+    mutations: {
+      retry: false,
+    },
   },
   mutationCache: new MutationCache({
     onSuccess: (_data, _variables, _context, mutation) => {

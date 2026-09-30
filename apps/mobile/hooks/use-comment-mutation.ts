@@ -3,7 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { presentHNWriteError } from "@/hooks/present-hn-write-error";
 import type { Comment, StoryWithComments } from "@/lib/hn";
-import { addReplyToComment, comment, hnKeys, requireSession } from "@/lib/hn";
+import {
+  addReplyToComment,
+  comment,
+  hnKeys,
+  isAuthError,
+  requireSession,
+} from "@/lib/hn";
 
 /** How long HN needs before a refetch would show a comment we couldn't add locally. */
 const REFETCH_DELAY_MS = 5000;
@@ -39,7 +45,7 @@ export function useCommentMutation({
     // in-place update, with a delayed refetch fallback) because HN's API needs a
     // moment before a refetch would reflect the new comment.
     mutationFn: (text: string) =>
-      comment(parentId, text, requireSession(session)),
+      comment(parentId, text, requireSession(session), username),
     onSuccess: (newCommentId, postedText) => {
       onSuccess?.();
 
@@ -78,13 +84,22 @@ export function useCommentMutation({
         }
       );
     },
-    onError: (error) =>
+    onError: (error) => {
+      // The POST may have landed even though we never heard back: pull the
+      // thread so the comment shows up if it did, and the user isn't left
+      // tempted to post it twice.
+      if (isAuthError(error) && error.code === "UNCONFIRMED") {
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: hnKeys.story(storyId) });
+        }, REFETCH_DELAY_MS);
+      }
       presentHNWriteError(error, {
         logout,
         operation: "postComment",
         context: { storyId },
         failureMessage: "Failed to post comment. Please try again.",
         karmaMessage: "You need more karma on Hacker News to comment.",
-      }),
+      });
+    },
   });
 }

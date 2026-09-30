@@ -13,7 +13,10 @@ export function useCommentContext(comment: HNItem) {
 
   const { data: parent } = useQuery({
     queryKey: hnKeys.item(parentId ?? -1),
-    queryFn: parentId === undefined ? skipToken : () => getItem(parentId),
+    queryFn:
+      parentId === undefined
+        ? skipToken
+        : ({ signal }) => getItem(parentId, signal),
     staleTime: PARENT_STALE_TIME,
   });
 

@@ -23,11 +23,11 @@ import { getUser, hnKeys, type HNUser } from "@/lib/hn";
 export function useUser(username: string | null) {
   return useQuery<HNUser | null>({
     queryKey: hnKeys.user(username),
-    queryFn: () => {
+    queryFn: ({ signal }) => {
       if (!username) {
         throw new Error("Username is required");
       }
-      return getUser(username);
+      return getUser(username, signal);
     },
     enabled: !!username,
     staleTime: 5 * 60 * 1000, // 5 minutes

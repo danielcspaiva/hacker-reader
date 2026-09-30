@@ -59,6 +59,74 @@ export function describeHNWriteError(
         logout: false,
         report: false,
       };
+    case "CANNOT_VOTE":
+      return {
+        title: "Can't Vote",
+        message: "Hacker News doesn't allow voting on this item.",
+        logout: false,
+        report: false,
+      };
+    case "CAPTCHA_REQUIRED":
+      return {
+        title: "Verification Needed",
+        message:
+          "Hacker News wants to verify you're human. Open news.ycombinator.com in a browser, complete it, then try again.",
+        logout: false,
+        report: false,
+      };
+    case "EXPIRED_LINK":
+      return {
+        title: "Please Try Again",
+        message: "That action expired before it went through. Try it again.",
+        logout: false,
+        report: false,
+      };
+    case "ITEM_NOT_FOUND":
+      return {
+        title: "Not Found",
+        message: "Hacker News no longer has this item.",
+        logout: false,
+        report: false,
+      };
+    case "CANNOT_COMMENT":
+      return {
+        title: "Comments Closed",
+        message:
+          "Hacker News isn't accepting replies on this item. It may be too old, locked or removed.",
+        logout: false,
+        report: false,
+      };
+    case "CANNOT_DELETE":
+      return {
+        title: "Can't Delete",
+        message:
+          "You can only delete your own comments, and only for a short while after posting.",
+        logout: false,
+        report: false,
+      };
+    case "REJECTED":
+      return {
+        title: "Not Accepted",
+        message: error.message,
+        logout: false,
+        report: false,
+      };
+    case "UNCONFIRMED":
+      return {
+        title: "Not Sure It Went Through",
+        message:
+          "The connection dropped before Hacker News answered. Check the thread before trying again; it may already be posted.",
+        logout: false,
+        report: false,
+      };
+    case "NETWORK_ERROR":
+      return {
+        title: "Connection Problem",
+        message:
+          "Couldn't reach Hacker News. Check your connection and try again.",
+        logout: false,
+        report: false,
+      };
     case "PARSE_ERROR":
       return {
         title: "Something Went Wrong",
