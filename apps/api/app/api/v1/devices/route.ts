@@ -1,27 +1,27 @@
-import { requireInstall } from "@/lib/auth";
+import { requireInstall, requirePro } from "@/lib/auth";
 import {
   deleteDeviceData,
   parseDeviceInput,
   upsertDevice,
 } from "@/lib/devices";
-import { errorResponse, json, readJson } from "@/lib/http";
-import { rateLimit } from "@/lib/rate-limit";
+import { json, readJson } from "@/lib/http";
+import { limitByIp, rateLimit, rateLimitedResponse } from "@/lib/rate-limit";
 import { getStore } from "@/lib/store";
 
 export async function POST(req: Request) {
-  const auth = requireInstall(req);
+  const store = getStore();
+  const blocked = await limitByIp(store, req, "devices");
+  if (blocked) return blocked;
+
+  // Registration is Pro-only: it also keeps minted ids from writing records.
+  const auth = await requirePro(req, { store });
   if (!auth.ok) return auth.response;
 
-  const store = getStore();
   const limit = await rateLimit(store, "devices", auth.installId, {
     limit: 30,
     windowSeconds: 60,
   });
-  if (!limit.ok) {
-    return errorResponse(429, "rate_limited", "Too many requests", {
-      "Retry-After": String(limit.retryAfterSeconds),
-    });
-  }
+  if (!limit.ok) return rateLimitedResponse(limit.retryAfterSeconds);
 
   const parsed = parseDeviceInput(await readJson(req));
   if (!parsed.ok) {
@@ -35,10 +35,15 @@ export async function POST(req: Request) {
   return json(device);
 }
 
+// Anyone may delete their own data, so no Pro check.
 export async function DELETE(req: Request) {
+  const store = getStore();
+  const blocked = await limitByIp(store, req, "devices-delete");
+  if (blocked) return blocked;
+
   const auth = requireInstall(req);
   if (!auth.ok) return auth.response;
 
-  await deleteDeviceData(getStore(), auth.installId);
+  await deleteDeviceData(store, auth.installId);
   return json({ deleted: true });
 }

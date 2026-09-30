@@ -164,6 +164,13 @@ export function parseDeviceInput(body: JsonValue): Validation<DeviceInput> {
 
 export const DEVICE_INDEX_KEY = "devices";
 
+/**
+ * Device records expire 45 days after the last upsert. A Pro app registers on
+ * every launch and foreground, so lapsed users' records disappear by themselves.
+ */
+export const DEVICE_TTL_SECONDS = 45 * 24 * 60 * 60;
+const DEVICE_TTL = { ttlSeconds: DEVICE_TTL_SECONDS };
+
 export const deviceKey = (installId: string) => `device:${installId}`;
 const pushTokenKey = (token: string) => `pushtoken:${token}`;
 
@@ -208,7 +215,7 @@ export async function upsertDevice(
     input.hnUsername === undefined ? existing?.hnUsername : input.hnUsername;
   if (hnUsername) device.hnUsername = hnUsername;
 
-  await store.set(deviceKey(installId), device);
+  await store.set(deviceKey(installId), device, DEVICE_TTL);
   await store.sadd(DEVICE_INDEX_KEY, installId);
 
   // A token belongs to one install: drop the reverse entry of a replaced
@@ -221,10 +228,14 @@ export async function upsertDevice(
     if (previousOwner && previousOwner !== installId) {
       const other = await getDevice(store, previousOwner);
       if (other?.expoPushToken === expoPushToken) {
-        await store.set(deviceKey(previousOwner), withoutPushToken(other));
+        await store.set(
+          deviceKey(previousOwner),
+          withoutPushToken(other),
+          DEVICE_TTL
+        );
       }
     }
-    await store.set(pushTokenKey(expoPushToken), installId);
+    await store.set(pushTokenKey(expoPushToken), installId, DEVICE_TTL);
   }
 
   return device;
@@ -253,6 +264,21 @@ export async function removePushToken(
   if (!owner) return;
   const device = await getDevice(store, owner);
   if (device?.expoPushToken === token) {
-    await store.set(deviceKey(owner), withoutPushToken(device));
+    await store.set(deviceKey(owner), withoutPushToken(device), DEVICE_TTL);
   }
+}
+
+/**
+ * Drops index members whose device record has expired or been deleted. The
+ * index itself never expires, so the cron PRs that iterate it call this first.
+ * Returns how many ids were removed.
+ */
+export async function pruneDeviceIndex(store: Store): Promise<number> {
+  const ids = await store.smembers(DEVICE_INDEX_KEY);
+  const dangling: string[] = [];
+  for (const id of ids) {
+    if ((await getDevice(store, id)) === null) dangling.push(id);
+  }
+  await store.srem(DEVICE_INDEX_KEY, ...dangling);
+  return dangling.length;
 }

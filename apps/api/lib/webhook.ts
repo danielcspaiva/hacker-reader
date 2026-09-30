@@ -13,15 +13,30 @@ export const REFRESH_EVENT_TYPES = new Set([
   "UNCANCELLATION",
   "PRODUCT_CHANGE",
   "BILLING_ISSUE",
+  "TRANSFER",
+  "SUBSCRIPTION_PAUSED",
+  "SUBSCRIPTION_EXTENDED",
+  "TEMPORARY_ENTITLEMENT_GRANT",
+  "NON_RENEWING_PURCHASE",
+  "REFUND_REVERSED",
 ]);
 
-/** Install ids named by the event (user id, original id and aliases). */
+/**
+ * Install ids named by the event: user id, original id, aliases and, for
+ * TRANSFER events (which carry no app_user_id), `transferred_from` / `_to`.
+ */
 export function eventInstallIds(event: JsonObject): string[] {
   const candidates: JsonValue[] = [
     event.app_user_id,
     event.original_app_user_id,
   ];
-  if (Array.isArray(event.aliases)) candidates.push(...event.aliases);
+  for (const list of [
+    event.aliases,
+    event.transferred_from,
+    event.transferred_to,
+  ]) {
+    if (Array.isArray(list)) candidates.push(...list);
+  }
 
   const ids = new Set<string>();
   for (const candidate of candidates) {

@@ -3,8 +3,10 @@ import { describe, it } from "node:test";
 
 import {
   deleteDeviceData,
+  DEVICE_TTL_SECONDS,
   getDevice,
   parseDeviceInput,
+  pruneDeviceIndex,
   removePushToken,
   upsertDevice,
 } from "../lib/devices";
@@ -132,5 +134,23 @@ describe("device storage", () => {
     await upsertDevice(store, ID, input({ expoPushToken: TOKEN }));
     await removePushToken(store, TOKEN);
     assert.equal((await getDevice(store, ID))?.expoPushToken, undefined);
+  });
+
+  it("gives device records a 45 day TTL", async () => {
+    const store = new MemoryStore();
+    await upsertDevice(store, ID, input({ expoPushToken: TOKEN }));
+    assert.equal(DEVICE_TTL_SECONDS, 45 * 24 * 60 * 60);
+    assert.equal(store.ttls.get(`device:${ID}`), DEVICE_TTL_SECONDS);
+    assert.equal(store.ttls.get(`pushtoken:${TOKEN}`), DEVICE_TTL_SECONDS);
+  });
+
+  it("prunes index members whose device record is gone", async () => {
+    const store = new MemoryStore();
+    await upsertDevice(store, ID, input());
+    await upsertDevice(store, OTHER, input());
+    store.values.delete(`device:${OTHER}`);
+    assert.equal(await pruneDeviceIndex(store), 1);
+    assert.deepEqual(await store.smembers("devices"), [ID]);
+    assert.equal(await pruneDeviceIndex(store), 0);
   });
 });

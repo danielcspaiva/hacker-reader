@@ -176,8 +176,9 @@ export default function PrivacyPage() {
             <p>
               Nothing is sold or shared for advertising. You can delete this
               data at any time with Delete Pro Data in Settings, or by emailing
-              us; otherwise it is deleted 30 days after your subscription
-              lapses.
+              us; otherwise it expires on its own about 45 days after the app
+              last registered (Pro users register on every launch), so it is
+              gone well after a subscription lapses.
             </p>
           </Block>
 

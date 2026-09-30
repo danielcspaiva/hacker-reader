@@ -1,3 +1,4 @@
+import { errorResponse } from "./http";
 import type { Store } from "./store";
 
 export interface RateLimitRule {
@@ -38,4 +39,33 @@ export async function rateLimit(
     remaining: Math.max(0, rule.limit - count),
     retryAfterSeconds,
   };
+}
+
+/** Caller IP: first `x-forwarded-for` entry, else `x-real-ip`, else "unknown". */
+export function clientIp(req: Request): string {
+  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  if (forwarded) return forwarded;
+  return req.headers.get("x-real-ip")?.trim() || "unknown";
+}
+
+export const IP_RULE: RateLimitRule = { limit: 60, windowSeconds: 60 };
+
+export function rateLimitedResponse(retryAfterSeconds: number): Response {
+  return errorResponse(429, "rate_limited", "Too many requests", {
+    "Retry-After": String(retryAfterSeconds),
+  });
+}
+
+/**
+ * Per-IP limit. Run it before anything that costs money (a RevenueCat lookup
+ * creates a customer): per-install limits do not stop someone minting ids.
+ * Returns a 429 response, or null when the request may continue.
+ */
+export async function limitByIp(
+  store: Store,
+  req: Request,
+  bucket: string
+): Promise<Response | null> {
+  const result = await rateLimit(store, `ip:${bucket}`, clientIp(req), IP_RULE);
+  return result.ok ? null : rateLimitedResponse(result.retryAfterSeconds);
 }

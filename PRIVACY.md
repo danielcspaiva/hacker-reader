@@ -36,7 +36,7 @@ Pro is an optional subscription for features that need a server. Everything that
 - **Purchase status**: handled by Apple and RevenueCat, which receive the install ID to tell us whether your subscription is active. We never see payment details.
 - **Device details**: platform, app version and time zone, sent with the install ID while Pro is active.
 - **Only for features that need it**: your push notification token, and the Hacker News username you choose to share for reply notifications.
-- **Nothing is sold.** Delete it any time with **Delete Pro Data** in Settings (or by email); otherwise it is deleted 30 days after your subscription lapses.
+- **Nothing is sold.** Delete it any time with **Delete Pro Data** in Settings (or by email); otherwise it expires on its own about 45 days after the app last registered (Pro users register on every launch), so it is gone well after a subscription lapses.
 
 ## Full Privacy Policy
 

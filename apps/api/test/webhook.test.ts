@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { JsonObject, JsonValue } from "../lib/json";
+import { getObject, type JsonObject, type JsonValue } from "../lib/json";
 import { eventInstallIds, handleRevenueCatWebhook } from "../lib/webhook";
 import { fakeFetch, readFixture } from "./helpers";
 import { MemoryStore } from "./memory-store";
@@ -48,6 +48,33 @@ describe("eventInstallIds", () => {
       }),
       [ID, ALIAS]
     );
+  });
+});
+
+describe("TRANSFER events", () => {
+  const transfer = readFixture("webhook-transfer.json");
+
+  it("collects ids from transferred_from and transferred_to", () => {
+    const event = getObject(transfer, "event");
+    assert.ok(event);
+    assert.deepEqual(eventInstallIds(event), [ID, ALIAS]);
+  });
+
+  it("refreshes every install involved in a transfer", async () => {
+    const { deps, store, fetched } = setup();
+    const response = await handleRevenueCatWebhook(
+      new Request("https://x.test", {
+        method: "POST",
+        headers: { Authorization: "Bearer hook-secret" },
+        body: JSON.stringify(transfer),
+      }),
+      deps
+    );
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { ok: true, refreshed: 2 });
+    assert.equal(fetched.length, 2);
+    assert.notEqual(await store.get(`entitlement:${ID}`), null);
+    assert.notEqual(await store.get(`entitlement:${ALIAS}`), null);
   });
 });
 
@@ -118,6 +145,12 @@ describe("handleRevenueCatWebhook", () => {
       "UNCANCELLATION",
       "PRODUCT_CHANGE",
       "BILLING_ISSUE",
+      "TRANSFER",
+      "SUBSCRIPTION_PAUSED",
+      "SUBSCRIPTION_EXTENDED",
+      "TEMPORARY_ENTITLEMENT_GRANT",
+      "NON_RENEWING_PURCHASE",
+      "REFUND_REVERSED",
     ]) {
       const { deps, fetched } = setup();
       const response = await handleRevenueCatWebhook(
