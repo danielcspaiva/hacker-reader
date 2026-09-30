@@ -9,6 +9,8 @@ export const REPO_URL = "https://github.com/danielcspaiva/hacker-reader";
 export const HN_GUIDELINES_URL =
   "https://news.ycombinator.com/newsguidelines.html";
 
+export const PRIVACY_URL = "https://hackerreader.app/privacy";
+
 export const GUIDELINES_ACCEPTED_KEY = "@guidelines_accepted";
 
 export const IOS_APP_STORE_URL =

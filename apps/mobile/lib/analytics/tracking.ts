@@ -16,6 +16,8 @@ import type {
   StoryCategory,
 } from "@/lib/hn";
 import { reportError } from "@/lib/observability/report-error";
+import type { ProFeatureId } from "@/lib/pro/features";
+import type { PlanKind } from "@/lib/pro/plans";
 import type { TextSize } from "@/lib/text/text-size";
 import type { WidgetKind } from "@/lib/widgets/tap";
 
@@ -171,6 +173,25 @@ export interface EventProperties {
   [AnalyticsEvent.TEXT_SIZE_CHANGED]: {
     from_size: TextSize;
     to_size: TextSize;
+  };
+
+  // Pro
+  [AnalyticsEvent.PAYWALL_VIEWED]: {
+    /** The Pro feature the user tapped, absent when opened from Settings. */
+    [AnalyticsProperty.PRO_FEATURE]?: ProFeatureId;
+  };
+  [AnalyticsEvent.PURCHASE_STARTED]: {
+    [AnalyticsProperty.PRO_PLAN]: PlanKind;
+  };
+  [AnalyticsEvent.PURCHASE_COMPLETED]: {
+    [AnalyticsProperty.PRO_PLAN]: PlanKind;
+  };
+  [AnalyticsEvent.PURCHASE_FAILED]: {
+    [AnalyticsProperty.PRO_PLAN]: PlanKind;
+  };
+  [AnalyticsEvent.PURCHASE_RESTORED]: {
+    /** Whether the restore found an active Pro entitlement. */
+    is_pro: boolean;
   };
 
   // Widget Interactions

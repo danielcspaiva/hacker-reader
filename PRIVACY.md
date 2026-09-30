@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated**: January 2, 2025
+**Last Updated**: September 30, 2026
 
 ## TL;DR - Privacy-First Approach
 
@@ -28,6 +28,16 @@ Hacker Reader is designed with privacy as a core principle:
 - ❌ Device identifiers (IDFA)
 - ❌ Search queries
 
+## Hacker Reader Pro (Optional)
+
+Pro is an optional subscription for features that need a server. Everything that runs on your phone stays free and never contacts our server. The app does check your purchase status with RevenueCat using a random install ID, whether or not you subscribe.
+
+- **Random install ID**: generated on your device, kept in the iOS Keychain, not linked to your name, email or Hacker News account. There is no Pro account.
+- **Purchase status**: handled by Apple and RevenueCat, which receive the install ID to tell us whether your subscription is active. We never see payment details.
+- **Device details**: platform, app version and time zone, sent with the install ID while Pro is active.
+- **Only for features that need it**: your push notification token, and the Hacker News username you choose to share for reply notifications.
+- **Nothing is sold.** Delete it any time with **Delete Pro Data** in Settings (or by email); otherwise it is deleted 30 days after your subscription lapses.
+
 ## Full Privacy Policy
 
 For the complete privacy policy, please visit:
@@ -37,7 +47,7 @@ For the complete privacy policy, please visit:
 The full policy includes detailed information about:
 
 - Data collection practices
-- Third-party services (Sentry, PostHog)
+- Third-party services (Sentry, PostHog, RevenueCat)
 - Data storage and security
 - Your rights (GDPR, CCPA)
 - Children's privacy (COPPA)
@@ -58,6 +68,7 @@ The full policy includes detailed information about:
 
 - **Crash reports**: Sentry (anonymized, 90-day retention)
 - **Analytics events**: PostHog (anonymized, 90-day retention)
+- **Pro (only if you subscribe)**: RevenueCat (purchase status) and our API on Vercel/Upstash Redis (install ID, device details, optional push token and HN username)
 
 ## Anonymous Analytics Explained
 
@@ -75,7 +86,7 @@ This allows us to understand how logged-in users behave differently without comp
 You have the right to:
 
 - **Access** your data (essentially none linked to you)
-- **Delete** your data (uninstall app)
+- **Delete** your data (uninstall app; Pro data: Settings > Delete Pro Data)
 - **Opt-out** of analytics (toggle coming in v1.1)
 - **Export** your data (local bookmarks only)
 

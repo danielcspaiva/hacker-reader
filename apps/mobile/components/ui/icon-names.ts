@@ -74,6 +74,15 @@ export const ICON_GLYPHS = {
   trash: { ios: "trash", android: "delete" },
   document: { ios: "doc.text", android: "description" },
   code: { ios: "chevron.left.forwardslash.chevron.right", android: "code" },
+  // pro
+  pro: { ios: "star.circle.fill", android: "workspace_premium" },
+  notifications: { ios: "bell", android: "notifications" },
+  keywordAlert: { ios: "bell.badge", android: "notifications_active" },
+  summary: { ios: "wand.and.stars", android: "auto_fix_high" },
+  digest: { ios: "sun.max", android: "wb_sunny" },
+  cloud: { ios: "icloud", android: "cloud" },
+  appIcons: { ios: "square.grid.2x2", android: "apps" },
+  payment: { ios: "creditcard", android: "credit_card" },
   // states
   warning: { ios: "exclamationmark.triangle", android: "warning" },
   error: { ios: "exclamationmark.circle", android: "error" },

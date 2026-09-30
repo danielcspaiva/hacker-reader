@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Last updated: September 29, 2026
+          Last updated: September 30, 2026
         </p>
 
         <div className="mt-12 space-y-5">
@@ -133,11 +133,60 @@ export default function PrivacyPage() {
             </p>
           </Block>
 
+          <Block title="Hacker Reader Pro (optional)">
+            <p>
+              Pro is an optional subscription for features that need a server.
+              Everything that runs on your phone stays free and never contacts
+              our server. The app does check your purchase status with
+              RevenueCat using a random install ID, whether or not you
+              subscribe. This is what is involved:
+            </p>
+            <List
+              items={[
+                <>
+                  <strong>A random install ID</strong> generated on your device
+                  and kept in the iOS Keychain. It is not linked to your name,
+                  email or Hacker News account, and there is no Pro account.
+                </>,
+                <>
+                  <strong>Purchase status</strong> handled by Apple and{" "}
+                  <a
+                    className={linkClass}
+                    href="https://www.revenuecat.com/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    RevenueCat
+                  </a>
+                  , which receive the install ID to tell us whether your
+                  subscription is active. We never see your payment details.
+                </>,
+                <>
+                  <strong>Device details</strong> (platform, app version and
+                  time zone) sent to our server with the install ID while Pro is
+                  active.
+                </>,
+                <>
+                  <strong>Only for features that need it:</strong> your push
+                  notification token, and the Hacker News username you choose to
+                  share for reply notifications.
+                </>,
+              ]}
+            />
+            <p>
+              Nothing is sold or shared for advertising. You can delete this
+              data at any time with Delete Pro Data in Settings, or by emailing
+              us; otherwise it is deleted 30 days after your subscription
+              lapses.
+            </p>
+          </Block>
+
           <Block title="What we don't collect">
             <List
               items={[
                 "Your name, email address or phone number",
                 "Your Hacker News password, which is sent only to Hacker News",
+                "Your payment details, which stay with Apple",
                 "Precise location",
                 "Your contacts, photos, health or financial data",
                 "Advertising identifiers (IDFA)",
@@ -187,6 +236,10 @@ export default function PrivacyPage() {
                 <>
                   <strong>Story websites</strong> are contacted directly to load
                   link previews and when you open an article.
+                </>,
+                <>
+                  <strong>RevenueCat</strong> and our own server, only if you
+                  use Hacker Reader Pro (see above).
                 </>,
                 <>
                   <strong>PostHog</strong> and <strong>Sentry</strong> as

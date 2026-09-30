@@ -51,6 +51,7 @@ Hacker Reader is a cross-platform Hacker News client that ships a native-quality
 │   │   ├── components/      # feature components
 │   │   ├── widgets/         # iOS widget layout and provider
 │   │   └── app/             # Expo Router screens
+│   ├── api/                 # Next.js route handlers: Hacker Reader Pro backend
 │   └── web/                 # Next.js App Router marketing site (AI backend coming)
 ├── package.json             # Root scripts and tooling
 ├── pnpm-workspace.yaml      # Workspace definition
@@ -93,6 +94,7 @@ pnpm web:lint      # oxlint in apps/web
 ### Environment Setup
 
 - Duplicate `apps/mobile/.env.example` to `.env.local` and populate Sentry/PostHog keys (or leave blank to disable those integrations when developing).
+- Hacker Reader Pro is optional: set `EXPO_PUBLIC_REVENUECAT_IOS_KEY` and `EXPO_PUBLIC_API_URL` in the mobile env to enable it (leave blank to hide it); the backend lives in `apps/api` (see its README).
 - Duplicate `apps/web/.env.example` to `.env.local` to set `NEXT_PUBLIC_SITE_URL` for metadata when running the marketing site.
 
 ## Development Workflow

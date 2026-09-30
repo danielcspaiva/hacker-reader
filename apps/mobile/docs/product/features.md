@@ -6,6 +6,7 @@ This document provides a comprehensive overview of all features available in the
 
 - [Core Features](#core-features)
 - [iOS Widgets](#ios-widgets)
+- [Hacker Reader Pro](#hacker-reader-pro)
 - [Authentication & User Actions](#authentication--user-actions)
 - [UI/UX Features](#uiux-features)
 - [Performance & Technical Features](#performance--technical-features)
@@ -115,6 +116,18 @@ Each story displays:
 - The app logo reaches the widget through the App Group container (the extension cannot read the app bundle)
 - Dark mode and tinted/vibrant rendering supported
 - App Group: `group.com.danielcspaiva.hnclient`
+
+---
+
+## Hacker Reader Pro
+
+An optional subscription for features that need a server. Everything that runs on the phone stays free; Pro pays for the servers.
+
+- **Paywall** - a sheet (`app/pro.tsx`) opened only when someone taps a Pro feature or the Pro row in Settings, never on launch; plan cards (yearly with the store's trial and a per-month equivalent, monthly) priced from the App Store, a purchase button, Restore Purchases, Terms of Use and Privacy links
+- **Features** - reply notifications, keyword alerts, AI summaries, daily digest, iCloud sync, alternate app icons (all "Coming soon" for now; each later PR flips its `status` in `lib/pro/features.ts`)
+- **Settings** - a "Hacker Reader Pro" section: upsell row, or "Pro, thank you" with Manage Subscription; Restore Purchases; Delete Pro Data (removes the install's server-side data)
+- **Identity** - a random install ID in the Keychain, also the RevenueCat app user id; no account
+- **Unavailable builds** - without `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (dev, self-built, web, Expo Go) the section is hidden and the app works normally
 
 ---
 
