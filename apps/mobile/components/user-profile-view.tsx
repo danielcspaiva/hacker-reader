@@ -26,6 +26,8 @@ import { hapticImpact } from "@/lib/haptics";
 interface UserProfileViewProps {
   userId: string | null;
   onOpenSubmissions: () => void;
+  /** Own profile only: opens the Submit sheet. */
+  onSubmit?: () => void;
   onLogout?: () => void;
 }
 
@@ -43,6 +45,7 @@ function HeroSkeleton() {
 export function UserProfileView({
   userId,
   onOpenSubmissions,
+  onSubmit,
   onLogout,
 }: UserProfileViewProps) {
   const { colors } = useTheme();
@@ -144,6 +147,13 @@ export function UserProfileView({
               }
               leading={<IconTile name="stories" hue="orange" />}
               onPress={onOpenSubmissions}
+            />
+          ) : null}
+          {onSubmit ? (
+            <ListRow
+              title="Submit a story"
+              leading={<IconTile name="compose" hue="indigo" />}
+              onPress={onSubmit}
             />
           ) : null}
           <ListRow

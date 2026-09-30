@@ -53,6 +53,11 @@ export enum AnalyticsProperty {
   // Share
   SHARE_METHOD = "share_method",
 
+  // Submit
+  SUBMIT_KIND = "submit_kind",
+  SUBMIT_SOURCE = "submit_source",
+  DISCUSSION_COUNT = "discussion_count",
+
   // User Properties
   USER_KARMA = "user_karma",
   ACCOUNT_AGE_DAYS = "account_age_days",

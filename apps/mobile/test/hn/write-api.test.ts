@@ -7,6 +7,7 @@ import {
   deleteComment,
   flag,
   login,
+  submit,
   unvote,
   vote,
 } from "@/lib/hn/web/write-api";
@@ -495,5 +496,99 @@ describe("login", () => {
       { status: 500, body: "ok", url: "https://news.ycombinator.com/news" },
     ]);
     assert.equal((await rejection(login("u", "p"))).code, "NETWORK_ERROR");
+  });
+});
+
+describe("submit", () => {
+  const FORM = `<form><input type="hidden" name="fnid" value="FN1"></form>`;
+
+  it("GETs /submit then POSTs fnid, fnop, title, url and text to /r", async () => {
+    fake = installFetch([
+      { body: FORM },
+      { body: "<html></html>", url: "https://news.ycombinator.com/newest" },
+    ]);
+    const result = await submit(
+      { title: " A title ", url: "https://example.com/a" },
+      fakeSession()
+    );
+
+    assert.deepEqual(result, { duplicateOf: null });
+    assert.equal(fake.calls[0].url, "https://news.ycombinator.com/submit");
+    const post = fake.calls[1];
+    assert.equal(post.url, "https://news.ycombinator.com/r");
+    assert.equal(post.method, "POST");
+    assert.equal(post.headers.Cookie, FAKE_COOKIE);
+    assert.deepEqual(
+      [...new URLSearchParams(post.body).entries()],
+      [
+        ["fnid", "FN1"],
+        ["fnop", "submit-page"],
+        ["title", "A title"],
+        ["url", "https://example.com/a"],
+        ["text", ""],
+      ]
+    );
+  });
+
+  it("returns duplicateOf when HN redirects to the existing item", async () => {
+    fake = installFetch([
+      { body: FORM },
+      { body: "", url: "https://news.ycombinator.com/item?id=77" },
+    ]);
+    assert.deepEqual(
+      await submit({ title: "T", url: "https://example.com" }, fakeSession()),
+      { duplicateOf: 77 }
+    );
+  });
+
+  it("rejects a title over 80 characters without any request", async () => {
+    fake = installFetch([]);
+    const error = await rejection(
+      submit(
+        { title: "x".repeat(81), url: "https://example.com" },
+        fakeSession()
+      )
+    );
+    assert.equal(error.code, "REJECTED");
+    assert.equal(fake.calls.length, 0);
+  });
+
+  it("rejects a blank title and a missing url and text", async () => {
+    fake = installFetch([]);
+    assert.equal(
+      (
+        await rejection(
+          submit({ title: " ", url: "https://a.b" }, fakeSession())
+        )
+      ).code,
+      "REJECTED"
+    );
+    assert.equal(
+      (await rejection(submit({ title: "T" }, fakeSession()))).code,
+      "REJECTED"
+    );
+  });
+
+  it("NOT_LOGGED_IN when /submit shows the login prompt", async () => {
+    fake = installFetch([
+      {
+        body: "You have to be logged in to submit.<form><input name='acct'></form>",
+      },
+    ]);
+    const error = await rejection(
+      submit({ title: "T", text: "hello" }, fakeSession())
+    );
+    assert.equal(error.code, "NOT_LOGGED_IN");
+  });
+
+  it("RATE_LIMITED when HN says you're submitting too fast", async () => {
+    fake = installFetch([
+      { body: FORM },
+      { body: "You're submitting too fast. Please slow down. Thanks." },
+    ]);
+    const error = await rejection(
+      submit({ title: "T", text: "hello" }, fakeSession())
+    );
+    assert.equal(error.code, "RATE_LIMITED");
   });
 });

@@ -39,6 +39,9 @@ export default function ProfileScreen() {
     <UserProfileView
       userId={username}
       onOpenSubmissions={() => router.push("/(tabs)/profile/submissions")}
+      onSubmit={() =>
+        router.push({ pathname: "/submit", params: { source: "profile" } })
+      }
       onLogout={() => void logout()}
     />
   );

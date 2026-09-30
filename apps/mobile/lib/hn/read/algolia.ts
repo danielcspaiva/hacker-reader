@@ -1,3 +1,4 @@
+import { normalizeUrl } from "../../format/url";
 import { ALGOLIA_URL } from "../constants";
 import { fetchJSON } from "../fetch-json";
 import type {
@@ -65,6 +66,33 @@ export async function getFrontPageStories(
   );
   return response.hits
     .flatMap((hit) => mapHitToHNItem(hit) ?? [])
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+}
+
+/**
+ * Stories already submitted for a link, highest score first. Algolia matches
+ * the normalised URL fuzzily (tokens), so hits are kept only when their own URL
+ * normalises to the same thing. Empty for a value that is not an http(s) URL.
+ */
+export async function getStoriesByUrl(
+  url: string,
+  signal?: AbortSignal
+): Promise<HNItem[]> {
+  const normalized = normalizeUrl(url);
+  if (!normalized) return [];
+  const params = new URLSearchParams({
+    tags: "story",
+    restrictSearchableAttributes: "url",
+    query: normalized,
+    hitsPerPage: "20",
+  });
+  const response = await algoliaJSON<AlgoliaSearchResponse>(
+    `/search?${params.toString()}`,
+    signal
+  );
+  return response.hits
+    .flatMap((hit) => mapHitToHNItem(hit) ?? [])
+    .filter((item) => item.url && normalizeUrl(item.url) === normalized)
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 }
 

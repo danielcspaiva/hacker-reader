@@ -21,6 +21,9 @@ import type { TextSize } from "@/lib/text/text-size";
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
 
+/** Where a submission started: a menu, the profile tab, or a shared link. */
+export type SubmitSource = "feed_menu" | "profile" | "share";
+
 export type WidgetSize = "small" | "medium" | "large" | "accessory";
 
 /**
@@ -135,6 +138,20 @@ export interface EventProperties {
   };
   [AnalyticsEvent.COMMENT_FLAGGED]: {
     [AnalyticsProperty.COMMENT_ID]: number;
+  };
+
+  // Submitting & sharing in
+  [AnalyticsEvent.STORY_SUBMITTED]: {
+    [AnalyticsProperty.SUBMIT_KIND]: "link" | "text";
+    [AnalyticsProperty.SUBMIT_SOURCE]: SubmitSource;
+  };
+  [AnalyticsEvent.SUBMIT_DUPLICATE_FOUND]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.SUBMIT_SOURCE]: SubmitSource;
+  };
+  [AnalyticsEvent.SHARE_EXTENSION_OPENED]: Record<string, never>;
+  [AnalyticsEvent.DISCUSSION_FOUND]: {
+    [AnalyticsProperty.DISCUSSION_COUNT]: number;
   };
 
   // Authentication

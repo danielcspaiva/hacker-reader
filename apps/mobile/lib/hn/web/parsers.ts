@@ -628,3 +628,80 @@ export function findOwnCommentId(
   });
   return ids.length > 0 ? Math.max(...ids) : null;
 }
+
+/**
+ * Parse the hidden `fnid` token from HN's submit page (`/submit`). HN's form
+ * posts it back to `/r` with `fnop=submit-page`.
+ *
+ * @throws HNAuthError NOT_LOGGED_IN when HN answered with its login prompt
+ *   ("You have to be logged in to submit."), RATE_LIMITED / CAPTCHA_REQUIRED
+ *   for a message page, PARSE_ERROR when the form is simply not there
+ */
+export function parseSubmitFormFnid(html: string): string {
+  const fnid = extractAttributeFromTag(html, "input", "name", "fnid", "value");
+  if (fnid) return decodeAttributeValue(fnid);
+
+  const known = classifyHNMessage(hnMessageText(html));
+  if (known) throw known;
+  if (isSignedOutPage(html)) {
+    throw new HNAuthError(
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
+    );
+  }
+  throw new HNAuthError("Submit form token not found", "PARSE_ERROR");
+}
+
+export interface SubmitOutcome {
+  /** The existing item HN redirected to; null when a new story was created. */
+  duplicateOf: number | null;
+}
+
+/**
+ * Read HN's answer to a submit POST. `landedUrl` is where the redirect ended
+ * (`Response.url`): HN redirects a successful submission to `newest` and a
+ * duplicate URL to the existing item (`item?id=`).
+ *
+ * @returns `{ duplicateOf: id }` for a duplicate, `{ duplicateOf: null }` for a
+ *   new story
+ * @throws HNAuthError for HN's messages (too fast, logged out), REJECTED for an
+ *   orange message on the re-rendered form (title too long, bad URL, ...) and
+ *   PARSE_ERROR for a page that is none of these
+ */
+export function parseSubmitResponse(
+  html: string,
+  landedUrl: string
+): SubmitOutcome {
+  const duplicate = /\/item\?id=(\d+)/.exec(landedUrl)?.[1];
+  if (duplicate) return { duplicateOf: Number.parseInt(duplicate, 10) };
+
+  const message = hnMessageText(html);
+  const known = classifyHNMessage(message);
+  if (known) throw known;
+
+  const [orange] = orangeMessages(html);
+  if (orange) {
+    throw new HNAuthError(`HN rejected the submission: ${orange}`, "REJECTED");
+  }
+
+  if (/\/newest(?:[?#]|$)/.test(landedUrl)) return { duplicateOf: null };
+
+  // HN re-renders the form without a message for a few refusals; it never
+  // lands on the list pages in that case.
+  if (/<input[^>]*name\s*=\s*["']?fnid/i.test(html)) {
+    throw new HNAuthError(
+      "HN did not accept the submission. Check the title and link.",
+      "REJECTED"
+    );
+  }
+  if (isSignedOutPage(html)) {
+    throw new HNAuthError(
+      "Session expired - please log in again",
+      "NOT_LOGGED_IN"
+    );
+  }
+  throw new HNAuthError(
+    "Could not tell whether HN accepted the submission",
+    "PARSE_ERROR"
+  );
+}
