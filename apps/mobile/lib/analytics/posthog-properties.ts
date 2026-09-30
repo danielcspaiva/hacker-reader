@@ -38,6 +38,7 @@ export enum AnalyticsProperty {
   COMMENT_ID = "comment_id",
   DEPTH_LEVEL = "depth_level",
   CHILD_COUNT = "child_count",
+  NEW_COMMENT_COUNT = "new_comment_count",
 
   // Share
   SHARE_METHOD = "share_method",

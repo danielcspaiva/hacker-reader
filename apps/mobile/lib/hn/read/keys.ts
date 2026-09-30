@@ -37,6 +37,7 @@ export const hnKeys = {
   bookmarks: (): ["bookmarks"] => ["bookmarks"],
   bookmarkedStories: (): ["bookmarks", "stories"] => ["bookmarks", "stories"],
   hidden: (): ["hidden-stories"] => ["hidden-stories"],
+  readStories: (): ["read-stories"] => ["read-stories"],
   blockedUsers: (): ["blockedUsers"] => ["blockedUsers"],
   recentSearches: (): ["recent-searches"] => ["recent-searches"],
 };

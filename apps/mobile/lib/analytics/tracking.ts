@@ -84,6 +84,16 @@ export interface EventProperties {
   [AnalyticsEvent.STORY_HIDDEN]: {
     [AnalyticsProperty.STORY_ID]: number;
   };
+  [AnalyticsEvent.STORY_MARKED_READ]: {
+    [AnalyticsProperty.STORY_ID]: number;
+  };
+  [AnalyticsEvent.STORY_MARKED_UNREAD]: {
+    [AnalyticsProperty.STORY_ID]: number;
+  };
+  [AnalyticsEvent.NEXT_NEW_COMMENT_TAPPED]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.NEW_COMMENT_COUNT]: number;
+  };
   [AnalyticsEvent.STORY_FLAGGED]: {
     [AnalyticsProperty.STORY_ID]: number;
   };

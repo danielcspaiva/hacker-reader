@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useHeaderOverlapInset } from "@/components/navigation/large-title-stack";
 import { CommentItem } from "@/components/story/comment-item";
+import { NextNewCommentButton } from "@/components/story/next-new-comment-button";
 import {
   StoryCommentInput,
   type Composer,
@@ -19,13 +20,18 @@ import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useCommentActions } from "@/hooks/use-comment-actions";
-import { useScrollToComment } from "@/hooks/use-scroll-to-comment";
+import {
+  scrollToCommentRow,
+  useScrollToComment,
+} from "@/hooks/use-scroll-to-comment";
 import { useStoryActions } from "@/hooks/use-story-actions";
+import { useStoryVisit } from "@/hooks/use-story-visit";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { hapticImpact } from "@/lib/haptics";
 import {
   flattenComments,
+  isNewComment,
   type Comment,
   type FlatComment,
   type StoryWithComments,
@@ -60,6 +66,8 @@ export function StoryDetail({
   // Story title shows in the nav bar once the hero title scrolls under it.
   const titleBottom = useRef(Infinity);
   const [titleInHeader, setTitleInHeader] = useState(false);
+  const previousVisit = useStoryVisit(story, isInsidePreview);
+  const lastNewCommentId = useRef<number | null>(null);
   const [composer, setComposer] = useState<Composer | null>(null);
   const openCommentActions = useCommentActions({
     storyId: story.id,
@@ -90,6 +98,25 @@ export function StoryDetail({
       : -1,
     topOffset: headerInset + 8,
   });
+
+  const newRowIndexes = flatComments.flatMap((item, index) =>
+    isNewComment(item.comment.id, previousVisit) ? [index] : []
+  );
+
+  const scrollToNextNewComment = () => {
+    // The next new comment below the last one jumped to, wrapping round.
+    const lastIndex = flatComments.findIndex(
+      (item) => item.comment.id === lastNewCommentId.current
+    );
+    const nextIndex =
+      newRowIndexes.find((index) => index > lastIndex) ?? newRowIndexes[0];
+    lastNewCommentId.current = flatComments[nextIndex].comment.id;
+    analytics.track(AnalyticsEvent.NEXT_NEW_COMMENT_TAPPED, {
+      [AnalyticsProperty.STORY_ID]: story.id,
+      [AnalyticsProperty.NEW_COMMENT_COUNT]: newRowIndexes.length,
+    });
+    scrollToCommentRow(listRef, nextIndex, headerInset + 8);
+  };
 
   const toggleCollapse = (comment: Comment) => {
     if (!collapsedIds.has(comment.id)) {
@@ -125,6 +152,7 @@ export function StoryDetail({
             replyCount={item.replyCount}
             isCollapsed={collapsedIds.has(item.comment.id)}
             isOP={!!story.by && item.comment.by === story.by}
+            isNew={isNewComment(item.comment.id, previousVisit)}
             isHighlighted={highlightedId === item.comment.id}
             onToggleCollapse={toggleCollapse}
             onOpenActions={openCommentActions}
@@ -176,6 +204,13 @@ export function StoryDetail({
           paddingBottom: bottomInset + (isAuthenticated ? 72 : 0),
         }}
       />
+
+      {!isInsidePreview && newRowIndexes.length > 0 ? (
+        <NextNewCommentButton
+          count={newRowIndexes.length}
+          onPress={scrollToNextNewComment}
+        />
+      ) : null}
 
       <StoryCommentInput
         storyId={story.id}

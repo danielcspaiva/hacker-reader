@@ -24,6 +24,7 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useReadStories } from "@/hooks/use-read-stories";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { hapticNotify, Haptics } from "@/lib/haptics";
 
@@ -41,6 +42,7 @@ export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const { options, preference, setPreference } = useAppearanceSettings();
   const { bookmarkCount, isClearing, clearAll } = useClearBookmarks();
+  const { count: readCount, clearAll: clearReadHistory } = useReadStories();
   const { count: hiddenCount, clearAll: clearHiddenStories } =
     useHiddenStories();
   const { blockedUsers } = useBlockedUsers();
@@ -128,6 +130,22 @@ export default function SettingsScreen() {
               message: `Remove all ${bookmarkCount} bookmarks? This cannot be undone.`,
               confirmLabel: "Clear All",
               onConfirm: () => withSuccessHaptic(clearAll),
+            })
+          }
+        />
+        <ListRow
+          leading={<IconTile name="trash" hue="red" />}
+          title="Clear Reading History"
+          value={readCount > 0 ? String(readCount) : undefined}
+          destructive
+          chevron={false}
+          disabled={readCount === 0}
+          onPress={() =>
+            confirmDestructive({
+              title: "Clear Reading History",
+              message: `Forget ${readCount} read ${readCount === 1 ? "story" : "stories"}? They will no longer be dimmed and new-comment markers reset.`,
+              confirmLabel: "Clear",
+              onConfirm: () => withSuccessHaptic(clearReadHistory),
             })
           }
         />
