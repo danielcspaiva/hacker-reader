@@ -29,6 +29,7 @@ import { useMutes } from "@/hooks/use-mutes";
 import { useReadStories } from "@/hooks/use-read-stories";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { hapticNotify, Haptics } from "@/lib/haptics";
+import { queryPersister } from "@/lib/query-cache/persister";
 import { TEXT_SIZE_LABELS, TEXT_SIZES } from "@/lib/text/text-size";
 
 const TEXT_SIZE_OPTIONS = TEXT_SIZES.map((value) => ({
@@ -136,7 +137,7 @@ export default function SettingsScreen() {
 
       <ListSection
         title="Data"
-        footer="Clearing the cache reloads stories and comments from Hacker News."
+        footer="Clearing the cache removes the saved offline copies of stories and comments and reloads them from Hacker News. Bookmarks are kept."
       >
         <ListRow
           leading={<IconTile name="refresh" hue="gray" />}
@@ -146,9 +147,13 @@ export default function SettingsScreen() {
             confirmDestructive({
               title: "Clear Cache",
               message:
-                "This will clear all cached stories and comments. You'll need to reload them from Hacker News.",
+                "This will clear all cached stories and comments, including the copies saved for offline reading. You'll need to reload them from Hacker News.",
               confirmLabel: "Clear",
-              onConfirm: () => withSuccessHaptic(() => queryClient.clear()),
+              onConfirm: () =>
+                withSuccessHaptic(async () => {
+                  queryClient.clear();
+                  await queryPersister.removeClient();
+                }),
             })
           }
         />

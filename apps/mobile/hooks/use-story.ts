@@ -1,4 +1,5 @@
 import {
+  queryOptions,
   useQuery,
   useQueryClient,
   type InfiniteData,
@@ -49,10 +50,9 @@ function syncStoryIntoCaches(queryClient: QueryClient, hnItem: HNItem): void {
   queryClient.setQueryData<HNItem>(hnKeys.item(hnItem.id), hnItem);
 }
 
-export function useStory(id: number) {
-  const queryClient = useQueryClient();
-
-  return useQuery<StoryWithComments, Error>({
+/** Shared by `useStory` and the offline prefetches so they fill one cache entry. */
+export function storyQueryOptions(queryClient: QueryClient, id: number) {
+  return queryOptions<StoryWithComments, Error>({
     queryKey: hnKeys.story(id),
     queryFn: async ({ signal }) => {
       const [hnItem, algoliaData] = await Promise.all([
@@ -97,4 +97,14 @@ export function useStory(id: number) {
     staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
+}
+
+export function useStory(id: number) {
+  const queryClient = useQueryClient();
+  return useQuery(storyQueryOptions(queryClient, id));
+}
+
+/** Save a story's full thread in the cache (and so on disk) for offline reading. */
+export function prefetchStoryThread(queryClient: QueryClient, id: number) {
+  return queryClient.prefetchQuery(storyQueryOptions(queryClient, id));
 }

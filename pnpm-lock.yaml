@@ -212,9 +212,15 @@ importers:
       '@shopify/flash-list':
         specifier: ^2.0.2
         version: 2.0.2(@babel/runtime@7.28.4)(react-native@0.88.0-rc.2(@babel/core@7.28.4(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.2(@babel/core@7.28.4(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
+      '@tanstack/query-async-storage-persister':
+        specifier: ^5.104.0
+        version: 5.104.0
       '@tanstack/react-query':
-        specifier: ^5.90.5
-        version: 5.90.5(react@19.3.0)
+        specifier: ^5.104.0
+        version: 5.104.0(react@19.3.0)
+      '@tanstack/react-query-persist-client':
+        specifier: ^5.104.0
+        version: 5.104.0(@tanstack/react-query@5.104.0(react@19.3.0))(react@19.3.0)
       expo:
         specifier: 58.0.0-preview.8
         version: 58.0.0-preview.8(cde08568346b39ff2b4a24870f09621e)
@@ -248,6 +254,9 @@ importers:
       expo-localization:
         specifier: ~58.0.1
         version: 58.0.1(expo@58.0.0-preview.8)(react@19.3.0)
+      expo-network:
+        specifier: ~58.0.2
+        version: 58.0.2(expo@58.0.0-preview.8)(react@19.3.0)
       expo-router:
         specifier: ~58.0.9
         version: 58.0.9(092428e34a26dbb493fe7cc55adcabee)
@@ -2042,11 +2051,23 @@ packages:
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
-  '@tanstack/query-core@5.90.5':
-    resolution: {integrity: sha512-wLamYp7FaDq6ZnNehypKI5fNvxHPfTYylE0m/ZpuuzJfJqhR5Pxg9gvGBHZx4n7J+V5Rg5mZxHHTlv25Zt5u+w==}
+  '@tanstack/query-async-storage-persister@5.104.0':
+    resolution: {integrity: sha512-7pz2WgNxcvGKqbmILrmZ8DOQLOoQyqjT9HTWngYoxgjUyEses0O+GOzTjShT68snFq67EA3CFuYJs2Jna+kBIA==}
 
-  '@tanstack/react-query@5.90.5':
-    resolution: {integrity: sha512-pN+8UWpxZkEJ/Rnnj2v2Sxpx1WFlaa9L6a4UO89p6tTQbeo+m0MS8oYDjbggrR8QcTyjKoYWKS3xJQGr3ExT8Q==}
+  '@tanstack/query-core@5.104.0':
+    resolution: {integrity: sha512-JrC2r/JQlXt7khBSdUpsgxNvybzOg+aITa+ARRMlP2AFo93Y8vIqz077rp+e61mJetSZ0T6AJbwW1JHer1vrPQ==}
+
+  '@tanstack/query-persist-client-core@5.104.0':
+    resolution: {integrity: sha512-7XEoH8+gaARK06Uw6e97WqOfus7dtcrYxA6RUf1+OZArz1Ax7Stlcfas6XRz7V2YiOTAkGKUYsk2y43QUmpiTw==}
+
+  '@tanstack/react-query-persist-client@5.104.0':
+    resolution: {integrity: sha512-ZIw4PQfk/MLEJEyaxg0AQfuT0I+HGSogcWl18GjG+Yy2707TFtf3Or2yZilAJoSzBMdoZr9X2xx6T5cap0PlUg==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.104.0
+      react: 19.3.0
+
+  '@tanstack/react-query@5.104.0':
+    resolution: {integrity: sha512-e1TZmDCQnWIfiDVryIHeA6Idj+Lfx1hORLOhXS/l5wcgvtVD4yYqbTDl378sGQKIi2cSgb0TEMC9cKK8GGoJEw==}
     peerDependencies:
       react: 19.3.0
 
@@ -2704,6 +2725,12 @@ packages:
     resolution: {integrity: sha512-w7U43IzdLQrtBVgTeI1e+A3q/MjpuSvJ+Pno7MRCUuJsd3SAtyrGjLhpJHVZ5efSQIybP4HZ9v6k5hDOtqsTVw==}
     peerDependencies:
       react-native: '*'
+
+  expo-network@58.0.2:
+    resolution: {integrity: sha512-+Ek0nuLcZmW4f35L1lg4vo3lpotV0OUehFj8y5z0w/VEAw3WOeEzXh7Eo3TS6lIvsbyIJO7woWx8fYjMbGnhbA==}
+    peerDependencies:
+      expo: '*'
+      react: 19.3.0
 
   expo-router@58.0.9:
     resolution: {integrity: sha512-72cCRDc5ev0StPAZSDeZIATIYOoqHyR9Wj52YiMyprJ/G53PLEPEqX6fArhlVahnVV1fK4k5l5onIRX7Cb/XaQ==}
@@ -6132,11 +6159,26 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/query-core@5.90.5': {}
-
-  '@tanstack/react-query@5.90.5(react@19.3.0)':
+  '@tanstack/query-async-storage-persister@5.104.0':
     dependencies:
-      '@tanstack/query-core': 5.90.5
+      '@tanstack/query-core': 5.104.0
+      '@tanstack/query-persist-client-core': 5.104.0
+
+  '@tanstack/query-core@5.104.0': {}
+
+  '@tanstack/query-persist-client-core@5.104.0':
+    dependencies:
+      '@tanstack/query-core': 5.104.0
+
+  '@tanstack/react-query-persist-client@5.104.0(@tanstack/react-query@5.104.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      '@tanstack/query-persist-client-core': 5.104.0
+      '@tanstack/react-query': 5.104.0(react@19.3.0)
+      react: 19.3.0
+
+  '@tanstack/react-query@5.104.0(react@19.3.0)':
+    dependencies:
+      '@tanstack/query-core': 5.104.0
       react: 19.3.0
 
   '@types/istanbul-lib-coverage@2.0.6': {}
@@ -6793,6 +6835,11 @@ snapshots:
   expo-modules-jsi@58.0.4(react-native@0.88.0-rc.2(@babel/core@7.28.4(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.2(@babel/core@7.28.4(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)):
     dependencies:
       react-native: 0.88.0-rc.2(@babel/core@7.28.4(supports-color@8.1.1))(@react-native/metro-config@0.88.0-rc.2(@babel/core@7.28.4(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
+
+  expo-network@58.0.2(expo@58.0.0-preview.8)(react@19.3.0):
+    dependencies:
+      expo: 58.0.0-preview.8(cde08568346b39ff2b4a24870f09621e)
+      react: 19.3.0
 
   expo-router@58.0.9(092428e34a26dbb493fe7cc55adcabee):
     dependencies:

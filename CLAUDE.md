@@ -224,7 +224,7 @@ The app uses a **React Query + HN API** architecture:
    - `useStory(id)`, `useComment(id)` - Use `useQuery` for individual items
    - Global QueryClient configured in `app/_layout.tsx` with:
      - 2 minute staleTime
-     - 10 minute gcTime
+     - 10 minute gcTime (24h for `stories`/`story`, see Offline cache)
      - 2 retries
      - refetchOnWindowFocus enabled
 
@@ -244,6 +244,13 @@ The app uses a **React Query + HN API** architecture:
    - Skips OG metadata prefetch for background categories (bandwidth optimization)
    - `prefetchCategory` no-ops for any category already cached (deduplication)
    - This is the single source of background warming - the feed screen no longer runs its own predictive/idle prefetch
+
+5. **Offline cache** (`lib/query-cache/`, `app/_layout.tsx`):
+   - `PersistQueryClientProvider` saves the React Query cache to AsyncStorage (`persister.ts`: 2s throttle, `maxAge` 24h, `buster` = app version + `PERSIST_SCHEMA_VERSION`). Launch shows the saved data while the refetch runs.
+   - `persist-policy.ts` (pure, tested) decides what is saved: successful feed lists (first 2 pages each, via `serializeData`) and `story` threads of bookmarks plus the 20 most recently fetched. Local stores, auth, search, items, OG and users are never saved. A payload over 4MB is not written (reported once via `reportError`).
+   - Saved queries get a 24h `gcTime` (`keepPersistedQueriesAlive`); the default 10 min would evict them and their disk copy.
+   - `online-manager.ts` feeds `expo-network` state into React Query's `onlineManager` (queries pause offline, refetch on reconnect). `useIsOffline()` drives `OfflineBanner` (feed and story detail, only over cached data, `offline_banner_shown` once per session). Offline with nothing saved the screens show "You're offline" via `ErrorState` (`fetchStatus === "paused"`).
+   - Bookmarking prefetches the thread (`prefetchStoryThread`); the Bookmarks tab runs `useOfflineBookmarks` once per mount (missing threads only, max 50, 4 at a time). Settings → Clear Cache also calls `queryPersister.removeClient()`.
 
 ### UI Components
 

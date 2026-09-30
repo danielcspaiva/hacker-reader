@@ -174,6 +174,9 @@ export interface EventProperties {
   };
 
   // Widget Interactions
+  // Offline
+  [AnalyticsEvent.OFFLINE_BANNER_SHOWN]: Record<string, never>;
+
   [AnalyticsEvent.WIDGET_TAPPED]: {
     [AnalyticsProperty.WIDGET_SIZE]: WidgetSize;
     [AnalyticsProperty.WIDGET_KIND]?: WidgetKind;

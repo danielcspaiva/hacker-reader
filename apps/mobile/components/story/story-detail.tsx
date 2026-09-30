@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 
 import { useHeaderOverlapInset } from "@/components/navigation/large-title-stack";
+import { OfflineBanner } from "@/components/offline-banner";
 import { CommentItem } from "@/components/story/comment-item";
 import {
   StoryCommentInput,
@@ -16,11 +17,13 @@ import {
   ThemedRefreshControl,
   useScreenBottomInset,
 } from "@/components/ui";
+import { GUTTER } from "@/constants/theme";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useReadableGutter } from "@/contexts/pane-width-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useCommentActions } from "@/hooks/use-comment-actions";
+import { useIsOffline } from "@/hooks/use-is-offline";
 import {
   scrollToCommentRow,
   useScrollToComment,
@@ -71,6 +74,7 @@ export function StoryDetail({
   const analytics = useAnalytics();
   const { isAuthenticated } = useHNAuth();
   const { isBlocked } = useBlockedUsers();
+  const isOffline = useIsOffline();
   const actions = useStoryActions(story, "story_detail");
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
   // Story title shows in the nav bar once the hero title scrolls under it.
@@ -206,14 +210,19 @@ export function StoryDetail({
         )}
         keyExtractor={(item) => item.comment.id.toString()}
         ListHeaderComponent={
-          <StoryHeader
-            story={story}
-            hasVoted={actions.hasVoted}
-            onVote={actions.handleVote}
-            onTitleBottomChange={(bottom) => {
-              titleBottom.current = bottom;
-            }}
-          />
+          <>
+            {isOffline && !isInsidePreview ? (
+              <OfflineBanner inset={GUTTER} />
+            ) : null}
+            <StoryHeader
+              story={story}
+              hasVoted={actions.hasVoted}
+              onVote={actions.handleVote}
+              onTitleBottomChange={(bottom) => {
+                titleBottom.current = bottom;
+              }}
+            />
+          </>
         }
         ListEmptyComponent={
           <EmptyState
