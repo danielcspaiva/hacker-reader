@@ -8,6 +8,7 @@ import {
   removeBookmark,
 } from "@/lib/hn/local/bookmarks";
 import { reportError } from "@/lib/observability/report-error";
+import { syncBookmarksWidget } from "@/lib/widgets/sync";
 
 async function readBookmarkIds(): Promise<number[]> {
   try {
@@ -118,6 +119,10 @@ export function useBookmarkMutation() {
         queryClient.setQueryData(hnKeys.bookmarks(), context.previousIds);
       }
       reportError(error, { operation: "bookmark", storyId });
+    },
+    onSuccess: () => {
+      // Keep the Bookmarks home screen widget in step with the list.
+      syncBookmarksWidget({ force: true });
     },
     onSettled: () => {
       // Refetch to ensure consistency

@@ -15,3 +15,10 @@ export const STORY_CATEGORIES = [
   "jobs",
 ] as const;
 export type StoryCategory = (typeof STORY_CATEGORIES)[number];
+
+/** The category named by `value` (a URL segment, a widget setting), or null. */
+export function parseStoryCategory(
+  value: string | undefined
+): StoryCategory | null {
+  return STORY_CATEGORIES.find((category) => category === value) ?? null;
+}

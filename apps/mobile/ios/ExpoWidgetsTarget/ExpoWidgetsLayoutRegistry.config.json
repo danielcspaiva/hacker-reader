@@ -3,6 +3,10 @@
     {
       "name": "HNTopStoriesWidget",
       "initialLayout": "widgets/HNTopStoriesWidget.tsx"
+    },
+    {
+      "name": "HNBookmarksWidget",
+      "initialLayout": "widgets/HNBookmarksWidget.tsx"
     }
   ]
 }

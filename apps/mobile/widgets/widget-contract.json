@@ -1,9 +1,11 @@
 {
-  "storyCount": 8,
+  "storyCount": 7,
   "candidateCount": 10,
   "entryCount": 24,
   "entrySpacingMinutes": 30,
   "staleAfterMinutes": 30,
   "reloadAfterMinutes": 30,
-  "timelineKeyFormat": "__expo_widgets_{name}_timeline"
+  "timelineKeyFormat": "__expo_widgets_{name}_timeline",
+  "bookmarkCount": 7,
+  "categories": ["top", "best", "new", "ask", "show", "jobs"]
 }

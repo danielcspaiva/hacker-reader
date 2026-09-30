@@ -1,29 +1,41 @@
 import type { WidgetSize } from "@/lib/analytics/tracking";
+import { parseStoryCategory, type StoryCategory } from "@/lib/hn";
+
+export type WidgetKind = "HNTopStoriesWidget" | "HNBookmarksWidget";
 
 export interface WidgetTap {
   size: WidgetSize;
-  storyId: number;
+  /** Which widget was tapped, when the URL names a known one. */
+  kind?: WidgetKind;
+  /** The category the Top Stories widget was showing. */
+  category?: StoryCategory;
+  /** Set when a story row was tapped; absent for header and background taps. */
+  storyId?: number;
 }
 
-const WIDGET_SIZES: readonly string[] = [
+const WIDGET_SIZES = [
   "small",
   "medium",
   "large",
   "accessory",
-] satisfies WidgetSize[];
+] as const satisfies readonly WidgetSize[];
 
-function isWidgetSize(value: string): value is WidgetSize {
-  return WIDGET_SIZES.includes(value);
-}
+const WIDGET_KINDS = [
+  "HNTopStoriesWidget",
+  "HNBookmarksWidget",
+] as const satisfies readonly WidgetKind[];
 
 /**
- * Parses the URL a widget story row opens
- * (`hnclient://story/{id}?source=widget&widgetSize={size}`, built in
- * widgets/HNTopStoriesWidget.tsx). Returns null for any other URL, including
- * widget taps without a story (the header opens `hnclient://`).
+ * Parses the URLs widgets open, built in widgets/HNTopStoriesWidget.tsx and
+ * widgets/HNBookmarksWidget.tsx:
+ * - `hnclient://story/{id}?source=widget&widgetKind=..&category=..&widgetSize=..` (a story row)
+ * - `hnclient://feed/{category}?source=widget&...` (Top Stories header / background)
+ * - `hnclient://bookmarks?source=widget&...` (Bookmarks header / background)
+ * Returns null for any other URL, including the plain `hnclient://` a widget used to open.
  */
 export function parseWidgetTap(url: string): WidgetTap | null {
-  const match = /^hnclient:\/\/story\/(\d+)\/?\?(.*)$/.exec(url);
+  const match =
+    /^hnclient:\/\/(story\/\d+|feed\/[a-z]+|bookmarks)\/?\?(.*)$/.exec(url);
   if (!match) return null;
 
   const params = new Map<string, string>();
@@ -36,10 +48,23 @@ export function parseWidgetTap(url: string): WidgetTap | null {
     }
   }
 
-  const size = params.get("widgetSize");
-  if (params.get("source") !== "widget" || !size || !isWidgetSize(size)) {
-    return null;
+  const size = WIDGET_SIZES.find((value) => value === params.get("widgetSize"));
+  if (params.get("source") !== "widget" || !size) return null;
+
+  const tap: WidgetTap = { size };
+  const kind = WIDGET_KINDS.find((value) => value === params.get("widgetKind"));
+  if (kind) tap.kind = kind;
+
+  const [target, id] = match[1].split("/");
+  let category = params.get("category") ?? undefined;
+  if (target === "story") {
+    const storyId = Number(id);
+    if (!Number.isSafeInteger(storyId)) return null;
+    tap.storyId = storyId;
+  } else if (target === "feed") {
+    category = id;
   }
-  const storyId = Number(match[1]);
-  return Number.isSafeInteger(storyId) ? { size, storyId } : null;
+  const parsedCategory = parseStoryCategory(category);
+  if (parsedCategory) tap.category = parsedCategory;
+  return tap;
 }

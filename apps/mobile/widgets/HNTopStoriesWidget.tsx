@@ -24,26 +24,23 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { createWidget, type WidgetEnvironment } from "expo-widgets";
 
+import type { StoryCategory } from "@/lib/hn";
+import type { WidgetStories, WidgetStory } from "@/lib/widgets/stories";
+
 import { widgetPalette, type WidgetColors } from "./palette";
 
-export type WidgetStory = {
-  id: number;
-  title: string;
-  score: number;
-  by: string;
-  time: number;
-  comments: number;
-  domain?: string;
-};
-
 export type HNTopStoriesProps = {
-  stories: WidgetStory[];
+  /** Every category's stories; the layout shows the one picked in the widget's settings. */
+  stories: WidgetStories;
   updatedAt: number;
   palette: { light: WidgetColors; dark: WidgetColors };
   /** file:// URI of the app logo in the App Group container. */
   logoUri?: string;
   isSample?: boolean;
 };
+
+/** Widget configuration (iOS 17+), declared under `configuration` in app.json. */
+export type HNTopStoriesConfiguration = { category?: StoryCategory };
 
 const SAMPLE_TITLES = [
   "Loading the latest stories from Hacker News, straight to your home screen",
@@ -58,14 +55,13 @@ const SAMPLE_STORIES: WidgetStory[] = SAMPLE_TITLES.map((title, index) => ({
   id: index + 1,
   title,
   score: 100,
-  by: "hn",
   time: 0,
   comments: 42,
   domain: index === 0 ? "news.ycombinator.com" : "example.com",
 }));
 
 const initialProps: HNTopStoriesProps = {
-  stories: SAMPLE_STORIES,
+  stories: { top: SAMPLE_STORIES },
   updatedAt: 0,
   palette: widgetPalette,
   isSample: true,
@@ -76,7 +72,7 @@ const initialProps: HNTopStoriesProps = {
 // other than the JSX components / modifiers, no hooks or async.
 const HNTopStoriesWidget = (
   props: HNTopStoriesProps,
-  env: WidgetEnvironment
+  env: WidgetEnvironment<HNTopStoriesConfiguration>
 ) => {
   "widget";
 
@@ -123,7 +119,26 @@ const HNTopStoriesWidget = (
   else if (family === "systemLarge") sizeName = "large";
   else if (isAccessory) sizeName = "accessory";
 
-  const all = props.stories ?? [];
+  const categoryLabels: Record<StoryCategory, string> = {
+    top: "Top",
+    best: "Best",
+    new: "New",
+    ask: "Ask HN",
+    show: "Show HN",
+    jobs: "Jobs",
+  };
+  const picked = env.configuration?.category ?? "top";
+  const category = categoryLabels[picked] ? picked : "top";
+  const categoryLabel = categoryLabels[category];
+  // Jobs have no points or comments.
+  const hasStats = category !== "jobs";
+  // Before the category picker `stories` was a plain list of Top stories.
+  const byCategory: WidgetStories = Array.isArray(props.stories)
+    ? { top: props.stories }
+    : (props.stories ?? {});
+  // Sample (gallery / pre-sync) props only carry Top stories, whichever category is picked.
+  const all =
+    (props.isSample === true ? byCategory.top : byCategory[category]) ?? [];
   const isSample = props.isSample === true || all.length === 0;
   const now = env.date ? env.date.getTime() : Date.now();
   const updatedAt = props.updatedAt ?? 0;
@@ -145,12 +160,13 @@ const HNTopStoriesWidget = (
   const faint = fullColor ? c.tertiaryForeground : "secondary";
   const rankInk = fullColor ? c.primaryInk : "primary";
 
-  const feedUrl = "hnclient://";
-  const storyUrl = (id: number) =>
-    "hnclient://story/" +
-    id +
-    "?source=widget&widgetKind=HNTopStoriesWidget&widgetSize=" +
+  const tapParams =
+    "source=widget&widgetKind=HNTopStoriesWidget&category=" +
+    category +
+    "&widgetSize=" +
     sizeName;
+  const feedUrl = "hnclient://feed/" + category + "?" + tapParams;
+  const storyUrl = (id: number) => "hnclient://story/" + id + "?" + tapParams;
 
   const bg = [
     containerBackground(fullColor ? c.background : "clear", "widget"),
@@ -187,10 +203,11 @@ const HNTopStoriesWidget = (
 
   const staleLabel = stale ? "Updated " + timeAgo(updatedAt) + " ago" : null;
 
-  // Bottom-right brand: the logo, preceded by the stale label when there is one.
-  const brand = (withStale = true) => (
+  // Bottom-right brand: the logo, preceded by the category (and the stale label when
+  // there is one).
+  const brand = (withLabel = true) => (
     <HStack spacing={5} alignment="center">
-      {withStale && staleLabel ? (
+      {withLabel && !isSample ? (
         <Text
           modifiers={[
             font({ size: 10, weight: "medium" }),
@@ -199,7 +216,7 @@ const HNTopStoriesWidget = (
             minimumScaleFactor(0.8),
           ]}
         >
-          {staleLabel}
+          {staleLabel ? categoryLabel + " · " + staleLabel : categoryLabel}
         </Text>
       ) : null}
       {logoMark()}
@@ -213,18 +230,22 @@ const HNTopStoriesWidget = (
     tail: ReturnType<typeof brand> | null = null
   ) => (
     <HStack spacing={3} alignment="center">
-      <Image
-        systemName="arrow.up"
-        size={9}
-        color={faint}
-        modifiers={[foregroundStyle(faint)]}
-      />
-      <Text
-        modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
-      >
-        {abbrev(s.score)}
-      </Text>
-      {showComments ? (
+      {hasStats ? (
+        <Image
+          systemName="arrow.up"
+          size={9}
+          color={faint}
+          modifiers={[foregroundStyle(faint)]}
+        />
+      ) : null}
+      {hasStats ? (
+        <Text
+          modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
+        >
+          {abbrev(s.score)}
+        </Text>
+      ) : null}
+      {showComments && hasStats ? (
         <Image
           systemName="bubble.left"
           size={9}
@@ -232,7 +253,7 @@ const HNTopStoriesWidget = (
           modifiers={[foregroundStyle(faint), padding({ leading: 4 })]}
         />
       ) : null}
-      {showComments ? (
+      {showComments && hasStats ? (
         <Text
           modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
         >
@@ -242,7 +263,8 @@ const HNTopStoriesWidget = (
       <Text
         modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
       >
-        {(showDomain && s.domain ? "  " + s.domain + "  " : "  ") +
+        {(hasStats ? "  " : "") +
+          (showDomain && s.domain ? s.domain + "  " : "") +
           timeAgo(s.time)}
       </Text>
       {tail ? <Spacer minLength={6} /> : null}
@@ -432,7 +454,7 @@ const HNTopStoriesWidget = (
               minimumScaleFactor(0.8),
             ]}
           >
-            {isSample ? loadPrompt : (staleLabel ?? "#1 on Hacker News")}
+            {isSample ? loadPrompt : (staleLabel ?? "#1 in " + categoryLabel)}
           </Text>
           <Spacer minLength={0} />
           {brand(false)}
@@ -569,7 +591,7 @@ const HNTopStoriesWidget = (
   );
 };
 
-export default createWidget<HNTopStoriesProps>(
+export default createWidget<HNTopStoriesProps, HNTopStoriesConfiguration>(
   "HNTopStoriesWidget",
   HNTopStoriesWidget,
   initialProps

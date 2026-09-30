@@ -6,6 +6,7 @@ export default function Layout() {
   return (
     <LargeTitleStack>
       <Stack.Screen name="index" options={{ title: "Top Stories" }} />
+      <Stack.Screen name="[category]" options={{ headerShown: false }} />
     </LargeTitleStack>
   );
 }

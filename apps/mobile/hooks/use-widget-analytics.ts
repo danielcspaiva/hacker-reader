@@ -8,7 +8,7 @@ import { parseWidgetTap } from "@/lib/widgets/tap";
 
 import { useAnalytics } from "./use-analytics";
 
-/** Tracks taps on widget story rows, from a cold start and while running. */
+/** Tracks taps on widgets (story rows, headers and backgrounds), from a cold start and while running. */
 export function useWidgetAnalytics() {
   const { track, isReady } = useAnalytics();
   const hasProcessedInitialUrl = useRef(false);
@@ -24,6 +24,8 @@ export function useWidgetAnalytics() {
 
       track(AnalyticsEvent.WIDGET_TAPPED, {
         [AnalyticsProperty.WIDGET_SIZE]: tap.size,
+        [AnalyticsProperty.WIDGET_KIND]: tap.kind,
+        [AnalyticsProperty.CATEGORY]: tap.category,
         [AnalyticsProperty.STORY_ID]: tap.storyId,
       });
     };

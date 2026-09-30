@@ -17,6 +17,7 @@ import type {
 } from "@/lib/hn";
 import { reportError } from "@/lib/observability/report-error";
 import type { TextSize } from "@/lib/text/text-size";
+import type { WidgetKind } from "@/lib/widgets/tap";
 
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
@@ -175,7 +176,10 @@ export interface EventProperties {
   // Widget Interactions
   [AnalyticsEvent.WIDGET_TAPPED]: {
     [AnalyticsProperty.WIDGET_SIZE]: WidgetSize;
-    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.WIDGET_KIND]?: WidgetKind;
+    [AnalyticsProperty.CATEGORY]?: StoryCategory;
+    /** Absent for header and background taps. */
+    [AnalyticsProperty.STORY_ID]?: number;
   };
 }
 

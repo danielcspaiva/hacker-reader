@@ -70,8 +70,8 @@
           "widgets": [
             {
               "name": "HNTopStoriesWidget",
-              "displayName": "HN Top Stories",
-              "description": "View top stories from Hacker News",
+              "displayName": "HN Stories",
+              "description": "View stories from Hacker News",
               "ios": {
                 "supportedFamilies": [
                   "systemSmall",
@@ -80,7 +80,36 @@
                   "accessoryRectangular"
                 ],
                 "contentMarginsDisabled": false,
-                "initialLayout": "widgets/HNTopStoriesWidget.tsx"
+                "initialLayout": "widgets/HNTopStoriesWidget.tsx",
+                "configuration": {
+                  "title": "Stories",
+                  "description": "Choose which Hacker News stories to show",
+                  "parameters": {
+                    "category": {
+                      "title": "Category",
+                      "type": "enum",
+                      "values": [
+                        { "name": "Top", "value": "top" },
+                        { "name": "Best", "value": "best" },
+                        { "name": "New", "value": "new" },
+                        { "name": "Ask HN", "value": "ask" },
+                        { "name": "Show HN", "value": "show" },
+                        { "name": "Jobs", "value": "jobs" }
+                      ],
+                      "default": "top"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "HNBookmarksWidget",
+              "displayName": "HN Bookmarks",
+              "description": "Your most recent bookmarked stories",
+              "ios": {
+                "supportedFamilies": ["systemMedium", "systemLarge"],
+                "contentMarginsDisabled": false,
+                "initialLayout": "widgets/HNBookmarksWidget.tsx"
               }
             }
           ]

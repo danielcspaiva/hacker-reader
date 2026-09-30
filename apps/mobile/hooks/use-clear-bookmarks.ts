@@ -5,6 +5,7 @@ import { useBookmarkIds } from "@/hooks/use-bookmarks";
 import { hnKeys } from "@/lib/hn";
 import { clearBookmarks } from "@/lib/hn/local/bookmarks";
 import { reportError } from "@/lib/observability/report-error";
+import { syncBookmarksWidget } from "@/lib/widgets/sync";
 
 export function useClearBookmarks() {
   const queryClient = useQueryClient();
@@ -25,6 +26,7 @@ export function useClearBookmarks() {
       queryClient.setQueryData<number[]>(hnKeys.bookmarks(), []);
       queryClient.setQueryData(hnKeys.bookmarkedStories(), []);
       queryClient.invalidateQueries({ queryKey: hnKeys.bookmarks() });
+      syncBookmarksWidget({ force: true });
     } catch (error) {
       reportError(error, { operation: "clearBookmarks" });
     } finally {
