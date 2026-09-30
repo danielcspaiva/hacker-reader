@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { mapHitToHNItem } from "@/lib/hn/read/algolia";
+import { mapHitToCommentHit, mapHitToHNItem } from "@/lib/hn/read/algolia";
 import { hnKeys } from "@/lib/hn/read/keys";
 import {
   convertHNItemToComment,
   mergeAlgoliaWithHNKids,
 } from "@/lib/hn/read/merge";
+import { DEFAULT_SEARCH_OPTIONS } from "@/lib/hn/read/search-params";
 import type { AlgoliaComment } from "@/lib/hn/types";
 import { decodeEntities, decodeEntitiesExtended } from "@/lib/html/entities";
 
@@ -41,7 +42,11 @@ describe("hnKeys", () => {
     assert.deepEqual(hnKeys.user("pg"), ["user", "pg"]);
     assert.deepEqual(hnKeys.submissions([1]), ["submissions", [1]]);
     assert.deepEqual(hnKeys.ogMetadata("u"), ["og-metadata", "u"]);
-    assert.deepEqual(hnKeys.search("q"), ["algolia-search", "q"]);
+    assert.deepEqual(hnKeys.search("q", DEFAULT_SEARCH_OPTIONS), [
+      "algolia-search",
+      "q",
+      DEFAULT_SEARCH_OPTIONS,
+    ]);
   });
 });
 
@@ -103,6 +108,36 @@ describe("mapHitToHNItem", () => {
 
   it("drops a hit without a numeric objectID", () => {
     assert.equal(mapHitToHNItem({ ...hit, objectID: "abc" }), null);
+  });
+});
+
+describe("mapHitToCommentHit", () => {
+  const hit = {
+    objectID: "7",
+    title: null,
+    url: null,
+    author: "u",
+    points: null,
+    num_comments: null,
+    created_at_i: 5,
+    comment_text: "<p>hi</p>",
+    story_id: 3,
+    story_title: "A story",
+    parent_id: 4,
+  };
+
+  it("maps a comment hit with its story context", () => {
+    const mapped = mapHitToCommentHit(hit);
+    assert.equal(mapped?.comment.id, 7);
+    assert.equal(mapped?.comment.type, "comment");
+    assert.equal(mapped?.comment.text, "<p>hi</p>");
+    assert.equal(mapped?.comment.parent, 4);
+    assert.equal(mapped?.storyId, 3);
+    assert.equal(mapped?.storyTitle, "A story");
+  });
+
+  it("drops a hit without a numeric objectID", () => {
+    assert.equal(mapHitToCommentHit({ ...hit, objectID: "x" }), null);
   });
 });
 

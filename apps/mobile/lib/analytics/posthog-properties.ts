@@ -33,6 +33,11 @@ export enum AnalyticsProperty {
   QUERY = "query",
   RESULTS_COUNT = "results_count",
   RESULT_POSITION = "result_position",
+  SEARCH_SORT = "sort",
+  SEARCH_SCOPE = "scope",
+  SEARCH_DATE_RANGE = "date_range",
+  SEARCH_MIN_POINTS = "min_points",
+  SEARCH_HAS_AUTHOR = "has_author_filter",
 
   // Comment Properties
   COMMENT_ID = "comment_id",

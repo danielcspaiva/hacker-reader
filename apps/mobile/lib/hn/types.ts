@@ -65,6 +65,11 @@ export interface AlgoliaSearchHit {
   num_comments: number | null;
   created_at_i: number;
   story_text?: string | null;
+  /** Comment hits only. */
+  comment_text?: string | null;
+  story_id?: number | null;
+  story_title?: string | null;
+  parent_id?: number | null;
 }
 
 export interface AlgoliaSearchResponse {

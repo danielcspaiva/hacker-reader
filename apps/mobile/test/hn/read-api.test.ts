@@ -109,6 +109,24 @@ describe("algolia-api", () => {
     assert.match(fake.calls[0].url, /page=0&hitsPerPage=30&tags=story$/);
   });
 
+  it("searchStories uses /search_by_date, comment tags and filters from options", async () => {
+    fake = installFetch([{ json: { hits: [] } }]);
+    await searchStories("x", 0, 30, undefined, {
+      sort: "date",
+      scope: "comment",
+      dateRange: "week",
+      minPoints: 100,
+    });
+    const url = new URL(fake.calls[0].url);
+    assert.equal(url.pathname, "/api/v1/search_by_date");
+    assert.equal(url.searchParams.get("tags"), "comment");
+    // points are a story-only filter
+    assert.match(
+      url.searchParams.get("numericFilters") ?? "",
+      /^created_at_i>\d+$/
+    );
+  });
+
   it("non-2xx throws 'Algolia API error: <status>'", async () => {
     fake = installFetch([{ status: 429 }]);
     await assert.rejects(getStoryWithComments(1), {

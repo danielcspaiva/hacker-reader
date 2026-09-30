@@ -364,7 +364,7 @@ Full token table, contrast ratios and component contract: [`docs/design-language
 - [x] Comment posting UI implementation
 - [x] Comment deletion
 - [x] User profiles
-- [x] Search functionality (Algolia-powered)
+- [x] Search functionality (Algolia-powered): sort (relevance/newest), stories or comments, date range and minimum points filters in a header menu (persisted), `author:<name>` queries
 - [ ] Favorites list screen
 - [x] Share stories
 - [ ] Offline reading mode

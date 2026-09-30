@@ -8,6 +8,7 @@ export * from "./constants";
 export * from "./types";
 export * from "./read/firebase";
 export * from "./read/algolia";
+export * from "./read/search-params";
 export * from "./read/merge";
 export * from "./read/comment-tree";
 export * from "./read/keys";

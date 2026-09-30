@@ -1,37 +1,59 @@
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 
-import { hnKeys, mapHitToHNItem, searchStories, type HNItem } from "@/lib/hn";
+import {
+  hasSearchableQuery,
+  hnKeys,
+  mapHitToCommentHit,
+  mapHitToHNItem,
+  searchStories,
+  type HNItem,
+  type SearchCommentHit,
+  type SearchOptions,
+} from "@/lib/hn";
 
 const HITS_PER_PAGE = 30;
 
-interface SearchStoriesPage {
+interface SearchPage {
+  /** Story hits (scope "story"); empty for comment scope. */
   hits: HNItem[];
+  /** Comment hits (scope "comment"); empty for story scope. */
+  commentHits: SearchCommentHit[];
   page: number;
   nbPages: number;
 }
 
-export function useSearchStories(query: string) {
+export function useSearchStories(
+  query: string,
+  options: SearchOptions,
+  enabled = true
+) {
   const trimmedQuery = query.trim();
 
   return useInfiniteQuery<
-    SearchStoriesPage,
+    SearchPage,
     Error,
-    InfiniteData<SearchStoriesPage>,
-    ["algolia-search", string],
+    InfiniteData<SearchPage>,
+    ReturnType<typeof hnKeys.search>,
     number
   >({
-    queryKey: hnKeys.search(trimmedQuery),
+    queryKey: hnKeys.search(trimmedQuery, options),
     queryFn: async ({ pageParam, signal }) => {
-      const currentPage = pageParam;
       const response = await searchStories(
         trimmedQuery,
-        currentPage,
+        pageParam,
         HITS_PER_PAGE,
-        signal
+        signal,
+        options
       );
+      const isComments = options.scope === "comment";
 
       return {
-        hits: response.hits.flatMap((hit) => mapHitToHNItem(hit) ?? []),
+        hits: isComments
+          ? []
+          : response.hits.flatMap((hit) => mapHitToHNItem(hit) ?? []),
+        commentHits: isComments
+          ? response.hits.flatMap((hit) => mapHitToCommentHit(hit) ?? [])
+          : [],
         page: response.page,
         nbPages: response.nbPages,
       };
@@ -41,7 +63,7 @@ export function useSearchStories(query: string) {
       return nextPage < lastPage.nbPages ? nextPage : undefined;
     },
     initialPageParam: 0,
-    enabled: trimmedQuery.length > 0,
+    enabled: enabled && hasSearchableQuery(trimmedQuery),
     staleTime: 60_000,
   });
 }

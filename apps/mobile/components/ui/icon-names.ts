@@ -49,6 +49,14 @@ export const ICON_GLYPHS = {
   stories: { ios: "newspaper", android: "article" },
   storiesFilled: { ios: "newspaper.fill", android: "article" },
   search: { ios: "magnifyingglass", android: "search" },
+  filter: {
+    ios: "line.3.horizontal.decrease.circle",
+    android: "filter_list",
+  },
+  filterFilled: {
+    ios: "line.3.horizontal.decrease.circle.fill",
+    android: "filter_list",
+  },
   settings: { ios: "gearshape", android: "settings" },
   settingsFilled: { ios: "gearshape.fill", android: "settings" },
   // system

@@ -152,6 +152,16 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 
 ---
 
+### Search (Mobile)
+
+`app/(tabs)/search/index.tsx` searches Algolia with options from a native header menu (`Stack.Toolbar.Menu`, inline sections, `isOn` checkmarks; the icon fills and tints when anything is non-default):
+
+- **Options** (`SearchOptions` in `lib/hn/read/search-params.ts`): sort (relevance `/search`, newest `/search_by_date`), scope (stories `tags=story`, comments `tags=comment`), date range (`numericFilters=created_at_i>…`) and minimum points (`points>=N`, stories only). Persisted in AsyncStorage (`lib/hn/local/search-options.ts`, via `createJsonListStore`) and read through `hooks/use-search-options.ts`.
+- **`author:<name>`** in the query box becomes `tags=…,author_<name>` (`parseSearchQuery`); an author-only query is valid.
+- **Pure logic**: `buildSearchParams`, `searchEndpoint`, `parseSearchOptions` (node-tested in `test/hn/search-params.test.ts`). `hnKeys.search(query, options)` includes every param.
+- **Comment results** render `SubmissionCommentCard` with `known` story context from the hit (`story_id`, `story_title`), so no per-card lookups; tapping opens the story scrolled to the comment.
+- `search_performed` carries sort, scope, date range, min points and `has_author_filter`.
+
 ### Routing & Navigation
 
 - **File-based routing** using Expo Router (expo-router v6)
