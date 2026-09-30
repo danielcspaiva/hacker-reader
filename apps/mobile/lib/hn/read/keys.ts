@@ -33,6 +33,8 @@ export const hnKeys = {
     query,
     options,
   ],
+  /** One UTC day's front page (`YYYY-MM-DD`). */
+  frontPage: (day: string): ["front-page", string] => ["front-page", day],
   /** Parent story id resolved for a comment (submissions screen). */
   commentStory: (commentId: number): ["comment-story-id", number] => [
     "comment-story-id",

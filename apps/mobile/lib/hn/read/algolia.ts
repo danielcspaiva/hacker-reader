@@ -44,6 +44,30 @@ export async function searchStories(
   );
 }
 
+/**
+ * Stories that were on the front page within `[start, end)` (unix seconds),
+ * highest score first. One page: HN itself shows 30 per day.
+ */
+export async function getFrontPageStories(
+  start: number,
+  end: number,
+  hitsPerPage = 30,
+  signal?: AbortSignal
+): Promise<HNItem[]> {
+  const params = new URLSearchParams({
+    tags: "front_page",
+    numericFilters: `created_at_i>=${start},created_at_i<${end}`,
+    hitsPerPage: hitsPerPage.toString(),
+  });
+  const response = await algoliaJSON<AlgoliaSearchResponse>(
+    `/search?${params.toString()}`,
+    signal
+  );
+  return response.hits
+    .flatMap((hit) => mapHitToHNItem(hit) ?? [])
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+}
+
 /** Map a search hit to an item; null for a hit without a numeric `objectID`. */
 export function mapHitToHNItem(hit: AlgoliaSearchHit): HNItem | null {
   const id = Number.parseInt(hit.objectID, 10);

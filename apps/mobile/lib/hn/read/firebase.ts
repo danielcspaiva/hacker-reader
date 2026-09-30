@@ -7,6 +7,7 @@ const firebaseJSON = <T>(path: string, signal?: AbortSignal) =>
 
 const CATEGORY_ENDPOINTS: Record<StoryCategory, string> = {
   top: "/topstories.json",
+  best: "/beststories.json",
   new: "/newstories.json",
   ask: "/askstories.json",
   show: "/showstories.json",

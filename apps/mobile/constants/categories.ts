@@ -2,6 +2,7 @@ import type { StoryCategory } from "@/lib/hn";
 
 export const CATEGORY_LABELS: Record<StoryCategory, string> = {
   top: "Top",
+  best: "Best",
   new: "New",
   ask: "Ask",
   show: "Show",
@@ -11,6 +12,7 @@ export const CATEGORY_LABELS: Record<StoryCategory, string> = {
 /** Accessible page title of the feed screen, read by VoiceOver. */
 export const CATEGORY_TITLES: Record<StoryCategory, string> = {
   top: "Top Stories",
+  best: "Best Stories",
   new: "New Stories",
   ask: "Ask HN",
   show: "Show HN",

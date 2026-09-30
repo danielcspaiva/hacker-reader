@@ -28,6 +28,7 @@ export enum AnalyticsProperty {
   FROM_CATEGORY = "from_category",
   TO_CATEGORY = "to_category",
   PAGE_NUMBER = "page_number",
+  DAY = "day",
 
   // Search
   QUERY = "query",
