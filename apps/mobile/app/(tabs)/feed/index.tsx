@@ -1,4 +1,5 @@
 import type { FlashListRef } from "@shopify/flash-list";
+import { Image } from "expo-image";
 import { Stack } from "expo-router";
 import { useEffect, useRef } from "react";
 
@@ -80,6 +81,16 @@ export default function FeedScreen() {
           headerLargeTitle: true,
         }}
       />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.View hidesSharedBackground>
+          <Image
+            source={require("@/assets/images/widget-logo.png")}
+            style={{ width: 28, height: 28 }}
+            accessible
+            accessibilityLabel="Hacker Reader"
+          />
+        </Stack.Toolbar.View>
+      </Stack.Toolbar>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           icon={ICON_GLYPHS[category].ios}

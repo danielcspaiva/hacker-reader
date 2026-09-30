@@ -200,9 +200,9 @@ Each story displays:
 
 #### Color Palette
 
-- **Light Mode** - light warm page (`#FCFBF7`) with slightly deeper `#F4F2E9` cards and dark warm text
+- **Light Mode** - warm grey page (`#F4F0EC`) with white cards and dark warm text
 - **Dark Mode** - warm deep charcoal-brown (`#17130F`), never pure black
-- **Accent** - HN orange; text-safe orange (`primaryInk`) for links and small text
+- **Accent** - the app icon's orange (`#FF7A18`); text-safe orange (`primaryInk`) for links and small text
 
 Full token table, contrast ratios and component contract: [`docs/design-language.md`](../design-language.md).
 

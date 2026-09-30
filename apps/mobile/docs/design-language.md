@@ -4,28 +4,29 @@ Hacker Reader is solid, warm and native. Content sits on solid surfaces; Liquid 
 
 ## Palette
 
-Read colours with `useTheme().colors`. Light is warm paper after HN's `#F6F6EF`; dark is a warm deep charcoal-brown ("HN at night"), never pure black.
+Read colours with `useTheme().colors`. Light is white cards on a warm grey page (`#F4F0EC`, OKLCH hue about 72°, the same warm family as the text and Dark Mode; HN's own `#F6F6EF` leans olive next to the orange); dark is a warm deep charcoal-brown ("HN at night"), never pure black.
 
-| Token                            | Light                             | Dark                              | Role                                       |
-| -------------------------------- | --------------------------------- | --------------------------------- | ------------------------------------------ |
-| `background`                     | `#FCFBF7`                         | `#17130F`                         | page                                       |
-| `card`                           | `#F4F2E9`                         | `#272119`                         | solid content surface                      |
-| `cardPressed`                    | `#EAE7DC`                         | `#2F2820`                         | pressed row/card fill                      |
-| `muted`                          | `#E9E6DA`                         | `#2D2721`                         | tracks, chips, skeletons, icon buttons     |
-| `foreground`                     | `#1F1B16`                         | `#F3EDE3`                         | primary text                               |
-| `mutedForeground`                | `#6A645A`                         | `#A9A194`                         | secondary text (HN warm grey)              |
-| `tertiaryForeground`             | `#8A8377`                         | `#857D70`                         | decorative text, placeholders, chevrons    |
-| `primary`                        | `#FF6600`                         | `#FF7A1F`                         | HN orange: fills, tint, glyphs             |
-| `primaryForeground`              | `#1F1B16`                         | `#1A1208`                         | text on a primary fill                     |
-| `primaryInk`                     | `#B04400`                         | `#FF8F45`                         | text-safe orange: links, small orange text |
-| `primaryWash`                    | `#FF660024`                       | `#FF7A1F2E`                       | tinted fill (secondary button)             |
-| `border`                         | `#3C2D1424`                       | `#F3EDE324`                       | outlines (fields)                          |
-| `separator`                      | `#3C2D1418`                       | `#F3EDE31A`                       | hairline between rows                      |
-| `success` / `warning` / `danger` | `#2B7A33` / `#9A5B00` / `#C0311D` | `#5DBB63` / `#E5A03A` / `#FF6B57` | status                                     |
-| `codeBackground`                 | `#E9E6DA`                         | `#2D2721`                         | code blocks                                |
+| Token                            | Light                             | Dark                              | Role                                          |
+| -------------------------------- | --------------------------------- | --------------------------------- | --------------------------------------------- |
+| `background`                     | `#F4F0EC`                         | `#17130F`                         | page                                          |
+| `card`                           | `#FFFFFF`                         | `#272119`                         | solid content surface                         |
+| `cardPressed`                    | `#F6F3F0`                         | `#2F2820`                         | pressed row/card fill                         |
+| `muted`                          | `#EDE9E3`                         | `#2D2721`                         | tracks, chips, skeletons, icon buttons        |
+| `foreground`                     | `#1F1B16`                         | `#F3EDE3`                         | primary text                                  |
+| `mutedForeground`                | `#6A645A`                         | `#A9A194`                         | secondary text (HN warm grey)                 |
+| `tertiaryForeground`             | `#8A8377`                         | `#857D70`                         | decorative text, placeholders, chevrons       |
+| `primary`                        | `#FF7A18`                         | `#FF7A18`                         | logo orange: fills, tint, glyphs              |
+| `primaryForeground`              | `#1F1B16`                         | `#1A1208`                         | text on a primary fill                        |
+| `primaryInk`                     | `#A84700`                         | `#FF8F3D`                         | text-safe orange: links, small orange text    |
+| `primaryWash`                    | `#FF7A1824`                       | `#FF7A182E`                       | tinted fill (secondary button)                |
+| `rank`                           | `#F46911`                         | `#F46911`                         | feed rank numerals (the book's darker orange) |
+| `border`                         | `#3C2D1424`                       | `#F3EDE324`                       | outlines (fields)                             |
+| `separator`                      | `#3C2D1418`                       | `#F3EDE31A`                       | hairline between rows                         |
+| `success` / `warning` / `danger` | `#2B7A33` / `#9A5B00` / `#C0311D` | `#5DBB63` / `#E5A03A` / `#FF6B57` | status                                        |
+| `codeBackground`                 | `#EDE9E3`                         | `#2D2721`                         | code blocks                                   |
 
 Thread-depth rails (`colors.rail[depth % 6]`): shades of one orange, strongest at the top level and receding with depth (no rainbow):
-light `#F08A4B #F3A06D #F5B48E #F7C6AA #F9D5C1 #FBE1D3`, dark `#C8651F #A85820 #8B4B20 #723F1E #5C351C #4A2D1A`. Deliberately quiet: rails orient, they should not compete with the text.
+light `#F0914B #F3A66D #F5BA8E #F7CBAA #F9D9C1 #FBE4D3`, dark `#C8671F #A85A20 #8B4D20 #72421E #5C371C #4A2E1A`. Both ramps sit on the `primary` hue (25.5°). Deliberately quiet: rails orient, they should not compete with the text.
 
 Tile hues (`colors.tile.<hue>`, glyph colour; `IconTile` washes it): `orange blue green red indigo gray teal amber pink`.
 
@@ -33,24 +34,26 @@ Tile hues (`colors.tile.<hue>`, glyph colour; `IconTile` washes it): `orange blu
 
 | Pair                                             | Light                      | Dark               |
 | ------------------------------------------------ | -------------------------- | ------------------ |
-| `foreground` on `background`                     | 16.53                      | 15.87              |
-| `foreground` on `card`                           | 15.26                      | 13.68              |
-| `mutedForeground` on `background`                | 5.66                       | 7.23               |
-| `mutedForeground` on `card`                      | 5.23                       | 6.23               |
-| `mutedForeground` on `muted`                     | 4.82                       | 5.77               |
-| `primaryInk` on `background`                     | 5.52                       | 8.15               |
-| `primaryInk` on `card`                           | 5.10                       | 7.03               |
-| `primaryForeground` on `primary`                 | 5.83                       | 7.10               |
-| `success` / `warning` / `danger` on `card`       | 4.76 / 4.84 / 5.06         | 6.64 / 7.15 / 5.69 |
-| `tertiaryForeground` on `card` (decorative, 3:1) | 3.63                       | 3.92               |
+| `foreground` on `background`                     | 15.10                      | 15.87              |
+| `foreground` on `card`                           | 17.12                      | 13.68              |
+| `mutedForeground` on `background`                | 5.17                       | 7.23               |
+| `mutedForeground` on `card`                      | 5.86                       | 6.23               |
+| `mutedForeground` on `muted`                     | 4.85                       | 5.77               |
+| `primaryInk` on `background`                     | 5.19                       | 8.14               |
+| `primaryInk` on `card`                           | 5.89                       | 7.02               |
+| `primaryForeground` on `primary`                 | 6.56                       | 7.10               |
+| `success` / `warning` / `danger` on `card`       | 5.34 / 5.43 / 5.68         | 6.64 / 7.15 / 5.69 |
+| `tertiaryForeground` on `card` (decorative, 3:1) | 3.75                       | 3.92               |
+| `rank` on `card` (numerals)                      | 3.05 (below 4.5, accepted) | 5.22               |
 | rails (decorative)                               | quiet by design, below 3:1 | same               |
 
-White on `#FF6600` is only 2.94:1, so primary fills carry dark ink (`primaryForeground`). Orange text on paper is always `primaryInk` (`Text tone="primary"` does this). Never use `primary` for small text on the page.
+`primary` is the app icon's orange (`#FF7A18`, sampled from `ybook.png`), the same in both modes. White on it is only 2.61:1, so primary fills carry dark ink (`primaryForeground`). Orange text on paper is always `primaryInk` (`Text tone="primary"` does this). Never use `primary` for small text on the page.
 
 ## Surfaces
 
 - Content never gets a glass treatment: the only glass is the system's own (native tab bar and header, and at most one floating pinned bar or composer). Story cards, skeletons, link previews, submission cards, filters and inputs are solid.
 - `Card`: `card` on `background`, radius 24, no border, no shadow. Separation comes from the wash.
+- A neutral fill that sits directly on the page (not inside a card) uses `card`, not `muted`: in Light Mode `muted` barely separates from the page (`Badge surface="page"`, the story vote pill).
 - `ListSection`: radius 20, hairline separators inset 16.
 - Every rounded surface sets `borderCurve: "continuous"`. Radii: 12 controls, 20 lists, 24 cards, pill for badges (`Radius` in the theme).
 - Content gutter is 16 (`GUTTER`).
@@ -120,26 +123,26 @@ import {
 import type { ThemeColors, TileHue, ColorScheme } from "@/constants/theme";
 ```
 
-| Component                | Props                                                                                                      | Notes                                                                                             |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `Text`                   | `variant tone weight numeric serif` + RN TextProps                                                         | `weight` = `regular medium semibold bold`; `serif` is New York on iOS; default `body` / `default` |
-| `Icon`                   | `name` (required, `IconName`) `size=20 color weight accessibilityLabel style`                              | decorative unless labelled; registry in `icon-names.ts`                                           |
-| `Screen`                 | `children`                                                                                                 | page background, for screens that own a FlashList                                                 |
-| `ScrollScreen`           | `onRefresh refreshing gap` + ScrollView props                                                              | 16 gutter, `contentInsetAdjustmentBehavior="automatic"`, themed refresh                           |
-| `ThemedRefreshControl`   | RefreshControlProps                                                                                        | for a FlashList `refreshControl`                                                                  |
-| `useScreenBottomInset()` |                                                                                                            | bottom padding for list content (`insets.bottom + 24` iOS, `100 + insets.bottom` Android)         |
-| `Card`                   | `padding=16 style`, `onPress?`                                                                             | static: a plain View. With `onPress`: scale 0.98, `cardPressed` fill, selection haptic            |
-| `ListSection`            | `title footer accessory`                                                                                   | children are `ListRow`s or a `ListSlot`; hairline separators inset 16                             |
-| `ListRow`                | `title subtitle value leading trailing destructive onPress chevron disabled titleLines accessibilityLabel` | min height 52; a button only when `onPress` is given; selection haptic                            |
-| `ListSlot`               | `padding=16`                                                                                               | padded non-row content inside a `ListSection` (a control, a paragraph)                            |
-| `IconTile`               | `name hue size=30`                                                                                         | tinted wash plus hued glyph; `hue: TileHue`                                                       |
-| `Badge`                  | `label tone variant icon`                                                                                  | tones `neutral primary success warning danger`, variants `soft solid`                             |
-| `Button`                 | `label onPress variant size icon loading disabled fullWidth accessibilityLabel`                            | variants `primary secondary ghost destructive`, sizes `sm md lg` (36/44/52), light impact         |
-| `EmptyState`             | `icon title message action fill`                                                                           | ContentUnavailableView style; `action` is usually a `Button`, `fill` centres in the space         |
-| `Skeleton`               | `width height radius style`                                                                                | Reanimated pulse, reduced-motion aware; compose inside a `Card`                                   |
-| `Field`                  | TextInputProps                                                                                             | 48pt, radius 12, primary border on focus                                                          |
-| `Segmented<T>`           | `options value onChange style`                                                                             | native SwiftUI segmented Picker on iOS (scheme from `ThemedHost`), RN fallback elsewhere          |
-| `ThemedHost`             | `Host` props                                                                                               | drop-in for `@expo/ui/swift-ui` `Host`; injects the resolved scheme and `seedColor = primary`     |
+| Component                | Props                                                                                                      | Notes                                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Text`                   | `variant tone weight numeric serif` + RN TextProps                                                         | `weight` = `regular medium semibold bold`; `serif` is New York on iOS; default `body` / `default`   |
+| `Icon`                   | `name` (required, `IconName`) `size=20 color weight accessibilityLabel style`                              | decorative unless labelled; registry in `icon-names.ts`                                             |
+| `Screen`                 | `children`                                                                                                 | page background, for screens that own a FlashList                                                   |
+| `ScrollScreen`           | `onRefresh refreshing gap` + ScrollView props                                                              | 16 gutter, `contentInsetAdjustmentBehavior="automatic"`, themed refresh                             |
+| `ThemedRefreshControl`   | RefreshControlProps                                                                                        | for a FlashList `refreshControl`                                                                    |
+| `useScreenBottomInset()` |                                                                                                            | bottom padding for list content (`insets.bottom + 24` iOS, `100 + insets.bottom` Android)           |
+| `Card`                   | `padding=16 style`, `onPress?`                                                                             | static: a plain View. With `onPress`: scale 0.98, `cardPressed` fill, selection haptic              |
+| `ListSection`            | `title footer accessory`                                                                                   | children are `ListRow`s or a `ListSlot`; hairline separators inset 16                               |
+| `ListRow`                | `title subtitle value leading trailing destructive onPress chevron disabled titleLines accessibilityLabel` | min height 52; a button only when `onPress` is given; selection haptic                              |
+| `ListSlot`               | `padding=16`                                                                                               | padded non-row content inside a `ListSection` (a control, a paragraph)                              |
+| `IconTile`               | `name hue size=30`                                                                                         | tinted wash plus hued glyph; `hue: TileHue`                                                         |
+| `Badge`                  | `label tone variant icon surface`                                                                          | tones `neutral primary success warning danger`, variants `soft solid`; `surface="page"` on the page |
+| `Button`                 | `label onPress variant size icon loading disabled fullWidth accessibilityLabel`                            | variants `primary secondary ghost destructive`, sizes `sm md lg` (36/44/52), light impact           |
+| `EmptyState`             | `icon title message action fill`                                                                           | ContentUnavailableView style; `action` is usually a `Button`, `fill` centres in the space           |
+| `Skeleton`               | `width height radius style`                                                                                | Reanimated pulse, reduced-motion aware; compose inside a `Card`                                     |
+| `Field`                  | TextInputProps                                                                                             | 48pt, radius 12, primary border on focus                                                            |
+| `Segmented<T>`           | `options value onChange style`                                                                             | native SwiftUI segmented Picker on iOS (scheme from `ThemedHost`), RN fallback elsewhere            |
+| `ThemedHost`             | `Host` props                                                                                               | drop-in for `@expo/ui/swift-ui` `Host`; injects the resolved scheme and `seedColor = primary`       |
 
 Rules:
 
@@ -208,7 +211,7 @@ Rules:
 
 ## Colour scheme
 
-`ColorSchemeProvider` calls `Appearance.setColorScheme('unspecified')` for "System", otherwise the forced scheme, so native chrome follows in-app choice. `useTheme()` returns `{ scheme, colors }`. The provider also paints the root view (`SystemUI.setBackgroundColorAsync`) in the page colour and hides the splash once the saved preference is loaded; the splash background in `app.json` is the same `#FCFBF7` / `#17130F` as `background`.
+`ColorSchemeProvider` calls `Appearance.setColorScheme('unspecified')` for "System", otherwise the forced scheme, so native chrome follows in-app choice. `useTheme()` returns `{ scheme, colors }`. The provider also paints the root view (`SystemUI.setBackgroundColorAsync`) in the page colour and hides the splash once the saved preference is loaded; the splash background in `app.json` is the same `#F4F0EC` / `#17130F` as `background`.
 
 ## Haptics and motion
 

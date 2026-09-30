@@ -122,7 +122,12 @@ export function StoryCard({ story, rank }: StoryCardProps) {
             {domain || isBookmarked ? (
               <View style={styles.eyebrow}>
                 {rank !== undefined && domain ? (
-                  <Text variant="caption" weight="bold" numeric tone="primary">
+                  <Text
+                    variant="caption"
+                    weight="bold"
+                    numeric
+                    style={{ color: colors.rank }}
+                  >
                     {rank}
                   </Text>
                 ) : null}
@@ -172,8 +177,7 @@ export function StoryCard({ story, rank }: StoryCardProps) {
                   variant="subtitle"
                   weight="bold"
                   numeric
-                  tone="primary"
-                  style={styles.rank}
+                  style={[styles.rank, { color: colors.rank }]}
                 >
                   {rank}
                 </Text>

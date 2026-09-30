@@ -228,7 +228,7 @@ The app uses a **React Query + HN API** architecture:
 
 ### Design language
 
-Solid warm-paper / warm-charcoal surfaces in HN orange; content is never glass. Raw colours live in `apps/mobile/constants/colors.ts` (re-exported by `constants/theme.ts`, which adds radii, spacing, fonts), primitives in `apps/mobile/components/ui/` (`Text`, `Icon`, `Card`, `ListSection`, `ListRow`, `Button`, ...), chrome in `components/navigation/`. Palette, contrast ratios, the component contract and rules: `apps/mobile/docs/design-language.md`. Read it before touching any screen.
+White cards on a warm grey page / warm-charcoal surfaces in the app icon's orange (`#FF7A18`); content is never glass. Raw colours live in `apps/mobile/constants/colors.ts` (re-exported by `constants/theme.ts`, which adds radii, spacing, fonts), primitives in `apps/mobile/components/ui/` (`Text`, `Icon`, `Card`, `ListSection`, `ListRow`, `Button`, ...), chrome in `components/navigation/`. Palette, contrast ratios, the component contract and rules: `apps/mobile/docs/design-language.md`. Read it before touching any screen.
 
 ### Theme System
 

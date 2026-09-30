@@ -4,19 +4,23 @@ import { StyleSheet, View } from "react-native";
 import { useHeaderOverlapInset } from "@/components/navigation/large-title-stack";
 import { Card, Skeleton } from "@/components/ui";
 import { GUTTER } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 
 /** Mirrors the story header and the first comments while the story loads. */
 export function StoryDetailSkeleton() {
   const headerInset = useHeaderOverlapInset();
+  const { colors } = useTheme();
+  // These blocks sit on the page, where `muted` barely shows; cards stay muted.
+  const onPage = { backgroundColor: colors.card };
   return (
     <View style={[styles.container, { paddingTop: headerInset + 8 }]}>
       <View style={styles.hero}>
-        <Skeleton width={96} height={22} radius={11} />
-        <Skeleton height={28} />
-        <Skeleton width="70%" height={28} />
-        <Skeleton width="45%" height={16} />
+        <Skeleton width={96} height={22} radius={11} style={onPage} />
+        <Skeleton height={28} style={onPage} />
+        <Skeleton width="70%" height={28} style={onPage} />
+        <Skeleton width="45%" height={16} style={onPage} />
       </View>
-      <Skeleton height={160} radius={24} />
+      <Skeleton height={160} radius={24} style={onPage} />
       <CommentSkeleton nameWidth="30%" lastLineWidth="85%" />
       <CommentSkeleton nameWidth="25%" lastLineWidth="60%" />
     </View>

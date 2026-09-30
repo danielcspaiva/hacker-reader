@@ -1,8 +1,8 @@
 /**
  * Raw colour tokens: dependency-free (no React Native) so config plugins,
  * tests and the widget layout can import them. `constants/theme.ts` re-exports.
- * Light is warm "paper" after HN's classic #F6F6EF page; dark is a warm deep
- * charcoal-brown, not black. Contrast ratios are documented in
+ * Light is white cards on a warm grey page; dark is a warm deep
+ * charcoal-brown, not black. The accent is the app icon's orange. Contrast ratios are documented in
  * docs/design-language.md.
  */
 export interface ThemeColors {
@@ -18,13 +18,15 @@ export interface ThemeColors {
   mutedForeground: string;
   /** Decorative and non-essential text only (3:1). */
   tertiaryForeground: string;
-  /** HN orange: fills, tints, glyphs. Never small text on the page. */
+  /** The app icon's orange: fills, tints, glyphs. Never small text on the page. */
   primary: string;
   /** Text and glyphs on a primary fill. */
   primaryForeground: string;
   /** Text-safe orange for links and small orange text (4.5:1). */
   primaryInk: string;
   primaryWash: string;
+  /** Feed rank numerals: the darker orange from the back of the app icon's book. */
+  rank: string;
   /** Outlines: fields, chips. */
   border: string;
   /** Hairline between rows. */
@@ -56,26 +58,27 @@ export type ColorScheme = "light" | "dark";
 /** Keys of `ThemeColors` that hold a single colour string. */
 
 const light: ThemeColors = {
-  background: "#FCFBF7",
-  card: "#F4F2E9",
-  cardPressed: "#EAE7DC",
-  muted: "#E9E6DA",
+  background: "#F4F0EC",
+  card: "#FFFFFF",
+  cardPressed: "#F6F3F0",
+  muted: "#EDE9E3",
   foreground: "#1F1B16",
   mutedForeground: "#6A645A",
   tertiaryForeground: "#8A8377",
-  primary: "#FF6600",
+  primary: "#FF7A18",
   primaryForeground: "#1F1B16",
-  primaryInk: "#B04400",
-  primaryWash: "#FF660024",
+  primaryInk: "#A84700",
+  primaryWash: "#FF7A1824",
+  rank: "#F46911",
   border: "#3C2D1424",
   separator: "#3C2D1418",
   success: "#2B7A33",
   warning: "#9A5B00",
   danger: "#C0311D",
-  codeBackground: "#E9E6DA",
-  rail: ["#F08A4B", "#F3A06D", "#F5B48E", "#F7C6AA", "#F9D5C1", "#FBE1D3"],
+  codeBackground: "#EDE9E3",
+  rail: ["#F0914B", "#F3A66D", "#F5BA8E", "#F7CBAA", "#F9D9C1", "#FBE4D3"],
   tile: {
-    orange: "#C24E00",
+    orange: "#C25200",
     blue: "#1F5FBF",
     green: "#2A7D36",
     red: "#C0311D",
@@ -95,19 +98,20 @@ const dark: ThemeColors = {
   foreground: "#F3EDE3",
   mutedForeground: "#A9A194",
   tertiaryForeground: "#857D70",
-  primary: "#FF7A1F",
+  primary: "#FF7A18",
   primaryForeground: "#1A1208",
-  primaryInk: "#FF8F45",
-  primaryWash: "#FF7A1F2E",
+  primaryInk: "#FF8F3D",
+  primaryWash: "#FF7A182E",
+  rank: "#F46911",
   border: "#F3EDE324",
   separator: "#F3EDE31A",
   success: "#5DBB63",
   warning: "#E5A03A",
   danger: "#FF6B57",
   codeBackground: "#2D2721",
-  rail: ["#C8651F", "#A85820", "#8B4B20", "#723F1E", "#5C351C", "#4A2D1A"],
+  rail: ["#C8671F", "#A85A20", "#8B4D20", "#72421E", "#5C371C", "#4A2E1A"],
   tile: {
-    orange: "#FF8F45",
+    orange: "#FF8F3D",
     blue: "#6AA8FF",
     green: "#5DBB63",
     red: "#FF6B57",

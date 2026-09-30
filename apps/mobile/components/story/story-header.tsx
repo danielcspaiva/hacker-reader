@@ -55,7 +55,7 @@ export function StoryHeader({ story, hasVoted, onVote }: StoryHeaderProps) {
               <Badge label={kind} tone="primary" variant="solid" />
             ) : null}
             {domain ? (
-              <Badge label={domain} tone="neutral" icon="link" />
+              <Badge label={domain} tone="neutral" icon="link" surface="page" />
             ) : null}
           </View>
         ) : null}
@@ -95,7 +95,7 @@ export function StoryHeader({ story, hasVoted, onVote }: StoryHeaderProps) {
             style={({ pressed }) => [
               styles.votePill,
               {
-                backgroundColor: hasVoted ? colors.primaryWash : colors.muted,
+                backgroundColor: hasVoted ? colors.primaryWash : colors.card,
                 opacity: pressed ? 0.7 : 1,
               },
             ]}

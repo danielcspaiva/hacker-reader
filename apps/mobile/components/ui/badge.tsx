@@ -52,11 +52,15 @@ interface BadgeProps {
   /** `soft`: tinted wash. `solid`: filled, for emphasis (e.g. a Job or Ask tag). */
   variant?: BadgeVariant;
   icon?: IconName;
+  /** `page` when the badge sits directly on the page background: the neutral
+   * fill becomes `card`, since `muted` barely separates from the page. */
+  surface?: "card" | "page";
 }
 
 function badgeColors(
   tone: BadgeTone,
   variant: BadgeVariant,
+  surface: "card" | "page",
   colors: ThemeColors
 ) {
   const tokens = TONES[tone];
@@ -68,7 +72,9 @@ function badgeColors(
     // Neutral is already a quiet fill; the coloured tones wash their base.
     fill:
       tone === "neutral"
-        ? colors.muted
+        ? surface === "page"
+          ? colors.card
+          : colors.muted
         : withAlpha(colors[tokens.fill], WashAlpha.badge),
   };
 }
@@ -79,9 +85,10 @@ export function Badge({
   tone = "neutral",
   variant = "soft",
   icon,
+  surface = "card",
 }: BadgeProps) {
   const { colors } = useTheme();
-  const { ink, fill } = badgeColors(tone, variant, colors);
+  const { ink, fill } = badgeColors(tone, variant, surface, colors);
   return (
     <View style={[styles.badge, { backgroundColor: fill }]}>
       {icon ? (
