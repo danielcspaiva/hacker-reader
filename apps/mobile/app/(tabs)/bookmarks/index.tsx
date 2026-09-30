@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { ErrorState } from "@/components/error-state";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
+import { StorySplitView } from "@/components/story/story-split-view";
 import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
@@ -63,31 +64,33 @@ export default function BookmarksScreen() {
   return (
     <>
       {toolbar}
-      <ListScreen<HNItem>
-        listRef={listRef}
-        data={stories}
-        isLoading={isLoading}
-        skeleton={<StoryCardSkeleton />}
-        skeletonCount={4}
-        renderItem={({ item }) => <StoryCard story={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        refreshing={isRefetching}
-        onRefresh={() => void refetch()}
-        empty={
-          isError ? (
-            <ErrorState
-              title="Couldn't load bookmarks"
-              onRetry={() => void refetch()}
-            />
-          ) : (
-            <EmptyState
-              icon="bookmark"
-              title="No Bookmarks Yet"
-              message="Tap the bookmark button on a story, or long press it in the feed, to save it here for later."
-            />
-          )
-        }
-      />
+      <StorySplitView>
+        <ListScreen<HNItem>
+          listRef={listRef}
+          data={stories}
+          isLoading={isLoading}
+          skeleton={<StoryCardSkeleton />}
+          skeletonCount={4}
+          renderItem={({ item }) => <StoryCard story={item} />}
+          keyExtractor={(item) => item.id.toString()}
+          refreshing={isRefetching}
+          onRefresh={() => void refetch()}
+          empty={
+            isError ? (
+              <ErrorState
+                title="Couldn't load bookmarks"
+                onRetry={() => void refetch()}
+              />
+            ) : (
+              <EmptyState
+                icon="bookmark"
+                title="No Bookmarks Yet"
+                message="Tap the bookmark button on a story, or long press it in the feed, to save it here for later."
+              />
+            )
+          }
+        />
+      </StorySplitView>
     </>
   );
 }

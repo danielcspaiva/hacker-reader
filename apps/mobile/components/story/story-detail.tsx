@@ -17,6 +17,7 @@ import {
   useScreenBottomInset,
 } from "@/components/ui";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useReadableGutter } from "@/contexts/pane-width-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useCommentActions } from "@/hooks/use-comment-actions";
@@ -48,6 +49,8 @@ interface StoryDetailProps {
   commentId?: string;
   /** Inside a peek preview: no header toolbar, no view tracking. */
   isInsidePreview: boolean;
+  /** In the split view's detail pane: the feed owns the header and toolbar. */
+  embedded?: boolean;
   onRefresh: () => void;
   isRefreshing: boolean;
 }
@@ -57,12 +60,14 @@ export function StoryDetail({
   story,
   commentId,
   isInsidePreview,
+  embedded = false,
   onRefresh,
   isRefreshing,
 }: StoryDetailProps) {
   const listRef = useRef<FlashListRef<FlatComment>>(null);
   const headerInset = useHeaderOverlapInset();
   const bottomInset = useScreenBottomInset();
+  const readableGutter = useReadableGutter(0);
   const analytics = useAnalytics();
   const { isAuthenticated } = useHNAuth();
   const { isBlocked } = useBlockedUsers();
@@ -167,7 +172,7 @@ export function StoryDetail({
 
   return (
     <>
-      {isInsidePreview ? null : (
+      {isInsidePreview || embedded ? null : (
         <>
           <Stack.Screen
             options={{ title: titleInHeader ? (story.title ?? "") : "" }}
@@ -250,6 +255,7 @@ export function StoryDetail({
           />
         }
         contentContainerStyle={{
+          paddingHorizontal: readableGutter,
           paddingBottom: bottomInset + (isAuthenticated ? 72 : 0),
         }}
       />

@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { ErrorState } from "@/components/error-state";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
+import { StorySplitView } from "@/components/story/story-split-view";
 import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
 import { CATEGORY_LABELS, CATEGORY_TITLES } from "@/constants/categories";
 import { useFeedCategory } from "@/contexts/feed-category-context";
@@ -142,49 +143,51 @@ export default function FeedScreen() {
           </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
       </Stack.Toolbar>
-      <ListScreen<HNItem>
-        listRef={listRef}
-        data={stories}
-        isLoading={isPending}
-        skeleton={<StoryCardSkeleton />}
-        skeletonCount={8}
-        renderItem={({ item, index }) => (
-          <StoryCard story={item} rank={index + 1} />
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        scrollToOverflowEnabled
-        onScroll={(event) => {
-          restingTop.current = Math.min(
-            restingTop.current,
-            event.nativeEvent.contentOffset.y
-          );
-        }}
-        refreshing={isRefetching}
-        onRefresh={() => {
-          void refetch().then(() => {
-            if (category === "top") {
-              syncTopStoriesWidget({ force: true });
-            }
-          });
-        }}
-        onLoadMore={hasNextPage ? () => void fetchNextPage() : undefined}
-        isLoadingMore={isFetchingNextPage}
-        onEndReachedThreshold={0.3}
-        empty={
-          isError ? (
-            <ErrorState
-              title="Couldn't load stories"
-              onRetry={() => void refetch()}
-            />
-          ) : (
-            <EmptyState
-              icon="stories"
-              title="No stories found"
-              message="Pull down to refresh."
-            />
-          )
-        }
-      />
+      <StorySplitView>
+        <ListScreen<HNItem>
+          listRef={listRef}
+          data={stories}
+          isLoading={isPending}
+          skeleton={<StoryCardSkeleton />}
+          skeletonCount={8}
+          renderItem={({ item, index }) => (
+            <StoryCard story={item} rank={index + 1} />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          scrollToOverflowEnabled
+          onScroll={(event) => {
+            restingTop.current = Math.min(
+              restingTop.current,
+              event.nativeEvent.contentOffset.y
+            );
+          }}
+          refreshing={isRefetching}
+          onRefresh={() => {
+            void refetch().then(() => {
+              if (category === "top") {
+                syncTopStoriesWidget({ force: true });
+              }
+            });
+          }}
+          onLoadMore={hasNextPage ? () => void fetchNextPage() : undefined}
+          isLoadingMore={isFetchingNextPage}
+          onEndReachedThreshold={0.3}
+          empty={
+            isError ? (
+              <ErrorState
+                title="Couldn't load stories"
+                onRetry={() => void refetch()}
+              />
+            ) : (
+              <EmptyState
+                icon="stories"
+                title="No stories found"
+                message="Pull down to refresh."
+              />
+            )
+          }
+        />
+      </StorySplitView>
     </>
   );
 }

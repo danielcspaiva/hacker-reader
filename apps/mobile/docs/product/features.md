@@ -70,6 +70,13 @@ Each story displays:
 - **Text Size** - Settings → Text Size (Small to Extra Large, with preview) scales story titles, story text and comments on top of iOS Dynamic Type
 - **Muted Words & Sites** - Mute title keywords or whole sites (subdomains included) from Settings or a story's menu; hides matching stories in the feed only (not search or bookmarks)
 
+### iPad Split View
+
+- Windows 768pt wide or more (iPad, Split View, Stage Manager; follows resizing) show the Stories and Bookmarks lists in a 400pt left column and the selected story's detail (header, comments, reply box) on the right
+- Tapping a card selects it in place with an orange ring; nothing selected shows "Select a story"; deep links and peek previews still push the story screen
+- Pushed story detail, settings, profile and other lists cap content at 720pt, centred
+- Narrow windows and iPhone use the stacked phone layout
+
 ### Navigation
 
 - **Tab Navigation** - Native tabs: Stories (category picked in the header), Bookmarks, Profile, Settings, Search

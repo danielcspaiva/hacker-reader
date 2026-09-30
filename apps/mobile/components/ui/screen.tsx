@@ -17,6 +17,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { GUTTER } from "@/constants/theme";
+import { useReadableGutter } from "@/contexts/pane-width-context";
 import { useTheme } from "@/hooks/use-theme";
 import { hapticImpact } from "@/lib/haptics";
 
@@ -63,7 +64,7 @@ interface ScrollScreenProps extends Omit<
   gap?: number;
 }
 
-/** Page background + scroll view: 16 gutter, tucks under native large titles. */
+/** Page background + scroll view: 16 gutter (content capped at 720 and centred on wide panes), tucks under native large titles. */
 export function ScrollScreen({
   onRefresh,
   refreshing = false,
@@ -73,12 +74,13 @@ export function ScrollScreen({
 }: ScrollScreenProps) {
   const { colors } = useTheme();
   const bottom = useScreenBottomInset();
+  const gutter = useReadableGutter();
   return (
     <ScrollView
       style={[styles.fill, { backgroundColor: colors.background }]}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{
-        paddingHorizontal: GUTTER,
+        paddingHorizontal: gutter,
         paddingTop: 8,
         paddingBottom: bottom,
         gap,
@@ -147,6 +149,7 @@ export function ListScreen<T>({
 }: ListScreenProps<T>) {
   const { colors } = useTheme();
   const bottom = useScreenBottomInset();
+  const gutter = useReadableGutter();
 
   return (
     <FlashList<T>
@@ -155,7 +158,7 @@ export function ListScreen<T>({
       style={{ backgroundColor: colors.background }}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{
-        paddingHorizontal: GUTTER,
+        paddingHorizontal: gutter,
         paddingTop: 8,
         paddingBottom: bottom,
       }}

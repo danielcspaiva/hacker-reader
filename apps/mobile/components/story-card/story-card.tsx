@@ -6,6 +6,7 @@ import { LinkCard } from "@/components/link-card";
 import { LinkPreview } from "@/components/link-preview";
 import { Card, ICON_GLYPHS, Icon, Text } from "@/components/ui";
 import { Radius } from "@/constants/theme";
+import { useStorySelection } from "@/contexts/story-selection-context";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
 import { timeAgoSpoken } from "@/lib/format/time";
@@ -54,6 +55,8 @@ export const thumbnailPanel = {
 export function StoryCard({ story, rank }: StoryCardProps) {
   const { colors } = useTheme();
   const actions = useStoryActions(story);
+  const selection = useStorySelection();
+  const isSelected = selection?.selectedId === story.id;
   const { isBookmarked, readEntry } = actions;
   const isRead = readEntry !== undefined;
   const domain = getDomain(story.url);
@@ -79,6 +82,7 @@ export function StoryCard({ story, rank }: StoryCardProps) {
   return (
     <LinkCard
       href={`/story/${story.id}`}
+      onSelect={selection ? () => selection.select(story.id) : undefined}
       accessibilityLabel={accessibilityLabel}
       menu={
         <Link.Menu>
@@ -135,7 +139,18 @@ export function StoryCard({ story, rank }: StoryCardProps) {
         </Link.Menu>
       }
     >
-      <Card padding={0} style={styles.card}>
+      <Card
+        padding={0}
+        style={[
+          styles.card,
+          // Split view: ring in the brand orange marks the open story.
+          isSelected && {
+            outlineColor: colors.primary,
+            outlineWidth: 2,
+            outlineOffset: -2,
+          },
+        ]}
+      >
         <View style={styles.row}>
           <View style={styles.body}>
             {domain || isBookmarked ? (
