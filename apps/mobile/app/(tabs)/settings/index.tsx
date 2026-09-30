@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 
 import {
   ListRow,
@@ -19,6 +19,7 @@ import {
   IOS_APP_STORE_URL,
   REPO_URL,
 } from "@/constants/app-config";
+import { usePro } from "@/contexts/pro-context";
 import { useTextSize } from "@/contexts/text-size-context";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
@@ -27,8 +28,11 @@ import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useMutes } from "@/hooks/use-mutes";
 import { useReadStories } from "@/hooks/use-read-stories";
+import { useRestorePurchases } from "@/hooks/use-restore-purchases";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { hapticNotify, Haptics } from "@/lib/haptics";
+import { reportError } from "@/lib/observability/report-error";
+import { MANAGE_SUBSCRIPTIONS_URL } from "@/lib/pro/constants";
 import { queryPersister } from "@/lib/query-cache/persister";
 import { TEXT_SIZE_LABELS, TEXT_SIZES } from "@/lib/text/text-size";
 
@@ -58,6 +62,19 @@ export default function SettingsScreen() {
   const { blockedUsers } = useBlockedUsers();
   const { mutes } = useMutes();
   const openLink = useExternalLink();
+  const { isAvailable: proAvailable, isPro, deleteProData } = usePro();
+  const { restorePurchases, isRestoring } = useRestorePurchases();
+
+  const deleteProDataWithFeedback = async () => {
+    try {
+      await deleteProData();
+      hapticNotify(Haptics.NotificationFeedbackType.Success);
+      Alert.alert("Pro data deleted", "Your server-side Pro data was removed.");
+    } catch (error) {
+      reportError(error, { operation: "pro.deleteData" });
+      Alert.alert("Could not delete", "Please try again in a moment.");
+    }
+  };
 
   const storeUrl = Platform.select({
     ios: IOS_APP_STORE_URL,
@@ -67,6 +84,59 @@ export default function SettingsScreen() {
 
   return (
     <ScrollScreen gap={24}>
+      {proAvailable ? (
+        <ListSection
+          title="Hacker Reader Pro"
+          footer="Everything on your phone stays free. Pro pays for the servers."
+        >
+          {isPro ? (
+            <ListRow
+              leading={<IconTile name="pro" hue="orange" />}
+              title="Pro, thank you"
+              subtitle="Your subscription is active"
+              chevron={false}
+            />
+          ) : (
+            <ListRow
+              leading={<IconTile name="pro" hue="orange" />}
+              title="Get Hacker Reader Pro"
+              subtitle="Notifications, summaries and sync"
+              chevron
+              onPress={() => router.push("/pro")}
+            />
+          )}
+          {isPro ? (
+            <ListRow
+              leading={<IconTile name="payment" hue="gray" />}
+              title="Manage Subscription"
+              chevron
+              onPress={() => openLink(MANAGE_SUBSCRIPTIONS_URL)}
+            />
+          ) : null}
+          <ListRow
+            leading={<IconTile name="refresh" hue="gray" />}
+            title="Restore Purchases"
+            disabled={isRestoring}
+            chevron={false}
+            onPress={() => void restorePurchases()}
+          />
+          <ListRow
+            leading={<IconTile name="trash" hue="red" />}
+            title="Delete Pro Data"
+            chevron={false}
+            onPress={() =>
+              confirmDestructive({
+                title: "Delete Pro Data",
+                message:
+                  "This removes what Pro stores on our servers for this install: your device details, push token and any Hacker News username you shared. Your subscription is not cancelled.",
+                confirmLabel: "Delete",
+                onConfirm: deleteProDataWithFeedback,
+              })
+            }
+          />
+        </ListSection>
+      ) : null}
+
       <ListSection title="Appearance">
         <ListSlot padding={12}>
           <Segmented

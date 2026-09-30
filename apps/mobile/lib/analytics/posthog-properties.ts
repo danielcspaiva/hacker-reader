@@ -69,6 +69,10 @@ export enum AnalyticsProperty {
   COLOR_SCHEME = "color_scheme",
   IS_AUTHENTICATED = "is_authenticated",
 
+  // Pro
+  PRO_FEATURE = "feature",
+  PRO_PLAN = "plan",
+
   // Widget
   WIDGET_SIZE = "widget_size",
   WIDGET_KIND = "widget_kind",

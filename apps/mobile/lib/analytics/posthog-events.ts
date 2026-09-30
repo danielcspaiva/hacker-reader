@@ -67,6 +67,13 @@ export enum AnalyticsEvent {
   // Offline
   OFFLINE_BANNER_SHOWN = "offline_banner_shown",
 
+  // Pro
+  PAYWALL_VIEWED = "paywall_viewed",
+  PURCHASE_STARTED = "purchase_started",
+  PURCHASE_COMPLETED = "purchase_completed",
+  PURCHASE_FAILED = "purchase_failed",
+  PURCHASE_RESTORED = "purchase_restored",
+
   // Widget Interactions (iOS only)
   WIDGET_TAPPED = "widget_tapped",
 }

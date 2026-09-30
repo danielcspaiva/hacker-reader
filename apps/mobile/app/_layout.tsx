@@ -12,6 +12,7 @@ import { useHeaderOptions } from "@/components/navigation/header-options";
 import { useNavigationTheme } from "@/components/navigation/navigation-theme";
 import { ColorSchemeProvider } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { ProProvider } from "@/contexts/pro-context";
 import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
@@ -144,6 +145,14 @@ function RootLayoutContent() {
         />
         {/* Landing route of the share extension; renders nothing. */}
         <Stack.Screen name="expo-sharing" />
+        <Stack.Screen
+          name="pro"
+          options={{
+            ...sheetHeader,
+            sheetAllowedDetents: [1],
+            headerTitle: "Hacker Reader Pro",
+          }}
+        />
       </Stack>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
     </ThemeProvider>
@@ -179,7 +188,9 @@ export default Sentry.wrap(function RootLayout() {
         <ColorSchemeProvider>
           <TextSizeProvider>
             <HNAuthProvider>
-              <RootLayoutContent />
+              <ProProvider>
+                <RootLayoutContent />
+              </ProProvider>
             </HNAuthProvider>
           </TextSizeProvider>
         </ColorSchemeProvider>

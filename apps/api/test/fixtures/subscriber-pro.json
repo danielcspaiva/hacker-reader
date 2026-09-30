@@ -1,0 +1,22 @@
+{
+  "request_date": "2026-09-30T12:00:00Z",
+  "subscriber": {
+    "first_seen": "2026-09-01T09:00:00Z",
+    "original_app_user_id": "3f2b8f3e-6f6e-4a52-9a7e-0f1e1c2d3a4b",
+    "entitlements": {
+      "pro": {
+        "expires_date": "2026-10-15T09:00:00Z",
+        "grace_period_expires_date": null,
+        "product_identifier": "hackerreader.pro.annual",
+        "purchase_date": "2026-09-15T09:00:00Z"
+      }
+    },
+    "subscriptions": {
+      "hackerreader.pro.annual": {
+        "expires_date": "2026-10-15T09:00:00Z",
+        "period_type": "trial",
+        "store": "app_store"
+      }
+    }
+  }
+}
