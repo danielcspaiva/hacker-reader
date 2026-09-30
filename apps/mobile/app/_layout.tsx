@@ -15,6 +15,7 @@ import { useHeaderOptions } from "@/components/navigation/header-options";
 import { useNavigationTheme } from "@/components/navigation/navigation-theme";
 import { ColorSchemeProvider } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useTheme } from "@/hooks/use-theme";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
@@ -138,9 +139,11 @@ export default Sentry.wrap(function RootLayout() {
     >
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider>
-          <HNAuthProvider>
-            <RootLayoutContent />
-          </HNAuthProvider>
+          <TextSizeProvider>
+            <HNAuthProvider>
+              <RootLayoutContent />
+            </HNAuthProvider>
+          </TextSizeProvider>
         </ColorSchemeProvider>
       </QueryClientProvider>
     </PostHogProvider>

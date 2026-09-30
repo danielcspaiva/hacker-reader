@@ -56,6 +56,7 @@ export enum AnalyticsEvent {
   // Settings & Preferences
   THEME_CHANGED = "theme_changed",
   SETTINGS_VIEWED = "settings_viewed",
+  TEXT_SIZE_CHANGED = "text_size_changed",
 
   // Widget Interactions (iOS only)
   WIDGET_TAPPED = "widget_tapped",

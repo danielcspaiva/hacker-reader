@@ -16,6 +16,7 @@ import type {
   StoryCategory,
 } from "@/lib/hn";
 import { reportError } from "@/lib/observability/report-error";
+import type { TextSize } from "@/lib/text/text-size";
 
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
@@ -149,6 +150,10 @@ export interface EventProperties {
     to_theme: "light" | "dark" | "system";
   };
   [AnalyticsEvent.SETTINGS_VIEWED]: Record<string, never>;
+  [AnalyticsEvent.TEXT_SIZE_CHANGED]: {
+    from_size: TextSize;
+    to_size: TextSize;
+  };
 
   // Widget Interactions
   [AnalyticsEvent.WIDGET_TAPPED]: {

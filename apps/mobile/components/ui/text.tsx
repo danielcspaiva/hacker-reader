@@ -5,7 +5,9 @@ import {
 } from "react-native";
 
 import { Fonts, type ThemeColors } from "@/constants/theme";
+import { useTextSize } from "@/contexts/text-size-context";
 import { useTheme } from "@/hooks/use-theme";
+import { scaleFont } from "@/lib/text/text-size";
 
 /**
  * Type scale sized to iOS text styles (Large Title, Title 2, Headline, Body,
@@ -42,6 +44,12 @@ export interface TextProps extends RNTextProps {
   numeric?: boolean;
   /** New York serif (iOS). For story titles on the detail hero. */
   serif?: boolean;
+  /**
+   * Follows the Text Size setting (size and line height). For reading content:
+   * story titles, story text, comment bodies. Not for chrome. Stacks on top of
+   * iOS Dynamic Type.
+   */
+  scalable?: boolean;
 }
 
 const WEIGHT = {
@@ -103,14 +111,24 @@ export function Text({
   weight,
   numeric,
   serif,
+  scalable,
   style,
   ...rest
 }: TextProps) {
   const { colors } = useTheme();
+  const { scale } = useTextSize();
+  const metrics =
+    scalable && scale !== 1 ? StyleSheet.flatten(styles[variant]) : null;
   return (
     <RNText
       style={[
         styles[variant],
+        metrics
+          ? {
+              fontSize: scaleFont(metrics.fontSize ?? 17, scale),
+              lineHeight: scaleFont(metrics.lineHeight ?? 22, scale),
+            }
+          : null,
         numeric ? styles.numeric : null,
         serif ? styles.serif : null,
         weight ? { fontWeight: WEIGHT[weight] } : null,

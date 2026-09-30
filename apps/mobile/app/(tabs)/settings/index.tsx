@@ -19,6 +19,7 @@ import {
   IOS_APP_STORE_URL,
   REPO_URL,
 } from "@/constants/app-config";
+import { useTextSize } from "@/contexts/text-size-context";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
@@ -28,6 +29,12 @@ import { useMutes } from "@/hooks/use-mutes";
 import { useReadStories } from "@/hooks/use-read-stories";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { hapticNotify, Haptics } from "@/lib/haptics";
+import { TEXT_SIZE_LABELS, TEXT_SIZES } from "@/lib/text/text-size";
+
+const TEXT_SIZE_OPTIONS = TEXT_SIZES.map((value) => ({
+  value,
+  label: TEXT_SIZE_LABELS[value],
+}));
 
 /** The hooks report their own failures; here only success gets feedback. */
 async function withSuccessHaptic(action: () => void | Promise<void>) {
@@ -42,6 +49,7 @@ async function withSuccessHaptic(action: () => void | Promise<void>) {
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const { options, preference, setPreference } = useAppearanceSettings();
+  const { textSize, setTextSize } = useTextSize();
   const { bookmarkCount, isClearing, clearAll } = useClearBookmarks();
   const { count: readCount, clearAll: clearReadHistory } = useReadStories();
   const { count: hiddenCount, clearAll: clearHiddenStories } =
@@ -65,6 +73,24 @@ export default function SettingsScreen() {
             value={preference}
             onChange={setPreference}
           />
+        </ListSlot>
+      </ListSection>
+
+      <ListSection
+        title="Text Size"
+        footer="Scales story titles, story text and comments. Also follows your iPhone's text size."
+      >
+        <ListSlot padding={12}>
+          <Segmented
+            options={TEXT_SIZE_OPTIONS}
+            value={textSize}
+            onChange={setTextSize}
+          />
+        </ListSlot>
+        <ListSlot padding={16}>
+          <Text variant="callout" scalable tone="muted">
+            The quick brown fox jumps over the lazy dog.
+          </Text>
         </ListSlot>
       </ListSection>
 

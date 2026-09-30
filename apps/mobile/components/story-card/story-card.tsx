@@ -203,6 +203,7 @@ export function StoryCard({ story, rank }: StoryCardProps) {
               ) : null}
               <Text
                 variant="subtitle"
+                scalable
                 weight="semibold"
                 // Read stories dim to the secondary ink: quieter, not disabled.
                 tone={isRead ? "muted" : "default"}
