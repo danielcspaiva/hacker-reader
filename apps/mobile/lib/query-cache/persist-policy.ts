@@ -128,3 +128,43 @@ export function serializeWithinLimit<T>(
   }
   return serialized;
 }
+
+/** The parts of a persisted client that `fitWithinLimit` looks at. */
+export interface PersistedClientLike {
+  clientState: {
+    queries: readonly {
+      queryKey: readonly unknown[];
+      state: { dataUpdatedAt: number };
+    }[];
+  };
+}
+
+/**
+ * JSON for the disk write. When it is over budget, story threads are dropped
+ * oldest first until it fits, so one huge thread never stops the feeds from
+ * being saved. Throws only when the feeds alone are over budget.
+ */
+export function fitWithinLimit<T extends PersistedClientLike>(
+  client: T,
+  maxChars: number = MAX_PERSISTED_CACHE_CHARS
+): string {
+  let serialized = JSON.stringify(client);
+  if (serialized.length <= maxChars) return serialized;
+
+  const stories = client.clientState.queries
+    .filter((q) => isStoryKey(q.queryKey))
+    .sort((a, b) => a.state.dataUpdatedAt - b.state.dataUpdatedAt);
+  const dropped = new Set<(typeof stories)[number]>();
+  for (const story of stories) {
+    dropped.add(story);
+    serialized = JSON.stringify({
+      ...client,
+      clientState: {
+        ...client.clientState,
+        queries: client.clientState.queries.filter((q) => !dropped.has(q)),
+      },
+    });
+    if (serialized.length <= maxChars) return serialized;
+  }
+  throw new PersistedCacheTooLargeError(serialized.length, maxChars);
+}

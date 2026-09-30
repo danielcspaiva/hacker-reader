@@ -10,6 +10,7 @@ import {
 import { isOfflineState } from "@/lib/query-cache/offline";
 import {
   PersistedCacheTooLargeError,
+  fitWithinLimit,
   persistBuster,
   selectPersistedStoryIds,
   serializeWithinLimit,
@@ -182,5 +183,43 @@ describe("bookmark prefetch", () => {
     });
     assert.equal(peak, 4);
     assert.equal(done.length, 8);
+  });
+});
+
+describe("fitWithinLimit", () => {
+  const entry = (queryKey: readonly unknown[], at: number, size: number) => ({
+    queryKey,
+    state: { dataUpdatedAt: at, data: "x".repeat(size) },
+  });
+  const client = (queries: ReturnType<typeof entry>[]) => ({
+    timestamp: 0,
+    buster: "b",
+    clientState: { mutations: [], queries },
+  });
+
+  it("returns the full payload when it fits", () => {
+    const value = client([entry(hnKeys.stories("top"), 1, 10)]);
+    assert.equal(fitWithinLimit(value, 10_000), JSON.stringify(value));
+  });
+
+  it("drops the oldest story threads first until it fits", () => {
+    const value = client([
+      entry(hnKeys.stories("top"), 1, 100),
+      entry(hnKeys.story(1), 1, 400),
+      entry(hnKeys.story(2), 5, 400),
+    ]);
+    const out = JSON.parse(fitWithinLimit(value, 900));
+    const keys = out.clientState.queries.map(
+      (q: { queryKey: unknown[] }) => q.queryKey
+    );
+    assert.deepEqual(keys, [hnKeys.stories("top"), hnKeys.story(2)]);
+  });
+
+  it("throws when the feeds alone are over budget", () => {
+    const value = client([entry(hnKeys.stories("top"), 1, 500)]);
+    assert.throws(
+      () => fitWithinLimit(value, 100),
+      (error) => error instanceof PersistedCacheTooLargeError
+    );
   });
 });

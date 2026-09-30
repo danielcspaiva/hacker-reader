@@ -12,7 +12,7 @@ import {
   PersistedCacheTooLargeError,
   persistBuster,
   selectPersistedStoryIds,
-  serializeWithinLimit,
+  fitWithinLimit,
   shouldPersistQuery,
   storyQueryEntries,
   trimPersistedData,
@@ -29,7 +29,7 @@ export const queryPersister = createAsyncStoragePersister({
   throttleTime: 2000,
   serialize: (client: PersistedClient) => {
     try {
-      return serializeWithinLimit(client);
+      return fitWithinLimit(client);
     } catch (error) {
       // Skip this write (the persister swallows the throw); report once.
       if (error instanceof PersistedCacheTooLargeError && !reportedTooLarge) {
@@ -43,14 +43,24 @@ export const queryPersister = createAsyncStoragePersister({
 
 /** `persistOptions.dehydrateOptions`, driven by the policy and the live cache. */
 export function createDehydrateOptions(queryClient: QueryClient) {
-  return {
-    shouldDehydrateQuery: (query: Query) => {
-      const storyIds = selectPersistedStoryIds(
+  // `shouldDehydrateQuery` runs once per cached query in one synchronous
+  // dehydrate pass: pick the saved stories once per pass, not per query.
+  let storyIds: Set<number> | null = null;
+  const persistedStoryIds = () => {
+    if (!storyIds) {
+      storyIds = selectPersistedStoryIds(
         storyQueryEntries(queryClient.getQueryCache().getAll()),
         queryClient.getQueryData<number[]>(hnKeys.bookmarks()) ?? []
       );
-      return shouldPersistQuery(query, storyIds);
-    },
+      void Promise.resolve().then(() => {
+        storyIds = null;
+      });
+    }
+    return storyIds;
+  };
+  return {
+    shouldDehydrateQuery: (query: Query) =>
+      shouldPersistQuery(query, persistedStoryIds()),
     serializeData: trimPersistedData,
   };
 }
