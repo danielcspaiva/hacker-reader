@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.danielcspaiva.hnclient",
-      "buildNumber": "23",
+      "buildNumber": "24",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -38,7 +38,7 @@
           "image": "./assets/images/ybook.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#FCFBF7",
+          "backgroundColor": "#F4F0EC",
           "dark": {
             "image": "./assets/images/ybook.png",
             "backgroundColor": "#17130F"
