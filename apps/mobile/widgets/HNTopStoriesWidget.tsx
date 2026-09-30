@@ -46,12 +46,12 @@ export type HNTopStoriesProps = {
 };
 
 const SAMPLE_TITLES = [
-  "Loading the latest stories from Hacker News",
-  "Open Hacker Reader to load the top stories",
-  "Your top stories will appear right here",
-  "Placeholder headline for the widget preview",
-  "Another placeholder headline for the preview",
-  "One more placeholder headline for the preview",
+  "Loading the latest stories from Hacker News, straight to your home screen",
+  "Open Hacker Reader once to load the top stories and keep this widget fresh",
+  "Your top stories will appear right here, with scores and comment counts",
+  "Placeholder headline for the widget preview that is long enough to wrap",
+  "Another placeholder headline for the preview that is long enough to wrap",
+  "One more placeholder headline for the preview that is long enough to wrap",
 ];
 
 const SAMPLE_STORIES: WidgetStory[] = SAMPLE_TITLES.map((title, index) => ({
@@ -80,8 +80,29 @@ const HNTopStoriesWidget = (
 ) => {
   "widget";
 
-  const MEDIUM_ROWS = 2;
-  const LARGE_ROWS = 7;
+  // Height budget (content area = widget height - 2 * 16pt margins; smallest sizes:
+  // small 123, medium 123, large 313). Line heights: 13pt title ~16, 11pt meta ~13,
+  // header ~18. 2-line row = 32 + 2 + 13 = 47; 1-line row = 16 + 2 + 13 = 31.
+  //   large : 18 + 7 + rows <= 313 (2-line titles, row count from a height budget below)
+  //   medium: 18 + 8 + rows <= 123 (row count and line limits from a height budget below)
+  //   small : 18 + 6 + (3*18 + 4 + 13) + 6 + 6 + 12 = 119 <= 123 (3-line hero)
+  // The lists fill a height budget instead of a fixed row count: env has no widget size,
+  // so rows are added while they fit the smallest widget of the family (large
+  // 313 - 18 - 7 = 288pt, medium 123 - 18 - 8 = 97pt). A title's line count is estimated
+  // at ~42 chars per line (275pt text column at ~5.9pt per 13pt semibold char, less a
+  // margin for word wrap). Measured on device: 1-line row 31pt, 2-line row 47pt.
+  const LARGE_MAX_ROWS = 7;
+  const LARGE_BUDGET = 288;
+  const MEDIUM_MAX_ROWS = 2;
+  const MEDIUM_BUDGET = 97;
+  const CHARS_PER_LINE = 42;
+  // Pin content to the top-leading corner; a plain VStack centres (and clips both ends of)
+  // content taller than the widget.
+  const pinTop = frame({
+    maxWidth: 10000,
+    maxHeight: 10000,
+    alignment: "topLeading",
+  });
 
   const family = env.widgetFamily ?? "systemMedium";
   const isAccessory = family === "accessoryRectangular";
@@ -231,6 +252,7 @@ const HNTopStoriesWidget = (
             font({ size: 13, weight: "semibold" }),
             foregroundStyle(ink),
             lineLimit(titleLines),
+            minimumScaleFactor(0.9),
             // Claim the height the lines need; otherwise the stack squeezes the
             // first title to one line even when the widget has room to spare.
             fixedSize({ horizontal: false, vertical: true }),
@@ -251,7 +273,10 @@ const HNTopStoriesWidget = (
       <VStack
         spacing={2}
         alignment="leading"
-        modifiers={[widgetURL(top.length ? storyUrl(top[0].id) : feedUrl)]}
+        modifiers={[
+          frame({ maxWidth: 10000, alignment: "leading" }),
+          widgetURL(top.length ? storyUrl(top[0].id) : feedUrl),
+        ]}
       >
         {top.length === 0 ? (
           <Text
@@ -263,7 +288,11 @@ const HNTopStoriesWidget = (
           top.map((s, i) => (
             <Text
               key={String(s.id)}
-              modifiers={[font({ size: 12, weight: "medium" }), lineLimit(1)]}
+              modifiers={[
+                font({ size: 12, weight: "medium" }),
+                lineLimit(1),
+                minimumScaleFactor(0.9),
+              ]}
             >
               {String(i + 1) + "  " + s.title}
             </Text>
@@ -283,6 +312,7 @@ const HNTopStoriesWidget = (
         spacing={6}
         alignment="leading"
         modifiers={[
+          pinTop,
           ...bg,
           widgetURL(!isSample && s ? storyUrl(s.id) : feedUrl),
         ]}
@@ -297,7 +327,8 @@ const HNTopStoriesWidget = (
             modifiers={[
               font({ size: 15, weight: "semibold" }),
               foregroundStyle(ink),
-              lineLimit(4),
+              lineLimit(3),
+              minimumScaleFactor(0.9),
             ]}
           >
             {s ? s.title : ""}
@@ -326,15 +357,29 @@ const HNTopStoriesWidget = (
 
   // ---- Medium / Large: list ----
   const isLarge = family === "systemLarge";
-  const count = isLarge ? LARGE_ROWS : MEDIUM_ROWS;
-  // Medium has ~123pt of content height: two 3-line-capable rows only fit with tighter gaps.
-  const listSpacing = isLarge ? 7 : 5;
-  const rows = all.slice(0, count);
+  const listSpacing = isLarge ? 7 : 8;
+  const maxRows = isLarge ? LARGE_MAX_ROWS : MEDIUM_MAX_ROWS;
+  const budget = isLarge ? LARGE_BUDGET : MEDIUM_BUDGET;
+  // Each row takes the lines its title needs; the last row that would overflow is
+  // truncated to one line if that fits, so the list ends flush instead of leaving a gap.
+  const rows: { s: WidgetStory; lines: number }[] = [];
+  let used = 0;
+  for (const s of all.slice(0, maxRows)) {
+    const gap = rows.length > 0 ? listSpacing : 0;
+    const lines = (s.title ?? "").length > CHARS_PER_LINE ? 2 : 1;
+    if (used + gap + (lines === 2 ? 47 : 31) <= budget) {
+      rows.push({ s, lines });
+      used += gap + (lines === 2 ? 47 : 31);
+    } else {
+      if (lines === 2 && used + gap + 31 <= budget) rows.push({ s, lines: 1 });
+      break;
+    }
+  }
   return (
     <VStack
       spacing={listSpacing}
       alignment="leading"
-      modifiers={[...bg, widgetURL(feedUrl)]}
+      modifiers={[pinTop, ...bg, widgetURL(feedUrl)]}
     >
       {header(trailing)}
       {isSample ? (
@@ -347,12 +392,12 @@ const HNTopStoriesWidget = (
         alignment="leading"
         modifiers={isSample ? [redacted("placeholder")] : []}
       >
-        {rows.map((s, i) => (
+        {rows.map(({ s, lines }, i) => (
           <Link
             key={String(s.id)}
             destination={isSample ? feedUrl : storyUrl(s.id)}
           >
-            {row(s, i + 1, 2)}
+            {row(s, i + 1, lines)}
           </Link>
         ))}
       </VStack>
