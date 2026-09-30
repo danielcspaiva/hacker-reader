@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { prefetchStoryThread } from "@/hooks/use-story";
 import { hapticImpact, Haptics } from "@/lib/haptics";
 import { getItem, hnKeys, type HNItem } from "@/lib/hn";
 import {
@@ -120,9 +121,11 @@ export function useBookmarkMutation() {
       }
       reportError(error, { operation: "bookmark", storyId });
     },
-    onSuccess: () => {
+    onSuccess: (_data, { storyId, add }) => {
       // Keep the Bookmarks home screen widget in step with the list.
       syncBookmarksWidget({ force: true });
+      // Save the thread so the bookmark reads offline.
+      if (add) void prefetchStoryThread(queryClient, storyId);
     },
     onSettled: () => {
       // Refetch to ensure consistency

@@ -9,6 +9,7 @@ import { StorySplitView } from "@/components/story/story-split-view";
 import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
+import { useOfflineBookmarks } from "@/hooks/use-offline-bookmarks";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { type HNItem } from "@/lib/hn";
 
@@ -21,6 +22,7 @@ export default function BookmarksScreen() {
     isRefetching,
   } = useBookmarks();
   const { bookmarkCount, isClearing, clearAll } = useClearBookmarks();
+  useOfflineBookmarks();
   const listRef = useRef<FlashListRef<HNItem>>(null);
   const previousCountRef = useRef(stories.length);
 

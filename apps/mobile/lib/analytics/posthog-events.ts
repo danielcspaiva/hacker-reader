@@ -64,6 +64,9 @@ export enum AnalyticsEvent {
   SETTINGS_VIEWED = "settings_viewed",
   TEXT_SIZE_CHANGED = "text_size_changed",
 
+  // Offline
+  OFFLINE_BANNER_SHOWN = "offline_banner_shown",
+
   // Widget Interactions (iOS only)
   WIDGET_TAPPED = "widget_tapped",
 }

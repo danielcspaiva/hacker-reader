@@ -1,9 +1,6 @@
 import * as Sentry from "@sentry/react-native";
-import {
-  MutationCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { MutationCache, QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -17,11 +14,20 @@ import { ColorSchemeProvider } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
 import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
+import { useBookmarkIds } from "@/hooks/use-bookmarks";
 import { useTheme } from "@/hooks/use-theme";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { useWidgetSync } from "@/hooks/use-widget-sync";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { getAppMetadata } from "@/lib/analytics/tracking";
+import { setupOnlineManager } from "@/lib/query-cache/online-manager";
+import { PERSIST_MAX_AGE_MS } from "@/lib/query-cache/persist-policy";
+import {
+  PERSIST_BUSTER,
+  createDehydrateOptions,
+  keepPersistedQueriesAlive,
+  queryPersister,
+} from "@/lib/query-cache/persister";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -69,6 +75,9 @@ const queryClient = new QueryClient({
   }),
 });
 
+keepPersistedQueriesAlive(queryClient);
+setupOnlineManager();
+
 function RootLayoutContent() {
   const { scheme, colors } = useTheme();
   const { isAuthenticated } = useHNAuth();
@@ -80,6 +89,9 @@ function RootLayoutContent() {
   useWidgetSync();
 
   useAppPrefetch();
+  // Keeps the bookmark ids live: the cache persister needs them to know which
+  // story threads to save.
+  useBookmarkIds();
 
   useEffect(() => {
     if (posthog) {
@@ -155,7 +167,15 @@ export default Sentry.wrap(function RootLayout() {
       }}
       debug={__DEV__}
     >
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister: queryPersister,
+          maxAge: PERSIST_MAX_AGE_MS,
+          buster: PERSIST_BUSTER,
+          dehydrateOptions: createDehydrateOptions(queryClient),
+        }}
+      >
         <ColorSchemeProvider>
           <TextSizeProvider>
             <HNAuthProvider>
@@ -163,7 +183,7 @@ export default Sentry.wrap(function RootLayout() {
             </HNAuthProvider>
           </TextSizeProvider>
         </ColorSchemeProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </PostHogProvider>
   );
 });

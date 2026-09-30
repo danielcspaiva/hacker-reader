@@ -68,6 +68,8 @@ Each story displays:
 - **Read State** - Opened stories dim in every list; a "+N" badge shows comments added since your last visit; new comments are marked `NEW` with a "Next new comment" button; Mark as Read/Unread in the card menu; Clear Reading History in Settings
 - **Thread Navigation** - Floating chevrons jump to the next/previous top-level comment; Collapse All / Expand All in the story menu
 - **Text Size** - Settings → Text Size (Small to Extra Large, with preview) scales story titles, story text and comments on top of iOS Dynamic Type
+
+- **Offline Reading** - Feeds and opened stories are saved on the device for 24h and show instantly on launch; bookmarks save their full thread (also in the background when the Bookmarks tab opens). Offline, an "Offline, showing saved stories" badge sits above saved content; Settings → Clear Cache removes the saved copies
 - **Muted Words & Sites** - Mute title keywords or whole sites (subdomains included) from Settings or a story's menu; hides matching stories in the feed only (not search or bookmarks)
 
 ### iPad Split View

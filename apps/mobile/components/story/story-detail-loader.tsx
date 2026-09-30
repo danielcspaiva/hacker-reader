@@ -29,6 +29,7 @@ export function StoryDetailLoader({
     isError,
     refetch,
     isRefetching,
+    fetchStatus,
   } = useStory(storyId);
   const { colors } = useTheme();
 
@@ -46,10 +47,15 @@ export function StoryDetailLoader({
         isRefreshing={isRefetching}
       />
     );
-  } else if (isError) {
+  } else if (isError || fetchStatus === "paused") {
+    // Paused: offline with no saved copy of this story.
     body = (
       <ErrorState
-        title="Couldn't load this story"
+        title={
+          fetchStatus === "paused"
+            ? "You're offline"
+            : "Couldn't load this story"
+        }
         onRetry={() => void refetch()}
       />
     );

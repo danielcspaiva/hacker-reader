@@ -4,6 +4,7 @@ import { Stack, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 
 import { ErrorState } from "@/components/error-state";
+import { OfflineBanner } from "@/components/offline-banner";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { StorySplitView } from "@/components/story/story-split-view";
@@ -13,6 +14,7 @@ import { useFeedCategory } from "@/contexts/feed-category-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useIsOffline } from "@/hooks/use-is-offline";
 import { useMutes } from "@/hooks/use-mutes";
 import { useStories } from "@/hooks/use-stories";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
@@ -29,12 +31,14 @@ export default function FeedScreen() {
   const { isHidden } = useHiddenStories();
   const { isBlocked } = useBlockedUsers();
   const { isMuted } = useMutes();
+  const isOffline = useIsOffline();
 
   const {
     data,
     isPending,
     isError,
     isRefetching,
+    fetchStatus,
     refetch,
     fetchNextPage,
     hasNextPage,
@@ -48,6 +52,9 @@ export default function FeedScreen() {
       (!story.by || !isBlocked(story.by)) &&
       !isMuted(story)
   );
+
+  // Offline with nothing saved the fetch just waits; show that, not a skeleton.
+  const isWaitingOffline = isPending && fetchStatus === "paused";
 
   const listRef = useRef<FlashListRef<HNItem>>(null);
 
@@ -147,7 +154,7 @@ export default function FeedScreen() {
         <ListScreen<HNItem>
           listRef={listRef}
           data={stories}
-          isLoading={isPending}
+          isLoading={isPending && !isWaitingOffline}
           skeleton={<StoryCardSkeleton />}
           skeletonCount={8}
           renderItem={({ item, index }) => (
@@ -155,6 +162,9 @@ export default function FeedScreen() {
           )}
           keyExtractor={(item) => item.id.toString()}
           scrollToOverflowEnabled
+          ListHeaderComponent={
+            isOffline && allStories.length > 0 ? <OfflineBanner /> : undefined
+          }
           onScroll={(event) => {
             restingTop.current = Math.min(
               restingTop.current,
@@ -173,9 +183,11 @@ export default function FeedScreen() {
           isLoadingMore={isFetchingNextPage}
           onEndReachedThreshold={0.3}
           empty={
-            isError ? (
+            isError || isWaitingOffline ? (
               <ErrorState
-                title="Couldn't load stories"
+                title={
+                  isWaitingOffline ? "You're offline" : "Couldn't load stories"
+                }
                 onRetry={() => void refetch()}
               />
             ) : (
