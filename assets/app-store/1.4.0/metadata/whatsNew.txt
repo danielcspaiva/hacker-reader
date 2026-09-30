@@ -1,4 +1,4 @@
-A complete redesign. Warm paper in Light Mode, warm charcoal in Dark Mode, solid cards and HN orange accents.
+A complete redesign. Clean white cards in Light Mode, warm charcoal in Dark Mode, and orange accents that match the app icon.
 
 • Numbered story cards with a square thumbnail and the site's icon
 • Story pages with a serif headline and a large link preview. Tap the points to upvote

@@ -16,9 +16,9 @@ from pathlib import Path
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 THEMES = {
-    "light": {"bg": "#FCFBF7", "wash": "rgba(255,102,0,0.09)", "fg": "#1F1B16", "muted": "#6A645A", "accent": "#B04400",
+    "light": {"bg": "#F4F0EC", "wash": "rgba(255,122,24,0.10)", "fg": "#1F1B16", "muted": "#6A645A", "accent": "#A84700",
               "shadow": "rgba(60,45,20,0.22)"},
-    "dark": {"bg": "#17130F", "wash": "rgba(255,122,31,0.15)", "fg": "#F3EDE3", "muted": "#A9A194", "accent": "#FF8F45",
+    "dark": {"bg": "#17130F", "wash": "rgba(255,122,24,0.15)", "fg": "#F3EDE3", "muted": "#A9A194", "accent": "#FF8F3D",
              "shadow": "rgba(0,0,0,0.6)"},
 }
 
@@ -51,7 +51,7 @@ def html_for(shot, target):
     subline = escape(shot.get("subline", "")).replace("|", "<br>")
 
     rim_bg = (
-        "linear-gradient(150deg,#F4A06A 0%,#E0702C 30%,#B9521A 58%,#E98A4C 100%)"
+        "linear-gradient(150deg,#FFA766 0%,#FF7A18 30%,#D25F0C 58%,#F99045 100%)"
         if shot["theme"] == "light"
         else "linear-gradient(150deg,#7C6D5E 0%,#453B32 40%,#2A241F 65%,#6A5D50 100%)"
     )
@@ -75,7 +75,7 @@ p {{ margin-top:{W * 0.026}px; font-size:{W * 0.0385}px; line-height:1.28; font-
 .screen {{ position:relative; width:{screen_w}px; height:{screen_h}px; border-radius:{corner}px; overflow:hidden; background:#000; }}
 .screen img {{ position:absolute; inset:0; width:100%; height:100%; display:block; }}
 .screen img.split {{ clip-path: polygon(64% 0, 100% 0, 100% 100%, 36% 100%); }}
-.seam {{ position:absolute; inset:0; background:#FF7A1F; clip-path: polygon(63.6% 0, 64.4% 0, 36.4% 100%, 35.6% 100%); }}
+.seam {{ position:absolute; inset:0; background:#FF7A18; clip-path: polygon(63.6% 0, 64.4% 0, 36.4% 100%, 35.6% 100%); }}
 .island {{ position:absolute; background:#000; width:{iw}px; height:{ih}px; top:{iy}px; left:{(screen_w - iw) / 2}px; border-radius:{ih / 2}px; z-index:2; }}
 </style></head><body>
 <div class="wash"></div>

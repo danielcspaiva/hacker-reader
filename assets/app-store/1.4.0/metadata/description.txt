@@ -1,4 +1,4 @@
-Hacker Reader is a calm, native Hacker News client. Warm paper in Light Mode, warm charcoal in Dark Mode, serif story pages, comment threads that are easy to follow, and widgets that keep the top stories on your Home Screen and Lock Screen.
+Hacker Reader is a calm, native Hacker News client. Clean white cards in Light Mode, warm charcoal in Dark Mode, serif story pages, comment threads that are easy to follow, and widgets that keep the top stories on your Home Screen and Lock Screen.
 
 BROWSE FIVE STORY FEEDS
 • Top Stories - what's ranking on HN right now
@@ -41,9 +41,9 @@ HOME SCREEN AND LOCK SCREEN WIDGETS
 • Tap a story to open it in the app
 
 A WARM, NATIVE DESIGN
-• Warm paper in Light Mode, warm charcoal in Dark Mode, never pure black
+• Clean white cards in Light Mode, warm charcoal in Dark Mode, never pure black
 • Follows your system, or pick Light or Dark in Settings
-• Solid reading surfaces with HN orange accents
+• Solid reading surfaces with orange accents that match the app icon
 • Native iOS tabs, menus and toolbars, SF Symbols and subtle haptics
 • Link previews with Open Graph images
 
