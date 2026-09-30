@@ -1,5 +1,7 @@
 # Monetization Strategy
 
+> **Superseded (September 2026).** Kept for history. The shipped model is different: interactions (voting, commenting) stay free, only server-backed features are Pro ($2.99/month, $19.99/year, no lifetime), iCloud sync is free. See the "Pro (Mobile + apps/api)" section of `CLAUDE.md` and `rollout-1.5.md`.
+
 ## Hacker News Client - Premium Features & Business Model
 
 **Last Updated**: January 2025

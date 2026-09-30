@@ -77,6 +77,7 @@ Redis keys: `device:<id>`, `devices` (set of ids), `pushtoken:<token>` (reverse 
 - Dedupe: `alerts:sent:<installId>` holds the story ids (with creation time) already pushed, pruned after about 50 hours, 3 day TTL refreshed when it changes. A run where Expo rejects every push leaves it alone, so the next run retries.
 - Caps: at most 3 pushes per install and run (the 2 highest-scoring plus "N more stories match your alerts", which opens the app). A new alert on an install with no history can match up to 48 hours of stories, so its first run is typically the capped summary.
 - Bounded: installs are processed in batches of 20 (6 in flight) until 50s are used; `alerts:cursor` continues after the last install id, `alerts:lock` (120s) stops overlapping runs. Pro check and sub-daily cron caveats are the same as for the replies cron. Ends with `checkPendingReceipts`.
+
 ## Daily digest (Pro)
 
 A morning push, "☕ Your HN morning", that opens the in-app digest screen (`hnclient://digest/<YYYY-MM-DD>`). Code in `lib/digest/`.
