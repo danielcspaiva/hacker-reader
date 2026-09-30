@@ -22,6 +22,8 @@ export interface Muteable {
 }
 
 const WORD_CHAR = "[\\p{L}\\p{N}_]";
+/** ASCII word characters, for engines without Unicode property escapes. */
+const ASCII_WORD_CHAR = "[A-Za-z0-9_]";
 
 /** Lowercase, collapse whitespace. */
 function normalizeKeyword(raw: string): string {
@@ -55,11 +57,26 @@ export function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function keywordPattern(keyword: string): string {
+function keywordPattern(keyword: string, wordChar = WORD_CHAR): string {
   // Phrases match across any whitespace run. Boundaries are lookarounds so
   // keywords that end in punctuation ("c++") still work, and "ai" never hits "said".
   const body = keyword.split(" ").map(escapeRegExp).join("\\s+");
-  return `(?<!${WORD_CHAR})${body}(?!${WORD_CHAR})`;
+  return `(?<!${wordChar})${body}(?!${wordChar})`;
+}
+
+/**
+ * One regex for every keyword. Falls back to ASCII word boundaries if the JS
+ * engine rejects Unicode property escapes, so a mute can never break the feed.
+ */
+function compileKeywords(keywords: string[]): RegExp {
+  try {
+    return new RegExp(keywords.map((k) => keywordPattern(k)).join("|"), "iu");
+  } catch {
+    return new RegExp(
+      keywords.map((k) => keywordPattern(k, ASCII_WORD_CHAR)).join("|"),
+      "i"
+    );
+  }
 }
 
 /** Returns a predicate: true when the story matches any mute. */
@@ -72,9 +89,7 @@ export function createMuteFilter(
   const domains = new Set(
     mutes.filter((m) => m.kind === "domain").map((m) => m.value)
   );
-  const keywordRegex = keywords.length
-    ? new RegExp(keywords.map(keywordPattern).join("|"), "iu")
-    : null;
+  const keywordRegex = keywords.length ? compileKeywords(keywords) : null;
 
   if (!keywordRegex && domains.size === 0) return () => false;
 
