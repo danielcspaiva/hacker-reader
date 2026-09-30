@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 
 import { useHeaderOverlapInset } from "@/components/navigation/large-title-stack";
 import { CommentItem } from "@/components/story/comment-item";
-import { NextNewCommentButton } from "@/components/story/next-new-comment-button";
 import {
   StoryCommentInput,
   type Composer,
 } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
 import { StoryToolbar } from "@/components/story/story-toolbar";
+import { ThreadControls } from "@/components/story/thread-controls";
 import {
   EmptyState,
   ThemedRefreshControl,
@@ -36,6 +36,11 @@ import {
   type FlatComment,
   type StoryWithComments,
 } from "@/lib/hn";
+import {
+  hasThreadsToJump,
+  nextTopLevelIndex,
+  previousTopLevelIndex,
+} from "@/lib/text/thread-nav";
 
 interface StoryDetailProps {
   story: StoryWithComments;
@@ -68,6 +73,8 @@ export function StoryDetail({
   const [titleInHeader, setTitleInHeader] = useState(false);
   const previousVisit = useStoryVisit(story, isInsidePreview);
   const lastNewCommentId = useRef<number | null>(null);
+  // First comment row on screen, from the list's viewability callback (-1: none).
+  const firstVisibleRow = useRef(-1);
   const [composer, setComposer] = useState<Composer | null>(null);
   const openCommentActions = useCommentActions({
     storyId: story.id,
@@ -118,6 +125,32 @@ export function StoryDetail({
     scrollToCommentRow(listRef, nextIndex, headerInset + 8);
   };
 
+  const depths = flatComments.map((item) => item.depth);
+
+  const jumpToThread = (direction: "next" | "previous") => {
+    // While the hero title is still on screen we are at the top of the page,
+    // even though the first comment row already counts as visible.
+    const current = titleInHeader ? firstVisibleRow.current : -1;
+    const target =
+      direction === "next"
+        ? nextTopLevelIndex(depths, current)
+        : previousTopLevelIndex(depths, current);
+    if (target !== undefined) {
+      scrollToCommentRow(listRef, target, headerInset + 8);
+    }
+  };
+
+  const collapseAllThreads = () =>
+    setCollapsedIds(
+      new Set(
+        story.comments
+          .filter((comment) => (comment.children?.length ?? 0) > 0)
+          .map((comment) => comment.id)
+      )
+    );
+
+  const expandAllThreads = () => setCollapsedIds(new Set());
+
   const toggleCollapse = (comment: Comment) => {
     if (!collapsedIds.has(comment.id)) {
       analytics.track(AnalyticsEvent.COMMENT_COLLAPSED, {
@@ -139,7 +172,15 @@ export function StoryDetail({
           <Stack.Screen
             options={{ title: titleInHeader ? (story.title ?? "") : "" }}
           />
-          <StoryToolbar story={story} actions={actions} />
+          <StoryToolbar
+            story={story}
+            actions={actions}
+            hasThreads={story.comments.some(
+              (comment) => (comment.children?.length ?? 0) > 0
+            )}
+            onCollapseAll={collapseAllThreads}
+            onExpandAll={expandAllThreads}
+          />
         </>
       )}
       <FlashList
@@ -187,6 +228,14 @@ export function StoryDetail({
           const past = y + headerInset > titleBottom.current;
           if (past !== titleInHeader) setTitleInHeader(past);
         }}
+        onViewableItemsChanged={({ viewableItems }) => {
+          firstVisibleRow.current = viewableItems.reduce(
+            (first, token) => Math.min(first, token.index ?? first),
+            Infinity
+          );
+          if (firstVisibleRow.current === Infinity)
+            firstVisibleRow.current = -1;
+        }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={
@@ -205,12 +254,16 @@ export function StoryDetail({
         }}
       />
 
-      {!isInsidePreview && newRowIndexes.length > 0 ? (
-        <NextNewCommentButton
-          count={newRowIndexes.length}
-          onPress={scrollToNextNewComment}
+      {isInsidePreview ? null : (
+        <ThreadControls
+          newCommentCount={newRowIndexes.length}
+          showThreadNav={hasThreadsToJump(depths)}
+          reserveComposeButton={isAuthenticated && composer === null}
+          onNextNewComment={scrollToNextNewComment}
+          onNextThread={() => jumpToThread("next")}
+          onPreviousThread={() => jumpToThread("previous")}
         />
-      ) : null}
+      )}
 
       <StoryCommentInput
         storyId={story.id}

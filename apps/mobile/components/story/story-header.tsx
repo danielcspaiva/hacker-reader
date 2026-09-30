@@ -77,6 +77,7 @@ export function StoryHeader({
         ) : null}
         <Text
           variant="headline"
+          scalable
           serif
           selectable
           accessibilityRole="header"

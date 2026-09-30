@@ -15,6 +15,11 @@ export const ICON_GLYPHS = {
   close: { ios: "xmark", android: "close" },
   checkmark: { ios: "checkmark", android: "check" },
   more: { ios: "ellipsis", android: "more_horiz" },
+  collapseAll: {
+    ios: "rectangle.compress.vertical",
+    android: "unfold_less",
+  },
+  expandAll: { ios: "rectangle.expand.vertical", android: "unfold_more" },
   external: { ios: "arrow.up.right", android: "north_east" },
   // story actions
   upvote: { ios: "arrow.up", android: "arrow_upward" },

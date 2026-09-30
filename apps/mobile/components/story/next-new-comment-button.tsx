@@ -1,6 +1,5 @@
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Pressable, StyleSheet } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Icon, Text } from "@/components/ui";
 import { Radius, withAlpha } from "@/constants/theme";
@@ -8,8 +7,9 @@ import { useTheme } from "@/hooks/use-theme";
 import { hapticSelection } from "@/lib/haptics";
 
 /**
- * Floating pill that jumps to the next comment posted since your last visit.
- * Sits bottom-centre, clear of the compose button on the right.
+ * Glass pill that jumps to the next comment posted since your last visit.
+ * Positioned by `ThreadControls`; the label is short so it fits beside the
+ * thread chevrons and the compose button.
  */
 export function NextNewCommentButton({
   count,
@@ -19,9 +19,9 @@ export function NextNewCommentButton({
   onPress: () => void;
 }) {
   const { colors } = useTheme();
-  const { bottom } = useSafeAreaInsets();
   const hasLiquidGlass = isLiquidGlassAvailable();
   const label = `Next new comment (${count})`;
+  const shortLabel = `${count} new`;
 
   return (
     <GlassView
@@ -30,7 +30,6 @@ export function NextNewCommentButton({
       isInteractive
       style={[
         styles.pill,
-        { bottom: bottom + 16 },
         !hasLiquidGlass && { backgroundColor: colors.primary },
       ]}
     >
@@ -57,7 +56,7 @@ export function NextNewCommentButton({
           weight="semibold"
           style={{ color: colors.primaryForeground }}
         >
-          {label}
+          {shortLabel}
         </Text>
       </Pressable>
     </GlassView>
@@ -66,16 +65,13 @@ export function NextNewCommentButton({
 
 const styles = StyleSheet.create({
   pill: {
-    position: "absolute",
-    alignSelf: "center",
-    zIndex: 100,
     borderRadius: Radius.pill,
     borderCurve: "continuous",
     overflow: "hidden",
   },
   press: {
     minHeight: 44,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,

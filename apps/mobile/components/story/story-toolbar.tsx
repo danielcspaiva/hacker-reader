@@ -13,9 +13,16 @@ import type { StoryWithComments } from "@/lib/hn";
 export function StoryToolbar({
   story,
   actions,
+  hasThreads,
+  onCollapseAll,
+  onExpandAll,
 }: {
   story: StoryWithComments;
   actions: StoryActions;
+  /** Whether any top-level comment has replies to collapse. */
+  hasThreads: boolean;
+  onCollapseAll: () => void;
+  onExpandAll: () => void;
 }) {
   const { colors } = useTheme();
   const openLink = useExternalLink();
@@ -51,6 +58,22 @@ export function StoryToolbar({
           >
             Open in Browser
           </Stack.Toolbar.MenuAction>
+        ) : null}
+        {hasThreads ? (
+          <Stack.Toolbar.Menu inline title="">
+            <Stack.Toolbar.MenuAction
+              icon={ICON_GLYPHS.collapseAll.ios}
+              onPress={onCollapseAll}
+            >
+              Collapse All
+            </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              icon={ICON_GLYPHS.expandAll.ios}
+              onPress={onExpandAll}
+            >
+              Expand All
+            </Stack.Toolbar.MenuAction>
+          </Stack.Toolbar.Menu>
         ) : null}
         <Stack.Toolbar.Menu inline title="">
           <Stack.Toolbar.MenuAction

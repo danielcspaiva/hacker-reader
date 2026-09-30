@@ -66,6 +66,8 @@ Each story displays:
 - **Lazy Loading** - Comments fetched individually for performance
 - **Filtered Content** - Dead/deleted comments automatically hidden
 - **Read State** - Opened stories dim in every list; a "+N" badge shows comments added since your last visit; new comments are marked `NEW` with a "Next new comment" button; Mark as Read/Unread in the card menu; Clear Reading History in Settings
+- **Thread Navigation** - Floating chevrons jump to the next/previous top-level comment; Collapse All / Expand All in the story menu
+- **Text Size** - Settings → Text Size (Small to Extra Large, with preview) scales story titles, story text and comments on top of iOS Dynamic Type
 - **Muted Words & Sites** - Mute title keywords or whole sites (subdomains included) from Settings or a story's menu; hides matching stories in the feed only (not search or bookmarks)
 
 ### Navigation
@@ -379,7 +381,6 @@ Full token table, contrast ratios and component contract: [`docs/design-language
 - [ ] Web app authentication
 - [ ] Notifications for replies
 - [ ] Customizable themes
-- [ ] Font size settings
 
 ### Under Consideration
 

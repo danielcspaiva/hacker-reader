@@ -260,6 +260,7 @@ White cards on a warm grey page / warm-charcoal surfaces in the app icon's orang
 ### Theme System
 
 - `contexts/color-scheme-context.tsx` - the user's preference (system/light/dark), persisted; syncs native appearance, the root view background and hides the splash once loaded
+- `contexts/text-size-context.tsx` - persisted Text Size (Small/Default/Large/Extra Large; multipliers in `lib/text/text-size.ts`). `<Text scalable>` scales size and line height for reading content (story titles, story text, comment bodies), never chrome, on top of Dynamic Type
 - `hooks/use-theme.ts` - `useTheme()` returns `{ scheme, colors }`; the one way to read colours
 - `constants/colors.ts` - raw light/dark tokens (dependency-free); `constants/theme.ts` re-exports and adds `Radius`, `GUTTER`, `Fonts`, `WashAlpha`, `withAlpha`
 - `components/navigation/navigation-theme.ts` - React Navigation theme built from tokens, applied in the root layout
@@ -272,6 +273,8 @@ White cards on a warm grey page / warm-charcoal surfaces in the app icon's orang
 - `StoryCard`: read title in `muted` tone, a `+N` primary `Badge` by the comment count when `descendants` grew past the stored `commentCount`, "Read"/"N new comments" in the accessibility label. Settings > Data has "Clear Reading History".
 
 ### Comments System
+
+Story detail floats one `ThreadControls` row (`components/story/thread-controls.tsx`): the "N new" pill plus previous/next top-level chevrons (targets from FlashList's first viewable row, `lib/text/thread-nav.ts`); hidden in peek previews and under 2 top-level comments. The story menu has Collapse All / Expand All.
 
 The comment tree is recursively rendered in `app/story/[id].tsx`:
 
