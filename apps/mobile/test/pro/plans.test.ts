@@ -162,7 +162,7 @@ describe("hasProEntitlement", () => {
 describe("features", () => {
   it("has unique ids and a known status each", () => {
     const ids = PRO_FEATURES.map((feature) => feature.id);
-    assert.equal(new Set(ids).size, 6);
+    assert.equal(new Set(ids).size, 5);
     assert.ok(
       PRO_FEATURES.every(
         (f) => f.status === "available" || f.status === "coming_soon"
@@ -176,7 +176,7 @@ describe("features", () => {
 
   it("puts the highlighted feature first", () => {
     assert.equal(orderFeatures("ai_summaries")[0]?.id, "ai_summaries");
-    assert.equal(orderFeatures("ai_summaries").length, 6);
+    assert.equal(orderFeatures("ai_summaries").length, 5);
     assert.equal(orderFeatures(undefined)[0]?.id, PRO_FEATURES[0]?.id);
   });
 

@@ -14,6 +14,30 @@ export interface KeyValueStorage {
   removeItem(key: string): Promise<void>;
 }
 
+type WriteListener = (storageKey: string) => void;
+const writeListeners = new Set<WriteListener>();
+
+/**
+ * Calls `listener` with the storage key after any store writes or clears.
+ * iCloud sync uses it to notice local changes without touching each write path.
+ */
+export function subscribeToStoreWrites(listener: WriteListener): () => void {
+  writeListeners.add(listener);
+  return () => {
+    writeListeners.delete(listener);
+  };
+}
+
+function notifyWrite(storageKey: string) {
+  for (const listener of writeListeners) {
+    try {
+      listener(storageKey);
+    } catch {
+      // A listener must never fail a store write.
+    }
+  }
+}
+
 export interface JsonListStore<T> {
   /** Current records; malformed entries are dropped. Throws if storage fails or the JSON is corrupt. */
   read(): Promise<T[]>;
@@ -46,6 +70,7 @@ export function createJsonListStore<T>({
     const run = queue.then(async () => {
       const next = change(await read());
       await storage.setItem(key, JSON.stringify(next));
+      notifyWrite(key);
       return next;
     });
     queue = run.catch(() => {});
@@ -57,6 +82,7 @@ export function createJsonListStore<T>({
     update,
     async clear() {
       await storage.removeItem(key);
+      notifyWrite(key);
     },
   };
 }

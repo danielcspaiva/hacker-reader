@@ -6,7 +6,6 @@ export type ProFeatureId =
   | "keyword_alerts"
   | "ai_summaries"
   | "daily_digest"
-  | "icloud_sync"
   | "alternate_icons";
 
 export interface ProFeature {
@@ -51,14 +50,6 @@ export const PRO_FEATURES: readonly ProFeature[] = [
     description: "The day's best stories in one morning notification.",
     icon: "digest",
     hue: "amber",
-    status: "coming_soon",
-  },
-  {
-    id: "icloud_sync",
-    title: "iCloud sync",
-    description: "Bookmarks, read state and mutes on all your devices.",
-    icon: "cloud",
-    hue: "blue",
     status: "coming_soon",
   },
   {

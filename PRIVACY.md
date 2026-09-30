@@ -60,11 +60,15 @@ The full policy includes detailed information about:
 ### On Your Device (Never Leaves)
 
 - **Login cookies**: iOS Keychain (hardware-encrypted)
-- **Bookmarks**: Local AsyncStorage
+- **Bookmarks**: Local AsyncStorage (also synced to your own iCloud, see below)
 - **Cache**: Local storage
 - **Settings**: Local UserDefaults
 
 **None of this data leaves your device.**
+
+### In Your Own iCloud (Optional)
+
+If you are signed in to iCloud, bookmarks, read history (the 500 most recent stories), muted keywords and sites, blocked users and hidden stories sync between your devices through your iCloud key-value storage. This data goes to your own iCloud account, handled by Apple. It is never sent to Hacker Reader's servers, and we cannot see it. Turn it off with **iCloud Sync** in Settings, Data.
 
 ### On Third-Party Servers
 

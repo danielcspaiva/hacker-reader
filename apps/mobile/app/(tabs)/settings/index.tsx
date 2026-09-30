@@ -26,12 +26,14 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useICloudSyncStatus } from "@/hooks/use-icloud-sync-status";
 import { useMutes } from "@/hooks/use-mutes";
 import { useReadStories } from "@/hooks/use-read-stories";
 import { useReplyNotifications } from "@/hooks/use-reply-notifications";
 import { useRestorePurchases } from "@/hooks/use-restore-purchases";
 import { useTheme } from "@/hooks/use-theme";
 import { confirmDestructive } from "@/lib/confirm-destructive";
+import { timeAgoSpoken } from "@/lib/format/time";
 import { hapticNotify, Haptics } from "@/lib/haptics";
 import { reportError } from "@/lib/observability/report-error";
 import { MANAGE_SUBSCRIPTIONS_URL } from "@/lib/pro/constants";
@@ -64,9 +66,10 @@ export default function SettingsScreen() {
   const { blockedUsers } = useBlockedUsers();
   const { mutes } = useMutes();
   const openLink = useExternalLink();
+  const { colors } = useTheme();
+  const sync = useICloudSyncStatus();
   const { isAvailable: proAvailable, isPro, deleteProData } = usePro();
   const { restorePurchases, isRestoring } = useRestorePurchases();
-  const { colors } = useTheme();
   const replyNotifications = useReplyNotifications();
 
   const deleteProDataWithFeedback = async () => {
@@ -229,8 +232,30 @@ export default function SettingsScreen() {
 
       <ListSection
         title="Data"
-        footer="Clearing the cache removes the saved offline copies of stories and comments and reloads them from Hacker News. Bookmarks are kept."
+        footer={`${Platform.OS === "ios" ? "Bookmarks, read history, mutes and blocked users sync across your devices with iCloud. Nothing is sent to Hacker Reader's servers.\n\n" : ""}Clearing the cache removes the saved offline copies of stories and comments and reloads them from Hacker News. Bookmarks are kept.`}
       >
+        {Platform.OS === "ios" && sync.isLoaded ? (
+          <ListRow
+            leading={<IconTile name="cloud" hue="blue" />}
+            title="iCloud Sync"
+            subtitle={
+              !sync.available
+                ? "iCloud unavailable"
+                : sync.enabled && sync.lastSyncedAt
+                  ? `Last synced ${timeAgoSpoken(sync.lastSyncedAt)}`
+                  : undefined
+            }
+            trailing={
+              <Switch
+                value={sync.available && sync.enabled}
+                disabled={!sync.available}
+                onValueChange={sync.setEnabled}
+                trackColor={{ true: colors.primary }}
+                accessibilityLabel="iCloud Sync"
+              />
+            }
+          />
+        ) : null}
         <ListRow
           leading={<IconTile name="refresh" hue="gray" />}
           title="Clear Cache"

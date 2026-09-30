@@ -81,6 +81,10 @@ export enum AnalyticsEvent {
   SUMMARY_VIEWED = "summary_viewed",
   SUMMARY_COMMENT_LINK_TAPPED = "summary_comment_link_tapped",
 
+  // iCloud sync
+  ICLOUD_SYNC_TOGGLED = "icloud_sync_toggled",
+  ICLOUD_SYNC_COMPLETED = "icloud_sync_completed",
+
   // Widget Interactions (iOS only)
   WIDGET_TAPPED = "widget_tapped",
 }

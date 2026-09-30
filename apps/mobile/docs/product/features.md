@@ -119,6 +119,18 @@ Each story displays:
 
 ---
 
+## iCloud Sync
+
+Free on every iOS device signed in to iCloud: it runs on the phone and Apple's servers, never ours.
+
+- **What syncs** - bookmarks, mutes, blocked users, hidden stories and read state (only the 500 most recent entries)
+- **How** - each collection is a last-writer-wins document in iCloud key-value storage (`NSUbiquitousKeyValueStore`), with tombstones so deletions propagate and a size budget far below the 1 MB limits; a local "last synced" state per collection detects deletions
+- **When** - on launch, on foreground, about 2 seconds after a local change, and when another device changes iCloud
+- **Settings** - Data section: an "iCloud Sync" switch (on by default when iCloud is available), "iCloud unavailable" when signed out, and a last-synced time; the Bookmarks widget refreshes after a sync changes bookmarks
+- **Not on** Android or web (the switch is hidden)
+
+---
+
 ## Hacker Reader Pro
 
 An optional subscription for features that need a server. Everything that runs on the phone stays free; Pro pays for the servers.
@@ -127,6 +139,7 @@ An optional subscription for features that need a server. Everything that runs o
 - **Features** - reply notifications, keyword alerts, AI summaries, daily digest, iCloud sync, alternate app icons (reply notifications are live; the rest are "Coming soon", each later PR flips its `status` in `lib/pro/features.ts`)
 - **Features** - reply notifications, keyword alerts, AI summaries, daily digest, iCloud sync, alternate app icons (AI summaries is available; the rest are "Coming soon" until each PR flips its `status` in `lib/pro/features.ts`)
 - **AI summaries** - "Summarize" in the story's ⋯ menu, plus a "Summarize N comments" pill in the story header above 40 comments; behind `requirePro("ai_summaries")`. Opens a sheet (`app/story/[id]/summary.tsx`) with a skeleton while generating (10-20s, polled on 202), then the article TL;DR, the discussion summary, theme cards whose "N comments" link closes the sheet and scrolls to the first cited comment, a "Where people disagree" section and a "Generated N min ago · AI can be wrong" footer. Plain text only; errors show a friendly message with Try Again. Summaries are generated once per story on the server and shared by all Pro users
+- **Features** - reply notifications, keyword alerts, AI summaries, daily digest, alternate app icons (all "Coming soon" for now; each later PR flips its `status` in `lib/pro/features.ts`)
 - **Settings** - a "Hacker Reader Pro" section: upsell row, or "Pro, thank you" with Manage Subscription; Restore Purchases; Delete Pro Data (removes the install's server-side data)
 - **Reply notifications** - the "Notify me of replies" switch (Replies screen, and Settings' Pro section) asks for notification permission, gets the Expo push token and registers it with the HN username; the API cron pushes "💬 dang replied: ..." (max 5 per run, "and N more" after that) and a tap opens the story scrolled to the reply. Off, sign-out and Delete Pro Data clear it
 - **Identity** - a random install ID in the Keychain, also the RevenueCat app user id; no account
