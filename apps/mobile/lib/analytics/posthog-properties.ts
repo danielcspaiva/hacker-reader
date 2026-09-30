@@ -78,6 +78,10 @@ export enum AnalyticsProperty {
   REPLY_COUNT = "reply_count",
   UNREAD_REPLY_COUNT = "unread_reply_count",
   NOTIFICATION_KIND = "kind",
+  IS_PRO = "is_pro",
+
+  // App icon
+  APP_ICON = "icon",
 
   // Widget
   WIDGET_SIZE = "widget_size",

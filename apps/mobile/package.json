@@ -29,6 +29,7 @@
     "@tanstack/react-query": "^5.104.0",
     "@tanstack/react-query-persist-client": "^5.104.0",
     "expo": "58.0.0-preview.8",
+    "expo-alternate-app-icons": "~8.0.0",
     "expo-application": "~58.0.1",
     "expo-constants": "~58.0.8",
     "expo-crypto": "~58.0.3",
@@ -68,6 +69,7 @@
   "devDependencies": {
     "@react-native/metro-config": "0.88.0-rc.2",
     "@types/react": "~19.3.0",
+    "sharp": "0.34.4",
     "typescript": "~6.0.3"
   },
   "private": true,

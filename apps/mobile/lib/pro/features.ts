@@ -58,7 +58,7 @@ export const PRO_FEATURES: readonly ProFeature[] = [
     description: "Pick a different icon for the home screen.",
     icon: "appIcons",
     hue: "pink",
-    status: "coming_soon",
+    status: "available",
   },
 ];
 

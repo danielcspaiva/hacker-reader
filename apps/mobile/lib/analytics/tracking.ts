@@ -9,6 +9,7 @@ import * as Application from "expo-application";
 import { usePostHog } from "posthog-react-native";
 import { Platform } from "react-native";
 
+import type { AppIconId } from "@/lib/app-icons/icons";
 import type {
   SearchDateRange,
   SearchScope,
@@ -176,6 +177,12 @@ export interface EventProperties {
   [AnalyticsEvent.TEXT_SIZE_CHANGED]: {
     from_size: TextSize;
     to_size: TextSize;
+  };
+
+  [AnalyticsEvent.APP_ICON_CHANGED]: {
+    [AnalyticsProperty.APP_ICON]: AppIconId;
+    /** Pro is required for every icon but the default. */
+    [AnalyticsProperty.IS_PRO]: boolean;
   };
 
   // Pro

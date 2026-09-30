@@ -172,6 +172,10 @@ describe("features", () => {
       PRO_FEATURES.find((f) => f.id === "reply_notifications")?.status,
       "available"
     );
+    assert.equal(
+      PRO_FEATURES.find((f) => f.id === "alternate_icons")?.status,
+      "available"
+    );
   });
 
   it("puts the highlighted feature first", () => {

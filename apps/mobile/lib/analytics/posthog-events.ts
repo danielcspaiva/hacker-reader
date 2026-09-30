@@ -63,6 +63,7 @@ export enum AnalyticsEvent {
   THEME_CHANGED = "theme_changed",
   SETTINGS_VIEWED = "settings_viewed",
   TEXT_SIZE_CHANGED = "text_size_changed",
+  APP_ICON_CHANGED = "app_icon_changed",
 
   // Offline
   OFFLINE_BANNER_SHOWN = "offline_banner_shown",
