@@ -14,6 +14,10 @@ export interface Store {
   del(...keys: string[]): Promise<void>;
   /** Increments a counter; the TTL is applied when the key is created. */
   incr(key: string, ttlSeconds: number): Promise<number>;
+  /** Adds `amount` to a counter; the TTL is applied when the key is created. */
+  incrBy(key: string, amount: number, ttlSeconds: number): Promise<number>;
+  /** SET NX with expiry: true when this caller created the key (a lock). */
+  setIfAbsent<T>(key: string, value: T, ttlSeconds: number): Promise<boolean>;
   sadd(key: string, ...members: string[]): Promise<void>;
   srem(key: string, ...members: string[]): Promise<void>;
   smembers(key: string): Promise<string[]>;
@@ -46,6 +50,28 @@ class UpstashStore implements Store {
     const count = await this.redis.incr(key);
     if (count === 1) await this.redis.expire(key, ttlSeconds);
     return count;
+  }
+
+  async incrBy(
+    key: string,
+    amount: number,
+    ttlSeconds: number
+  ): Promise<number> {
+    const total = await this.redis.incrby(key, amount);
+    if (total === amount) await this.redis.expire(key, ttlSeconds);
+    return total;
+  }
+
+  async setIfAbsent<T>(
+    key: string,
+    value: T,
+    ttlSeconds: number
+  ): Promise<boolean> {
+    const result = await this.redis.set(key, value, {
+      nx: true,
+      ex: ttlSeconds,
+    });
+    return result === "OK";
   }
 
   async sadd(key: string, ...members: string[]): Promise<void> {
