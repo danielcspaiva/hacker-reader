@@ -71,6 +71,7 @@ export enum AnalyticsProperty {
 
   // Widget
   WIDGET_SIZE = "widget_size",
+  WIDGET_KIND = "widget_kind",
 
   // General
   URL = "url",

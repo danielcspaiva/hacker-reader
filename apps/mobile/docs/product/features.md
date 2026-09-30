@@ -88,18 +88,26 @@ Each story displays:
 
 ## iOS Widgets
 
-> **Note**: iOS widgets are only available in native builds (not Expo Go). Built with `expo-widgets`; requires iOS 16.4+.
+> **Note**: iOS widgets are only available in native builds (not Expo Go). Built with `expo-widgets`; requires iOS 16.4+ (the Stories widget needs iOS 17 for its category picker).
 
-### Widget Sizes
+### Stories widget
 
+- **Category picker** - long-press, Edit Widget, choose Top, Best, New, Ask HN, Show HN or Jobs (iOS 17+); the widget label names the category, Jobs hides points and comments
 - **Small** - the #1 story as a hero card (up to 4 lines of title); tap opens that story
-- **Medium** - **2 top stories** with points, comments, domain and age; each row deep links to its story
-- **Large** - **7 top stories**, same row layout
-- **Lock screen (rectangular)** - 3 one-line titles; tap opens the top story
+- **Medium** - **3 stories** (hero plus two) with points, comments, domain and age; each deep links to its story
+- **Large** - **7 stories**, same row layout
+- **Lock screen (rectangular)** - 3 one-line titles; tap opens the first story
+- Tapping the header or background opens the feed on the widget's category
+
+### Bookmarks widget
+
+- **Medium** (2 rows) and **Large** (7 rows): your most recent bookmarks with points, domain and age; tap a row to open the story, the header to open the Bookmarks tab
+- Updates as soon as you bookmark or remove a story; with no bookmarks it shows "Bookmark stories to see them here"
+- Works offline from the last synced copy (points and comments can be stale); it does not refresh itself from the network
 
 ### Widget Features
 
-- **Two ways to stay fresh** - the app refreshes the timeline on launch, on foreground and after a Top feed pull-to-refresh; independently, a self-refreshing timeline provider (added by a config plugin) refetches the stories itself when the stored ones are older than 30 minutes, so the widget updates with the app closed
+- **Two ways to stay fresh (Stories)** - the app refreshes every category on launch, on foreground and after a Top feed pull-to-refresh; independently, a self-refreshing timeline provider (added by a config plugin) refetches them itself when the stored ones are older than 30 minutes, so the widget updates with the app closed
 - A 12 hour timeline (24 entries, 30 minutes apart) keeps relative ages correct between refreshes
 - Shows "Updated Nh ago" after 6 hours without a refresh
 - The app logo reaches the widget through the App Group container (the extension cannot read the app bundle)
