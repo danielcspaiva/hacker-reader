@@ -10,10 +10,10 @@ import {
 } from "@expo/ui/swift-ui";
 import {
   containerBackground,
-  fixedSize,
   font,
   foregroundStyle,
   frame,
+  layoutPriority,
   lineLimit,
   minimumScaleFactor,
   padding,
@@ -80,22 +80,29 @@ const HNTopStoriesWidget = (
 ) => {
   "widget";
 
-  // Height budget (content area = widget height - 2 * 16pt margins; smallest sizes:
-  // small 123, medium 123, large 313). Line heights: 13pt title ~16, 11pt meta ~13,
-  // header ~18. 2-line row = 32 + 2 + 13 = 47; 1-line row = 16 + 2 + 13 = 31.
-  //   large : 18 + 7 + rows <= 313 (2-line titles, row count from a height budget below)
-  //   medium: 18 + 8 + rows <= 123 (row count and line limits from a height budget below)
-  //   small : 18 + 6 + (3*18 + 4 + 13) + 6 + 6 + 12 = 119 <= 123 (3-line hero)
-  // The lists fill a height budget instead of a fixed row count: env has no widget size,
-  // so rows are added while they fit the smallest widget of the family (large
-  // 313 - 18 - 7 = 288pt, medium 123 - 18 - 8 = 97pt). A title's line count is estimated
-  // at ~42 chars per line (275pt text column at ~5.9pt per 13pt semibold char, less a
-  // margin for word wrap). Measured on device: 1-line row 31pt, 2-line row 47pt.
-  const LARGE_MAX_ROWS = 7;
-  const LARGE_BUDGET = 288;
-  const MEDIUM_MAX_ROWS = 2;
-  const MEDIUM_BUDGET = 97;
-  const CHARS_PER_LINE = 42;
+  // Sizing is left to SwiftUI's stack layout (the flexbox of widgets). env has no widget
+  // size, and a stack can stretch or squeeze views but cannot drop one that does not fit,
+  // so the only thing decided here is HOW MANY stories to show: as many as fit on the
+  // smallest widget of the family with every title squeezed to one line. On that minimum
+  // SwiftUI then grows titles (up to their line limit) in layoutPriority order, hero
+  // first, and flexible Spacers take whatever is still left, so every widget fills its
+  // height evenly on every iPhone.
+  // There is no header, so stories get the full height. The logo (with "Updated Nh ago"
+  // beside it when the stories are stale) sits in the bottom-right corner of every size.
+  // Minimum heights (measured on device): logo mark 16, 1-line compact row 31
+  // (13pt title 16 + 2 + 11pt meta 14), hero eyebrow 14 + 3 + title + 3 + meta 14,
+  // 17pt title line 21, 15pt 19, 12pt 15. Smallest content areas (widget - 2 * 16pt
+  // margins): large 313, medium 123.
+  //   large : 313 - hero - 7 gap - 22 logo line = rows area; rows = (area + 7) / 38.
+  //           The hero keeps its estimated lines (a 17pt line holds ~32 chars on the
+  //           smallest widget), so a long #1 costs a row rather than being cut.
+  //   medium: 123 for the columns. Left: the #1 hero (17pt, up to 3 lines) with its
+  //           stats pinned to the bottom. Right: #2 and #3 as eyebrow + 13pt title (no
+  //           stats), up to 3 lines each, then the logo line (16 + 6).
+  const LARGE_CONTENT = 313;
+  const LARGE_HERO_CHARS = 32;
+  const LARGE_MAX_ROWS = 6;
+  const MEDIUM_SIDE_WIDTH = 140;
   // Pin content to the top-leading corner; a plain VStack centres (and clips both ends of)
   // content taller than the widget.
   const pinTop = frame({
@@ -151,58 +158,60 @@ const HNTopStoriesWidget = (
 
   const logoUri = props.logoUri ?? null;
 
-  const header = (trailing: string, wordmark = true) => (
-    <HStack spacing={6} alignment="center">
-      {logoUri && fullColor ? (
-        <Image
-          uiImage={logoUri}
-          modifiers={[resizable(), frame({ width: 18, height: 18 })]}
+  const logoMark = () =>
+    logoUri && fullColor ? (
+      <Image
+        uiImage={logoUri}
+        modifiers={[resizable(), frame({ width: 16, height: 16 })]}
+      />
+    ) : (
+      <ZStack modifiers={[frame({ width: 16, height: 16 })]}>
+        <RoundedRectangle
+          cornerRadius={5}
+          modifiers={[
+            foregroundStyle(fullColor ? c.primary : "primary"),
+            widgetAccentedRenderingMode("accented"),
+            frame({ width: 16, height: 16 }),
+          ]}
         />
-      ) : (
-        <ZStack modifiers={[frame({ width: 16, height: 16 })]}>
-          <RoundedRectangle
-            cornerRadius={5}
-            modifiers={[
-              foregroundStyle(fullColor ? c.primary : "primary"),
-              widgetAccentedRenderingMode("accented"),
-              frame({ width: 16, height: 16 }),
-            ]}
-          />
-          <Text
-            modifiers={[
-              font({ size: 10, weight: "bold" }),
-              foregroundStyle(fullColor ? "#FFFFFF" : "secondary"),
-            ]}
-          >
-            Y
-          </Text>
-        </ZStack>
-      )}
-      {wordmark ? (
         <Text
           modifiers={[
-            font({ size: 11, weight: "semibold" }),
-            foregroundStyle(muted),
+            font({ size: 10, weight: "bold" }),
+            foregroundStyle(fullColor ? "#FFFFFF" : "secondary"),
+          ]}
+        >
+          Y
+        </Text>
+      </ZStack>
+    );
+
+  const staleLabel = stale ? "Updated " + timeAgo(updatedAt) + " ago" : null;
+
+  // Bottom-right brand: the logo, preceded by the stale label when there is one.
+  const brand = (withStale = true) => (
+    <HStack spacing={5} alignment="center">
+      {withStale && staleLabel ? (
+        <Text
+          modifiers={[
+            font({ size: 10, weight: "medium" }),
+            foregroundStyle(faint),
             lineLimit(1),
             minimumScaleFactor(0.8),
           ]}
         >
-          Hacker Reader
+          {staleLabel}
         </Text>
       ) : null}
-      <Spacer />
-      <Text
-        modifiers={[
-          font({ size: 10, weight: "medium" }),
-          foregroundStyle(faint),
-        ]}
-      >
-        {trailing}
-      </Text>
+      {logoMark()}
     </HStack>
   );
 
-  const meta = (s: WidgetStory, showDomain = true) => (
+  const meta = (
+    s: WidgetStory,
+    showDomain = true,
+    showComments = true,
+    tail: ReturnType<typeof brand> | null = null
+  ) => (
     <HStack spacing={3} alignment="center">
       <Image
         systemName="arrow.up"
@@ -215,56 +224,135 @@ const HNTopStoriesWidget = (
       >
         {abbrev(s.score)}
       </Text>
-      <Image
-        systemName="bubble.left"
-        size={9}
-        color={faint}
-        modifiers={[foregroundStyle(faint), padding({ leading: 4 })]}
-      />
-      <Text
-        modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
-      >
-        {abbrev(s.comments)}
-      </Text>
+      {showComments ? (
+        <Image
+          systemName="bubble.left"
+          size={9}
+          color={faint}
+          modifiers={[foregroundStyle(faint), padding({ leading: 4 })]}
+        />
+      ) : null}
+      {showComments ? (
+        <Text
+          modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
+        >
+          {abbrev(s.comments)}
+        </Text>
+      ) : null}
       <Text
         modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}
       >
         {(showDomain && s.domain ? "  " + s.domain + "  " : "  ") +
           timeAgo(s.time)}
       </Text>
+      {tail ? <Spacer minLength={6} /> : null}
+      {tail}
     </HStack>
   );
 
-  const row = (s: WidgetStory, rank: number, titleLines: number) => (
-    <HStack spacing={8} alignment="firstTextBaseline">
+  const row = (
+    s: WidgetStory,
+    rank: number,
+    maxLines: number,
+    size = 13,
+    short = false,
+    tail: ReturnType<typeof brand> | null = null
+  ) => (
+    <HStack spacing={size < 13 ? 6 : 8} alignment="firstTextBaseline">
       <Text
         modifiers={[
-          font({ size: 13, weight: "bold" }),
+          font({ size, weight: "bold" }),
           foregroundStyle(rankInk),
-          frame({ width: 14, alignment: "leading" }),
+          frame({ width: size < 13 ? 10 : 14, alignment: "leading" }),
         ]}
       >
         {String(rank)}
       </Text>
       <VStack spacing={2} alignment="leading">
+        {/* No fixedSize: the title may squeeze to one line when space is short. */}
         <Text
           modifiers={[
-            font({ size: 13, weight: "semibold" }),
+            font({ size, weight: "semibold" }),
             foregroundStyle(ink),
-            lineLimit(titleLines),
+            lineLimit(maxLines),
             minimumScaleFactor(0.9),
-            // Claim the height the lines need; otherwise the stack squeezes the
-            // first title to one line even when the widget has room to spare.
-            fixedSize({ horizontal: false, vertical: true }),
           ]}
         >
           {s.title}
         </Text>
-        {meta(s)}
+        {meta(s, !short, !short, tail)}
       </VStack>
       <Spacer />
     </HStack>
   );
+
+  // Eyebrow shared by every emphasised story: orange rank, then the domain.
+  const eyebrow = (
+    s: WidgetStory,
+    rank: number,
+    tail: ReturnType<typeof brand> | null = null
+  ) => (
+    <HStack spacing={5} alignment="firstTextBaseline">
+      <Text
+        modifiers={[
+          font({ size: 11, weight: "bold" }),
+          foregroundStyle(rankInk),
+        ]}
+      >
+        {String(rank)}
+      </Text>
+      <Text
+        modifiers={[
+          font({ size: 11, weight: "semibold" }),
+          foregroundStyle(muted),
+          lineLimit(1),
+          minimumScaleFactor(0.8),
+        ]}
+      >
+        {s.domain ? s.domain : "Hacker News"}
+      </Text>
+      <Spacer />
+      {tail}
+    </HStack>
+  );
+
+  // Story block with emphasis: eyebrow (orange rank + domain), title, meta.
+  const hero = (
+    s: WidgetStory,
+    rank: number,
+    titleSize: number,
+    titleLines: number,
+    showComments: boolean,
+    minScale = 0.9,
+    corner: ReturnType<typeof brand> | null = null,
+    // Push the meta line to the bottom of a full-height column.
+    stretch = false
+  ) => (
+    <VStack
+      spacing={3}
+      alignment="leading"
+      modifiers={
+        stretch ? [frame({ maxHeight: 10000, alignment: "topLeading" })] : []
+      }
+    >
+      {eyebrow(s, rank, corner)}
+      <Text
+        modifiers={[
+          font({ size: titleSize, weight: "semibold" }),
+          foregroundStyle(ink),
+          lineLimit(titleLines),
+          minimumScaleFactor(minScale),
+        ]}
+      >
+        {s.title}
+      </Text>
+      {stretch ? <Spacer minLength={3} /> : null}
+      {meta(s, false, showComments)}
+    </VStack>
+  );
+
+  const lineCount = (title: string, chars: number, max: number) =>
+    Math.min(max, Math.max(1, Math.ceil((title ?? "").length / chars)));
 
   // ---- Lock screen ----
   if (isAccessory) {
@@ -302,8 +390,6 @@ const HNTopStoriesWidget = (
     );
   }
 
-  const trailing = stale ? "Updated " + timeAgo(updatedAt) + " ago" : "TOP";
-
   // ---- Small: one hero story ----
   if (family === "systemSmall") {
     const s = all[0];
@@ -317,7 +403,6 @@ const HNTopStoriesWidget = (
           widgetURL(!isSample && s ? storyUrl(s.id) : feedUrl),
         ]}
       >
-        {header(trailing, false)}
         <VStack
           spacing={4}
           alignment="leading"
@@ -325,10 +410,12 @@ const HNTopStoriesWidget = (
         >
           <Text
             modifiers={[
-              font({ size: 15, weight: "semibold" }),
+              font({ size: 20, weight: "semibold" }),
               foregroundStyle(ink),
-              lineLimit(3),
-              minimumScaleFactor(0.9),
+              lineLimit(4),
+              // Short titles stay large; long ones shrink to fit four lines.
+              minimumScaleFactor(0.7),
+              layoutPriority(1),
             ]}
           >
             {s ? s.title : ""}
@@ -336,72 +423,148 @@ const HNTopStoriesWidget = (
           {s ? meta(s, false) : <Text>{""}</Text>}
         </VStack>
         <Spacer />
-        {isSample ? (
+        <HStack spacing={6} alignment="center">
           <Text
             modifiers={[
               font({ size: 10 }),
               foregroundStyle(faint),
               lineLimit(2),
+              minimumScaleFactor(0.8),
             ]}
           >
-            {loadPrompt}
+            {isSample ? loadPrompt : (staleLabel ?? "#1 on Hacker News")}
           </Text>
-        ) : (
-          <Text modifiers={[font({ size: 10 }), foregroundStyle(faint)]}>
-            {"#1 on Hacker News"}
-          </Text>
-        )}
+          <Spacer minLength={0} />
+          {brand(false)}
+        </HStack>
       </VStack>
     );
   }
 
-  // ---- Medium / Large: list ----
-  const isLarge = family === "systemLarge";
-  const listSpacing = isLarge ? 7 : 8;
-  const maxRows = isLarge ? LARGE_MAX_ROWS : MEDIUM_MAX_ROWS;
-  const budget = isLarge ? LARGE_BUDGET : MEDIUM_BUDGET;
-  // Each row takes the lines its title needs; the last row that would overflow is
-  // truncated to one line if that fits, so the list ends flush instead of leaving a gap.
-  const rows: { s: WidgetStory; lines: number }[] = [];
-  let used = 0;
-  for (const s of all.slice(0, maxRows)) {
-    const gap = rows.length > 0 ? listSpacing : 0;
-    const lines = (s.title ?? "").length > CHARS_PER_LINE ? 2 : 1;
-    if (used + gap + (lines === 2 ? 47 : 31) <= budget) {
-      rows.push({ s, lines });
-      used += gap + (lines === 2 ? 47 : 31);
-    } else {
-      if (lines === 2 && used + gap + 31 <= budget) rows.push({ s, lines: 1 });
-      break;
-    }
+  const first = all[0];
+  const sampleMods = isSample ? [redacted("placeholder")] : [];
+  const linkTo = (s: WidgetStory) => (isSample ? feedUrl : storyUrl(s.id));
+  const sampleNote = isSample ? (
+    <Text modifiers={[font({ size: 10 }), foregroundStyle(faint)]}>
+      {loadPrompt}
+    </Text>
+  ) : null;
+
+  // Full-height column: its children are laid out top to bottom, and the Spacers between
+  // them share whatever the prioritised content leaves over.
+  const fill = frame({
+    maxWidth: 10000,
+    maxHeight: 10000,
+    alignment: "topLeading",
+  });
+
+  // ---- Medium: hero on the left, #2 and #3 on the right ----
+  if (family !== "systemLarge") {
+    const side = all.slice(1, 3);
+    return (
+      <VStack
+        spacing={8}
+        alignment="leading"
+        modifiers={[pinTop, ...bg, widgetURL(feedUrl)]}
+      >
+        {sampleNote}
+        <HStack spacing={16} alignment="top" modifiers={[fill, ...sampleMods]}>
+          {first ? (
+            <Link destination={linkTo(first)}>
+              <VStack alignment="leading" modifiers={[fill, layoutPriority(3)]}>
+                {hero(first, 1, 20, 3, true, 0.75, null, true)}
+              </VStack>
+            </Link>
+          ) : null}
+          {side.length > 0 ? (
+            <VStack
+              spacing={0}
+              alignment="leading"
+              modifiers={[
+                frame({ width: MEDIUM_SIDE_WIDTH }),
+                frame({ maxHeight: 10000, alignment: "topLeading" }),
+              ]}
+            >
+              {/* #2 at the top, #3 below, the logo in the bottom-right corner level
+                  with the hero's stats. Side stories drop the stats. */}
+              {side.flatMap((s, i) => [
+                i > 0 ? <Spacer key={"gap" + s.id} minLength={10} /> : null,
+                <Link
+                  key={String(s.id)}
+                  destination={linkTo(s)}
+                  modifiers={[layoutPriority(2 - i)]}
+                >
+                  <VStack spacing={3} alignment="leading">
+                    {eyebrow(s, i + 2)}
+                    <Text
+                      modifiers={[
+                        font({ size: 13, weight: "semibold" }),
+                        foregroundStyle(ink),
+                        // #2 claims its lines first; #3 takes what is left.
+                        lineLimit(3),
+                        minimumScaleFactor(0.85),
+                      ]}
+                    >
+                      {s.title}
+                    </Text>
+                  </VStack>
+                </Link>,
+              ])}
+              <Spacer minLength={6} />
+              <HStack spacing={0} alignment="center">
+                <Spacer minLength={0} />
+                {brand()}
+              </HStack>
+            </VStack>
+          ) : null}
+        </HStack>
+      </VStack>
+    );
   }
+
+  // ---- Large: hero, then compact rows ----
+  const heroLines = first ? lineCount(first.title, LARGE_HERO_CHARS, 3) : 1;
+  const rowsArea = LARGE_CONTENT - (34 + 21 * heroLines) - 7 - 22;
+  const rows = all.slice(
+    1,
+    1 + Math.min(LARGE_MAX_ROWS, Math.floor((rowsArea + 7) / 38))
+  );
   return (
     <VStack
-      spacing={listSpacing}
+      spacing={7}
       alignment="leading"
       modifiers={[pinTop, ...bg, widgetURL(feedUrl)]}
     >
-      {header(trailing)}
-      {isSample ? (
-        <Text modifiers={[font({ size: 10 }), foregroundStyle(faint)]}>
-          {loadPrompt}
-        </Text>
-      ) : null}
-      <VStack
-        spacing={listSpacing}
-        alignment="leading"
-        modifiers={isSample ? [redacted("placeholder")] : []}
-      >
-        {rows.map(({ s, lines }, i) => (
+      {sampleNote}
+      <VStack spacing={0} alignment="leading" modifiers={[fill, ...sampleMods]}>
+        {first ? (
+          <Link destination={linkTo(first)} modifiers={[layoutPriority(10)]}>
+            <VStack
+              alignment="leading"
+              modifiers={[frame({ maxWidth: 10000, alignment: "leading" })]}
+            >
+              {hero(first, 1, 17, heroLines, true)}
+            </VStack>
+          </Link>
+        ) : null}
+        {first && rows.length > 0 ? <Spacer minLength={7} /> : null}
+        {rows.flatMap((s, i) => [
+          <Spacer key={"gap" + s.id} minLength={7} />,
+          // Earlier stories claim their second line first.
           <Link
             key={String(s.id)}
-            destination={isSample ? feedUrl : storyUrl(s.id)}
+            destination={linkTo(s)}
+            modifiers={[layoutPriority(9 - i)]}
           >
-            {row(s, i + 1, lines)}
-          </Link>
-        ))}
+            {row(s, i + 2, 2, 13, false, null)}
+          </Link>,
+        ])}
+        <Spacer minLength={6} />
+        <HStack spacing={0} alignment="center">
+          <Spacer minLength={0} />
+          {brand()}
+        </HStack>
       </VStack>
-      <Spacer />
     </VStack>
   );
 };

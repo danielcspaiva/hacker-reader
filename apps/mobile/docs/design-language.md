@@ -196,7 +196,8 @@ Rules:
 - Android: opaque header in the page colour, left-aligned title.
 - Root stack: `story/[id]`, `user/[id]` and `user/[id]/submissions` use `inline` with `headerShown: true`; `auth/login` uses `sheet`.
 - Tabs: `NativeTabs` in `app/(tabs)/_layout.tsx`, tint `primary`, `minimizeBehavior="never"`. Triggers stay literal JSX (NativeTabs has crashed on mapped children); icons come from `tabIcon(name, selectedName)` in `icon-names.ts`, which returns the `sf`/`md` props with filled variants when selected.
-- Scope is chrome, not content: the feed category belongs in the header title or a `Stack.Toolbar` menu, not a pill in the list.
+- Scope is chrome, not content: the feed category belongs in a `Stack.Toolbar` menu, not a pill in the list.
+- The feed's large title names the category (`CATEGORY_TITLES`: "Top Stories", "New Stories", "Ask HN", "Show HN", "Jobs"). The category is switched from the header-right menu: a native `Stack.Toolbar.Menu` whose icon is the current category's SF Symbol, with a checkmark on the current item and `accessibilityLabel="Category: Top"`. Don't fake a text-plus-chevron trigger; a bar item cannot combine text with an SF Symbol and the result reads as non-native.
 - `Stack.Toolbar` for screen actions, `Stack.SearchBar` for search, `Alert.alert` for confirmations.
 - Toolbar budget: at most two items on the right (ideally one primary action plus a `more` menu). Everything else goes in that `Stack.Toolbar.Menu`, with destructive actions in an inline section. Never host `@expo/ui` controls in `headerRight`; use `Stack.Toolbar.Button` / `Stack.Toolbar.Menu`.
 - An action that belongs to content lives on the content: upvote is the points pill in the story hero, not a toolbar button.

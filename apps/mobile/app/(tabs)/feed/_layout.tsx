@@ -5,7 +5,7 @@ import { LargeTitleStack } from "@/components/navigation/large-title-stack";
 export default function Layout() {
   return (
     <LargeTitleStack>
-      <Stack.Screen name="index" options={{ title: "Top" }} />
+      <Stack.Screen name="index" options={{ title: "Top Stories" }} />
     </LargeTitleStack>
   );
 }

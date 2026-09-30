@@ -7,7 +7,7 @@ import { ErrorState } from "@/components/error-state";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
-import { CATEGORY_LABELS } from "@/constants/categories";
+import { CATEGORY_LABELS, CATEGORY_TITLES } from "@/constants/categories";
 import { useFeedCategory } from "@/contexts/feed-category-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
@@ -76,7 +76,9 @@ export default function FeedScreen() {
     <>
       <Stack.Screen
         options={{
-          title: CATEGORY_LABELS[category],
+          // Large title names the category ("Top Stories"); the header-right
+          // menu (native SF Symbol button) switches it.
+          title: CATEGORY_TITLES[category],
           headerShown: true,
           headerLargeTitle: true,
         }}
