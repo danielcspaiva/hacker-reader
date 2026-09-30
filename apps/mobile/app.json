@@ -86,7 +86,21 @@
           ]
         }
       ],
-      "./plugins/with-widget-self-refresh"
+      "./plugins/with-widget-self-refresh",
+      [
+        "expo-sharing",
+        {
+          "ios": {
+            "enabled": true,
+            "appGroupId": "group.com.danielcspaiva.hnclient",
+            "extensionBundleIdentifier": "com.danielcspaiva.hnclient.ShareExtension",
+            "activationRule": {
+              "supportsWebUrlWithMaxCount": 1,
+              "supportsText": true
+            }
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

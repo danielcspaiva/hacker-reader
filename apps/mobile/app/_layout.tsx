@@ -114,6 +114,24 @@ function RootLayoutContent() {
             headerTitle: "Sign in to Hacker News",
           }}
         />
+        <Stack.Screen
+          name="submit"
+          options={{
+            ...sheetHeader,
+            sheetAllowedDetents: [0.9],
+            headerTitle: "Submit a Story",
+          }}
+        />
+        <Stack.Screen
+          name="discuss"
+          options={{
+            ...sheetHeader,
+            sheetAllowedDetents: [0.9],
+            headerTitle: "Discussions on HN",
+          }}
+        />
+        {/* Landing route of the share extension; renders nothing. */}
+        <Stack.Screen name="expo-sharing" />
       </Stack>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
     </ThemeProvider>

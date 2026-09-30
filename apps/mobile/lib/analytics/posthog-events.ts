@@ -48,6 +48,12 @@ export enum AnalyticsEvent {
   COMMENT_HIDDEN = "comment_hidden",
   COMMENT_FLAGGED = "comment_flagged",
 
+  // Submitting & sharing in
+  STORY_SUBMITTED = "story_submitted",
+  SUBMIT_DUPLICATE_FOUND = "submit_duplicate_found",
+  SHARE_EXTENSION_OPENED = "share_extension_opened",
+  DISCUSSION_FOUND = "discussion_found",
+
   // Authentication
   LOGIN_INITIATED = "login_initiated",
   LOGIN_COMPLETED = "login_completed",

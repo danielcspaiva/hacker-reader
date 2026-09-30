@@ -40,6 +40,8 @@ export const hnKeys = {
     "comment-story-id",
     commentId,
   ],
+  /** Stories already submitted for a link (the share / "Discuss on HN" lookup). */
+  discussions: (url: string): ["discussions", string] => ["discussions", url],
   votes: (): ["votes"] => ["votes"],
   /** Bookmarked story ids; also the prefix of every bookmark query. */
   bookmarks: (): ["bookmarks"] => ["bookmarks"],

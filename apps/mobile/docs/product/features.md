@@ -158,6 +158,19 @@ Each story displays:
 - **Error Recovery** - Automatic rollback on network errors
 - **Smart Hooks** - Dedicated `use-comment-mutation` and `use-delete-comment-mutation` hooks
 
+#### Submitting Stories
+
+- **Submit sheet** - "Submit a Story…" in the feed header menu and "Submit a story" on your Profile; title (80-character counter), URL and text, prefilled from a shared link
+- **Duplicates** - HN redirecting to an existing item shows "Open existing discussion" instead of posting
+- **Signed out** - the sheet shows a sign-in prompt that opens the login sheet
+- **After posting** - success haptic, the sheet closes and the New feed refreshes
+
+#### Discuss on HN (share extension)
+
+- Share a web link from Safari or any app to Hacker Reader; the link is looked up on Algolia (tracking parameters, `www.` and trailing slash ignored)
+- Existing discussions open in a "Discussions on HN" sheet sorted by points, with "Submit it" at the bottom; with none, the Submit sheet opens prefilled
+- `hnclient://discuss?url=...` opens the same lookup without the extension
+
 #### Rate Limiting
 
 - **Client-Side Throttling** - 30 actions per minute limit

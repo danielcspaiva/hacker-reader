@@ -128,6 +128,17 @@ export default function FeedScreen() {
             >
               Past Front Pages…
             </Stack.Toolbar.MenuAction>
+            <Stack.Toolbar.MenuAction
+              icon={ICON_GLYPHS.compose.ios}
+              onPress={() =>
+                router.push({
+                  pathname: "/submit",
+                  params: { source: "feed_menu" },
+                })
+              }
+            >
+              Submit a Story…
+            </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
       </Stack.Toolbar>
