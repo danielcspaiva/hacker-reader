@@ -29,6 +29,8 @@ interface CommentItemProps {
   replyCount: number;
   isCollapsed: boolean;
   isOP: boolean;
+  /** Posted since your previous visit. */
+  isNew?: boolean;
   isHighlighted?: boolean;
   onToggleCollapse: (comment: CommentType) => void;
   onOpenActions: (comment: CommentType) => void;
@@ -45,6 +47,7 @@ export function CommentItem({
   replyCount,
   isCollapsed,
   isOP,
+  isNew = false,
   isHighlighted = false,
   onToggleCollapse,
   onOpenActions,
@@ -155,6 +158,11 @@ export function CommentItem({
             ]}
           >
             {isOP ? <Badge label="OP" tone="primary" /> : null}
+            {isNew ? (
+              <View accessible accessibilityLabel="New comment">
+                <Badge label="NEW" tone="primary" />
+              </View>
+            ) : null}
             <Text variant="caption" tone="muted" numeric>
               {timeAgo(comment.time)}
             </Text>

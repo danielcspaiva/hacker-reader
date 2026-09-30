@@ -167,7 +167,7 @@ The app uses a **React Query + HN API** architecture:
 1. **API Layer** (`apps/mobile/lib/hn/`):
    - `read/` - Firebase (`firebase.ts`, `getCategoryStoryIds`/`getItem`/`getItems`/`getUser`) and Algolia (`algolia.ts`) fetchers, comment merge and tree helpers, `hnKeys` query keys (use it for every query key, including `hnKeys.allStories()` for invalidation)
    - `web/` - authenticated HTML client (`write-api.ts`), parsers, rate limiter, shared entity decoding
-   - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
+   - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items, read stories) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
    - `constants.ts` holds the base URLs (Firebase: `https://hacker-news.firebaseio.com/v0`); `errors.ts`/`session.ts` hold `HNAuthError`/`SecureSession`
    - Import rule: hooks and contexts import from the `@/lib/hn` barrel (types, `STORY_CATEGORIES`/`StoryCategory`, read API, keys, errors, session, write API); `local/*` is imported by deep path; parsers and the rate limiter are internal to `lib/hn`
    - Neighbours of `lib/hn`: `lib/format/` (`time.ts` `timeAgo`, `url.ts` `getDomain`), `lib/html/` (`entities.ts`, `parse.ts` with `stripHTML`/`parseHTMLWithLinks`), `lib/link-preview/og.ts`, `lib/observability/report-error.ts`, `lib/analytics/`, `lib/haptics.ts`, `lib/widgets/`
@@ -236,6 +236,13 @@ White cards on a warm grey page / warm-charcoal surfaces in the app icon's orang
 - `hooks/use-theme.ts` - `useTheme()` returns `{ scheme, colors }`; the one way to read colours
 - `constants/colors.ts` - raw light/dark tokens (dependency-free); `constants/theme.ts` re-exports and adds `Radius`, `GUTTER`, `Fonts`, `WashAlpha`, `withAlpha`
 - `components/navigation/navigation-theme.ts` - React Navigation theme built from tokens, applied in the root layout
+
+### Read State
+
+- `lib/hn/read-state.ts` (pure, node-tested) and `lib/hn/local/read-stories.ts` (`@read_stories`, capped at 2,000, newest first): `{ id, readAt, commentCount, maxSeenCommentId? }` per opened story. HN ids only grow, so "new since last visit" is `comment.id > maxSeenCommentId`.
+- `hooks/use-read-stories.ts`: one query (`hnKeys.readStories()`); `useReadEntry(id)` reads one story through an id index built once per data change (O(1) per card); `useReadStories()` has the writes. `useStoryActions` exposes `readEntry` and `handleToggleRead`.
+- `hooks/use-story-visit.ts` (called by `StoryDetail`, skipped in peek previews) records the visit and returns the entry from BEFORE it, which drives the `NEW` badge on `CommentItem` and the floating `NextNewCommentButton`. "Mark as Read" from the feed keeps the stored max id, so it never invents markers.
+- `StoryCard`: read title in `muted` tone, a `+N` primary `Badge` by the comment count when `descendants` grew past the stored `commentCount`, "Read"/"N new comments" in the accessibility label. Settings > Data has "Clear Reading History".
 
 ### Comments System
 

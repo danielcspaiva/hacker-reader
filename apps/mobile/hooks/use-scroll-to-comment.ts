@@ -4,6 +4,20 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 const SCROLL_DELAY_MS = 350;
 const HIGHLIGHT_MS = 2500;
 
+/** Scrolls a comment row to just below the header. */
+export function scrollToCommentRow<T>(
+  listRef: RefObject<FlashListRef<T> | null>,
+  index: number,
+  topOffset: number
+) {
+  void listRef.current?.scrollToIndex({
+    index,
+    animated: true,
+    viewPosition: 0,
+    viewOffset: -topOffset,
+  });
+}
+
 interface UseScrollToCommentOptions<T> {
   listRef: RefObject<FlashListRef<T> | null>;
   /** The `commentId` route param, if the screen was opened on a comment. */
@@ -31,12 +45,7 @@ export function useScrollToComment<T>({
     if (!commentId || index < 0 || scrolledTo.current === commentId) return;
     const timer = setTimeout(() => {
       scrolledTo.current = commentId;
-      void listRef.current?.scrollToIndex({
-        index,
-        animated: true,
-        viewPosition: 0,
-        viewOffset: -topOffset,
-      });
+      scrollToCommentRow(listRef, index, topOffset);
       setHighlightedId(Number(commentId));
     }, SCROLL_DELAY_MS);
     return () => clearTimeout(timer);

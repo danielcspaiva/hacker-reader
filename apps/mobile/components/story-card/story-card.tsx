@@ -10,7 +10,7 @@ import { useStoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
 import { timeAgoSpoken } from "@/lib/format/time";
 import { getDomain } from "@/lib/format/url";
-import type { HNItem } from "@/lib/hn";
+import { newCommentCount, type HNItem } from "@/lib/hn";
 
 import { StoryCardMetadata } from "./story-card-metadata";
 
@@ -54,19 +54,24 @@ export const thumbnailPanel = {
 export function StoryCard({ story, rank }: StoryCardProps) {
   const { colors } = useTheme();
   const actions = useStoryActions(story);
-  const { isBookmarked } = actions;
+  const { isBookmarked, readEntry } = actions;
+  const isRead = readEntry !== undefined;
   const domain = getDomain(story.url);
   const points = story.score ?? 0;
   const comments = story.descendants || 0;
+  const newComments = newCommentCount(readEntry, comments);
   const accessibilityLabel = [
     rank !== undefined ? `${rank}. ${story.title ?? ""}` : story.title,
     domain,
     `${points} ${points === 1 ? "point" : "points"}`,
     `${comments} ${comments === 1 ? "comment" : "comments"}`,
+    newComments > 0 &&
+      `${newComments} new ${newComments === 1 ? "comment" : "comments"}`,
     story.by && `by ${story.by}`,
     timeAgoSpoken(story.time || 0),
     actions.hasVoted && "Upvoted",
     isBookmarked && "Bookmarked",
+    isRead && "Read",
   ]
     .filter(Boolean)
     .join(", ");
@@ -95,6 +100,13 @@ export function StoryCard({ story, rank }: StoryCardProps) {
             title="Share"
             icon={ICON_GLYPHS.share.ios}
             onPress={actions.handleShare}
+          />
+          <Link.MenuAction
+            title={isRead ? "Mark as Unread" : "Mark as Read"}
+            icon={
+              isRead ? ICON_GLYPHS.markUnread.ios : ICON_GLYPHS.markRead.ios
+            }
+            onPress={actions.handleToggleRead}
           />
           <Link.Menu title="More" icon={ICON_GLYPHS.more.ios}>
             <Link.MenuAction
@@ -185,6 +197,8 @@ export function StoryCard({ story, rank }: StoryCardProps) {
               <Text
                 variant="subtitle"
                 weight="semibold"
+                // Read stories dim to the secondary ink: quieter, not disabled.
+                tone={isRead ? "muted" : "default"}
                 numberOfLines={3}
                 style={styles.title}
               >
@@ -192,7 +206,11 @@ export function StoryCard({ story, rank }: StoryCardProps) {
               </Text>
             </View>
 
-            <StoryCardMetadata story={story} hasVoted={actions.hasVoted} />
+            <StoryCardMetadata
+              story={story}
+              hasVoted={actions.hasVoted}
+              newComments={newComments}
+            />
           </View>
 
           {story.url ? (

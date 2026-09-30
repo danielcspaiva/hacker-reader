@@ -60,6 +60,7 @@ Each story displays:
 - **HTML Parsing** - Properly formatted text with clickable links
 - **Lazy Loading** - Comments fetched individually for performance
 - **Filtered Content** - Dead/deleted comments automatically hidden
+- **Read State** - Opened stories dim in every list; a "+N" badge shows comments added since your last visit; new comments are marked `NEW` with a "Next new comment" button; Mark as Read/Unread in the card menu; Clear Reading History in Settings
 
 ### Navigation
 
