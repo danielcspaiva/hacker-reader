@@ -1,4 +1,5 @@
 import { FlashList, type FlashListRef } from "@shopify/flash-list";
+import { Stack } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 
 import { useHeaderOverlapInset } from "@/components/navigation/large-title-stack";
@@ -56,6 +57,9 @@ export function StoryDetail({
   const { isBlocked } = useBlockedUsers();
   const actions = useStoryActions(story);
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
+  // Story title shows in the nav bar once the hero title scrolls under it.
+  const titleBottom = useRef(Infinity);
+  const [titleInHeader, setTitleInHeader] = useState(false);
   const [composer, setComposer] = useState<Composer | null>(null);
   const openCommentActions = useCommentActions({
     storyId: story.id,
@@ -104,7 +108,12 @@ export function StoryDetail({
   return (
     <>
       {isInsidePreview ? null : (
-        <StoryToolbar story={story} actions={actions} />
+        <>
+          <Stack.Screen
+            options={{ title: titleInHeader ? (story.title ?? "") : "" }}
+          />
+          <StoryToolbar story={story} actions={actions} />
+        </>
       )}
       <FlashList
         ref={listRef}
@@ -127,6 +136,9 @@ export function StoryDetail({
             story={story}
             hasVoted={actions.hasVoted}
             onVote={actions.handleVote}
+            onTitleBottomChange={(bottom) => {
+              titleBottom.current = bottom;
+            }}
           />
         }
         ListEmptyComponent={
@@ -138,6 +150,15 @@ export function StoryDetail({
           />
         }
         contentInsetAdjustmentBehavior="automatic"
+        scrollEventThrottle={16}
+        onScroll={(e) => {
+          if (isInsidePreview) return;
+          // contentOffset.y is negative by the inset while adjusted, so the
+          // title is under the bar once y passes its bottom edge minus that.
+          const y = e.nativeEvent.contentOffset.y;
+          const past = y + headerInset > titleBottom.current;
+          if (past !== titleInHeader) setTitleInHeader(past);
+        }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={

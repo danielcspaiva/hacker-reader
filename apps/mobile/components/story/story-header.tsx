@@ -1,4 +1,5 @@
 import { Link } from "expo-router";
+import { useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { LinkPreview } from "@/components/link-preview";
@@ -17,6 +18,8 @@ interface StoryHeaderProps {
   story: StoryWithComments;
   hasVoted: boolean;
   onVote: () => void;
+  /** Bottom edge of the hero title, in list content coordinates. */
+  onTitleBottomChange?: (bottom: number) => void;
 }
 
 const KIND_PREFIX = /^(ask|show|launch) hn:?\s*/i;
@@ -37,7 +40,14 @@ function splitKind(title: string): SplitTitle {
   };
 }
 
-export function StoryHeader({ story, hasVoted, onVote }: StoryHeaderProps) {
+export function StoryHeader({
+  story,
+  hasVoted,
+  onVote,
+  onTitleBottomChange,
+}: StoryHeaderProps) {
+  const heroY = useRef(0);
+  const titleBottomInHero = useRef(0);
   const { colors } = useTheme();
   const openLink = useExternalLink();
 
@@ -48,7 +58,13 @@ export function StoryHeader({ story, hasVoted, onVote }: StoryHeaderProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.hero}>
+      <View
+        style={styles.hero}
+        onLayout={(e) => {
+          heroY.current = e.nativeEvent.layout.y;
+          onTitleBottomChange?.(heroY.current + titleBottomInHero.current);
+        }}
+      >
         {domain || kind ? (
           <View style={styles.eyebrow}>
             {kind ? (
@@ -59,7 +75,17 @@ export function StoryHeader({ story, hasVoted, onVote }: StoryHeaderProps) {
             ) : null}
           </View>
         ) : null}
-        <Text variant="headline" serif selectable accessibilityRole="header">
+        <Text
+          variant="headline"
+          serif
+          selectable
+          accessibilityRole="header"
+          onLayout={(e) => {
+            const { y, height } = e.nativeEvent.layout;
+            titleBottomInHero.current = y + height;
+            onTitleBottomChange?.(heroY.current + titleBottomInHero.current);
+          }}
+        >
           {title}
         </Text>
         <View style={styles.byline}>

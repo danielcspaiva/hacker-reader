@@ -1,3 +1,4 @@
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -45,6 +46,8 @@ export function StoryCommentInput({
   const { isAuthenticated } = useHNAuth();
   const { bottom } = useSafeAreaInsets();
 
+  const hasLiquidGlass = isLiquidGlassAvailable();
+  const [keyboardShown, setKeyboardShown] = useState(false);
   const [commentText, setCommentText] = useState("");
   const inputRef = useRef<TextInputInstance>(null);
 
@@ -59,6 +62,22 @@ export function StoryCommentInput({
       onClose();
     },
   });
+
+  // KeyboardAvoidingView already lifts the card to the top of the keyboard,
+  // which covers the home indicator area. The safe-area margin only applies
+  // while the keyboard is down, otherwise it is added on top as a dead strip.
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, () => setKeyboardShown(true));
+    const hide = Keyboard.addListener(hideEvent, () => setKeyboardShown(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (!isCommentInputVisible) return;
@@ -93,29 +112,40 @@ export function StoryCommentInput({
     <>
       {!isCommentInputVisible && (
         <View style={[styles.fabContainer, { bottom: bottom + 16 }]}>
-          <Pressable
-            onPress={() => {
-              hapticSelection();
-              onOpen();
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Add a comment"
-            style={({ pressed }) => [
+          <GlassView
+            glassEffectStyle="regular"
+            // A translucent tint keeps the glass visible; an opaque one reads
+            // as a flat orange disc.
+            tintColor={withAlpha(colors.primary, 0.75)}
+            isInteractive
+            style={[
               styles.fab,
-              {
-                backgroundColor: colors.primary,
-                opacity: pressed ? 0.85 : 1,
-                transform: [{ scale: pressed ? 0.96 : 1 }],
-              },
+              !hasLiquidGlass && { backgroundColor: colors.primary },
             ]}
           >
-            <Icon
-              name="compose"
-              size={24}
-              weight="medium"
-              color={colors.primaryForeground}
-            />
-          </Pressable>
+            <Pressable
+              onPress={() => {
+                hapticSelection();
+                onOpen();
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Add a comment"
+              style={({ pressed }) => [
+                styles.fabPress,
+                !hasLiquidGlass && {
+                  opacity: pressed ? 0.85 : 1,
+                  transform: [{ scale: pressed ? 0.96 : 1 }],
+                },
+              ]}
+            >
+              <Icon
+                name="compose"
+                size={24}
+                weight="medium"
+                color={colors.primaryForeground}
+              />
+            </Pressable>
+          </GlassView>
         </View>
       )}
 
@@ -130,7 +160,7 @@ export function StoryCommentInput({
               styles.inputContainer,
               {
                 backgroundColor: colors.card,
-                marginBottom: Math.max(bottom, 8),
+                marginBottom: keyboardShown ? 8 : Math.max(bottom, 8),
                 shadowColor: colors.foreground,
               },
             ]}
@@ -237,6 +267,11 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: Radius.pill,
     borderCurve: "continuous",
+    overflow: "hidden",
+  },
+  fabPress: {
+    width: 56,
+    height: 56,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -49,7 +49,11 @@ export default function StoryDetailScreen() {
 
   return (
     <>
-      {isInsidePreview ? null : <Stack.Screen options={{ title: "" }} />}
+      {isInsidePreview ? null : (
+        <Stack.Screen
+          options={{ title: "", scrollEdgeEffects: { top: "hard" } }}
+        />
+      )}
       <View
         style={[
           styles.fill,

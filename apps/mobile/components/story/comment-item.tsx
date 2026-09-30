@@ -1,5 +1,13 @@
 import { router } from "expo-router";
+import { useEffect, useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import Animated, {
+  FadeIn,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { Badge, Icon, Text } from "@/components/ui";
 import { GUTTER, withAlpha } from "@/constants/theme";
@@ -45,6 +53,29 @@ export function CommentItem({
 
   const hasChildren = replyCount > 0;
   const railCount = Math.min(depth, MAX_RAILS);
+  const reduceMotion = useReducedMotion();
+
+  const toggle = () => {
+    hapticSelection();
+    onToggleCollapse(comment);
+  };
+
+  // Chevron points down when collapsed, up when expanded. Rows are recycled by
+  // FlashList, so snap (never tween) when the row now shows another comment.
+  const rotation = useSharedValue(isCollapsed ? 0 : 180);
+  const shownId = useRef<number | null>(null);
+  useEffect(() => {
+    const target = isCollapsed ? 0 : 180;
+    if (reduceMotion || shownId.current !== comment.id) {
+      rotation.value = target;
+    } else {
+      rotation.value = withTiming(target, { duration: 180 });
+    }
+    shownId.current = comment.id;
+  }, [comment.id, isCollapsed, reduceMotion, rotation]);
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
 
   return (
     <View
@@ -74,7 +105,16 @@ export function CommentItem({
           ))}
         </View>
       ) : null}
-      <View style={styles.body}>
+      {/* Tapping anywhere on the body toggles the subtree. Inner pressables
+          (username, header, actions) and link spans handle their own taps;
+          accessible={false} keeps them individually reachable for VoiceOver,
+          whose collapse control is the header button. */}
+      <Pressable
+        style={styles.body}
+        accessible={false}
+        disabled={!hasChildren}
+        onPress={toggle}
+      >
         <View style={styles.header}>
           <Pressable
             hitSlop={8}
@@ -94,16 +134,16 @@ export function CommentItem({
             </Text>
           </Pressable>
           <Pressable
-            onPress={
-              hasChildren
-                ? () => {
-                    hapticSelection();
-                    onToggleCollapse(comment);
-                  }
-                : undefined
-            }
+            onPress={hasChildren ? toggle : undefined}
             disabled={!hasChildren}
             accessibilityRole="button"
+            accessibilityHint={
+              hasChildren
+                ? isCollapsed
+                  ? "Shows the replies"
+                  : "Hides the replies"
+                : undefined
+            }
             accessibilityLabel={
               isCollapsed
                 ? `Expand comment by ${comment.by}, ${replyCount} replies`
@@ -121,14 +161,20 @@ export function CommentItem({
             {hasChildren ? (
               <View style={styles.collapse}>
                 {isCollapsed ? (
-                  <Badge label={`+${replyCount}`} tone="neutral" />
+                  <Animated.View
+                    entering={reduceMotion ? undefined : FadeIn.duration(150)}
+                  >
+                    <Badge label={`+${replyCount}`} tone="neutral" />
+                  </Animated.View>
                 ) : null}
-                <Icon
-                  name={isCollapsed ? "chevronDown" : "chevronUp"}
-                  size={12}
-                  weight="semibold"
-                  color={colors.tertiaryForeground}
-                />
+                <Animated.View style={chevronStyle}>
+                  <Icon
+                    name="chevronDown"
+                    size={12}
+                    weight="semibold"
+                    color={colors.tertiaryForeground}
+                  />
+                </Animated.View>
               </View>
             ) : null}
           </Pressable>
@@ -151,7 +197,7 @@ export function CommentItem({
         {isCollapsed ? null : (
           <HTMLText html={comment.text} variant="callout" />
         )}
-      </View>
+      </Pressable>
     </View>
   );
 }
