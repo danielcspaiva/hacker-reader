@@ -2,7 +2,10 @@ import { StyleSheet, View } from "react-native";
 
 import { LinkCard } from "@/components/link-card";
 import { Card, Icon, INLINE_ICON_SIZE, Text } from "@/components/ui";
-import { useCommentContext } from "@/hooks/use-comment-context";
+import {
+  useCommentContext,
+  type KnownCommentContext,
+} from "@/hooks/use-comment-context";
 import { useTheme } from "@/hooks/use-theme";
 import { timeAgo, timeAgoSpoken } from "@/lib/format/time";
 import type { HNItem } from "@/lib/hn";
@@ -10,13 +13,21 @@ import { stripHTML } from "@/lib/html/parse";
 
 interface SubmissionCommentCardProps {
   comment: HNItem;
+  /** Story context already known (search results), which skips the lookups. */
+  known?: KnownCommentContext;
+  /** Show the comment's author in the header row (search results). */
+  showAuthor?: boolean;
 }
 
 const PREVIEW_LENGTH = 220;
 
-export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
+export function SubmissionCommentCard({
+  comment,
+  known,
+  showAuthor = false,
+}: SubmissionCommentCardProps) {
   const { colors } = useTheme();
-  const { label, storyId } = useCommentContext(comment);
+  const { label, storyId } = useCommentContext(comment, known);
 
   const text = comment.text ? stripHTML(comment.text) : "";
   const preview =
@@ -30,6 +41,7 @@ export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
         !label || label.startsWith("Reply to")
           ? (label ?? "Comment")
           : `Comment on ${label}`,
+        showAuthor && comment.by ? `by ${comment.by}` : null,
         timeAgoSpoken(comment.time ?? 0),
         preview,
       ]
@@ -53,7 +65,9 @@ export function SubmissionCommentCard({ comment }: SubmissionCommentCardProps) {
             {label ?? "Comment"}
           </Text>
           <Text variant="caption" tone="tertiary" numeric>
-            {timeAgo(comment.time ?? 0)}
+            {showAuthor && comment.by
+              ? `${comment.by} · ${timeAgo(comment.time ?? 0)}`
+              : timeAgo(comment.time ?? 0)}
           </Text>
         </View>
         <Text variant="callout" numberOfLines={5}>

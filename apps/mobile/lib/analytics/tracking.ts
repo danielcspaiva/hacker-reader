@@ -9,7 +9,12 @@ import * as Application from "expo-application";
 import { usePostHog } from "posthog-react-native";
 import { Platform } from "react-native";
 
-import type { StoryCategory } from "@/lib/hn";
+import type {
+  SearchDateRange,
+  SearchScope,
+  SearchSort,
+  StoryCategory,
+} from "@/lib/hn";
 import { reportError } from "@/lib/observability/report-error";
 
 import { AnalyticsEvent } from "./posthog-events";
@@ -56,6 +61,11 @@ export interface EventProperties {
   [AnalyticsEvent.SEARCH_PERFORMED]: {
     [AnalyticsProperty.QUERY]: string;
     [AnalyticsProperty.RESULTS_COUNT]: number;
+    [AnalyticsProperty.SEARCH_SORT]: SearchSort;
+    [AnalyticsProperty.SEARCH_SCOPE]: SearchScope;
+    [AnalyticsProperty.SEARCH_DATE_RANGE]: SearchDateRange;
+    [AnalyticsProperty.SEARCH_MIN_POINTS]: number;
+    [AnalyticsProperty.SEARCH_HAS_AUTHOR]: boolean;
   };
   [AnalyticsEvent.SEARCH_RESULT_CLICKED]: {
     [AnalyticsProperty.QUERY]: string;

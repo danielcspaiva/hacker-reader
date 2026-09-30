@@ -1,4 +1,5 @@
 import type { StoryCategory } from "../constants";
+import type { SearchOptions } from "./search-params";
 
 /**
  * Query-key factory: the only place query-key literals live. Return types are
@@ -23,9 +24,14 @@ export const hnKeys = {
   ogMetadata: (
     url: string | undefined
   ): ["og-metadata", string | undefined] => ["og-metadata", url],
-  search: (query: string): ["algolia-search", string] => [
+  /** Every param that changes the results is part of the key. */
+  search: (
+    query: string,
+    options: SearchOptions
+  ): ["algolia-search", string, SearchOptions] => [
     "algolia-search",
     query,
+    options,
   ],
   /** Parent story id resolved for a comment (submissions screen). */
   commentStory: (commentId: number): ["comment-story-id", number] => [
@@ -39,5 +45,6 @@ export const hnKeys = {
   hidden: (): ["hidden-stories"] => ["hidden-stories"],
   readStories: (): ["read-stories"] => ["read-stories"],
   blockedUsers: (): ["blockedUsers"] => ["blockedUsers"],
+  searchOptions: (): ["search-options"] => ["search-options"],
   recentSearches: (): ["recent-searches"] => ["recent-searches"],
 };
