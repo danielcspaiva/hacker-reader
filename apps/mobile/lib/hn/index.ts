@@ -13,6 +13,7 @@ export * from "./read/merge";
 export * from "./read/comment-tree";
 export * from "./read/keys";
 export * from "./read-state";
+export * from "./replies";
 export * from "./errors";
 export * from "./mutes-match";
 export * from "./session";

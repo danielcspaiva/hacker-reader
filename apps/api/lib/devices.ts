@@ -202,7 +202,8 @@ export async function upsertDevice(
     platform: input.platform,
     appVersion: input.appVersion,
     timezone: input.timezone,
-    prefs: input.prefs ?? existing?.prefs ?? {},
+    // Merged, so a feature toggling its own pref leaves the others alone.
+    prefs: { ...existing?.prefs, ...input.prefs },
     createdAt: existing?.createdAt ?? timestamp,
     updatedAt: timestamp,
   };

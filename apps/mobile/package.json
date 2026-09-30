@@ -41,6 +41,7 @@
     "expo-linking": "~58.0.8",
     "expo-localization": "~58.0.1",
     "expo-network": "~58.0.2",
+    "expo-notifications": "~58.0.9",
     "expo-router": "~58.0.9",
     "expo-secure-store": "~58.0.0",
     "expo-sharing": "58.0.12",

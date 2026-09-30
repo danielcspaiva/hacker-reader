@@ -36,6 +36,7 @@ Pro is an optional subscription for features that need a server. Everything that
 - **Purchase status**: handled by Apple and RevenueCat, which receive the install ID to tell us whether your subscription is active. We never see payment details.
 - **Device details**: platform, app version and time zone, sent with the install ID while Pro is active.
 - **Only for features that need it**: your push notification token, and the Hacker News username you choose to share for reply notifications.
+- **Reply notifications**: only when you switch them on. Your username and push token are sent to our server, which reads your public submissions from the Hacker News API every few minutes and sends a push when someone replies. It keeps one number per username (the newest reply it has seen, refreshed on every check and dropped about 3 days after you stop) so it does not notify twice. Turning the switch off, signing out of Hacker News or using **Delete Pro Data** removes the username from our server. The free Replies inbox in your profile runs entirely on your phone and never contacts our server.
 - **Nothing is sold.** Delete it any time with **Delete Pro Data** in Settings (or by email); otherwise it expires on its own about 45 days after the app last registered (Pro users register on every launch), so it is gone well after a subscription lapses.
 
 ## Full Privacy Policy

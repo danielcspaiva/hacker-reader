@@ -27,7 +27,7 @@ export const PRO_FEATURES: readonly ProFeature[] = [
     description: "A push when someone replies to your comments or stories.",
     icon: "notifications",
     hue: "orange",
-    status: "coming_soon",
+    status: "available",
   },
   {
     id: "keyword_alerts",

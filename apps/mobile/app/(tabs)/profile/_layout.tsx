@@ -7,6 +7,7 @@ export default function Layout() {
     <LargeTitleStack>
       <Stack.Screen name="index" options={{ title: "Profile" }} />
       <Stack.Screen name="submissions" />
+      <Stack.Screen name="replies" options={{ title: "Replies" }} />
     </LargeTitleStack>
   );
 }

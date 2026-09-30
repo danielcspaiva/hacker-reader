@@ -73,6 +73,10 @@ export enum AnalyticsEvent {
   PURCHASE_COMPLETED = "purchase_completed",
   PURCHASE_FAILED = "purchase_failed",
   PURCHASE_RESTORED = "purchase_restored",
+  REPLIES_VIEWED = "replies_viewed",
+  REPLY_NOTIFICATIONS_ENABLED = "reply_notifications_enabled",
+  REPLY_NOTIFICATIONS_DISABLED = "reply_notifications_disabled",
+  NOTIFICATION_OPENED = "notification_opened",
 
   // Widget Interactions (iOS only)
   WIDGET_TAPPED = "widget_tapped",

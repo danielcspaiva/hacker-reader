@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Alert, Platform } from "react-native";
+import { Alert, Platform, Switch } from "react-native";
 
 import {
   ListRow,
@@ -28,7 +28,9 @@ import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useMutes } from "@/hooks/use-mutes";
 import { useReadStories } from "@/hooks/use-read-stories";
+import { useReplyNotifications } from "@/hooks/use-reply-notifications";
 import { useRestorePurchases } from "@/hooks/use-restore-purchases";
+import { useTheme } from "@/hooks/use-theme";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { hapticNotify, Haptics } from "@/lib/haptics";
 import { reportError } from "@/lib/observability/report-error";
@@ -64,10 +66,13 @@ export default function SettingsScreen() {
   const openLink = useExternalLink();
   const { isAvailable: proAvailable, isPro, deleteProData } = usePro();
   const { restorePurchases, isRestoring } = useRestorePurchases();
+  const { colors } = useTheme();
+  const replyNotifications = useReplyNotifications();
 
   const deleteProDataWithFeedback = async () => {
     try {
       await deleteProData();
+      await replyNotifications.forget();
       hapticNotify(Haptics.NotificationFeedbackType.Success);
       Alert.alert("Pro data deleted", "Your server-side Pro data was removed.");
     } catch (error) {
@@ -105,6 +110,23 @@ export default function SettingsScreen() {
               onPress={() => router.push("/pro")}
             />
           )}
+          {isPro && replyNotifications.isAvailable ? (
+            <ListRow
+              leading={<IconTile name="notifications" hue="orange" />}
+              title="Reply notifications"
+              subtitle="A push when someone replies to you"
+              chevron={false}
+              trailing={
+                <Switch
+                  value={replyNotifications.isOn}
+                  disabled={replyNotifications.isBusy}
+                  onValueChange={replyNotifications.setOn}
+                  trackColor={{ true: colors.primary }}
+                  accessibilityLabel="Reply notifications"
+                />
+              }
+            />
+          ) : null}
           {isPro ? (
             <ListRow
               leading={<IconTile name="payment" hue="gray" />}

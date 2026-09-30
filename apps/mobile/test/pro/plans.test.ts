@@ -160,10 +160,18 @@ describe("hasProEntitlement", () => {
 });
 
 describe("features", () => {
-  it("has unique ids and all six start as coming soon", () => {
+  it("has unique ids and a known status each", () => {
     const ids = PRO_FEATURES.map((feature) => feature.id);
     assert.equal(new Set(ids).size, 6);
-    assert.ok(PRO_FEATURES.every((f) => f.status === "coming_soon"));
+    assert.ok(
+      PRO_FEATURES.every(
+        (f) => f.status === "available" || f.status === "coming_soon"
+      )
+    );
+    assert.equal(
+      PRO_FEATURES.find((f) => f.id === "reply_notifications")?.status,
+      "available"
+    );
   });
 
   it("puts the highlighted feature first", () => {

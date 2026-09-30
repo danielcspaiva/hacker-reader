@@ -194,6 +194,17 @@ export interface EventProperties {
     is_pro: boolean;
   };
 
+  [AnalyticsEvent.REPLIES_VIEWED]: {
+    [AnalyticsProperty.REPLY_COUNT]: number;
+    [AnalyticsProperty.UNREAD_REPLY_COUNT]: number;
+  };
+  [AnalyticsEvent.REPLY_NOTIFICATIONS_ENABLED]: Record<string, never>;
+  [AnalyticsEvent.REPLY_NOTIFICATIONS_DISABLED]: Record<string, never>;
+  [AnalyticsEvent.NOTIFICATION_OPENED]: {
+    /** What sent it: "reply", later others. */
+    [AnalyticsProperty.NOTIFICATION_KIND]: string;
+  };
+
   // Widget Interactions
   // Offline
   [AnalyticsEvent.OFFLINE_BANNER_SHOWN]: Record<string, never>;
