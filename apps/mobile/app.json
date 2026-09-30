@@ -73,11 +73,11 @@
             }
           },
           {
-            "name": "Paper",
-            "ios": "./assets/images/alt-icons/paper.png",
+            "name": "Ember",
+            "ios": "./assets/images/alt-icons/ember.png",
             "android": {
-              "foregroundImage": "./assets/images/alt-icons/paper-foreground.png",
-              "backgroundColor": "#F4F0EC"
+              "foregroundImage": "./assets/images/alt-icons/ember-foreground.png",
+              "backgroundColor": "#FF7A18"
             }
           },
           {
@@ -86,14 +86,6 @@
             "android": {
               "foregroundImage": "./assets/images/alt-icons/mono-foreground.png",
               "backgroundColor": "#F3EDE3"
-            }
-          },
-          {
-            "name": "Classic",
-            "ios": "./assets/images/alt-icons/classic.png",
-            "android": {
-              "foregroundImage": "./assets/images/alt-icons/classic-foreground.png",
-              "backgroundColor": "#FF6600"
             }
           }
         ]

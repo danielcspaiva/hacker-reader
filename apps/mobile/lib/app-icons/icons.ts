@@ -5,13 +5,7 @@
  * equal `nativeName`; a test pins that).
  */
 
-export const APP_ICON_IDS = [
-  "default",
-  "midnight",
-  "paper",
-  "mono",
-  "classic",
-] as const;
+export const APP_ICON_IDS = ["default", "midnight", "ember", "mono"] as const;
 
 export type AppIconId = (typeof APP_ICON_IDS)[number];
 
@@ -37,22 +31,16 @@ export const APP_ICONS: readonly AppIconOption[] = [
     nativeName: "Midnight",
   },
   {
-    id: "paper",
-    label: "Paper",
-    description: "Orange on warm paper",
-    nativeName: "Paper",
+    id: "ember",
+    label: "Ember",
+    description: "Cream book on logo orange",
+    nativeName: "Ember",
   },
   {
     id: "mono",
     label: "Mono",
     description: "One ink on cream",
     nativeName: "Mono",
-  },
-  {
-    id: "classic",
-    label: "Classic",
-    description: "The Y on Hacker News orange",
-    nativeName: "Classic",
   },
 ];
 

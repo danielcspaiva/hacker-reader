@@ -17,9 +17,8 @@ const ANDROID = 432; // adaptive icon layer; the mark stays in the 66% safe zone
 // Palette tokens from docs/design-language.md (constants/colors.ts), as RGB.
 const INK = [0x1f, 0x1b, 0x16];
 const CREAM = [0xf3, 0xed, 0xe3];
-const PAPER = [0xf4, 0xf0, 0xec];
 const CHARCOAL = [0x17, 0x13, 0x0f];
-const HN_ORANGE = [0xff, 0x66, 0x00];
+const ORANGE = [0xff, 0x7a, 0x18]; // `primary`
 
 const hex = (rgb) =>
   `#${rgb.map((c) => c.toString(16).padStart(2, "0")).join("")}`;
@@ -104,7 +103,7 @@ async function write(name, background, markLayer, androidLayer) {
   // iOS app icons must be opaque: flatten and drop the alpha channel.
   await sharp(background)
     .composite([{ input: markLayer }])
-    .flatten({ background: hex(PAPER) })
+    .flatten({ background: hex(CREAM) })
     .removeAlpha()
     .png({ compressionLevel: 9 })
     .toFile(join(OUT, `${name}.png`));
@@ -130,14 +129,26 @@ async function main() {
     await fg(original)
   );
 
-  // Paper: the book on the warm page grey (light surfaces).
+  // Ember: the inverse of the default, a cream book with an orange Y on the
+  // logo orange (the cover keeps a little shading for the spine).
+  const ember = await toMark(
+    recolor(book, (r, g, b, a) => {
+      const c = creamness(r, g, b);
+      const shade = Math.min(1, Math.max(0, (luma(r, g, b) - 0.38) / 0.12));
+      const cover = mix(mix(CREAM, ORANGE, 0.35), CREAM, shade);
+      return [...mix(cover, ORANGE, c), a];
+    }),
+    MARK
+  );
   await write(
-    "paper",
-    await sharp(gradient(mix(PAPER, [255, 255, 255], 0.5), PAPER))
+    "ember",
+    await sharp(
+      gradient(mix(ORANGE, [255, 170, 80], 0.25), mix(ORANGE, INK, 0.12))
+    )
       .png()
       .toBuffer(),
-    await fg(original, 0.22),
-    await fg(original)
+    await fg(ember, 0.3),
+    await fg(ember)
   );
 
   // Mono: a one-ink book on cream, the Y and the pages knocked out.
@@ -155,46 +166,6 @@ async function main() {
       .toBuffer(),
     await fg(mono, 0.12),
     await fg(mono)
-  );
-
-  // Classic: HN's #FF6600 square with a white Y cut from the book's cover.
-  const yRegion = {
-    left: Math.round(book.width * 0.3),
-    top: Math.round(book.height * 0.38),
-    width: Math.round(book.width * 0.45),
-    height: Math.round(book.height * 0.45),
-  };
-  const yOnly = recolor(book, (r, g, b, a) => [
-    255,
-    255,
-    255,
-    Math.round(a * creamness(r, g, b)),
-  ]);
-  const yCrop = await sharp(yOnly.data, {
-    raw: { width: book.width, height: book.height, channels: 4 },
-  })
-    .extract(yRegion)
-    .png()
-    .toBuffer();
-  const yPng = await sharp(yCrop)
-    .trim({ threshold: 1 })
-    .resize(Math.round(SIZE * 0.44), Math.round(SIZE * 0.44), { fit: "inside" })
-    .png()
-    .toBuffer();
-  await write(
-    "classic",
-    await sharp({
-      create: {
-        width: SIZE,
-        height: SIZE,
-        channels: 4,
-        background: hex(HN_ORANGE),
-      },
-    })
-      .png()
-      .toBuffer(),
-    await fg(yPng),
-    await fg(yPng)
   );
 }
 

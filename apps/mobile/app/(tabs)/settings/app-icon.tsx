@@ -21,9 +21,8 @@ import {
 const PREVIEWS: Record<AppIconId, number> = {
   default: require("@/assets/images/ybook.png"),
   midnight: require("@/assets/images/alt-icons/midnight.png"),
-  paper: require("@/assets/images/alt-icons/paper.png"),
+  ember: require("@/assets/images/alt-icons/ember.png"),
   mono: require("@/assets/images/alt-icons/mono.png"),
-  classic: require("@/assets/images/alt-icons/classic.png"),
 };
 
 const PREVIEW_SIZE = 52;
