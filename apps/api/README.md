@@ -66,6 +66,7 @@ Redis keys (also `alerts:*`, see below): `device:<id>`, `devices` (set of ids), 
 - Keys: `replies:<username>`, `replies:cursor`, `replies:lock`. `POST /devices` now merges `prefs` into the stored ones instead of replacing them, so one feature toggling its pref leaves the others alone.
 
 Redis keys: `device:<id>`, `devices` (set of ids), `pushtoken:<token>` (reverse index), `entitlement:<id>` (10 minute cache), `push:tickets` / `push:ticket:<id>` (receipts to check), `ratelimit:*` (fixed windows), `summary:story:<id>`, `summary:lock:<id>`, `summary:tokens:<day>:*`. `DELETE /devices` removes the device, its token index entry and the cached entitlement. Device records and their token index entry expire 45 days after the last upsert (the app registers on every launch/foreground while Pro), so lapsed users disappear by themselves. The `devices` index set does not expire: cron jobs that iterate it call `pruneDeviceIndex(store)` first. `POST /devices` requires Pro; `/me` and `/devices` are also limited to 60 requests/min per IP before any RevenueCat lookup.
+
 ## Keyword alerts cron
 
 `GET /api/cron/alerts` (in `vercel.json` `crons`, every 10 minutes, protected by `requireCron`) pushes "🔔 SQLite · 142 points" (body: the story title, `data: { url: "hnclient://story/<id>", kind: "alert" }`) to Pro devices whose `prefs.alerts` match a recent story.
