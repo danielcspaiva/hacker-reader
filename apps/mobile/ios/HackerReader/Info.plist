@@ -39,7 +39,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>24</string>
+	<string>25</string>
 	<key>ExpoWidgetsAppGroupIdentifier</key>
 	<string>group.com.danielcspaiva.hnclient</string>
 	<key>ExpoWidgets_EnablePushNotifications</key>
