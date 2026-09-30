@@ -1,5 +1,8 @@
 import { fetchWithTimeout } from "@/lib/hn/fetch-timeout";
 
+import { isJsonObject, isJsonString, type JsonValue } from "./json";
+import { parseSummaryResult, type StorySummaryResult } from "./summary";
+
 export type DevicePlatform = "ios" | "android";
 
 export interface DeviceRegistration {
@@ -20,15 +23,31 @@ export interface ProMe {
 
 export class ProApiError extends Error {
   readonly status: number;
+  /** The API's `error.code` (for example `daily_limit`), when it sent one. */
+  readonly code: string | undefined;
 
-  constructor(status: number, path: string) {
+  constructor(status: number, path: string, code?: string) {
     super(`Pro API ${path} responded ${status}`);
     this.name = "ProApiError";
     this.status = status;
+    this.code = code;
   }
 }
 
 const API_TIMEOUT_MS = 10_000;
+/** A summary that has to be generated can take up to a minute. */
+const SUMMARY_TIMEOUT_MS = 65_000;
+
+async function errorCode(response: Response): Promise<string | undefined> {
+  try {
+    const body: JsonValue = await response.json();
+    const error = isJsonObject(body) ? body.error : undefined;
+    const code = isJsonObject(error) ? error.code : undefined;
+    return isJsonString(code) ? code : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 /** Base URL of `apps/api`, without a trailing slash; empty when not configured. */
 export function proApiBaseUrl(): string {
@@ -40,7 +59,8 @@ async function request<T>(
   installId: string,
   method: "GET" | "POST" | "DELETE",
   path: string,
-  body?: DeviceRegistration
+  body?: DeviceRegistration,
+  timeoutMs: number = API_TIMEOUT_MS
 ): Promise<T> {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${installId}`,
@@ -51,9 +71,11 @@ async function request<T>(
   const response = await fetchWithTimeout(
     `${baseUrl}${path}`,
     { method, headers, body: body ? JSON.stringify(body) : undefined },
-    API_TIMEOUT_MS
+    timeoutMs
   );
-  if (!response.ok) throw new ProApiError(response.status, path);
+  if (!response.ok) {
+    throw new ProApiError(response.status, path, await errorCode(response));
+  }
   return response.json();
 }
 
@@ -79,6 +101,24 @@ export function createProApi(configuredUrl: string = proApiBaseUrl()) {
       ),
     getMe: (installId: string) =>
       request<ProMe>(baseUrl, installId, "GET", "/api/v1/me"),
+    /** `generating` (HTTP 202) means: ask again in a few seconds. */
+    getStorySummary: async (
+      installId: string,
+      storyId: number
+    ): Promise<StorySummaryResult> => {
+      const path = `/api/v1/summaries/story/${storyId}`;
+      const body = await request<JsonValue>(
+        baseUrl,
+        installId,
+        "GET",
+        path,
+        undefined,
+        SUMMARY_TIMEOUT_MS
+      );
+      const result = parseSummaryResult(body);
+      if (!result) throw new ProApiError(502, path, "invalid_response");
+      return result;
+    },
   };
 }
 

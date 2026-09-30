@@ -37,6 +37,7 @@ Pro is an optional subscription for features that need a server. Everything that
 - **Device details**: platform, app version and time zone, sent with the install ID while Pro is active.
 - **Only for features that need it**: your push notification token, and the Hacker News username you choose to share for reply notifications.
 - **Reply notifications**: only when you switch them on. Your username and push token are sent to our server, which reads your public submissions from the Hacker News API every few minutes and sends a push when someone replies. It keeps one number per username (the newest reply it has seen, refreshed on every check and dropped about 3 days after you stop) so it does not notify twice. Turning the switch off, signing out of Hacker News or using **Delete Pro Data** removes the username from our server. The free Replies inbox in your profile runs entirely on your phone and never contacts our server.
+- **AI summaries**: when you ask for one, the story ID is sent to our server, which fetches the story's public Hacker News comments and its article and sends that public text to Anthropic to write the summary. No personal data is involved (no usernames are sent). Summaries are cached on our server for up to 7 days and shared between Pro users.
 - **Nothing is sold.** Delete it any time with **Delete Pro Data** in Settings (or by email); otherwise it expires on its own about 45 days after the app last registered (Pro users register on every launch), so it is gone well after a subscription lapses.
 
 ## Full Privacy Policy
@@ -69,7 +70,7 @@ The full policy includes detailed information about:
 
 - **Crash reports**: Sentry (anonymized, 90-day retention)
 - **Analytics events**: PostHog (anonymized, 90-day retention)
-- **Pro (only if you subscribe)**: RevenueCat (purchase status) and our API on Vercel/Upstash Redis (install ID, device details, optional push token and HN username)
+- **Pro (only if you subscribe)**: RevenueCat (purchase status) and our API on Vercel/Upstash Redis (install ID, device details, optional push token and HN username, cached story summaries); story text for summaries goes to Anthropic
 
 ## Anonymous Analytics Explained
 

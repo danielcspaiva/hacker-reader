@@ -36,6 +36,28 @@ export class MemoryStore implements Store {
     return next;
   }
 
+  async incrBy(
+    key: string,
+    amount: number,
+    ttlSeconds: number
+  ): Promise<number> {
+    const next = Number(this.values.get(key) ?? 0) + amount;
+    this.values.set(key, String(next));
+    if (next === amount) this.ttls.set(key, ttlSeconds);
+    return next;
+  }
+
+  async setIfAbsent<T>(
+    key: string,
+    value: T,
+    ttlSeconds: number
+  ): Promise<boolean> {
+    if (this.values.has(key)) return false;
+    this.values.set(key, JSON.stringify(value));
+    this.ttls.set(key, ttlSeconds);
+    return true;
+  }
+
   async sadd(key: string, ...members: string[]): Promise<void> {
     const set = this.sets.get(key) ?? new Set<string>();
     for (const member of members) set.add(member);

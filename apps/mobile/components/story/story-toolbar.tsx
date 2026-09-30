@@ -16,6 +16,7 @@ export function StoryToolbar({
   hasThreads,
   onCollapseAll,
   onExpandAll,
+  onSummarize,
 }: {
   story: StoryWithComments;
   actions: StoryActions;
@@ -23,6 +24,8 @@ export function StoryToolbar({
   hasThreads: boolean;
   onCollapseAll: () => void;
   onExpandAll: () => void;
+  /** Opens the AI summary (Pro); undefined hides the item. */
+  onSummarize?: () => void;
 }) {
   const { colors } = useTheme();
   const openLink = useExternalLink();
@@ -45,6 +48,14 @@ export function StoryToolbar({
         icon={ICON_GLYPHS.more.ios}
         accessibilityLabel="More actions"
       >
+        {onSummarize ? (
+          <Stack.Toolbar.MenuAction
+            icon={ICON_GLYPHS.summarize.ios}
+            onPress={onSummarize}
+          >
+            Summarize
+          </Stack.Toolbar.MenuAction>
+        ) : null}
         <Stack.Toolbar.MenuAction
           icon={ICON_GLYPHS.share.ios}
           onPress={actions.handleShare}

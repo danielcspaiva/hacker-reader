@@ -1,0 +1,40 @@
+{
+  "id": 4242,
+  "type": "story",
+  "title": "Why static sites win",
+  "url": "https://blog.example.com/static",
+  "points": 312,
+  "text": null,
+  "children": [
+    {
+      "id": 1,
+      "text": "<p>Top thread one. See <a href=\"https://example.org/a\" rel=\"nofollow\">https://example.org/a...</a></p><p>Second paragraph &amp; more.</p>",
+      "children": [
+        {
+          "id": 11,
+          "text": "Reply to one",
+          "children": [
+            { "id": 111, "text": "Deep reply to eleven", "children": [] }
+          ]
+        },
+        {
+          "id": 12,
+          "text": null,
+          "children": [
+            {
+              "id": 121,
+              "text": "Reply under a deleted comment",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "text": "Top thread two",
+      "children": [{ "id": 21, "text": "Reply to two", "children": [] }]
+    },
+    { "id": 3, "text": "Top thread three", "children": [] }
+  ]
+}

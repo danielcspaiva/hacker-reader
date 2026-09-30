@@ -79,6 +79,7 @@ export const ICON_GLYPHS = {
   notifications: { ios: "bell", android: "notifications" },
   keywordAlert: { ios: "bell.badge", android: "notifications_active" },
   summary: { ios: "wand.and.stars", android: "auto_fix_high" },
+  summarize: { ios: "sparkles", android: "auto_awesome" },
   digest: { ios: "sun.max", android: "wb_sunny" },
   cloud: { ios: "icloud", android: "cloud" },
   appIcons: { ios: "square.grid.2x2", android: "apps" },

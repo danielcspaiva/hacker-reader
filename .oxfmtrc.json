@@ -43,6 +43,7 @@
     "*.xcscheme",
     "ios",
     "apps/mobile/test/fixtures",
+    "apps/api/test/fixtures/*.html",
     "android",
     "tooling/oxlint-plugins/anti-slop",
     ".agents",
