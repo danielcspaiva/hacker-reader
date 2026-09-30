@@ -7,7 +7,7 @@ import { ThemeProvider } from "./theme-provider";
 export const metadata: Metadata = {
   title: "Hacker Reader - Hacker News, like it deserves",
   description:
-    "A calm, native Hacker News reader for iPhone: warm paper and warm charcoal themes, serif story pages, easy-to-follow threads, and Home and Lock Screen widgets. Free and open source.",
+    "A calm, native Hacker News reader for iPhone: white cards on warm grey and a warm charcoal Dark Mode, serif story pages, easy-to-follow threads, and Home and Lock Screen widgets. Free and open source.",
   keywords: [
     "Hacker News",
     "Hacker Reader",

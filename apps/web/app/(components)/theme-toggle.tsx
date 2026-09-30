@@ -61,7 +61,7 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div className="h-10 w-10 rounded-full bg-muted" aria-hidden />;
+    return <div className="h-10 w-10 rounded-full bg-card" aria-hidden />;
   }
 
   const themes = [
@@ -79,7 +79,7 @@ export function ThemeToggle() {
         const nextIndex = (currentIndex + 1) % themes.length;
         setTheme(themes[nextIndex].value);
       }}
-      className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground transition hover:text-ink active:scale-95"
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground transition hover:text-ink active:scale-95"
       aria-label="Toggle theme"
       title={`Current: ${themes.find((t) => t.value === currentTheme)?.label || "System"} (click to cycle)`}
     >

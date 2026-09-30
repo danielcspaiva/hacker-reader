@@ -77,7 +77,7 @@ const FEATURES: { title: string; body: string; icon: ReactNode }[] = [
 ];
 
 const WHATS_NEW = [
-  "A complete redesign: warm paper in Light Mode, warm charcoal in Dark Mode",
+  "A complete redesign: white cards on warm grey in Light Mode, warm charcoal in Dark Mode",
   "Numbered story cards with square thumbnails and site icons",
   "Serif story pages with large link previews",
   "Comment threads with orange depth rails, much faster on 1,000+ comment stories",
@@ -165,8 +165,8 @@ export default function Home() {
                 Hacker News, like it deserves.
               </h1>
               <p className="max-w-xl text-xl leading-relaxed text-muted-foreground">
-                A calm, native Hacker News reader for iPhone. Warm paper by
-                default, warm charcoal at night, serif story pages and widgets
+                A calm, native Hacker News reader for iPhone. Clean white cards
+                by day, warm charcoal at night, serif story pages and widgets
                 that keep the front page on your Home Screen.
               </p>
               <div className="flex flex-wrap items-center gap-5">
@@ -325,7 +325,7 @@ export default function Home() {
               ].map((tech) => (
                 <span
                   key={tech}
-                  className="rounded-full bg-muted px-4 py-2 text-muted-foreground"
+                  className="rounded-full bg-card px-4 py-2 text-muted-foreground"
                 >
                   {tech}
                 </span>

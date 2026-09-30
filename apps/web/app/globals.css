@@ -2,19 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tokens mirror apps/mobile/constants/colors.ts: warm paper by day, warm
-   charcoal ("HN at night") in dark mode, never pure black. */
+/* Tokens mirror apps/mobile/constants/colors.ts: white cards on a warm grey
+   page by day, warm charcoal ("HN at night") in dark mode, never pure black. */
 :root {
-  --background: #fcfbf7;
-  --card: #f4f2e9;
-  --muted: #e9e6da;
+  --background: #f4f0ec;
+  --card: #ffffff;
+  --muted: #ede9e3;
   --foreground: #1f1b16;
   --muted-foreground: #6a645a;
   --tertiary-foreground: #8a8377;
-  --primary: #ff6600;
+  --primary: #ff7a18;
   --primary-foreground: #1f1b16;
-  --primary-ink: #b04400;
-  --primary-wash: #ff660024;
+  --primary-ink: #a84700;
+  --primary-wash: #ff7a1824;
   --separator: #3c2d1418;
   color-scheme: light;
 }
@@ -26,10 +26,10 @@
   --foreground: #f3ede3;
   --muted-foreground: #a9a194;
   --tertiary-foreground: #857d70;
-  --primary: #ff7a1f;
+  --primary: #ff7a18;
   --primary-foreground: #1a1208;
-  --primary-ink: #ff8f45;
-  --primary-wash: #ff7a1f2e;
+  --primary-ink: #ff8f3d;
+  --primary-wash: #ff7a182e;
   --separator: #f3ede31a;
   color-scheme: dark;
 }
