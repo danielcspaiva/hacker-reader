@@ -126,7 +126,10 @@ export function Text({
         metrics
           ? {
               fontSize: scaleFont(metrics.fontSize ?? 17, scale),
-              lineHeight: scaleFont(metrics.lineHeight ?? 22, scale),
+              lineHeight:
+                metrics.lineHeight === undefined
+                  ? undefined
+                  : scaleFont(metrics.lineHeight, scale),
             }
           : null,
         numeric ? styles.numeric : null,
