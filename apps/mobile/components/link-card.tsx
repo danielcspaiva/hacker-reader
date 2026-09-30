@@ -1,5 +1,6 @@
 import { Link } from "expo-router";
 import type { ComponentProps, ReactNode } from "react";
+import { Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -41,8 +42,12 @@ export function LinkCard({
       accessibilityRole="link"
       accessibilityLabel={accessibilityLabel}
     >
+      {/* asChild: without it Link renders a Text, and the card becomes an inline
+          attachment offset to the text baseline, so the paragraph clips the top
+          ~2.7pt off the card's rounded corners. */}
       <Link
         href={href}
+        asChild
         onPressIn={() => {
           scale.value = withTiming(0.98, { duration: 90 });
         }}
@@ -51,7 +56,9 @@ export function LinkCard({
         }}
         onPress={() => hapticSelection()}
       >
-        <Link.Trigger>{children}</Link.Trigger>
+        <Link.Trigger>
+          <Pressable>{children}</Pressable>
+        </Link.Trigger>
         {menu}
         <Link.Preview />
       </Link>
