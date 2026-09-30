@@ -83,6 +83,9 @@ export enum AnalyticsEvent {
   SUMMARY_REQUESTED = "summary_requested",
   SUMMARY_VIEWED = "summary_viewed",
   SUMMARY_COMMENT_LINK_TAPPED = "summary_comment_link_tapped",
+  DIGEST_ENABLED = "digest_enabled",
+  DIGEST_DISABLED = "digest_disabled",
+  DIGEST_VIEWED = "digest_viewed",
 
   // iCloud sync
   ICLOUD_SYNC_TOGGLED = "icloud_sync_toggled",

@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parseNotificationTarget } from "@/lib/notifications/target";
+import {
+  isDigestTarget,
+  parseNotificationTarget,
+} from "@/lib/notifications/target";
 
 describe("parseNotificationTarget", () => {
   it("reads the story, comment and kind of a reply push", () => {
@@ -23,6 +26,36 @@ describe("parseNotificationTarget", () => {
     assert.equal(parseNotificationTarget({ kind: "alert" }), null);
   });
 
+  it("reads the date of a daily digest push", () => {
+    const target = parseNotificationTarget({
+      kind: "digest",
+      url: "hnclient://digest/2026-09-30",
+    });
+    assert.deepEqual(target, { kind: "digest", date: "2026-09-30" });
+    assert.equal(target !== null && isDigestTarget(target), true);
+    // The kind defaults from the link when the push carries none.
+    assert.equal(
+      parseNotificationTarget({ url: "hnclient://digest/2026-09-30" })?.kind,
+      "digest"
+    );
+    const story = parseNotificationTarget({ url: "hnclient://story/9" });
+    assert.equal(story !== null && isDigestTarget(story), false);
+  });
+
+  it("rejects malformed digest links", () => {
+    for (const url of [
+      "hnclient://digest/2026-02-30",
+      "hnclient://digest/2026-9-30",
+      "hnclient://digest/latest",
+      "hnclient://digest/2026-09-30/extra",
+      "hnclient://digest/2026-09-30?x=1",
+      "hnclient://digest/",
+      "https://evil.example/digest/2026-09-30",
+    ]) {
+      assert.equal(parseNotificationTarget({ url }), null, url);
+    }
+  });
+
   it("works without a comment and defaults the kind", () => {
     assert.deepEqual(parseNotificationTarget({ url: "hnclient://story/9" }), {
       kind: "other",
@@ -36,14 +69,14 @@ describe("parseNotificationTarget", () => {
   });
 
   it("ignores a malformed comment id", () => {
-    assert.equal(
-      parseNotificationTarget({ url: "hnclient://story/9?commentId=x" })
-        ?.commentId,
-      undefined
-    );
+    const target = parseNotificationTarget({
+      url: "hnclient://story/9?commentId=x",
+    });
+    assert.ok(target && !isDigestTarget(target));
+    assert.equal(target.commentId, undefined);
   });
 
-  it("rejects anything that is not a story link", () => {
+  it("rejects anything that is not a story or digest link", () => {
     for (const data of [
       null,
       undefined,

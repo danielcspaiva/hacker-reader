@@ -50,7 +50,7 @@ export const PRO_FEATURES: readonly ProFeature[] = [
     description: "The day's best stories in one morning notification.",
     icon: "digest",
     hue: "amber",
-    status: "coming_soon",
+    status: "available",
   },
   {
     id: "alternate_icons",

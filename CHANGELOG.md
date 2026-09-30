@@ -5,6 +5,30 @@ All notable changes to Hacker Reader will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Read state**: opened stories dim everywhere, a "+N" badge counts comments added since your last visit, new comments are marked and a "Next new comment" pill jumps between them; Mark as Read/Unread; Clear Reading History
+- **Thread navigation**: jump between top-level comments, Collapse All / Expand All
+- **Text Size** setting for reading text (stacks with Dynamic Type)
+- **Search**: sort by relevance or date, search comments, date and points filters, `author:name`
+- **Best** feed and **Past Front Pages** by UTC day (`hnclient://front/YYYY-MM-DD`)
+- **Muted words and sites** for the feed (word boundaries, subdomains included)
+- **Submit stories**, and a **Discuss on HN** share extension that finds existing threads for any link
+- **iPad split view** (list and story side by side) and readable content widths
+- **Widgets**: category picker on the Stories widget (iOS 17+) and a new Bookmarks widget
+- **Instant launch and offline reading**: saved feeds, bookmarked and recent threads, offline banner
+- **Replies inbox** for your comments and stories
+- **iCloud sync** of bookmarks, read state, mutes, blocked users and hidden stories (free)
+- **Hacker Reader Pro** (optional subscription; everything on the phone stays free): reply push notifications, keyword alerts, AI story and thread summaries, a daily digest push, and alternate app icons (Midnight, Ember, Mono)
+- `apps/api`: backend for Pro (RevenueCat entitlements, device registration, Expo Push, crons, Claude-powered summaries)
+
+### Changed
+
+- Stories widget requires iOS 17 (configurable widgets); the Bookmarks widget works on iOS 16.4+
+- React Query 5.104 with a persisted cache
+
 ## [1.4.0] - 2026-09-29
 
 ### Added

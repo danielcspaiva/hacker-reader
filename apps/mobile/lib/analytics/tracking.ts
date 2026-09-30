@@ -31,6 +31,9 @@ export type SubmitSource = "feed_menu" | "profile" | "share";
 /** Where a summary was requested: the story's more menu or the header pill. */
 export type SummarySource = "menu" | "pill";
 
+/** How the digest screen was opened: a push tap, or any other link. */
+export type DigestSource = "notification" | "link";
+
 export type WidgetSize = "small" | "medium" | "large" | "accessory";
 
 /**
@@ -233,6 +236,15 @@ export interface EventProperties {
   [AnalyticsEvent.SUMMARY_COMMENT_LINK_TAPPED]: {
     [AnalyticsProperty.STORY_ID]: number;
     [AnalyticsProperty.COMMENT_ID]: number;
+  };
+  [AnalyticsEvent.DIGEST_ENABLED]: {
+    /** Preferred local delivery hour, 0-23. */
+    [AnalyticsProperty.DIGEST_HOUR]: number;
+  };
+  [AnalyticsEvent.DIGEST_DISABLED]: Record<string, never>;
+  [AnalyticsEvent.DIGEST_VIEWED]: {
+    [AnalyticsProperty.DIGEST_DATE]: string;
+    [AnalyticsProperty.DIGEST_SOURCE]: DigestSource;
   };
   // iCloud sync
   [AnalyticsEvent.ICLOUD_SYNC_TOGGLED]: {

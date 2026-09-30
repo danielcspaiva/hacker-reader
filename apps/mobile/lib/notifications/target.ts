@@ -1,12 +1,29 @@
 /** Where a tapped push notification leads. Pure, so it is unit-tested in node. */
 
-export interface NotificationTarget {
+import { isValidDay } from "@/lib/format/day";
+
+export interface StoryTarget {
   /** What sent it ("reply"); "other" for kinds this app version does not know. */
   kind: string;
   storyId: number;
   commentId?: number;
 }
 
+/** The daily digest of a UTC day (`hnclient://digest/YYYY-MM-DD`). */
+export interface DigestTarget {
+  kind: string;
+  date: string;
+}
+
+export type NotificationTarget = StoryTarget | DigestTarget;
+
+export function isDigestTarget(
+  target: NotificationTarget
+): target is DigestTarget {
+  return "date" in target;
+}
+
+const DIGEST_URL = /^hnclient:\/\/digest\/(\d{4}-\d{2}-\d{2})$/;
 const STORY_URL = /^hnclient:\/\/story\/(\d{1,12})(?:\?(.*))?$/;
 const KIND = /^[a-z_]{1,30}$/;
 
@@ -30,18 +47,25 @@ function isKind(value: unknown): value is string {
 
 /**
  * Reads `data` of a notification sent by `apps/api`: `url`
- * (`hnclient://story/{id}?commentId={id}`) and `kind`. Null when there is no
- * story link to open.
+ * (`hnclient://story/{id}?commentId={id}` or `hnclient://digest/{date}`) and
+ * `kind`. Null when there is no link this app can open.
  */
 export function parseNotificationTarget(
   data: unknown
 ): NotificationTarget | null {
   if (!isNotificationData(data)) return null;
 
+  const digest = DIGEST_URL.exec(data.url);
+  if (digest) {
+    const date = digest[1];
+    if (date === undefined || !isValidDay(date)) return null;
+    return { kind: isKind(data.kind) ? data.kind : "digest", date };
+  }
+
   const match = STORY_URL.exec(data.url);
   if (!match) return null;
 
-  const target: NotificationTarget = {
+  const target: StoryTarget = {
     kind: isKind(data.kind) ? data.kind : "other",
     storyId: Number(match[1]),
   };
