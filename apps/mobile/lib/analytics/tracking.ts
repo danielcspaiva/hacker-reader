@@ -108,6 +108,13 @@ export interface EventProperties {
     [AnalyticsProperty.STORY_ID]: number;
     [AnalyticsProperty.NEW_COMMENT_COUNT]: number;
   };
+  [AnalyticsEvent.MUTE_ADDED]: {
+    [AnalyticsProperty.MUTE_KIND]: "keyword" | "domain";
+    [AnalyticsProperty.MUTE_SOURCE]: "story_card" | "story_detail" | "settings";
+  };
+  [AnalyticsEvent.MUTE_REMOVED]: {
+    [AnalyticsProperty.MUTE_KIND]: "keyword" | "domain";
+  };
   [AnalyticsEvent.STORY_FLAGGED]: {
     [AnalyticsProperty.STORY_ID]: number;
   };

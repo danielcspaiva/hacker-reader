@@ -48,5 +48,6 @@ export const hnKeys = {
   readStories: (): ["read-stories"] => ["read-stories"],
   blockedUsers: (): ["blockedUsers"] => ["blockedUsers"],
   searchOptions: (): ["search-options"] => ["search-options"],
+  mutes: (): ["mutes"] => ["mutes"],
   recentSearches: (): ["recent-searches"] => ["recent-searches"],
 };

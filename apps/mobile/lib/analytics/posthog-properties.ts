@@ -46,6 +46,10 @@ export enum AnalyticsProperty {
   CHILD_COUNT = "child_count",
   NEW_COMMENT_COUNT = "new_comment_count",
 
+  // Mutes
+  MUTE_KIND = "mute_kind",
+  MUTE_SOURCE = "mute_source",
+
   // Share
   SHARE_METHOD = "share_method",
 

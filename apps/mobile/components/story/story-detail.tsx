@@ -61,7 +61,7 @@ export function StoryDetail({
   const analytics = useAnalytics();
   const { isAuthenticated } = useHNAuth();
   const { isBlocked } = useBlockedUsers();
-  const actions = useStoryActions(story);
+  const actions = useStoryActions(story, "story_detail");
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
   // Story title shows in the nav bar once the hero title scrolls under it.
   const titleBottom = useRef(Infinity);

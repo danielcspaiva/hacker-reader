@@ -12,6 +12,7 @@ import { useFeedCategory } from "@/contexts/feed-category-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useMutes } from "@/hooks/use-mutes";
 import { useStories } from "@/hooks/use-stories";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
@@ -26,6 +27,7 @@ export default function FeedScreen() {
   const analytics = useAnalytics();
   const { isHidden } = useHiddenStories();
   const { isBlocked } = useBlockedUsers();
+  const { isMuted } = useMutes();
 
   const {
     data,
@@ -40,7 +42,10 @@ export default function FeedScreen() {
 
   const allStories = data?.pages.flatMap((page) => page) ?? [];
   const stories = allStories.filter(
-    (story) => !isHidden(story.id) && (!story.by || !isBlocked(story.by))
+    (story) =>
+      !isHidden(story.id) &&
+      (!story.by || !isBlocked(story.by)) &&
+      !isMuted(story)
   );
 
   const listRef = useRef<FlashListRef<HNItem>>(null);

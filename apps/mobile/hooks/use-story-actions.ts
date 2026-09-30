@@ -6,13 +6,15 @@ import { useBlockUserWithFeedback } from "@/hooks/use-block-user";
 import { useBookmarkMutation, useIsBookmarked } from "@/hooks/use-bookmarks";
 import { useFlagStory } from "@/hooks/use-flag-story";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useAddMute, type MuteSource } from "@/hooks/use-mutes";
 import { useReadEntry, useReadStories } from "@/hooks/use-read-stories";
 import { useShareStory } from "@/hooks/use-share-story";
 import { useHasVoted, useToggleVote } from "@/hooks/use-votes";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { confirmDestructive } from "@/lib/confirm-destructive";
-import { hapticImpact } from "@/lib/haptics";
+import { getDomain } from "@/lib/format/url";
+import { Haptics, hapticImpact, hapticNotify } from "@/lib/haptics";
 import type { HNItem, ReadStoryEntry } from "@/lib/hn";
 
 export interface StoryActions {
@@ -28,13 +30,19 @@ export interface StoryActions {
   handleHide: () => void;
   handleFlag: () => void;
   handleBlockUser: () => void;
+  /** The story's site, or null when it has no URL (nothing to mute). */
+  muteDomain: string | null;
+  handleMuteDomain: () => void;
 }
 
 /**
  * Story actions (vote, bookmark, share, mark read, hide, flag, block) composed from the
  * per-action hooks, with the analytics for each.
  */
-export function useStoryActions(story: HNItem): StoryActions {
+export function useStoryActions(
+  story: HNItem,
+  muteSource: MuteSource = "story_card"
+): StoryActions {
   const { isAuthenticated } = useHNAuth();
   const analytics = useAnalytics();
   const bookmarkMutation = useBookmarkMutation();
@@ -47,6 +55,8 @@ export function useStoryActions(story: HNItem): StoryActions {
   const toggleVote = useToggleVote(story.id);
   const handleFlag = useFlagStory(story.id);
   const blockUserWithFeedback = useBlockUserWithFeedback();
+  const addMute = useAddMute();
+  const muteDomain = getDomain(story.url);
 
   const handleVote = () => {
     if (!isAuthenticated) {
@@ -116,6 +126,19 @@ export function useStoryActions(story: HNItem): StoryActions {
     });
   };
 
+  const handleMuteDomain = async () => {
+    if (!muteDomain) return;
+    try {
+      await addMute({ kind: "domain", value: muteDomain, source: muteSource });
+      hapticNotify(Haptics.NotificationFeedbackType.Success);
+    } catch {
+      // Reported by useMutes.
+      Alert.alert("Error", "Failed to mute this site. Please try again.", [
+        { text: "OK" },
+      ]);
+    }
+  };
+
   return {
     hasVoted,
     isBookmarked,
@@ -127,5 +150,7 @@ export function useStoryActions(story: HNItem): StoryActions {
     handleHide,
     handleFlag,
     handleBlockUser: () => blockUserWithFeedback(story.by),
+    muteDomain,
+    handleMuteDomain: () => void handleMuteDomain(),
   };
 }

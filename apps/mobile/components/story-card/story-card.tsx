@@ -114,6 +114,13 @@ export function StoryCard({ story, rank }: StoryCardProps) {
               icon={ICON_GLYPHS.hide.ios}
               onPress={actions.handleHide}
             />
+            {actions.muteDomain ? (
+              <Link.MenuAction
+                title={`Mute ${actions.muteDomain}`}
+                icon={ICON_GLYPHS.mute.ios}
+                onPress={actions.handleMuteDomain}
+              />
+            ) : null}
             <Link.MenuAction
               title="Flag"
               icon={ICON_GLYPHS.flag.ios}
