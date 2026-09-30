@@ -21,6 +21,7 @@ import {
 } from "@/constants/app-config";
 import { usePro } from "@/contexts/pro-context";
 import { useTextSize } from "@/contexts/text-size-context";
+import { useAlerts } from "@/hooks/use-alerts";
 import { useAppIcon } from "@/hooks/use-app-icon";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
@@ -74,11 +75,13 @@ export default function SettingsScreen() {
   const { restorePurchases, isRestoring } = useRestorePurchases();
   const replyNotifications = useReplyNotifications();
   const { supported: appIconSupported, current: appIcon } = useAppIcon();
+  const { alerts, forget: forgetAlerts } = useAlerts();
 
   const deleteProDataWithFeedback = async () => {
     try {
       await deleteProData();
       await replyNotifications.forget();
+      await forgetAlerts();
       hapticNotify(Haptics.NotificationFeedbackType.Success);
       Alert.alert("Pro data deleted", "Your server-side Pro data was removed.");
     } catch (error) {
@@ -131,6 +134,16 @@ export default function SettingsScreen() {
                   accessibilityLabel="Reply notifications"
                 />
               }
+            />
+          ) : null}
+          {isPro ? (
+            <ListRow
+              leading={<IconTile name="keywordAlert" hue="red" />}
+              title="Alerts"
+              subtitle="A push when a story about a topic gets popular"
+              value={alerts.length > 0 ? String(alerts.length) : undefined}
+              chevron
+              onPress={() => router.push("/(tabs)/settings/alerts")}
             />
           ) : null}
           {isPro ? (

@@ -210,8 +210,15 @@ export interface EventProperties {
   };
   [AnalyticsEvent.REPLY_NOTIFICATIONS_ENABLED]: Record<string, never>;
   [AnalyticsEvent.REPLY_NOTIFICATIONS_DISABLED]: Record<string, never>;
+  [AnalyticsEvent.ALERT_ADDED]: {
+    /** True for a `site:` alert, false for a keyword. */
+    [AnalyticsProperty.ALERT_HAS_SITE]: boolean;
+    /** Same wire name as the search filter: `min_points`. */
+    [AnalyticsProperty.SEARCH_MIN_POINTS]: number;
+  };
+  [AnalyticsEvent.ALERT_REMOVED]: Record<string, never>;
   [AnalyticsEvent.NOTIFICATION_OPENED]: {
-    /** What sent it: "reply", later others. */
+    /** What sent it: "reply" or "alert". */
     [AnalyticsProperty.NOTIFICATION_KIND]: string;
   };
   [AnalyticsEvent.SUMMARY_REQUESTED]: {

@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/replies",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/alerts",
+      "schedule": "*/10 * * * *"
     }
   ]
 }

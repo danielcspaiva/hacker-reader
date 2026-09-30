@@ -41,7 +41,7 @@ async function registerReplies(
 }
 
 /** True when notifications are allowed, asking once if the user was never asked. */
-async function ensurePermission(ask: boolean): Promise<boolean> {
+export async function ensurePermission(ask: boolean): Promise<boolean> {
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
   if (!ask || !current.canAskAgain) return false;

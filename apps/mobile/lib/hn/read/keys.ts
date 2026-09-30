@@ -67,5 +67,7 @@ export const hnKeys = {
   mutes: (): ["mutes"] => ["mutes"],
   /** iCloud sync status (preference, availability, last synced time). */
   icloudSync: (): ["icloud-sync"] => ["icloud-sync"],
+  /** Keyword alerts (local; mirrored to the Pro API). */
+  alerts: (): ["alerts"] => ["alerts"],
   recentSearches: (): ["recent-searches"] => ["recent-searches"],
 };

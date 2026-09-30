@@ -8,6 +8,7 @@ export default function Layout() {
       <Stack.Screen name="index" options={{ title: "Settings" }} />
       <Stack.Screen name="app-icon" options={{ title: "App Icon" }} />
       <Stack.Screen name="blocked-users" options={{ title: "Blocked Users" }} />
+      <Stack.Screen name="alerts" options={{ title: "Alerts" }} />
       <Stack.Screen name="mutes" options={{ title: "Muted Words & Sites" }} />
     </LargeTitleStack>
   );

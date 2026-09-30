@@ -14,6 +14,7 @@ import { ColorSchemeProvider } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
 import { ProProvider } from "@/contexts/pro-context";
 import { TextSizeProvider } from "@/contexts/text-size-context";
+import { useAlertsSync } from "@/hooks/use-alerts-sync";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
 import { useICloudSync } from "@/hooks/use-icloud-sync";
@@ -94,6 +95,7 @@ function RootLayoutContent() {
   useNotificationRouting();
   useReplyNotificationsSync();
   useICloudSync();
+  useAlertsSync();
 
   useAppPrefetch();
   // Keeps the bookmark ids live: the cache persister needs them to know which
