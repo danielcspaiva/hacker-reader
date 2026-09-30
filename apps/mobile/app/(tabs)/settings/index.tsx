@@ -24,6 +24,7 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
 import { useExternalLink } from "@/hooks/use-external-link";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import { useMutes } from "@/hooks/use-mutes";
 import { useReadStories } from "@/hooks/use-read-stories";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { hapticNotify, Haptics } from "@/lib/haptics";
@@ -46,6 +47,7 @@ export default function SettingsScreen() {
   const { count: hiddenCount, clearAll: clearHiddenStories } =
     useHiddenStories();
   const { blockedUsers } = useBlockedUsers();
+  const { mutes } = useMutes();
   const openLink = useExternalLink();
 
   const storeUrl = Platform.select({
@@ -81,6 +83,13 @@ export default function SettingsScreen() {
           }
           chevron
           onPress={() => router.push("/(tabs)/settings/blocked-users")}
+        />
+        <ListRow
+          leading={<IconTile name="mute" hue="gray" />}
+          title="Muted Words & Sites"
+          value={mutes.length > 0 ? String(mutes.length) : undefined}
+          chevron
+          onPress={() => router.push("/(tabs)/settings/mutes")}
         />
         <ListRow
           leading={<IconTile name="hide" hue="gray" />}

@@ -39,6 +39,8 @@ export enum AnalyticsEvent {
   STORY_MARKED_READ = "story_marked_read",
   STORY_MARKED_UNREAD = "story_marked_unread",
   NEXT_NEW_COMMENT_TAPPED = "next_new_comment_tapped",
+  MUTE_ADDED = "mute_added",
+  MUTE_REMOVED = "mute_removed",
   STORY_FLAGGED = "story_flagged",
   COMMENT_VIEWED = "comment_viewed",
   COMMENT_COLLAPSED = "comment_collapsed",

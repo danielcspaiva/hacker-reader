@@ -59,6 +59,14 @@ export function StoryToolbar({
           >
             Hide
           </Stack.Toolbar.MenuAction>
+          {actions.muteDomain ? (
+            <Stack.Toolbar.MenuAction
+              icon={ICON_GLYPHS.mute.ios}
+              onPress={actions.handleMuteDomain}
+            >
+              {`Mute ${actions.muteDomain}`}
+            </Stack.Toolbar.MenuAction>
+          ) : null}
           <Stack.Toolbar.MenuAction
             icon={ICON_GLYPHS.flag.ios}
             destructive

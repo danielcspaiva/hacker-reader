@@ -14,6 +14,7 @@ export * from "./read/comment-tree";
 export * from "./read/keys";
 export * from "./read-state";
 export * from "./errors";
+export * from "./mutes-match";
 export * from "./session";
 export * from "./write-error";
 export * from "./web/write-api";

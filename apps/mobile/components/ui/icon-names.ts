@@ -26,6 +26,7 @@ export const ICON_GLYPHS = {
   compose: { ios: "square.and.pencil", android: "edit" },
   flag: { ios: "flag", android: "flag" },
   block: { ios: "person.slash", android: "person_off" },
+  mute: { ios: "speaker.slash", android: "volume_off" },
   safari: { ios: "safari", android: "public" },
   refresh: { ios: "arrow.clockwise", android: "refresh" },
   markRead: { ios: "checkmark.circle", android: "check_circle" },

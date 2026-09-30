@@ -169,6 +169,14 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 - Days are UTC (as on HN); pure helpers in `lib/format/day.ts` (tests: `test/hn/day.test.ts`). Header toolbar has previous/next day (next disabled today); `components/front/day-picker.ios.tsx` is a native compact SwiftUI `DatePicker` row.
 - Analytics: `past_front_page_viewed` with `day`. The widget stays Top-only.
 
+### Muted Words & Sites (Mobile Only)
+
+- Settings -> Content & Safety -> "Muted Words & Sites" (`app/(tabs)/settings/mutes.tsx`) adds/removes keyword and domain mutes; "Mute <domain>" is also on the StoryCard long-press menu and the story detail menu (`useStoryActions`, `useAddMute`)
+- Store: `lib/hn/local/mutes.ts` (`{ kind, value, createdAt }`, values normalised by `normalizeMuteValue`); hook: `hooks/use-mutes.ts` (`isMuted`)
+- Matching is pure and node-tested (`lib/hn/mutes-match.ts`): keywords match title words case-insensitively (phrases work, "ai" does not hit "said"), a domain also mutes its subdomains; `createMuteFilter` compiles one regex per list change
+- Applied to the feed only (beside hidden and blocked), NOT search or bookmarks
+- Analytics: `mute_added` (kind, source), `mute_removed` (kind)
+
 ### Routing & Navigation
 
 - **File-based routing** using Expo Router (expo-router v6)
@@ -185,6 +193,8 @@ The app uses a **React Query + HN API** architecture:
    - `read/` - Firebase (`firebase.ts`, `getCategoryStoryIds`/`getItem`/`getItems`/`getUser`) and Algolia (`algolia.ts`) fetchers, comment merge and tree helpers, `hnKeys` query keys (use it for every query key, including `hnKeys.allStories()` for invalidation)
    - `web/` - authenticated HTML client (`write-api.ts`), parsers, rate limiter, shared entity decoding
    - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items, read stories) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
+
+   - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items, mutes) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
    - `constants.ts` holds the base URLs (Firebase: `https://hacker-news.firebaseio.com/v0`); `errors.ts`/`session.ts` hold `HNAuthError`/`SecureSession`
    - Import rule: hooks and contexts import from the `@/lib/hn` barrel (types, `STORY_CATEGORIES`/`StoryCategory`, read API, keys, errors, session, write API); `local/*` is imported by deep path; parsers and the rate limiter are internal to `lib/hn`
    - Neighbours of `lib/hn`: `lib/format/` (`time.ts` `timeAgo`, `url.ts` `getDomain`), `lib/html/` (`entities.ts`, `parse.ts` with `stripHTML`/`parseHTMLWithLinks`), `lib/link-preview/og.ts`, `lib/observability/report-error.ts`, `lib/analytics/`, `lib/haptics.ts`, `lib/widgets/`
