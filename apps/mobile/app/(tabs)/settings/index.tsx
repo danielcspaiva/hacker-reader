@@ -70,7 +70,6 @@ export default function SettingsScreen() {
   const sync = useICloudSyncStatus();
   const { isAvailable: proAvailable, isPro, deleteProData } = usePro();
   const { restorePurchases, isRestoring } = useRestorePurchases();
-  const { colors } = useTheme();
   const replyNotifications = useReplyNotifications();
 
   const deleteProDataWithFeedback = async () => {
