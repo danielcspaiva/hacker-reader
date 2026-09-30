@@ -21,6 +21,7 @@ import {
 } from "@/constants/app-config";
 import { usePro } from "@/contexts/pro-context";
 import { useTextSize } from "@/contexts/text-size-context";
+import { useAppIcon } from "@/hooks/use-app-icon";
 import { useAppearanceSettings } from "@/hooks/use-appearance-settings";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
@@ -32,6 +33,7 @@ import { useReadStories } from "@/hooks/use-read-stories";
 import { useReplyNotifications } from "@/hooks/use-reply-notifications";
 import { useRestorePurchases } from "@/hooks/use-restore-purchases";
 import { useTheme } from "@/hooks/use-theme";
+import { appIconOption } from "@/lib/app-icons/icons";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { timeAgoSpoken } from "@/lib/format/time";
 import { hapticNotify, Haptics } from "@/lib/haptics";
@@ -71,6 +73,7 @@ export default function SettingsScreen() {
   const { isAvailable: proAvailable, isPro, deleteProData } = usePro();
   const { restorePurchases, isRestoring } = useRestorePurchases();
   const replyNotifications = useReplyNotifications();
+  const { supported: appIconSupported, current: appIcon } = useAppIcon();
 
   const deleteProDataWithFeedback = async () => {
     try {
@@ -170,6 +173,15 @@ export default function SettingsScreen() {
             onChange={setPreference}
           />
         </ListSlot>
+        {appIconSupported && (proAvailable || appIcon !== "default") ? (
+          <ListRow
+            leading={<IconTile name="appIcons" hue="pink" />}
+            title="App Icon"
+            value={appIconOption(appIcon).label}
+            chevron
+            onPress={() => router.push("/(tabs)/settings/app-icon")}
+          />
+        ) : null}
       </ListSection>
 
       <ListSection

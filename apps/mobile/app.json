@@ -62,6 +62,43 @@
       "expo-image",
       "expo-status-bar",
       [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "Midnight",
+            "ios": "./assets/images/alt-icons/midnight.png",
+            "android": {
+              "foregroundImage": "./assets/images/alt-icons/midnight-foreground.png",
+              "backgroundColor": "#17130F"
+            }
+          },
+          {
+            "name": "Paper",
+            "ios": "./assets/images/alt-icons/paper.png",
+            "android": {
+              "foregroundImage": "./assets/images/alt-icons/paper-foreground.png",
+              "backgroundColor": "#F4F0EC"
+            }
+          },
+          {
+            "name": "Mono",
+            "ios": "./assets/images/alt-icons/mono.png",
+            "android": {
+              "foregroundImage": "./assets/images/alt-icons/mono-foreground.png",
+              "backgroundColor": "#F3EDE3"
+            }
+          },
+          {
+            "name": "Classic",
+            "ios": "./assets/images/alt-icons/classic.png",
+            "android": {
+              "foregroundImage": "./assets/images/alt-icons/classic-foreground.png",
+              "backgroundColor": "#FF6600"
+            }
+          }
+        ]
+      ],
+      [
         "expo-widgets",
         {
           "bundleIdentifier": "com.danielcspaiva.hnclient.HackerReaderWidgets",
@@ -90,12 +127,30 @@
                       "title": "Category",
                       "type": "enum",
                       "values": [
-                        { "name": "Top", "value": "top" },
-                        { "name": "Best", "value": "best" },
-                        { "name": "New", "value": "new" },
-                        { "name": "Ask HN", "value": "ask" },
-                        { "name": "Show HN", "value": "show" },
-                        { "name": "Jobs", "value": "jobs" }
+                        {
+                          "name": "Top",
+                          "value": "top"
+                        },
+                        {
+                          "name": "Best",
+                          "value": "best"
+                        },
+                        {
+                          "name": "New",
+                          "value": "new"
+                        },
+                        {
+                          "name": "Ask HN",
+                          "value": "ask"
+                        },
+                        {
+                          "name": "Show HN",
+                          "value": "show"
+                        },
+                        {
+                          "name": "Jobs",
+                          "value": "jobs"
+                        }
                       ],
                       "default": "top"
                     }
