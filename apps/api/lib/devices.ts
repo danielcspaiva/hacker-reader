@@ -1,3 +1,4 @@
+import { parseAlerts, type AlertRule } from "./alerts-match";
 import { entitlementKey } from "./entitlement";
 import {
   isBoolean,
@@ -11,7 +12,7 @@ import type { Store } from "./store";
 
 export type Platform = "ios" | "android";
 
-export type PrefValue = boolean | number | string | string[];
+export type PrefValue = boolean | number | string | string[] | AlertRule[];
 export type Prefs = { [key: string]: PrefValue };
 
 export type Device = {
@@ -106,6 +107,13 @@ function parsePrefs(
         ok: false,
         errors: [`prefs key "${key.slice(0, 20)}" is invalid`],
       };
+    }
+    if (key === "alerts") {
+      // Structured pref: the keyword alerts list (`alerts-match.ts`).
+      const alerts = parseAlerts(entry);
+      if (!alerts.ok) return { ok: false, errors: [alerts.error] };
+      prefs.alerts = alerts.value;
+      continue;
     }
     if (!isPrefValue(entry)) {
       return {

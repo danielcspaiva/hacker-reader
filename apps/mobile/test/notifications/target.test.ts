@@ -14,6 +14,15 @@ describe("parseNotificationTarget", () => {
     );
   });
 
+  it("reads the kind of a keyword alert push", () => {
+    assert.deepEqual(
+      parseNotificationTarget({ kind: "alert", url: "hnclient://story/42" }),
+      { kind: "alert", storyId: 42 }
+    );
+    // The "N more" push has no link: a tap just opens the app.
+    assert.equal(parseNotificationTarget({ kind: "alert" }), null);
+  });
+
   it("works without a comment and defaults the kind", () => {
     assert.deepEqual(parseNotificationTarget({ url: "hnclient://story/9" }), {
       kind: "other",

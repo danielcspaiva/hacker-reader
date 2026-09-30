@@ -15,6 +15,7 @@ export * from "./read/keys";
 export * from "./read-state";
 export * from "./replies";
 export * from "./errors";
+export * from "./alerts";
 export * from "./mutes-match";
 export * from "./session";
 export * from "./write-error";

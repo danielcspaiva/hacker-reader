@@ -77,6 +77,8 @@ export enum AnalyticsEvent {
   REPLIES_VIEWED = "replies_viewed",
   REPLY_NOTIFICATIONS_ENABLED = "reply_notifications_enabled",
   REPLY_NOTIFICATIONS_DISABLED = "reply_notifications_disabled",
+  ALERT_ADDED = "alert_added",
+  ALERT_REMOVED = "alert_removed",
   NOTIFICATION_OPENED = "notification_opened",
   SUMMARY_REQUESTED = "summary_requested",
   SUMMARY_VIEWED = "summary_viewed",

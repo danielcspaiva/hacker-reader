@@ -34,7 +34,7 @@ export const PRO_FEATURES: readonly ProFeature[] = [
     description: "Get notified when a story matches topics you follow.",
     icon: "keywordAlert",
     hue: "red",
-    status: "coming_soon",
+    status: "available",
   },
   {
     id: "ai_summaries",

@@ -12,7 +12,14 @@ export interface DeviceRegistration {
   /** `null` clears the stored value, omitted keeps it. */
   expoPushToken?: string | null;
   hnUsername?: string | null;
-  prefs?: { [key: string]: boolean | number | string | string[] };
+  prefs?: {
+    [key: string]:
+      | boolean
+      | number
+      | string
+      | string[]
+      | { id: string; query: string; minPoints: number }[];
+  };
 }
 
 export interface ProMe {

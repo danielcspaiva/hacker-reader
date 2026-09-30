@@ -82,6 +82,7 @@ export enum AnalyticsProperty {
 
   // App icon
   APP_ICON = "icon",
+  ALERT_HAS_SITE = "has_site",
 
   // Widget
   WIDGET_SIZE = "widget_size",
