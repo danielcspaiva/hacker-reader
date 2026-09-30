@@ -16,6 +16,8 @@ import { ProProvider } from "@/contexts/pro-context";
 import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useBookmarkIds } from "@/hooks/use-bookmarks";
+import { useNotificationRouting } from "@/hooks/use-notification-routing";
+import { useReplyNotificationsSync } from "@/hooks/use-reply-notifications-sync";
 import { useTheme } from "@/hooks/use-theme";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
 import { useWidgetSync } from "@/hooks/use-widget-sync";
@@ -88,6 +90,8 @@ function RootLayoutContent() {
   const sheetHeader = useHeaderOptions("sheet");
   useWidgetAnalytics();
   useWidgetSync();
+  useNotificationRouting();
+  useReplyNotificationsSync();
 
   useAppPrefetch();
   // Keeps the bookmark ids live: the cache persister needs them to know which

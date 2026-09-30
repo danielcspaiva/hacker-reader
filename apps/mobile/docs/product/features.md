@@ -124,10 +124,19 @@ Each story displays:
 An optional subscription for features that need a server. Everything that runs on the phone stays free; Pro pays for the servers.
 
 - **Paywall** - a sheet (`app/pro.tsx`) opened only when someone taps a Pro feature or the Pro row in Settings, never on launch; plan cards (yearly with the store's trial and a per-month equivalent, monthly) priced from the App Store, a purchase button, Restore Purchases, Terms of Use and Privacy links
-- **Features** - reply notifications, keyword alerts, AI summaries, daily digest, iCloud sync, alternate app icons (all "Coming soon" for now; each later PR flips its `status` in `lib/pro/features.ts`)
+- **Features** - reply notifications, keyword alerts, AI summaries, daily digest, iCloud sync, alternate app icons (reply notifications are live; the rest are "Coming soon", each later PR flips its `status` in `lib/pro/features.ts`)
 - **Settings** - a "Hacker Reader Pro" section: upsell row, or "Pro, thank you" with Manage Subscription; Restore Purchases; Delete Pro Data (removes the install's server-side data)
+- **Reply notifications** - the "Notify me of replies" switch (Replies screen, and Settings' Pro section) asks for notification permission, gets the Expo push token and registers it with the HN username; the API cron pushes "💬 dang replied: ..." (max 5 per run, "and N more" after that) and a tap opens the story scrolled to the reply. Off, sign-out and Delete Pro Data clear it
 - **Identity** - a random install ID in the Keychain, also the RevenueCat app user id; no account
 - **Unavailable builds** - without `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (dev, self-built, web, Expo Go) the section is hidden and the app works normally
+
+---
+
+## Replies inbox (free)
+
+- **Replies** - a row on the Profile tab (unread badge) opens the signed-in user's replies: the direct replies to their latest 30 stories and comments, newest first, each with what it answers (story title or an excerpt of the user's comment); a tap opens the story scrolled to the reply
+- **Unread** - the last-opened time is stored locally; viewing the inbox marks everything seen; the first sign-in starts with no badge
+- **Client-only** - fetched from the public HN API on the phone, no server and no Pro needed
 
 ---
 

@@ -42,6 +42,15 @@ export const hnKeys = {
   ],
   /** Stories already submitted for a link (the share / "Discuss on HN" lookup). */
   discussions: (url: string): ["discussions", string] => ["discussions", url],
+  /** The signed-in user's Replies inbox. */
+  replies: (username: string | null): ["replies", string | null] => [
+    "replies",
+    username,
+  ],
+  /** When the inbox was last opened (local). */
+  repliesSeen: (): ["replies-seen"] => ["replies-seen"],
+  /** Whether reply notifications are on for this device (local). */
+  replyNotifications: (): ["reply-notifications"] => ["reply-notifications"],
   votes: (): ["votes"] => ["votes"],
   /** Bookmarked story ids; also the prefix of every bookmark query. */
   bookmarks: (): ["bookmarks"] => ["bookmarks"],

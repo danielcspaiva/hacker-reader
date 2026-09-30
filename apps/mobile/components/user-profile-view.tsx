@@ -2,6 +2,7 @@ import { Share, StyleSheet, View } from "react-native";
 
 import { HTMLText } from "@/components/story/html-text";
 import {
+  Badge,
   Button,
   Card,
   EmptyState,
@@ -26,6 +27,9 @@ import { hapticImpact } from "@/lib/haptics";
 interface UserProfileViewProps {
   userId: string | null;
   onOpenSubmissions: () => void;
+  /** Own profile only: opens the Replies inbox. */
+  onOpenReplies?: () => void;
+  unreadReplies?: number;
   /** Own profile only: opens the Submit sheet. */
   onSubmit?: () => void;
   onLogout?: () => void;
@@ -45,6 +49,8 @@ function HeroSkeleton() {
 export function UserProfileView({
   userId,
   onOpenSubmissions,
+  onOpenReplies,
+  unreadReplies = 0,
   onSubmit,
   onLogout,
 }: UserProfileViewProps) {
@@ -137,6 +143,27 @@ export function UserProfileView({
 
       {user ? (
         <ListSection>
+          {onOpenReplies ? (
+            <ListRow
+              title="Replies"
+              leading={<IconTile name="reply" hue="blue" />}
+              trailing={
+                unreadReplies > 0 ? (
+                  <Badge
+                    label={unreadReplies.toLocaleString("en-US")}
+                    tone="primary"
+                    variant="solid"
+                  />
+                ) : undefined
+              }
+              accessibilityLabel={
+                unreadReplies > 0
+                  ? `Replies, ${unreadReplies} unread`
+                  : "Replies"
+              }
+              onPress={onOpenReplies}
+            />
+          ) : null}
           {hasSubmissions ? (
             <ListRow
               title="Submissions"

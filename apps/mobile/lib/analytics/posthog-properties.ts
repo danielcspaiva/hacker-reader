@@ -73,6 +73,11 @@ export enum AnalyticsProperty {
   PRO_FEATURE = "feature",
   PRO_PLAN = "plan",
 
+  // Replies & notifications
+  REPLY_COUNT = "reply_count",
+  UNREAD_REPLY_COUNT = "unread_reply_count",
+  NOTIFICATION_KIND = "kind",
+
   // Widget
   WIDGET_SIZE = "widget_size",
   WIDGET_KIND = "widget_kind",

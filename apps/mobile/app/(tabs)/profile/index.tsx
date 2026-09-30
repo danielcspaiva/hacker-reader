@@ -5,10 +5,12 @@ import { Button, Card, IconTile, ScrollScreen, Text } from "@/components/ui";
 import { UserProfileView } from "@/components/user-profile-view";
 import { useHNAuth } from "@/contexts/hn-auth-context";
 import { useHNLogin } from "@/hooks/use-hn-login";
+import { useUnreadReplies } from "@/hooks/use-replies-seen";
 
 export default function ProfileScreen() {
   const { isAuthenticated, username, logout } = useHNAuth();
   const { handleLogin } = useHNLogin();
+  const unreadReplies = useUnreadReplies();
 
   if (!isAuthenticated) {
     return (
@@ -39,6 +41,8 @@ export default function ProfileScreen() {
     <UserProfileView
       userId={username}
       onOpenSubmissions={() => router.push("/(tabs)/profile/submissions")}
+      onOpenReplies={() => router.push("/(tabs)/profile/replies")}
+      unreadReplies={unreadReplies}
       onSubmit={() =>
         router.push({ pathname: "/submit", params: { source: "profile" } })
       }

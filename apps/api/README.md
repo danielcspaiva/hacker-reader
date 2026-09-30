@@ -39,3 +39,15 @@ Shared libs for later routes live in `lib/`: `requireInstall` / `requirePro` (`a
 ## Data
 
 Redis keys: `device:<id>`, `devices` (set of ids), `pushtoken:<token>` (reverse index), `entitlement:<id>` (10 minute cache), `push:tickets` / `push:ticket:<id>` (receipts to check), `ratelimit:*` (fixed windows). `DELETE /devices` removes the device, its token index entry and the cached entitlement. Device records and their token index entry expire 45 days after the last upsert (the app registers on every launch/foreground while Pro), so lapsed users disappear by themselves. The `devices` index set does not expire: cron jobs that iterate it call `pruneDeviceIndex(store)` first. `POST /devices` requires Pro; `/me` and `/devices` are also limited to 60 requests/min per IP before any RevenueCat lookup.
+
+## Reply notifications cron
+
+`GET /api/cron/replies` (in `vercel.json` `crons`, every 5 minutes, protected by `requireCron`) pushes "💬 <author> replied: <excerpt>" to Pro devices with `prefs.replies`, an `hnUsername` and a push token.
+
+- Per username (devices sharing one are grouped, tokens deduplicated): reads the user's newest 20 submissions from HN Firebase, collects their direct replies and compares with `replies:<username>` (highest reply id seen, 3 day TTL refreshed each run). The first run for a user only stores the baseline. Replies by the user, deleted and dead ones are skipped. The story id for the `hnclient://story/{id}?commentId={id}` link comes from Algolia `items/{id}`, else a parent walk capped at 10.
+- Caps: at most 5 pushes per user and run (the newest 4 plus "and N more replies"); at most 25 reply bodies fetched per user and run.
+- Bounded: users are processed in batches of 10 (6 fetches in flight) until 50s are used; the last processed username is kept in `replies:cursor` and the next run continues after it (cleared after the last user). `replies:lock` (120s) stops overlapping runs. A run where Expo rejects every push keeps the mark, so the next run retries.
+- Pro check: the cached entitlement (`entitlement:<id>`), falling back to RevenueCat when the 10 minute cache is empty; fails closed.
+- Ends with `checkPendingReceipts`, which removes dead push tokens.
+- **Vercel plan**: crons that run more often than once a day need a paid (Pro) Vercel plan; on Hobby the deploy is rejected. Fallback: call the same route every 5 minutes from an external scheduler such as Upstash QStash with `Authorization: Bearer <CRON_SECRET>` (remove the `crons` entry then).
+- Keys: `replies:<username>`, `replies:cursor`, `replies:lock`. `POST /devices` now merges `prefs` into the stored ones instead of replacing them, so one feature toggling its pref leaves the others alone.
