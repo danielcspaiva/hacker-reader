@@ -20,6 +20,8 @@ interface LinkCardProps {
   accessibilityLabel: string;
   /** Long-press menu actions (`Link.Menu`). */
   menu?: ReactNode;
+  /** Wide split view: select in place instead of pushing `href`. */
+  onSelect?: () => void;
   children: ReactNode;
 }
 
@@ -28,6 +30,7 @@ export function LinkCard({
   href,
   accessibilityLabel,
   menu,
+  onSelect,
   children,
 }: LinkCardProps) {
   const scale = useSharedValue(1);
@@ -54,7 +57,14 @@ export function LinkCard({
         onPressOut={() => {
           scale.value = withTiming(1, { duration: 140 });
         }}
-        onPress={() => hapticSelection()}
+        onPress={(event) => {
+          hapticSelection();
+          // The peek preview still opens `href` as usual.
+          if (onSelect) {
+            event.preventDefault();
+            onSelect();
+          }
+        }}
       >
         <Link.Trigger>
           <Pressable>{children}</Pressable>

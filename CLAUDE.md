@@ -186,6 +186,8 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 
 ### Routing & Navigation
 
+- **iPad / wide windows** (`isWideLayout(width)`, >= 768pt, `lib/layout/breakpoints.ts`): `components/story/story-split-view.tsx` wraps the Feed and Bookmarks lists in a 400pt sidebar plus a detail pane (`StoryDetailLoader` with `embedded`, which skips the header title and `StoryToolbar`). It provides `StorySelectionContext`, so `StoryCard`/`LinkCard` select in place (`preventDefault` on the link; the peek still opens `href`). Custom two-pane layout: `expo-router/split-view` exists (iOS 26+, route-driven) but is unstable and unverified with native tabs. `ScrollScreen`/`ListScreen`/`StoryDetail` cap content at 720pt via `useReadableGutter()`; panes report their width through `PaneWidthProvider`, so use `usePaneWidth()` rather than window width inside screens. iPad landscape comes from the generated Info.plist (`UISupportedInterfaceOrientations~ipad`).
+
 - **File-based routing** using Expo Router (expo-router v6)
 - Routes are defined in the `app/` directory structure
 - Tab navigation via `app/(tabs)/` using `expo-router/unstable-native-tabs`
