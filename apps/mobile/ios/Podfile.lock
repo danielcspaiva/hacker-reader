@@ -191,7 +191,11 @@ PODS:
     - RNScreens
   - ExpoSecureStore (58.0.0):
     - ExpoModulesCore
+  - ExpoSharing (58.0.12):
+    - ExpoModulesCore
   - ExpoSplashScreen (58.0.1):
+    - ExpoModulesCore
+  - ExpoStoreReview (58.0.2):
     - ExpoModulesCore
   - ExpoSymbols (58.0.2):
     - ExpoModulesCore
@@ -2447,7 +2451,9 @@ DEPENDENCIES:
   - ExpoModulesWorkletsAdapter (from `../../../node_modules/expo-modules-core`)
   - ExpoRouter (from `../../../node_modules/expo-router/ios`)
   - ExpoSecureStore (from `../../../node_modules/expo-secure-store/ios`)
+  - ExpoSharing (from `../../../node_modules/expo-sharing/ios`)
   - ExpoSplashScreen (from `../../../node_modules/expo-splash-screen/ios`)
+  - ExpoStoreReview (from `../../../node_modules/expo-store-review/ios`)
   - ExpoSymbols (from `../../../node_modules/expo-symbols/ios`)
   - ExpoSystemUI (from `../../../node_modules/expo-system-ui/ios`)
   - "ExpoUI (from `../../../node_modules/@expo/ui/ios/ExpoUI.podspec`)"
@@ -2614,8 +2620,12 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-router/ios"
   ExpoSecureStore:
     :path: "../../../node_modules/expo-secure-store/ios"
+  ExpoSharing:
+    :path: "../../../node_modules/expo-sharing/ios"
   ExpoSplashScreen:
     :path: "../../../node_modules/expo-splash-screen/ios"
+  ExpoStoreReview:
+    :path: "../../../node_modules/expo-store-review/ios"
   ExpoSymbols:
     :path: "../../../node_modules/expo-symbols/ios"
   ExpoSystemUI:
@@ -2844,18 +2854,20 @@ SPEC CHECKSUMS:
   ExpoLinking: dbbbf861b46f63b7218807fbe20763535aa8649d
   ExpoLocalization: e07616520c57981a663af4aa8aa9fc722ef784f3
   ExpoLogBox: b05bcc6d0bba1e823e23106da8d315a5910b9ec5
-  ExpoModulesCore: 889daad956dc71bf916d2312b852edd166e510fc
+  ExpoModulesCore: 4cfe5de9feb278e96bc09488abdcf294e15200f4
   ExpoModulesJSI: 6760431ff15112a98dd7d05b13eb01d535427b21
   ExpoModulesWorklets: 5c06ba01a85b59ad8a45dbe68c09b3b4660177f0
   ExpoModulesWorkletsAdapter: c8c5f2f1a6c3dd558ea8791497b24c2408c12052
   ExpoRouter: 3334bb7f88a861dd591b3f42b1650912ac80e4dd
   ExpoSecureStore: 5b305232d1425f81bdae0dde50b9a78be5f010bd
+  ExpoSharing: 525bd460d08690c61df0176adbc35518b421b470
   ExpoSplashScreen: ffaf80c17808dfeaaa7cfed540b9baaeed774bc5
+  ExpoStoreReview: baec43b9560cbe6e03171afb26a011ffdd68cad5
   ExpoSymbols: c1af8406f1305eb7ad3964d1d9f3e1551df7dffe
   ExpoSystemUI: e22151bc6f6f321d021ea0026c561db5fea4deef
   ExpoUI: 47ef92310f2236a1b3cb89ee802a1b116cdc6535
   ExpoWebBrowser: cabd0ae603ba8b7f9a08dfcebf3473a8786d9901
-  ExpoWidgets: bdcfd36d8cd9c2e3bcdcd6ef53848765fd0ac77e
+  ExpoWidgets: e23e1bfe531bf0d9536ff7c0742c184facdc8e7f
   EXUpdatesInterface: e3e64a7854cc0fc05b3053ba447ea12871acfe19
   fast_float: 7c925d1cebf8328d4018d061f49377e9f887e3b4
   FBLazyVector: 18337987f4182e940ed8b3c3211c2bc634af7b75
