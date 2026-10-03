@@ -37,6 +37,7 @@ import {
   type FlatComment,
   type StoryWithComments,
 } from "@/lib/hn";
+import { maybeRequestStoreReview, noteStoryRead } from "@/lib/store-review";
 import {
   hasThreadsToJump,
   nextTopLevelIndex,
@@ -96,6 +97,13 @@ export function StoryDetail({
       [AnalyticsProperty.COMMENT_COUNT]: story.descendants || 0,
     });
   }, [story, isInsidePreview, analytics]);
+
+  // Count the read, and ask for a rating (rarely) once the reader leaves.
+  useEffect(() => {
+    if (isInsidePreview) return;
+    void noteStoryRead();
+    return () => void maybeRequestStoreReview();
+  }, [story.id, isInsidePreview]);
 
   // Deleted/dead comments have no text: drop the row but keep its replies.
   const flatComments = flattenComments(story.comments, 0, collapsedIds).filter(
