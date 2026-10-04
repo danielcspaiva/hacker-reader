@@ -9,7 +9,7 @@ import { PaneWidthProvider } from "@/contexts/pane-width-context";
 import { StorySelectionContext } from "@/contexts/story-selection-context";
 import { useSelectedStoryId } from "@/hooks/use-selected-story-id";
 import { useTheme } from "@/hooks/use-theme";
-import { SIDEBAR_WIDTH, isWideLayout } from "@/lib/layout/breakpoints";
+import { isWideLayout, sidebarWidth } from "@/lib/layout/breakpoints";
 
 /**
  * Two-pane layout for wide windows (iPad, Split View, Stage Manager): the list
@@ -31,14 +31,15 @@ export function StorySplitView({
   /** Trailing items of the iOS column bar, such as the category menu. */
   headerRightItems?: HeaderBarButtonItem[];
 }) {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const { colors } = useTheme();
   const { selectedId, select } = useSelectedStoryId();
 
   if (!isWideLayout(width)) return <>{children}</>;
 
+  const listWidth = sidebarWidth(width, height);
   const list = (
-    <PaneWidthProvider width={SIDEBAR_WIDTH}>{children}</PaneWidthProvider>
+    <PaneWidthProvider width={listWidth}>{children}</PaneWidthProvider>
   );
 
   return (
@@ -47,7 +48,7 @@ export function StorySplitView({
         <View
           style={[
             styles.sidebar,
-            { borderRightColor: colors.border, width: SIDEBAR_WIDTH },
+            { borderRightColor: colors.border, width: listWidth },
           ]}
         >
           {Platform.OS === "ios" && title ? (
@@ -63,7 +64,7 @@ export function StorySplitView({
           )}
         </View>
         <View style={styles.detail}>
-          <PaneWidthProvider width={width - SIDEBAR_WIDTH}>
+          <PaneWidthProvider width={width - listWidth}>
             {selectedId === null ? (
               <View
                 style={[styles.detail, { backgroundColor: colors.background }]}
