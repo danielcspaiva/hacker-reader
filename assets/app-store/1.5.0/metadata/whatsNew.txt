@@ -6,4 +6,4 @@ iPad, a better way to find stories, and a calmer way to keep up.
 • Mute keywords and whole sites from the feed
 • Stories you have opened are dimmed, and new comments are marked
 • Jump between threads, collapse them all, and set a text size
-• Submit a story, or share a link to discuss it on Hacker News
+• Submit a story from your profile

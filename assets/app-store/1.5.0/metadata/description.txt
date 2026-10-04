@@ -29,7 +29,7 @@ Sign in with your Hacker News account to:
 • Upvote stories with a tap on the points, or from the long-press menu
 • Post comments and replies
 • Delete your recent comments
-• Submit a story, or share a link from another app to find its HN discussion
+• Submit a story from your profile
 • Flag stories (HN karma rules apply)
 No account is needed to browse, bookmark stories for later, hide stories, mute keywords and sites, or block users you'd rather not see.
 

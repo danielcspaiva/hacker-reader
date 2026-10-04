@@ -64,6 +64,6 @@ COMMON ISSUES & NOTES
 - Accounts are created on news.ycombinator.com. The app has no sign-up and keeps only the HN username and session cookie (Keychain) until sign out.
 - All content is hosted by Hacker News (Y Combinator), not this app.
 - No paid features, subscriptions or in-app purchases.
-- The share extension ("Discuss on HN") receives one link or a block of text from the share sheet.
+- Submit a story from Profile. This build has no iOS share extension.
 
 Questions? Please contact me. Thank you for testing!
