@@ -52,7 +52,7 @@ Tile hues (`colors.tile.<hue>`, glyph colour; `IconTile` washes it): `orange blu
 ## Surfaces
 
 - Content never gets a glass treatment: the only glass is the system's own (native tab bar and header, and at most one floating pinned bar or composer). Story cards, skeletons, link previews, submission cards, filters and inputs are solid.
-- `Card`: `card` on `background`, radius 24, no border, no shadow. Separation comes from the wash.
+- `Card`: `card` on `background`, radius 24, no border, no shadow. Separation comes from the wash. The story-card thumbnail is the one inset picture that carries a 1pt frame in `border`, so a white background does not disappear into the card.
 - A neutral fill that sits directly on the page (not inside a card) uses `card`, not `muted`: in Light Mode `muted` barely separates from the page (`Badge surface="page"`, the story vote pill).
 - `ListSection`: radius 20, hairline separators inset 16.
 - Every rounded surface sets `borderCurve: "continuous"`. Radii: 12 controls, 20 lists, 24 cards, pill for badges (`Radius` in the theme).
@@ -196,15 +196,15 @@ Rules:
 - Android: opaque header in the page colour, left-aligned title.
 - Root stack: `story/[id]`, `user/[id]` and `user/[id]/submissions` use `inline` with `headerShown: true`; `auth/login` uses `sheet`.
 - Tabs: `NativeTabs` in `app/(tabs)/_layout.tsx`, tint `primary`, `minimizeBehavior="never"`. Triggers stay literal JSX (NativeTabs has crashed on mapped children); icons come from `tabIcon(name, selectedName)` in `icon-names.ts`, which returns the `sf`/`md` props with filled variants when selected.
-- Scope is chrome, not content: the feed category belongs in a `Stack.Toolbar` menu, not a pill in the list.
-- The feed's large title names the category (`CATEGORY_TITLES`: "Top Stories", "New Stories", "Ask HN", "Show HN", "Jobs"). The category is switched from the header-right menu: a native `Stack.Toolbar.Menu` whose icon is the current category's SF Symbol, with a checkmark on the current item and `accessibilityLabel="Category: Top"`. Don't fake a text-plus-chevron trigger; a bar item cannot combine text with an SF Symbol and the result reads as non-native.
+- Scope is chrome, not content: the feed category belongs in a bar menu, not a pill in the list. On a phone that is `Stack.Toolbar` placement `right`. On a wide iPad the window bar is hidden and the list column has its own large-title bar (`ListColumn`); the menu is that bar's trailing item, because a window toolbar item sits past the detail pane. On a wide Android window the window bar stays, with the list title in it, and the column does not draw a second title.
+- The feed's large title names the category (`CATEGORY_TITLES`: "Top Stories", "New Stories", "Ask HN", "Show HN", "Jobs"). The category is switched from the header menu: icon is the current category's SF Symbol, with a checkmark on the current item and `accessibilityLabel="Category: Top"`. Don't fake a text-plus-chevron trigger; a bar item cannot combine text with an SF Symbol and the result reads as non-native.
 - `Stack.Toolbar` for screen actions, `Stack.SearchBar` for search, `Alert.alert` for confirmations.
 - Toolbar budget: at most two items on the right (ideally one primary action plus a `more` menu). Everything else goes in that `Stack.Toolbar.Menu`, with destructive actions in an inline section. Never host `@expo/ui` controls in `headerRight`; use `Stack.Toolbar.Button` / `Stack.Toolbar.Menu`.
 - An action that belongs to content lives on the content: upvote is the points pill in the story hero, not a toolbar button.
 
 ## Icons
 
-- SF Symbols only, via the `ICON_GLYPHS` registry (`components/ui/icon-names.ts`); `Icon.name` is required, there is no raw-symbol escape hatch. Add a missing meaning to the registry (both the `ios` SF name and the `android` material name); do not inline SF strings in screens. Menus that take an SF string use `ICON_GLYPHS.<name>.ios`.
+- SF Symbols only, via the `ICON_GLYPHS` registry (`components/ui/icon-names.ts`); `Icon.name` is required, there is no raw-symbol escape hatch. Add a missing meaning to the registry (both the `ios` SF name and the `android` material name); do not inline SF strings in screens. iOS column-bar items (`HeaderBarButtonItem`) take `ICON_GLYPHS.<name>.ios`. `Stack.Toolbar` Menu and Button take `toolbarIcon(name)` (`components/navigation/toolbar-icon.ts`): the SF Symbol on iOS, a Material vector on Android, with `iconRenderingMode="template"` so the bar tints it. An SF Symbol string is dropped on Android and the item renders nothing.
 - Registry names: `chevronRight chevronDown chevronUp close checkmark more external upvote comments reply share bookmark bookmarkFilled compose flag block safari refresh hide link favorite send time user userFilled karma calendar top new ask show jobs stories storiesFilled search settings settingsFilled login logout trash document code warning error success offline searchEmpty`. The five category names double as the category icons.
 - Outline glyphs by default, filled variants only for state (bookmarked, selected tab).
 - Inline icons (next to text) take their size from `INLINE_ICON_SIZE` (`caption 12`, `callout 14`, `body 16`) and the adjacent text's weight (`semibold` next to semibold counts). `Icon` defaults to `medium`.

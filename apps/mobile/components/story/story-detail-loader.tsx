@@ -34,7 +34,7 @@ export function StoryDetailLoader({
 
   let body;
   if (isLoading) {
-    body = <StoryDetailSkeleton />;
+    body = <StoryDetailSkeleton embedded={embedded} />;
   } else if (story) {
     body = (
       <StoryDetail

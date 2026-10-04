@@ -7,13 +7,20 @@ import { GUTTER } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
 /** Mirrors the story header and the first comments while the story loads. */
-export function StoryDetailSkeleton() {
+export function StoryDetailSkeleton({
+  embedded = false,
+}: {
+  /** Split-view detail has no window bar above it. */
+  embedded?: boolean;
+}) {
   const headerInset = useHeaderOverlapInset();
   const { colors } = useTheme();
   // These blocks sit on the page, where `muted` barely shows; cards stay muted.
   const onPage = { backgroundColor: colors.card };
   return (
-    <View style={[styles.container, { paddingTop: headerInset + 8 }]}>
+    <View
+      style={[styles.container, { paddingTop: embedded ? 8 : headerInset + 8 }]}
+    >
       <View style={styles.hero}>
         <Skeleton width={96} height={22} radius={11} style={onPage} />
         <Skeleton height={28} style={onPage} />

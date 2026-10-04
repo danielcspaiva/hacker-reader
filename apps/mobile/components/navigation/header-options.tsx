@@ -5,6 +5,7 @@ import { Platform } from "react-native";
 import { ModalCloseButton } from "@/components/navigation/modal-close-button";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useWideLayout } from "@/hooks/use-wide-layout";
 
 type StackScreenOptions = Extract<
   NonNullable<ComponentProps<typeof Stack>["screenOptions"]>,
@@ -74,4 +75,27 @@ function headerOptions(
 export function useHeaderOptions(variant: HeaderVariant) {
   const { colors } = useTheme();
   return headerOptions(colors, variant);
+}
+
+/**
+ * List-and-detail screens. A window-level large title draws across both
+ * columns, so on a wide iOS window the window bar is hidden and the list
+ * column owns the large title (`ListColumn`), which is what iOS 26 turns into
+ * Liquid Glass. Android keeps this window bar and its title. Hiding it there
+ * leaves a blank bar (the toolbar forces `headerShown` back on) plus the
+ * column's own title.
+ */
+export function useSplitHeaderOptions(title: string): StackScreenOptions {
+  const base = useHeaderOptions("large");
+  const wide = useWideLayout();
+  if (wide && Platform.OS === "ios") {
+    return {
+      ...base,
+      title: "",
+      headerTitle: "",
+      headerShown: false,
+      headerLargeTitle: false,
+    };
+  }
+  return { ...base, title, headerShown: true, headerLargeTitle: true };
 }

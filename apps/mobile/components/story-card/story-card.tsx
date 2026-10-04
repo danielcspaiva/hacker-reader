@@ -5,7 +5,6 @@ import { StyleSheet, View } from "react-native";
 import { LinkCard } from "@/components/link-card";
 import { LinkPreview } from "@/components/link-preview";
 import { Card, ICON_GLYPHS, Icon, Text } from "@/components/ui";
-import { Radius } from "@/constants/theme";
 import { useStorySelection } from "@/contexts/story-selection-context";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,6 +13,7 @@ import { getDomain } from "@/lib/format/url";
 import { newCommentCount, type HNItem } from "@/lib/hn";
 
 import { StoryCardMetadata } from "./story-card-metadata";
+import { THUMBNAIL_INSET, THUMBNAIL_RADIUS } from "./thumbnail-panel";
 
 export interface StoryCardProps {
   story: HNItem;
@@ -25,7 +25,7 @@ export interface StoryCardProps {
 const THUMBNAIL_WIDTH = 104;
 // The text column's padding; the image panel uses the same inset so it sits in
 // an even frame (top, right, bottom and the gap to the text all match).
-const CARD_PADDING = 14;
+const CARD_PADDING = THUMBNAIL_INSET;
 
 /**
  * The image panel sits inset from the card's edge with concentric corners
@@ -41,7 +41,7 @@ export const thumbnailPanel = {
   alignSelf: "stretch",
   margin: CARD_PADDING,
   marginLeft: 0,
-  borderRadius: Radius.card - CARD_PADDING,
+  borderRadius: THUMBNAIL_RADIUS,
   borderCurve: "continuous",
   overflow: "hidden",
 } as const;

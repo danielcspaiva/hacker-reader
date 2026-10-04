@@ -1,14 +1,19 @@
 import type { FlashListRef } from "@shopify/flash-list";
 import { Stack } from "expo-router";
 import { useEffect, useRef } from "react";
+import { Platform } from "react-native";
+import type { HeaderBarButtonItem } from "react-native-screens";
 
 import { ErrorState } from "@/components/error-state";
+import { useSplitHeaderOptions } from "@/components/navigation/header-options";
+import { toolbarIcon } from "@/components/navigation/toolbar-icon";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { StorySplitView } from "@/components/story/story-split-view";
 import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
+import { useWideLayout } from "@/hooks/use-wide-layout";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { type HNItem } from "@/lib/hn";
 
@@ -42,15 +47,34 @@ export default function BookmarksScreen() {
     });
   };
 
+  const columnChrome = useWideLayout() && Platform.OS === "ios";
+  const clearItem: HeaderBarButtonItem = {
+    type: "menu",
+    icon: { type: "sfSymbol", name: ICON_GLYPHS.more.ios },
+    accessibilityLabel: "Bookmark options",
+    menu: {
+      items: [
+        {
+          type: "action",
+          title: "Clear All Bookmarks",
+          icon: { type: "sfSymbol", name: ICON_GLYPHS.trash.ios },
+          destructive: true,
+          disabled: isClearing,
+          onPress: confirmClearAll,
+        },
+      ],
+    },
+  };
   const toolbar =
     stories.length > 0 ? (
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
-          icon={ICON_GLYPHS.more.ios}
+          icon={toolbarIcon("more")}
+          iconRenderingMode="template"
           accessibilityLabel="Bookmark options"
         >
           <Stack.Toolbar.MenuAction
-            icon={ICON_GLYPHS.trash.ios}
+            icon={toolbarIcon("trash")}
             destructive
             disabled={isClearing}
             onPress={confirmClearAll}
@@ -61,10 +85,18 @@ export default function BookmarksScreen() {
       </Stack.Toolbar>
     ) : null;
 
+  const splitHeader = useSplitHeaderOptions("Bookmarks");
+
   return (
     <>
-      {toolbar}
-      <StorySplitView>
+      <Stack.Screen options={{ ...splitHeader }} />
+      {columnChrome ? null : toolbar}
+      <StorySplitView
+        title="Bookmarks"
+        headerRightItems={
+          columnChrome && stories.length > 0 ? [clearItem] : undefined
+        }
+      >
         <ListScreen<HNItem>
           listRef={listRef}
           data={stories}

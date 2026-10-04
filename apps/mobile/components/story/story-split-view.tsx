@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
+import type { HeaderBarButtonItem } from "react-native-screens";
 
+import { ListColumn } from "@/components/navigation/list-column";
 import { StoryDetailLoader } from "@/components/story/story-detail-loader";
 import { EmptyState } from "@/components/ui";
 import { PaneWidthProvider } from "@/contexts/pane-width-context";
@@ -15,12 +17,29 @@ import { SIDEBAR_WIDTH, isWideLayout } from "@/lib/layout/breakpoints";
  * Story cards select in place instead of pushing. On narrow windows it renders
  * `children` untouched and cards push as usual.
  */
-export function StorySplitView({ children }: { children: ReactNode }) {
+export function StorySplitView({
+  children,
+  title,
+  headerLeft,
+  headerRightItems,
+}: {
+  children: ReactNode;
+  /** iOS column large title. Other platforms keep the window header's title. */
+  title?: string;
+  /** Leading item of the iOS column bar, such as the app logo. */
+  headerLeft?: ReactNode;
+  /** Trailing items of the iOS column bar, such as the category menu. */
+  headerRightItems?: HeaderBarButtonItem[];
+}) {
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
   const { selectedId, select } = useSelectedStoryId();
 
   if (!isWideLayout(width)) return <>{children}</>;
+
+  const list = (
+    <PaneWidthProvider width={SIDEBAR_WIDTH}>{children}</PaneWidthProvider>
+  );
 
   return (
     <StorySelectionContext.Provider value={{ selectedId, select }}>
@@ -31,9 +50,17 @@ export function StorySplitView({ children }: { children: ReactNode }) {
             { borderRightColor: colors.border, width: SIDEBAR_WIDTH },
           ]}
         >
-          <PaneWidthProvider width={SIDEBAR_WIDTH}>
-            {children}
-          </PaneWidthProvider>
+          {Platform.OS === "ios" && title ? (
+            <ListColumn
+              title={title}
+              headerLeft={headerLeft}
+              headerRightItems={headerRightItems}
+            >
+              {list}
+            </ListColumn>
+          ) : (
+            list
+          )}
         </View>
         <View style={styles.detail}>
           <PaneWidthProvider width={width - SIDEBAR_WIDTH}>

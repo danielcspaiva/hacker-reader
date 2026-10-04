@@ -78,7 +78,7 @@ export default function SettingsScreen() {
 
       <ListSection
         title="Text Size"
-        footer="Scales story titles, story text and comments. Also follows your iPhone's text size."
+        footer="Scales story titles, story text and comments. Also follows the system text size."
       >
         <ListSlot padding={12}>
           <Segmented

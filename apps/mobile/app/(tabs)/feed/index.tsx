@@ -2,8 +2,12 @@ import type { FlashListRef } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
+import { Platform } from "react-native";
+import type { HeaderBarButtonItem } from "react-native-screens";
 
 import { ErrorState } from "@/components/error-state";
+import { useSplitHeaderOptions } from "@/components/navigation/header-options";
+import { toolbarIcon } from "@/components/navigation/toolbar-icon";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { StorySplitView } from "@/components/story/story-split-view";
@@ -15,6 +19,7 @@ import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useMutes } from "@/hooks/use-mutes";
 import { useStories } from "@/hooks/use-stories";
+import { useWideLayout } from "@/hooks/use-wide-layout";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { yesterdayDay } from "@/lib/format/day";
@@ -80,70 +85,137 @@ export default function FeedScreen() {
     });
   };
 
+  const wide = useWideLayout();
+  // On iPad the window toolbar's trailing item sits at the far edge of the
+  // bar, past the detail pane. The wide list column has its own bar.
+  const columnChrome = wide && Platform.OS === "ios";
+  const splitHeader = useSplitHeaderOptions(CATEGORY_TITLES[category]);
+  const categoryMenu: HeaderBarButtonItem = {
+    type: "menu",
+    icon: { type: "sfSymbol", name: ICON_GLYPHS[category].ios },
+    accessibilityLabel: `Category: ${CATEGORY_LABELS[category]}`,
+    menu: {
+      items: [
+        ...STORY_CATEGORIES.map((cat) => ({
+          type: "action" as const,
+          title: CATEGORY_LABELS[cat],
+          icon: { type: "sfSymbol" as const, name: ICON_GLYPHS[cat].ios },
+          state: cat === category ? ("on" as const) : ("off" as const),
+          onPress: () => handleSelectCategory(cat),
+        })),
+        {
+          type: "submenu",
+          displayInline: true,
+          items: [
+            {
+              type: "action",
+              title: "Past Front Pages…",
+              icon: {
+                type: "sfSymbol",
+                name: ICON_GLYPHS.pastFrontPages.ios,
+              },
+              onPress: () =>
+                router.push({
+                  pathname: "/front/[day]",
+                  params: { day: yesterdayDay() },
+                }),
+            },
+            {
+              type: "action",
+              title: "Submit a Story…",
+              icon: { type: "sfSymbol", name: ICON_GLYPHS.compose.ios },
+              onPress: () =>
+                router.push({
+                  pathname: "/submit",
+                  params: { source: "feed_menu" },
+                }),
+            },
+          ],
+        },
+      ],
+    },
+  };
+
   return (
     <>
       <Stack.Screen
         options={{
-          // Large title names the category ("Top Stories"); the header-right
-          // menu (native SF Symbol button) switches it.
-          title: CATEGORY_TITLES[category],
-          headerShown: true,
-          headerLargeTitle: true,
+          // The category name is the large title on a phone and the list-column
+          // title on iPad. The header menu switches it.
+          ...splitHeader,
         }}
       />
-      <Stack.Toolbar placement="left">
-        <Stack.Toolbar.View hidesSharedBackground>
-          <Image
-            source={require("@/assets/images/widget-logo.png")}
-            style={{ width: 28, height: 28 }}
-            accessible
-            accessibilityLabel="Hacker Reader"
-          />
-        </Stack.Toolbar.View>
-      </Stack.Toolbar>
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Menu
-          icon={ICON_GLYPHS[category].ios}
-          title="Stories"
-          accessibilityLabel={`Category: ${CATEGORY_LABELS[category]}`}
-        >
-          {STORY_CATEGORIES.map((cat) => (
-            <Stack.Toolbar.MenuAction
-              key={cat}
-              icon={ICON_GLYPHS[cat].ios}
-              isOn={cat === category}
-              onPress={() => handleSelectCategory(cat)}
-            >
-              {CATEGORY_LABELS[cat]}
-            </Stack.Toolbar.MenuAction>
-          ))}
-          <Stack.Toolbar.Menu inline title="">
-            <Stack.Toolbar.MenuAction
-              icon={ICON_GLYPHS.pastFrontPages.ios}
-              onPress={() =>
-                router.push({
-                  pathname: "/front/[day]",
-                  params: { day: yesterdayDay() },
-                })
-              }
-            >
-              Past Front Pages…
-            </Stack.Toolbar.MenuAction>
-            <Stack.Toolbar.MenuAction
-              icon={ICON_GLYPHS.compose.ios}
-              onPress={() =>
-                router.push({
-                  pathname: "/submit",
-                  params: { source: "feed_menu" },
-                })
-              }
-            >
-              Submit a Story…
-            </Stack.Toolbar.MenuAction>
+      {columnChrome ? null : (
+        <Stack.Toolbar placement="left">
+          <Stack.Toolbar.View hidesSharedBackground>
+            <Image
+              source={require("@/assets/images/widget-logo.png")}
+              style={{ width: 28, height: 28 }}
+              accessible
+              accessibilityLabel="Hacker Reader"
+            />
+          </Stack.Toolbar.View>
+        </Stack.Toolbar>
+      )}
+      {columnChrome ? null : (
+        <Stack.Toolbar placement="right">
+          <Stack.Toolbar.Menu
+            icon={toolbarIcon(category)}
+            iconRenderingMode="template"
+            title="Stories"
+            accessibilityLabel={`Category: ${CATEGORY_LABELS[category]}`}
+          >
+            {STORY_CATEGORIES.map((cat) => (
+              <Stack.Toolbar.MenuAction
+                key={cat}
+                icon={toolbarIcon(cat)}
+                isOn={cat === category}
+                onPress={() => handleSelectCategory(cat)}
+              >
+                {CATEGORY_LABELS[cat]}
+              </Stack.Toolbar.MenuAction>
+            ))}
+            <Stack.Toolbar.Menu inline title="">
+              <Stack.Toolbar.MenuAction
+                icon={toolbarIcon("pastFrontPages")}
+                onPress={() =>
+                  router.push({
+                    pathname: "/front/[day]",
+                    params: { day: yesterdayDay() },
+                  })
+                }
+              >
+                Past Front Pages…
+              </Stack.Toolbar.MenuAction>
+              <Stack.Toolbar.MenuAction
+                icon={toolbarIcon("compose")}
+                onPress={() =>
+                  router.push({
+                    pathname: "/submit",
+                    params: { source: "feed_menu" },
+                  })
+                }
+              >
+                Submit a Story…
+              </Stack.Toolbar.MenuAction>
+            </Stack.Toolbar.Menu>
           </Stack.Toolbar.Menu>
-        </Stack.Toolbar.Menu>
-      </Stack.Toolbar>
-      <StorySplitView>
+        </Stack.Toolbar>
+      )}
+      <StorySplitView
+        title={CATEGORY_TITLES[category]}
+        headerLeft={
+          columnChrome ? (
+            <Image
+              source={require("@/assets/images/widget-logo.png")}
+              style={{ width: 28, height: 28 }}
+              accessible
+              accessibilityLabel="Hacker Reader"
+            />
+          ) : undefined
+        }
+        headerRightItems={columnChrome ? [categoryMenu] : undefined}
+      >
         <ListScreen<HNItem>
           listRef={listRef}
           data={stories}

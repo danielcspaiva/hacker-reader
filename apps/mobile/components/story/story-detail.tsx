@@ -67,6 +67,7 @@ export function StoryDetail({
 }: StoryDetailProps) {
   const listRef = useRef<FlashListRef<FlatComment>>(null);
   const headerInset = useHeaderOverlapInset();
+  const scrollOffset = embedded ? 8 : headerInset + 8;
   const bottomInset = useScreenBottomInset();
   const readableGutter = useReadableGutter(0);
   const analytics = useAnalytics();
@@ -116,7 +117,7 @@ export function StoryDetail({
     index: commentId
       ? flatComments.findIndex((item) => item.comment.id === Number(commentId))
       : -1,
-    topOffset: headerInset + 8,
+    topOffset: scrollOffset,
   });
 
   const newRowIndexes = flatComments.flatMap((item, index) =>
@@ -135,7 +136,7 @@ export function StoryDetail({
       [AnalyticsProperty.STORY_ID]: story.id,
       [AnalyticsProperty.NEW_COMMENT_COUNT]: newRowIndexes.length,
     });
-    scrollToCommentRow(listRef, nextIndex, headerInset + 8);
+    scrollToCommentRow(listRef, nextIndex, scrollOffset);
   };
 
   const depths = flatComments.map((item) => item.depth);
@@ -149,7 +150,7 @@ export function StoryDetail({
         ? nextTopLevelIndex(depths, current)
         : previousTopLevelIndex(depths, current);
     if (target !== undefined) {
-      scrollToCommentRow(listRef, target, headerInset + 8);
+      scrollToCommentRow(listRef, target, scrollOffset);
     }
   };
 

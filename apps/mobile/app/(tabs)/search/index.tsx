@@ -4,6 +4,7 @@ import { StyleSheet, View } from "react-native";
 import type { SearchBarCommands } from "react-native-screens";
 
 import { ErrorState } from "@/components/error-state";
+import { toolbarIcon } from "@/components/navigation/toolbar-icon";
 import { StoryCard } from "@/components/story-card";
 import { StoryCardSkeleton } from "@/components/story-card-skeleton";
 import { SubmissionCommentCard } from "@/components/submission-comment-card";
@@ -17,7 +18,6 @@ import {
   ScrollScreen,
   Text,
 } from "@/components/ui";
-import { ICON_GLYPHS } from "@/components/ui/icon-names";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useRecentSearches } from "@/hooks/use-recent-searches";
 import { useSearchOptions } from "@/hooks/use-search-options";
@@ -159,7 +159,8 @@ export default function SearchScreen() {
   const optionsMenu = (
     <Stack.Toolbar placement="right">
       <Stack.Toolbar.Menu
-        icon={(isFiltered ? ICON_GLYPHS.filterFilled : ICON_GLYPHS.filter).ios}
+        icon={toolbarIcon(isFiltered ? "filterFilled" : "filter")}
+        iconRenderingMode="template"
         title="Search Options"
         tintColor={isFiltered ? colors.primary : undefined}
         accessibilityLabel={

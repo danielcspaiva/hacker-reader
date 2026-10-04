@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-import { ICON_GLYPHS } from "@/components/ui";
+import { toolbarIcon } from "@/components/navigation/toolbar-icon";
 import { useExternalLink } from "@/hooks/use-external-link";
 import type { StoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
@@ -32,28 +32,26 @@ export function StoryToolbar({
   return (
     <Stack.Toolbar placement="right">
       <Stack.Toolbar.Button
-        icon={
-          isBookmarked
-            ? ICON_GLYPHS.bookmarkFilled.ios
-            : ICON_GLYPHS.bookmark.ios
-        }
+        icon={toolbarIcon(isBookmarked ? "bookmarkFilled" : "bookmark")}
+        iconRenderingMode="template"
         tintColor={isBookmarked ? colors.primary : undefined}
         accessibilityLabel={isBookmarked ? "Remove bookmark" : "Bookmark"}
         onPress={actions.handleBookmark}
       />
       <Stack.Toolbar.Menu
-        icon={ICON_GLYPHS.more.ios}
+        icon={toolbarIcon("more")}
+        iconRenderingMode="template"
         accessibilityLabel="More actions"
       >
         <Stack.Toolbar.MenuAction
-          icon={ICON_GLYPHS.share.ios}
+          icon={toolbarIcon("share")}
           onPress={actions.handleShare}
         >
           Share
         </Stack.Toolbar.MenuAction>
         {url ? (
           <Stack.Toolbar.MenuAction
-            icon={ICON_GLYPHS.safari.ios}
+            icon={toolbarIcon("safari")}
             onPress={() => void openLink(url)}
           >
             Open in Browser
@@ -62,13 +60,13 @@ export function StoryToolbar({
         {hasThreads ? (
           <Stack.Toolbar.Menu inline title="">
             <Stack.Toolbar.MenuAction
-              icon={ICON_GLYPHS.collapseAll.ios}
+              icon={toolbarIcon("collapseAll")}
               onPress={onCollapseAll}
             >
               Collapse All
             </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
-              icon={ICON_GLYPHS.expandAll.ios}
+              icon={toolbarIcon("expandAll")}
               onPress={onExpandAll}
             >
               Expand All
@@ -77,28 +75,28 @@ export function StoryToolbar({
         ) : null}
         <Stack.Toolbar.Menu inline title="">
           <Stack.Toolbar.MenuAction
-            icon={ICON_GLYPHS.hide.ios}
+            icon={toolbarIcon("hide")}
             onPress={actions.handleHide}
           >
             Hide
           </Stack.Toolbar.MenuAction>
           {actions.muteDomain ? (
             <Stack.Toolbar.MenuAction
-              icon={ICON_GLYPHS.mute.ios}
+              icon={toolbarIcon("mute")}
               onPress={actions.handleMuteDomain}
             >
               {`Mute ${actions.muteDomain}`}
             </Stack.Toolbar.MenuAction>
           ) : null}
           <Stack.Toolbar.MenuAction
-            icon={ICON_GLYPHS.flag.ios}
+            icon={toolbarIcon("flag")}
             destructive
             onPress={actions.handleFlag}
           >
             Flag
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
-            icon={ICON_GLYPHS.block.ios}
+            icon={toolbarIcon("block")}
             destructive
             onPress={actions.handleBlockUser}
           >
