@@ -1,6 +1,5 @@
 DEMO ACCOUNT
-Username: appstorereview
-Password: appstorereview
+Credentials are entered in App Store Connect and are not stored in this repository.
 
 Only voting, commenting and flagging need an account; bookmarks, hidden stories and blocked users are stored on the device.
 

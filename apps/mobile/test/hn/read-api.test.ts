@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
 
 import type { StoryCategory } from "@/lib/hn/constants";
-import { getStoryWithComments, searchStories } from "@/lib/hn/read/algolia";
+import {
+  getFrontPageStories,
+  getStoryWithComments,
+  searchStories,
+} from "@/lib/hn/read/algolia";
 import {
   getItem,
   getItems,
@@ -24,6 +28,7 @@ describe("firebase hn-api", () => {
   it("story lists hit the right endpoint and slice by offset/limit", async () => {
     const endpoints: [StoryCategory, string][] = [
       ["top", "topstories"],
+      ["best", "beststories"],
       ["new", "newstories"],
       ["ask", "askstories"],
       ["show", "showstories"],
@@ -103,10 +108,56 @@ describe("algolia-api", () => {
     );
   });
 
+  it("getFrontPageStories filters by front_page and day, sorted by points", async () => {
+    const hit = (objectID: string, points: number | null) => ({
+      objectID,
+      title: `t${objectID}`,
+      url: null,
+      author: "a",
+      points,
+      num_comments: 0,
+      created_at_i: 1,
+    });
+    fake = installFetch([
+      {
+        json: {
+          hits: [hit("1", 5), hit("x", 99), hit("2", 50), hit("3", null)],
+        },
+      },
+    ]);
+    const items = await getFrontPageStories(100, 200);
+    assert.equal(
+      fake.calls[0].url,
+      "https://hn.algolia.com/api/v1/search?tags=front_page&numericFilters=created_at_i%3E%3D100%2Ccreated_at_i%3C200&hitsPerPage=30"
+    );
+    assert.deepEqual(
+      items.map((item) => item.id),
+      [2, 1, 3]
+    );
+  });
+
   it("searchStories defaults to page 0, 30 hits", async () => {
     fake = installFetch([{ json: { hits: [] } }]);
     await searchStories("x");
     assert.match(fake.calls[0].url, /page=0&hitsPerPage=30&tags=story$/);
+  });
+
+  it("searchStories uses /search_by_date, comment tags and filters from options", async () => {
+    fake = installFetch([{ json: { hits: [] } }]);
+    await searchStories("x", 0, 30, undefined, {
+      sort: "date",
+      scope: "comment",
+      dateRange: "week",
+      minPoints: 100,
+    });
+    const url = new URL(fake.calls[0].url);
+    assert.equal(url.pathname, "/api/v1/search_by_date");
+    assert.equal(url.searchParams.get("tags"), "comment");
+    // points are a story-only filter
+    assert.match(
+      url.searchParams.get("numericFilters") ?? "",
+      /^created_at_i>\d+$/
+    );
   });
 
   it("non-2xx throws 'Algolia API error: <status>'", async () => {

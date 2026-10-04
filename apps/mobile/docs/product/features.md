@@ -16,15 +16,20 @@ This document provides a comprehensive overview of all features available in the
 
 ### Story Browsing
 
-Browse Hacker News stories across five different categories:
+Browse Hacker News stories across six categories, plus past front pages:
 
 #### Categories
 
 - **Top Stories** =% - The most popular stories currently on HN
+- **Best Stories** - Highest-voted recent stories (Firebase `beststories`)
 - **New Stories** ( - Recently submitted stories
 - **Ask HN** =� - Questions and discussions from the community
 - **Show HN** =� - Projects, products, and creations shared by users
 - **Jobs** =� - Job postings from YC companies and startups
+
+#### Past Front Pages
+
+"Past Front Pages…" in the feed menu opens a day's front page (Algolia `front_page`, ranked by points), like news.ycombinator.com/front. Defaults to yesterday; previous/next day buttons in the header and a native date picker. Days are UTC. Deep link: `hnclient://front/YYYY-MM-DD`.
 
 #### Story Cards
 
@@ -60,6 +65,17 @@ Each story displays:
 - **HTML Parsing** - Properly formatted text with clickable links
 - **Lazy Loading** - Comments fetched individually for performance
 - **Filtered Content** - Dead/deleted comments automatically hidden
+- **Read State** - Opened stories dim in every list; a "+N" badge shows comments added since your last visit; new comments are marked `NEW` with a "Next new comment" button; Mark as Read/Unread in the card menu; Clear Reading History in Settings
+- **Thread Navigation** - Floating chevrons jump to the next/previous top-level comment; Collapse All / Expand All in the story menu
+- **Text Size** - Settings → Text Size (Small to Extra Large, with preview) scales story titles, story text and comments on top of iOS Dynamic Type
+- **Muted Words & Sites** - Mute title keywords or whole sites (subdomains included) from Settings or a story's menu; hides matching stories in the feed only (not search or bookmarks)
+
+### iPad Split View
+
+- Windows 768pt wide or more (iPad, Split View, Stage Manager; follows resizing) show the Stories and Bookmarks lists in a 400pt left column and the selected story's detail (header, comments, reply box) on the right
+- Tapping a card selects it in place with an orange ring; nothing selected shows "Select a story"; deep links and peek previews still push the story screen
+- Pushed story detail, settings, profile and other lists cap content at 720pt, centred
+- Narrow windows and iPhone use the stacked phone layout
 
 ### Navigation
 
@@ -148,6 +164,19 @@ Each story displays:
 - **HTML Support** - Basic formatting supported (links, code, quotes)
 - **Error Recovery** - Automatic rollback on network errors
 - **Smart Hooks** - Dedicated `use-comment-mutation` and `use-delete-comment-mutation` hooks
+
+#### Submitting Stories
+
+- **Submit sheet** - "Submit a Story…" in the feed header menu and "Submit a story" on your Profile; title (80-character counter), URL and text, prefilled from a shared link
+- **Duplicates** - HN redirecting to an existing item shows "Open existing discussion" instead of posting
+- **Signed out** - the sheet shows a sign-in prompt that opens the login sheet
+- **After posting** - success haptic, the sheet closes and the New feed refreshes
+
+#### Discuss on HN (share extension)
+
+- Share a web link from Safari or any app to Hacker Reader; the link is looked up on Algolia (tracking parameters, `www.` and trailing slash ignored)
+- Existing discussions open in a "Discussions on HN" sheet sorted by points, with "Submit it" at the bottom; with none, the Submit sheet opens prefilled
+- `hnclient://discuss?url=...` opens the same lookup without the extension
 
 #### Rate Limiting
 
@@ -363,7 +392,7 @@ Full token table, contrast ratios and component contract: [`docs/design-language
 - [x] Comment posting UI implementation
 - [x] Comment deletion
 - [x] User profiles
-- [x] Search functionality (Algolia-powered)
+- [x] Search functionality (Algolia-powered): sort (relevance/newest), stories or comments, date range and minimum points filters in a header menu (persisted), `author:<name>` queries
 - [ ] Favorites list screen
 - [x] Share stories
 - [ ] Offline reading mode
@@ -372,7 +401,6 @@ Full token table, contrast ratios and component contract: [`docs/design-language
 - [ ] Web app authentication
 - [ ] Notifications for replies
 - [ ] Customizable themes
-- [ ] Font size settings
 
 ### Under Consideration
 

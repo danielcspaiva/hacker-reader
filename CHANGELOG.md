@@ -5,6 +5,24 @@ All notable changes to Hacker Reader will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - Unreleased
+
+### Added
+
+- iPad and other wide windows show the story list and the open story side by side. Reading width stays capped on a large screen
+- Best feed, and any past day's front page from the feed menu
+- Search can sort by newest, cover comments, filter by date and points, and take `author:name`
+- Mute keywords and sites. Muted stories leave the feed and stay in Search and Bookmarks
+- Opened stories dim, a card shows `+N` when a read story has new comments, and those comments are marked in the thread
+- Jump between top-level comments, collapse every thread, and choose a text size
+- Submit a story, and open a shared link in "Discuss on HN" (share extension)
+- The app asks for an App Store rating only after 10 stories, 3 days, and never twice on the same version
+
+### Changed
+
+- App Store subtitle is "Hacker News Client & Widgets". Keywords drop repeated "HN" and add software, founder and dev
+- The first screenshot caption says "Hacker News" instead of "HN"
+
 ## [1.4.0] - 2026-09-29
 
 ### Added

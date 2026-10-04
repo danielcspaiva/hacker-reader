@@ -7,6 +7,8 @@ import {
   parseCommentFormHmac,
   parseDeleteLink,
   parseFlagLink,
+  parseSubmitFormFnid,
+  parseSubmitResponse,
   parseUnvoteLink,
   parseVoteLink,
 } from "@/lib/hn/web/parsers";
@@ -14,7 +16,7 @@ import {
 const fixture = (name: string) =>
   readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8");
 
-function thrown(fn: () => string): HNAuthError {
+function thrown(fn: () => void): HNAuthError {
   try {
     fn();
   } catch (error) {
@@ -382,5 +384,92 @@ describe("signed-in pages whose comments mention login", () => {
       thrown(() => parseDeleteLink(signedIn, 4)).code,
       "NOT_LOGGED_IN"
     );
+  });
+});
+
+describe("parseSubmitFormFnid (SYNTHETIC fixtures)", () => {
+  it("reads and decodes the hidden fnid input", () => {
+    assert.equal(
+      parseSubmitFormFnid(fixture("submit-page.html")),
+      "Ab12Cd34&x"
+    );
+  });
+
+  it("throws NOT_LOGGED_IN for the signed-out submit page", () => {
+    const err = thrown(() =>
+      parseSubmitFormFnid(fixture("submit-signed-out.html"))
+    );
+    assert.equal(err.code, "NOT_LOGGED_IN");
+  });
+
+  it("throws RATE_LIMITED for the too-fast message page", () => {
+    const err = thrown(() =>
+      parseSubmitFormFnid(
+        "You're submitting too fast. Please slow down. Thanks."
+      )
+    );
+    assert.equal(err.code, "RATE_LIMITED");
+  });
+
+  it("throws PARSE_ERROR for a signed-in page without the form", () => {
+    const err = thrown(() =>
+      parseSubmitFormFnid(`<a href="logout?auth=x">logout</a><table></table>`)
+    );
+    assert.equal(err.code, "PARSE_ERROR");
+  });
+});
+
+describe("parseSubmitResponse (SYNTHETIC responses)", () => {
+  const HN = "https://news.ycombinator.com";
+
+  it("a redirect to newest is a new story", () => {
+    assert.deepEqual(
+      parseSubmitResponse(fixture("front-page.html"), `${HN}/newest`),
+      { duplicateOf: null }
+    );
+  });
+
+  it("a redirect to an item is a duplicate of it", () => {
+    assert.deepEqual(parseSubmitResponse("", `${HN}/item?id=4242`), {
+      duplicateOf: 4242,
+    });
+  });
+
+  it("maps the too-fast page to RATE_LIMITED", () => {
+    const err = thrown(() =>
+      parseSubmitResponse(
+        "You're submitting too fast. Please slow down. Thanks.",
+        `${HN}/r`
+      )
+    );
+    assert.equal(err.code, "RATE_LIMITED");
+  });
+
+  it("maps a login prompt to NOT_LOGGED_IN", () => {
+    const err = thrown(() =>
+      parseSubmitResponse(fixture("submit-signed-out.html"), `${HN}/r`)
+    );
+    assert.equal(err.code, "NOT_LOGGED_IN");
+  });
+
+  it("carries the orange message of a re-rendered form as REJECTED", () => {
+    const html = `<html><body><table id="hnmain"></table><form><font color="#ff6600">Please limit title to 80 characters.</font><input type="hidden" name="fnid" value="x"></form></body></html>`;
+    const err = thrown(() => parseSubmitResponse(html, `${HN}/r`));
+    assert.equal(err.code, "REJECTED");
+    assert.match(err.message, /80 characters/);
+  });
+
+  it("a re-rendered form without a message is REJECTED", () => {
+    const err = thrown(() =>
+      parseSubmitResponse(fixture("submit-page.html"), `${HN}/r`)
+    );
+    assert.equal(err.code, "REJECTED");
+  });
+
+  it("an unrecognised page is a PARSE_ERROR", () => {
+    const err = thrown(() =>
+      parseSubmitResponse(`<a href="logout?auth=x">x</a>`, `${HN}/r`)
+    );
+    assert.equal(err.code, "PARSE_ERROR");
   });
 });

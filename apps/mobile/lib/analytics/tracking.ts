@@ -9,11 +9,20 @@ import * as Application from "expo-application";
 import { usePostHog } from "posthog-react-native";
 import { Platform } from "react-native";
 
-import type { StoryCategory } from "@/lib/hn";
+import type {
+  SearchDateRange,
+  SearchScope,
+  SearchSort,
+  StoryCategory,
+} from "@/lib/hn";
 import { reportError } from "@/lib/observability/report-error";
+import type { TextSize } from "@/lib/text/text-size";
 
 import { AnalyticsEvent } from "./posthog-events";
 import { AnalyticsProperty } from "./posthog-properties";
+
+/** Where a submission started: a menu, the profile tab, or a shared link. */
+export type SubmitSource = "feed_menu" | "profile" | "share";
 
 export type WidgetSize = "small" | "medium" | "large" | "accessory";
 
@@ -52,10 +61,19 @@ export interface EventProperties {
     [AnalyticsProperty.PAGE_NUMBER]: number;
   };
 
+  [AnalyticsEvent.PAST_FRONT_PAGE_VIEWED]: {
+    [AnalyticsProperty.DAY]: string;
+  };
+
   // Search
   [AnalyticsEvent.SEARCH_PERFORMED]: {
     [AnalyticsProperty.QUERY]: string;
     [AnalyticsProperty.RESULTS_COUNT]: number;
+    [AnalyticsProperty.SEARCH_SORT]: SearchSort;
+    [AnalyticsProperty.SEARCH_SCOPE]: SearchScope;
+    [AnalyticsProperty.SEARCH_DATE_RANGE]: SearchDateRange;
+    [AnalyticsProperty.SEARCH_MIN_POINTS]: number;
+    [AnalyticsProperty.SEARCH_HAS_AUTHOR]: boolean;
   };
   [AnalyticsEvent.SEARCH_RESULT_CLICKED]: {
     [AnalyticsProperty.QUERY]: string;
@@ -84,6 +102,23 @@ export interface EventProperties {
   [AnalyticsEvent.STORY_HIDDEN]: {
     [AnalyticsProperty.STORY_ID]: number;
   };
+  [AnalyticsEvent.STORY_MARKED_READ]: {
+    [AnalyticsProperty.STORY_ID]: number;
+  };
+  [AnalyticsEvent.STORY_MARKED_UNREAD]: {
+    [AnalyticsProperty.STORY_ID]: number;
+  };
+  [AnalyticsEvent.NEXT_NEW_COMMENT_TAPPED]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.NEW_COMMENT_COUNT]: number;
+  };
+  [AnalyticsEvent.MUTE_ADDED]: {
+    [AnalyticsProperty.MUTE_KIND]: "keyword" | "domain";
+    [AnalyticsProperty.MUTE_SOURCE]: "story_card" | "story_detail" | "settings";
+  };
+  [AnalyticsEvent.MUTE_REMOVED]: {
+    [AnalyticsProperty.MUTE_KIND]: "keyword" | "domain";
+  };
   [AnalyticsEvent.STORY_FLAGGED]: {
     [AnalyticsProperty.STORY_ID]: number;
   };
@@ -105,6 +140,20 @@ export interface EventProperties {
     [AnalyticsProperty.COMMENT_ID]: number;
   };
 
+  // Submitting & sharing in
+  [AnalyticsEvent.STORY_SUBMITTED]: {
+    [AnalyticsProperty.SUBMIT_KIND]: "link" | "text";
+    [AnalyticsProperty.SUBMIT_SOURCE]: SubmitSource;
+  };
+  [AnalyticsEvent.SUBMIT_DUPLICATE_FOUND]: {
+    [AnalyticsProperty.STORY_ID]: number;
+    [AnalyticsProperty.SUBMIT_SOURCE]: SubmitSource;
+  };
+  [AnalyticsEvent.SHARE_EXTENSION_OPENED]: Record<string, never>;
+  [AnalyticsEvent.DISCUSSION_FOUND]: {
+    [AnalyticsProperty.DISCUSSION_COUNT]: number;
+  };
+
   // Authentication
   [AnalyticsEvent.LOGIN_INITIATED]: Record<string, never>;
   [AnalyticsEvent.LOGIN_COMPLETED]: {
@@ -118,6 +167,10 @@ export interface EventProperties {
     to_theme: "light" | "dark" | "system";
   };
   [AnalyticsEvent.SETTINGS_VIEWED]: Record<string, never>;
+  [AnalyticsEvent.TEXT_SIZE_CHANGED]: {
+    from_size: TextSize;
+    to_size: TextSize;
+  };
 
   // Widget Interactions
   [AnalyticsEvent.WIDGET_TAPPED]: {

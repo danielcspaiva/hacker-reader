@@ -14,6 +14,10 @@ import {
   Skeleton,
 } from "@/components/ui";
 import { CARD_GAP } from "@/constants/theme";
+import {
+  usePrefetchVisibleStories,
+  visibleStoryId,
+} from "@/hooks/use-prefetch-visible-stories";
 import { useUser } from "@/hooks/use-user";
 import { useUserSubmissions } from "@/hooks/use-user-submissions";
 import type { HNItem } from "@/lib/hn";
@@ -62,6 +66,7 @@ export function UserSubmissionsList({
     isLoadingUser ||
     isLoadingSubmissions ||
     (hasSubmissions && isPlaceholderData);
+  const prefetchVisibleStories = usePrefetchVisibleStories(visibleStoryId);
   const itemType = selectedType === "stories" ? "story" : "comment";
   const items = (submissions ?? []).filter((item) => item.type === itemType);
 
@@ -78,6 +83,7 @@ export function UserSubmissionsList({
     <>
       <Stack.Screen options={{ title }} />
       <ListScreen<HNItem>
+        {...prefetchVisibleStories}
         data={items}
         isLoading={isLoading}
         skeleton={

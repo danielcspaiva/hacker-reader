@@ -2,7 +2,7 @@
  * HN Write API Client
  *
  * Provides authenticated write operations for Hacker News
- * (vote, comment, flag, delete)
+ * (vote, comment, submit, flag, delete)
  *
  * All operations require a valid SecureSession with HN cookies.
  */
@@ -22,8 +22,11 @@ import {
   parseDeleteConfirmForm,
   parseDeleteLink,
   parseFlagState,
+  parseSubmitFormFnid,
+  parseSubmitResponse,
   parseVoteLink,
   parseVoteState,
+  type SubmitOutcome,
 } from "./parsers";
 import { hnRateLimiter } from "./rate-limiter";
 
@@ -288,6 +291,75 @@ export async function comment(
   return username
     ? findOwnCommentId(responseHtml, username, parentId)
     : newestItemIdInHtml(responseHtml, parentId);
+}
+
+/** HN's title limit; longer titles are refused. */
+export const HN_TITLE_MAX_LENGTH = 80;
+
+export interface SubmitStoryInput {
+  title: string;
+  url?: string;
+  text?: string;
+}
+
+/**
+ * Submit a story. Resolves `{ duplicateOf: null }` for a new story, or
+ * `{ duplicateOf: id }` when HN redirected to the existing submission of that
+ * URL (nothing was posted).
+ *
+ * Reads `fnid` from `/submit` and POSTs it to `/r` with `fnop=submit-page`.
+ * Never retried: a POST that timed out may still have posted, so that outcome
+ * is UNCONFIRMED and the caller must check /newest rather than resubmit.
+ */
+export async function submit(
+  { title, url, text }: SubmitStoryInput,
+  session: SecureSession
+): Promise<SubmitOutcome> {
+  const cleanTitle = title.trim();
+  const cleanUrl = url?.trim() ?? "";
+  const cleanText = text?.trim() ?? "";
+  if (!cleanTitle) {
+    throw new HNAuthError("Add a title", "REJECTED");
+  }
+  if (cleanTitle.length > HN_TITLE_MAX_LENGTH) {
+    throw new HNAuthError(
+      `Titles are limited to ${HN_TITLE_MAX_LENGTH} characters`,
+      "REJECTED"
+    );
+  }
+  if (!cleanUrl && !cleanText) {
+    throw new HNAuthError("Add a URL or some text", "REJECTED");
+  }
+
+  const pageResponse = await fetchHN("/submit", session);
+  const fnid = parseSubmitFormFnid(await pageResponse.text());
+
+  const formData = new URLSearchParams({
+    fnid,
+    fnop: "submit-page",
+    title: cleanTitle,
+    url: cleanUrl,
+    text: cleanText,
+  });
+
+  let response: Response;
+  try {
+    response = await fetchHN("/r", session, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString(),
+    });
+  } catch (error) {
+    if (isAuthError(error) && error.code === "NETWORK_ERROR") {
+      throw new HNAuthError(
+        "Your story may have been submitted",
+        "UNCONFIRMED"
+      );
+    }
+    throw error;
+  }
+
+  return parseSubmitResponse(await response.text(), response.url);
 }
 
 /**

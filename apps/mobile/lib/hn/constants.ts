@@ -6,5 +6,12 @@ export const OG_USER_AGENT = "Mozilla/5.0 (compatible; HNClient/1.0)";
 export const HN_USER_AGENT = "HN-Client/1.0 (Mobile)";
 
 /** Story list categories, in tab order. */
-export const STORY_CATEGORIES = ["top", "new", "ask", "show", "jobs"] as const;
+export const STORY_CATEGORIES = [
+  "top",
+  "best",
+  "new",
+  "ask",
+  "show",
+  "jobs",
+] as const;
 export type StoryCategory = (typeof STORY_CATEGORIES)[number];

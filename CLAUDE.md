@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React Native Hacker News client built with Expo and file-based routing (expo-router). The app displays stories from Hacker News across five categories (Top, New, Ask, Show, Jobs) with infinite scrolling, link previews, and a comment system.
+This is a React Native Hacker News client built with Expo and file-based routing (expo-router). The app displays stories from Hacker News across six categories (Top, Best, New, Ask, Show, Jobs) plus past front pages by date with infinite scrolling, link previews, and a comment system.
 
 ## Package Manager
 
@@ -84,6 +84,7 @@ The mobile app supports HN authentication with a native login experience:
    - `vote(itemId, session)` - Upvote stories/comments
    - `unvote(itemId, session)` - Remove upvote
    - `comment(parentId, text, session)` - Post comments
+   - `submit({ title, url?, text? }, session)` - Submit a story: GETs `/submit` for `fnid`, POSTs `/r` (`fnop=submit-page`); resolves `{ duplicateOf }` (an item id when HN redirects to the existing item, else null); title max 80 (`HN_TITLE_MAX_LENGTH`)
    - All operations require `SecureSession` with HN cookies (except login)
    - HTTPS enforced, automatic rate limiting, smart error handling
 
@@ -152,7 +153,40 @@ The mobile app includes comprehensive user profile viewing for both authenticate
 
 ---
 
+### Search (Mobile)
+
+`app/(tabs)/search/index.tsx` searches Algolia with options from a native header menu (`Stack.Toolbar.Menu`, inline sections, `isOn` checkmarks; the icon fills and tints when anything is non-default):
+
+- **Options** (`SearchOptions` in `lib/hn/read/search-params.ts`): sort (relevance `/search`, newest `/search_by_date`), scope (stories `tags=story`, comments `tags=comment`), date range (`numericFilters=created_at_i>…`) and minimum points (`points>=N`, stories only). Persisted in AsyncStorage (`lib/hn/local/search-options.ts`, via `createJsonListStore`) and read through `hooks/use-search-options.ts`.
+- **`author:<name>`** in the query box becomes `tags=…,author_<name>` (`parseSearchQuery`); an author-only query is valid.
+- **Pure logic**: `buildSearchParams`, `searchEndpoint`, `parseSearchOptions` (node-tested in `test/hn/search-params.test.ts`). `hnKeys.search(query, options)` includes every param.
+- **Comment results** render `SubmissionCommentCard` with `known` story context from the hit (`story_id`, `story_title`), so no per-card lookups; tapping opens the story scrolled to the comment.
+- `search_performed` carries sort, scope, date range, min points and `has_author_filter`.
+
+### Past Front Pages (Mobile)
+
+- Feed header menu, inline section "Past Front Pages…" pushes `app/front/[day].tsx` (root stack, deep link `hnclient://front/YYYY-MM-DD`; invalid day means yesterday, future days clamp to today).
+- `getFrontPageStories(start, end)` (`lib/hn/read/algolia.ts`): Algolia `tags=front_page` + `created_at_i` window, sorted by points, mapped with `mapHitToHNItem`; `useFrontPage(day)` with `hnKeys.frontPage(day)`.
+- Days are UTC (as on HN); pure helpers in `lib/format/day.ts` (tests: `test/hn/day.test.ts`). Header toolbar has previous/next day (next disabled today); `components/front/day-picker.ios.tsx` is a native compact SwiftUI `DatePicker` row.
+- Analytics: `past_front_page_viewed` with `day`. The widget stays Top-only.
+
+### Muted Words & Sites (Mobile Only)
+
+- Settings -> Content & Safety -> "Muted Words & Sites" (`app/(tabs)/settings/mutes.tsx`) adds/removes keyword and domain mutes; "Mute <domain>" is also on the StoryCard long-press menu and the story detail menu (`useStoryActions`, `useAddMute`)
+- Store: `lib/hn/local/mutes.ts` (`{ kind, value, createdAt }`, values normalised by `normalizeMuteValue`); hook: `hooks/use-mutes.ts` (`isMuted`)
+- Matching is pure and node-tested (`lib/hn/mutes-match.ts`): keywords match title words case-insensitively (phrases work, "ai" does not hit "said"), a domain also mutes its subdomains; `createMuteFilter` compiles one regex per list change
+- Applied to the feed only (beside hidden and blocked), NOT search or bookmarks
+- Analytics: `mute_added` (kind, source), `mute_removed` (kind)
+
+### Submit and Discuss on HN (Mobile Only)
+
+- `app/submit.tsx` (sheet): title/URL/text form, prefilled from `url`, `title`, `source` params; sign-in prompt when signed out; `hooks/use-submit-story.ts` (haptic, analytics `story_submitted` / `submit_duplicate_found`, invalidates the New feed); entries: feed header menu and the Profile tab
+- `app/discuss.tsx` (sheet, also `hnclient://discuss?url=`): `useDiscussions(url)` (`getStoriesByUrl` in `read/algolia.ts`, Algolia `restrictSearchableAttributes=url`) lists existing stories by points with "Submit it"; none found replaces itself with `/submit`. `normalizeUrl` / `extractSharedLink` (`lib/format/url.ts`, node-tested) strip tracking params, `www.`, trailing slash
+- Share extension: `expo-sharing` config plugin in `app.json` (iOS, App Group `group.com.danielcspaiva.hnclient`, extension bundle id `com.danielcspaiva.hnclient.ShareExtension`, accepts one web URL and text). The extension opens `hnclient://expo-sharing`, handled by `app/expo-sharing.tsx` (`useIncomingShare`, tracks `share_extension_opened`, forwards to `/discuss`). `ios/` is generated by `expo prebuild`
+
 ### Routing & Navigation
+
+- **iPad / wide windows** (`isWideLayout(width)`, >= 768pt, `lib/layout/breakpoints.ts`): `components/story/story-split-view.tsx` wraps the Feed and Bookmarks lists in a 400pt sidebar plus a detail pane (`StoryDetailLoader` with `embedded`, which skips the header title and `StoryToolbar`). It provides `StorySelectionContext`, so `StoryCard`/`LinkCard` select in place (`preventDefault` on the link; the peek still opens `href`). Custom two-pane layout: `expo-router/split-view` exists (iOS 26+, route-driven) but is unstable and unverified with native tabs. `ScrollScreen`/`ListScreen`/`StoryDetail` cap content at 720pt via `useReadableGutter()`; panes report their width through `PaneWidthProvider`, so use `usePaneWidth()` rather than window width inside screens. iPad landscape comes from the generated Info.plist (`UISupportedInterfaceOrientations~ipad`).
 
 - **File-based routing** using Expo Router (expo-router v6)
 - Routes are defined in the `app/` directory structure
@@ -167,7 +201,9 @@ The app uses a **React Query + HN API** architecture:
 1. **API Layer** (`apps/mobile/lib/hn/`):
    - `read/` - Firebase (`firebase.ts`, `getCategoryStoryIds`/`getItem`/`getItems`/`getUser`) and Algolia (`algolia.ts`) fetchers, comment merge and tree helpers, `hnKeys` query keys (use it for every query key, including `hnKeys.allStories()` for invalidation)
    - `web/` - authenticated HTML client (`write-api.ts`), parsers, rate limiter, shared entity decoding
-   - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
+   - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items, read stories) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
+
+   - `local/` - AsyncStorage persistence (votes, bookmarks, blocked users, hidden items, mutes) built on `createJsonListStore` (`json-list-store.ts`); a write throws when the read failed instead of overwriting stored data with `[]`
    - `constants.ts` holds the base URLs (Firebase: `https://hacker-news.firebaseio.com/v0`); `errors.ts`/`session.ts` hold `HNAuthError`/`SecureSession`
    - Import rule: hooks and contexts import from the `@/lib/hn` barrel (types, `STORY_CATEGORIES`/`StoryCategory`, read API, keys, errors, session, write API); `local/*` is imported by deep path; parsers and the rate limiter are internal to `lib/hn`
    - Neighbours of `lib/hn`: `lib/format/` (`time.ts` `timeAgo`, `url.ts` `getDomain`), `lib/html/` (`entities.ts`, `parse.ts` with `stripHTML`/`parseHTMLWithLinks`), `lib/link-preview/og.ts`, `lib/observability/report-error.ts`, `lib/analytics/`, `lib/haptics.ts`, `lib/widgets/`
@@ -175,7 +211,7 @@ The app uses a **React Query + HN API** architecture:
    - `getItem`/`getUser` return `HNItem | null` / `HNUser | null` (Firebase answers `null` for a missing item); callers handle null
 
 2. **React Query Hooks** (`hooks/use-stories.ts`, `hooks/use-story.ts`):
-   - `useStories(category)` - Single hook accepting a `StoryCategory` ('top' | 'new' | 'ask' | 'show' | 'jobs', from `@/lib/hn`)
+   - `useStories(category)` - Single hook accepting a `StoryCategory` ('top' | 'best' | 'new' | 'ask' | 'show' | 'jobs', from `@/lib/hn`)
      - Uses `useInfiniteQuery` with dynamic query key `['stories', category]`
      - Maps category to appropriate API fetcher (`getCategoryStoryIds`)
      - Only one query active at a time - switching categories reuses cached data instantly
@@ -194,7 +230,7 @@ The app uses a **React Query + HN API** architecture:
    - Automatic caching by React Query - switching between categories is instant after first load
 
 4. **Smart Prefetching Strategy** (`hooks/use-app-prefetch.ts`):
-   - **Global prefetch on app open** - All 5 categories prefetched automatically
+   - **Global prefetch on app open** - All 6 categories prefetched automatically
    - Triggered from `app/_layout.tsx` when app mounts (not tied to specific screen)
    - Waits 1.5s after mount to allow initial category (Top) to load first
    - Warms the first page of every category in parallel via `prefetchCategory` (from `hooks/use-stories.ts`)
@@ -233,11 +269,21 @@ White cards on a warm grey page / warm-charcoal surfaces in the app icon's orang
 ### Theme System
 
 - `contexts/color-scheme-context.tsx` - the user's preference (system/light/dark), persisted; syncs native appearance, the root view background and hides the splash once loaded
+- `contexts/text-size-context.tsx` - persisted Text Size (Small/Default/Large/Extra Large; multipliers in `lib/text/text-size.ts`). `<Text scalable>` scales size and line height for reading content (story titles, story text, comment bodies), never chrome, on top of Dynamic Type
 - `hooks/use-theme.ts` - `useTheme()` returns `{ scheme, colors }`; the one way to read colours
 - `constants/colors.ts` - raw light/dark tokens (dependency-free); `constants/theme.ts` re-exports and adds `Radius`, `GUTTER`, `Fonts`, `WashAlpha`, `withAlpha`
 - `components/navigation/navigation-theme.ts` - React Navigation theme built from tokens, applied in the root layout
 
+### Read State
+
+- `lib/hn/read-state.ts` (pure, node-tested) and `lib/hn/local/read-stories.ts` (`@read_stories`, capped at 2,000, newest first): `{ id, readAt, commentCount, maxSeenCommentId? }` per opened story. HN ids only grow, so "new since last visit" is `comment.id > maxSeenCommentId`.
+- `hooks/use-read-stories.ts`: one query (`hnKeys.readStories()`); `useReadEntry(id)` reads one story through an id index built once per data change (O(1) per card); `useReadStories()` has the writes. `useStoryActions` exposes `readEntry` and `handleToggleRead`.
+- `hooks/use-story-visit.ts` (called by `StoryDetail`, skipped in peek previews) records the visit and returns the entry from BEFORE it, which drives the `NEW` badge on `CommentItem` and the floating `NextNewCommentButton`. "Mark as Read" from the feed keeps the stored max id, so it never invents markers.
+- `StoryCard`: read title in `muted` tone, a `+N` primary `Badge` by the comment count when `descendants` grew past the stored `commentCount`, "Read"/"N new comments" in the accessibility label. Settings > Data has "Clear Reading History".
+
 ### Comments System
+
+Story detail floats one `ThreadControls` row (`components/story/thread-controls.tsx`): the "N new" pill plus previous/next top-level chevrons (targets from FlashList's first viewable row, `lib/text/thread-nav.ts`); hidden in peek previews and under 2 top-level comments. The story menu has Collapse All / Expand All.
 
 The comment tree is recursively rendered in `app/story/[id].tsx`:
 

@@ -1,0 +1,69 @@
+DEMO ACCOUNT
+Credentials are entered in App Store Connect and are not stored in this repository.
+
+Only voting, commenting, flagging and submitting need an account. Bookmarks, hidden stories, blocked users, mutes and reading history are stored on the device.
+
+TESTING WITHOUT LOGIN
+1. Feeds
+- Opens on Stories (Top). Tabs: Stories, Bookmarks, Profile, Settings, Search.
+- Switch feeds with the header menu: Top, Best, New, Ask, Show, Jobs, plus Past Front Pages.
+- Past Front Pages opens on yesterday. Previous and next step through days. Next is disabled on today.
+- Pull down to refresh; scroll to load more.
+- Open a story, go back: its title is dimmed. Long-press the card for Mark as Read / Mark as Unread.
+
+2. Story page
+- Tap a card to open a story. On a link post, tap the link preview to read the article in an in-app browser.
+- Header: Bookmark and More (Share, Open in Browser on link posts, Hide, Mute site, Flag, Block User).
+- Touch and hold a story card: Upvote, Bookmark, Share, Mark as Read, More > Hide / Mute site / Flag / Block User.
+- Comment tools: jump to the previous or next top-level comment, and Collapse all.
+- Settings > Text Size changes the thread. Settings > Muted Words & Sites adds a keyword or a site.
+
+3. Comments
+- Tap the header of a comment with replies to collapse the thread. Tap again to expand.
+- A comment's More button: Block User. Signed in, also Reply (Delete Comment on your own).
+
+4. Search: type a query or tap a suggestion. The header menu sets sort (Relevance / Newest), scope (Stories / Comments), date range and minimum points. author:name limits results to that user.
+5. Bookmarks: saved stories. More > Clear All Bookmarks empties the list. Muted stories still appear here.
+6. User profiles: tap a username for karma, member since, bio and Submissions.
+7. Settings: Appearance; Text Size; Muted Words & Sites; Blocked Users; Hidden Posts; Clear Reading History; Clear Cache; Clear Bookmarks.
+
+8. iPad
+- On an iPad (full screen, or a wide Split View) the list stays on the left and the selected story opens on the right. Tapping a card does not push a new screen.
+- On iPhone, tapping a card still pushes the story.
+
+TESTING WITH LOGIN
+9. Sign in
+- Profile tab > Sign in.
+- First time only, the Hacker News Guidelines sheet appears: tap Accept & Continue.
+- Enter the demo credentials from App Store Connect and tap Sign in.
+- Profile then shows the demo account and its karma.
+
+For 10-12 use a recent Top or New story. HN blocks votes on job posts, and comments on job posts or threads over two weeks old.
+
+10. Upvote (stories only)
+- Tap the points pill on a story page, or long-press a card > Upvote. The pill turns orange. Tap again, or Unvote, to remove it.
+- Signed out, this shows Sign In Required.
+
+11. Comment
+- Tap the compose button, type, and send. Reply from a comment's More menu. Delete your own comment from that same menu.
+
+12. Submit
+- Profile > Submit, or the feed menu. A signed-out attempt asks you to sign in.
+- Flag (a story with few comments): More > Flag. The demo account has karma 1, so HN returns Insufficient Karma. Hide and Block User work regardless.
+
+13. Sign out: Profile > Sign out > confirm. Browsing still works.
+
+TESTING iOS WIDGETS
+Open the app once first. Before that, widgets may show a prompt to open Hacker Reader.
+14. Home Screen: add the HN Top Stories widget.
+- Small: the top story. Medium: two stories. Large: seven. Tap a row to open that story.
+15. Lock Screen: the widget shows the top three headlines.
+Widgets refresh on their own and when the app opens.
+
+COMMON ISSUES & NOTES
+- Accounts are created on news.ycombinator.com. The app has no sign-up and keeps only the HN username and session cookie (Keychain) until sign out.
+- All content is hosted by Hacker News (Y Combinator), not this app.
+- No paid features, subscriptions or in-app purchases.
+- Submit a story from Profile. This build has no iOS share extension.
+
+Questions? Please contact me. Thank you for testing!

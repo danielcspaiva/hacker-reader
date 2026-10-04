@@ -28,19 +28,35 @@ export enum AnalyticsProperty {
   FROM_CATEGORY = "from_category",
   TO_CATEGORY = "to_category",
   PAGE_NUMBER = "page_number",
+  DAY = "day",
 
   // Search
   QUERY = "query",
   RESULTS_COUNT = "results_count",
   RESULT_POSITION = "result_position",
+  SEARCH_SORT = "sort",
+  SEARCH_SCOPE = "scope",
+  SEARCH_DATE_RANGE = "date_range",
+  SEARCH_MIN_POINTS = "min_points",
+  SEARCH_HAS_AUTHOR = "has_author_filter",
 
   // Comment Properties
   COMMENT_ID = "comment_id",
   DEPTH_LEVEL = "depth_level",
   CHILD_COUNT = "child_count",
+  NEW_COMMENT_COUNT = "new_comment_count",
+
+  // Mutes
+  MUTE_KIND = "mute_kind",
+  MUTE_SOURCE = "mute_source",
 
   // Share
   SHARE_METHOD = "share_method",
+
+  // Submit
+  SUBMIT_KIND = "submit_kind",
+  SUBMIT_SOURCE = "submit_source",
+  DISCUSSION_COUNT = "discussion_count",
 
   // User Properties
   USER_KARMA = "user_karma",

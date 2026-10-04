@@ -9,11 +9,17 @@ type GlyphName = Exclude<SymbolViewProps["name"], string>;
 export const ICON_GLYPHS = {
   // navigation
   chevronRight: { ios: "chevron.right", android: "chevron_right" },
+  chevronLeft: { ios: "chevron.left", android: "chevron_left" },
   chevronDown: { ios: "chevron.down", android: "expand_more" },
   chevronUp: { ios: "chevron.up", android: "expand_less" },
   close: { ios: "xmark", android: "close" },
   checkmark: { ios: "checkmark", android: "check" },
   more: { ios: "ellipsis", android: "more_horiz" },
+  collapseAll: {
+    ios: "rectangle.compress.vertical",
+    android: "unfold_less",
+  },
+  expandAll: { ios: "rectangle.expand.vertical", android: "unfold_more" },
   external: { ios: "arrow.up.right", android: "north_east" },
   // story actions
   upvote: { ios: "arrow.up", android: "arrow_upward" },
@@ -25,8 +31,12 @@ export const ICON_GLYPHS = {
   compose: { ios: "square.and.pencil", android: "edit" },
   flag: { ios: "flag", android: "flag" },
   block: { ios: "person.slash", android: "person_off" },
+  mute: { ios: "speaker.slash", android: "volume_off" },
   safari: { ios: "safari", android: "public" },
   refresh: { ios: "arrow.clockwise", android: "refresh" },
+  markRead: { ios: "checkmark.circle", android: "check_circle" },
+  markUnread: { ios: "circle", android: "radio_button_unchecked" },
+  nextComment: { ios: "arrow.down.circle", android: "arrow_circle_down" },
   hide: { ios: "eye.slash", android: "visibility_off" },
   link: { ios: "link", android: "link" },
   favorite: { ios: "star", android: "star" },
@@ -39,13 +49,23 @@ export const ICON_GLYPHS = {
   calendar: { ios: "calendar", android: "calendar_today" },
   // categories and tabs
   top: { ios: "flame", android: "local_fire_department" },
+  best: { ios: "trophy", android: "emoji_events" },
   new: { ios: "clock", android: "schedule" },
+  pastFrontPages: { ios: "calendar.badge.clock", android: "history" },
   ask: { ios: "questionmark.bubble", android: "help" },
   show: { ios: "sparkle", android: "auto_awesome" },
   jobs: { ios: "briefcase", android: "work" },
   stories: { ios: "newspaper", android: "article" },
   storiesFilled: { ios: "newspaper.fill", android: "article" },
   search: { ios: "magnifyingglass", android: "search" },
+  filter: {
+    ios: "line.3.horizontal.decrease.circle",
+    android: "filter_list",
+  },
+  filterFilled: {
+    ios: "line.3.horizontal.decrease.circle.fill",
+    android: "filter_list",
+  },
   settings: { ios: "gearshape", android: "settings" },
   settingsFilled: { ios: "gearshape.fill", android: "settings" },
   // system

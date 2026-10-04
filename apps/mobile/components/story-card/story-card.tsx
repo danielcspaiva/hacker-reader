@@ -5,14 +5,15 @@ import { StyleSheet, View } from "react-native";
 import { LinkCard } from "@/components/link-card";
 import { LinkPreview } from "@/components/link-preview";
 import { Card, ICON_GLYPHS, Icon, Text } from "@/components/ui";
-import { Radius } from "@/constants/theme";
+import { useStorySelection } from "@/contexts/story-selection-context";
 import { useStoryActions } from "@/hooks/use-story-actions";
 import { useTheme } from "@/hooks/use-theme";
 import { timeAgoSpoken } from "@/lib/format/time";
 import { getDomain } from "@/lib/format/url";
-import type { HNItem } from "@/lib/hn";
+import { newCommentCount, type HNItem } from "@/lib/hn";
 
 import { StoryCardMetadata } from "./story-card-metadata";
+import { THUMBNAIL_INSET, THUMBNAIL_RADIUS } from "./thumbnail-panel";
 
 export interface StoryCardProps {
   story: HNItem;
@@ -24,7 +25,7 @@ export interface StoryCardProps {
 const THUMBNAIL_WIDTH = 104;
 // The text column's padding; the image panel uses the same inset so it sits in
 // an even frame (top, right, bottom and the gap to the text all match).
-const CARD_PADDING = 14;
+const CARD_PADDING = THUMBNAIL_INSET;
 
 /**
  * The image panel sits inset from the card's edge with concentric corners
@@ -40,7 +41,7 @@ export const thumbnailPanel = {
   alignSelf: "stretch",
   margin: CARD_PADDING,
   marginLeft: 0,
-  borderRadius: Radius.card - CARD_PADDING,
+  borderRadius: THUMBNAIL_RADIUS,
   borderCurve: "continuous",
   overflow: "hidden",
 } as const;
@@ -54,19 +55,26 @@ export const thumbnailPanel = {
 export function StoryCard({ story, rank }: StoryCardProps) {
   const { colors } = useTheme();
   const actions = useStoryActions(story);
-  const { isBookmarked } = actions;
+  const selection = useStorySelection();
+  const isSelected = selection?.selectedId === story.id;
+  const { isBookmarked, readEntry } = actions;
+  const isRead = readEntry !== undefined;
   const domain = getDomain(story.url);
   const points = story.score ?? 0;
   const comments = story.descendants || 0;
+  const newComments = newCommentCount(readEntry, comments);
   const accessibilityLabel = [
     rank !== undefined ? `${rank}. ${story.title ?? ""}` : story.title,
     domain,
     `${points} ${points === 1 ? "point" : "points"}`,
     `${comments} ${comments === 1 ? "comment" : "comments"}`,
+    newComments > 0 &&
+      `${newComments} new ${newComments === 1 ? "comment" : "comments"}`,
     story.by && `by ${story.by}`,
     timeAgoSpoken(story.time || 0),
     actions.hasVoted && "Upvoted",
     isBookmarked && "Bookmarked",
+    isRead && "Read",
   ]
     .filter(Boolean)
     .join(", ");
@@ -74,6 +82,7 @@ export function StoryCard({ story, rank }: StoryCardProps) {
   return (
     <LinkCard
       href={`/story/${story.id}`}
+      onSelect={selection ? () => selection.select(story.id) : undefined}
       accessibilityLabel={accessibilityLabel}
       menu={
         <Link.Menu>
@@ -96,12 +105,26 @@ export function StoryCard({ story, rank }: StoryCardProps) {
             icon={ICON_GLYPHS.share.ios}
             onPress={actions.handleShare}
           />
+          <Link.MenuAction
+            title={isRead ? "Mark as Unread" : "Mark as Read"}
+            icon={
+              isRead ? ICON_GLYPHS.markUnread.ios : ICON_GLYPHS.markRead.ios
+            }
+            onPress={actions.handleToggleRead}
+          />
           <Link.Menu title="More" icon={ICON_GLYPHS.more.ios}>
             <Link.MenuAction
               title="Hide"
               icon={ICON_GLYPHS.hide.ios}
               onPress={actions.handleHide}
             />
+            {actions.muteDomain ? (
+              <Link.MenuAction
+                title={`Mute ${actions.muteDomain}`}
+                icon={ICON_GLYPHS.mute.ios}
+                onPress={actions.handleMuteDomain}
+              />
+            ) : null}
             <Link.MenuAction
               title="Flag"
               icon={ICON_GLYPHS.flag.ios}
@@ -116,7 +139,18 @@ export function StoryCard({ story, rank }: StoryCardProps) {
         </Link.Menu>
       }
     >
-      <Card padding={0} style={styles.card}>
+      <Card
+        padding={0}
+        style={[
+          styles.card,
+          // Split view: ring in the brand orange marks the open story.
+          isSelected && {
+            outlineColor: colors.primary,
+            outlineWidth: 2,
+            outlineOffset: -2,
+          },
+        ]}
+      >
         <View style={styles.row}>
           <View style={styles.body}>
             {domain || isBookmarked ? (
@@ -184,7 +218,10 @@ export function StoryCard({ story, rank }: StoryCardProps) {
               ) : null}
               <Text
                 variant="subtitle"
+                scalable
                 weight="semibold"
+                // Read stories dim to the secondary ink: quieter, not disabled.
+                tone={isRead ? "muted" : "default"}
                 numberOfLines={3}
                 style={styles.title}
               >
@@ -192,7 +229,11 @@ export function StoryCard({ story, rank }: StoryCardProps) {
               </Text>
             </View>
 
-            <StoryCardMetadata story={story} hasVoted={actions.hasVoted} />
+            <StoryCardMetadata
+              story={story}
+              hasVoted={actions.hasVoted}
+              newComments={newComments}
+            />
           </View>
 
           {story.url ? (

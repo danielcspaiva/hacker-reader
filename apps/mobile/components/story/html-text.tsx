@@ -28,6 +28,7 @@ export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
           <Text
             key={index}
             variant={variant}
+            scalable
             tone="primary"
             weight="medium"
             accessibilityRole="link"
@@ -45,6 +46,7 @@ export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
           <Text
             key={index}
             variant="caption"
+            scalable
             style={{
               fontFamily: Fonts.mono,
               backgroundColor: colors.codeBackground,
@@ -55,7 +57,12 @@ export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
         );
       }
       return (
-        <Text key={index} variant={variant} tone={quoted ? "muted" : "default"}>
+        <Text
+          key={index}
+          variant={variant}
+          scalable
+          tone={quoted ? "muted" : "default"}
+        >
           {span.content}
         </Text>
       );
@@ -80,6 +87,7 @@ export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
               >
                 <Text
                   variant="caption"
+                  scalable
                   selectable
                   style={{ fontFamily: Fonts.mono }}
                 >
@@ -99,7 +107,12 @@ export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
                   { backgroundColor: colors.tertiaryForeground },
                 ]}
               />
-              <Text variant={variant} style={styles.quoteText} selectable>
+              <Text
+                variant={variant}
+                scalable
+                style={styles.quoteText}
+                selectable
+              >
                 {renderSpans(block.spans, true)}
               </Text>
             </View>
@@ -107,7 +120,7 @@ export function HTMLText({ html, variant = "callout" }: HTMLTextProps) {
         }
 
         return (
-          <Text key={index} variant={variant} selectable>
+          <Text key={index} variant={variant} scalable selectable>
             {renderSpans(block.spans, false)}
           </Text>
         );

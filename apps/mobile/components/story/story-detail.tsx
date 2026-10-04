@@ -10,26 +10,39 @@ import {
 } from "@/components/story/story-comment-input";
 import { StoryHeader } from "@/components/story/story-header";
 import { StoryToolbar } from "@/components/story/story-toolbar";
+import { ThreadControls } from "@/components/story/thread-controls";
 import {
   EmptyState,
   ThemedRefreshControl,
   useScreenBottomInset,
 } from "@/components/ui";
 import { useHNAuth } from "@/contexts/hn-auth-context";
+import { useReadableGutter } from "@/contexts/pane-width-context";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useCommentActions } from "@/hooks/use-comment-actions";
-import { useScrollToComment } from "@/hooks/use-scroll-to-comment";
+import {
+  scrollToCommentRow,
+  useScrollToComment,
+} from "@/hooks/use-scroll-to-comment";
 import { useStoryActions } from "@/hooks/use-story-actions";
+import { useStoryVisit } from "@/hooks/use-story-visit";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { hapticImpact } from "@/lib/haptics";
 import {
   flattenComments,
+  isNewComment,
   type Comment,
   type FlatComment,
   type StoryWithComments,
 } from "@/lib/hn";
+import { maybeRequestStoreReview, noteStoryRead } from "@/lib/store-review";
+import {
+  hasThreadsToJump,
+  nextTopLevelIndex,
+  previousTopLevelIndex,
+} from "@/lib/text/thread-nav";
 
 interface StoryDetailProps {
   story: StoryWithComments;
@@ -37,6 +50,8 @@ interface StoryDetailProps {
   commentId?: string;
   /** Inside a peek preview: no header toolbar, no view tracking. */
   isInsidePreview: boolean;
+  /** In the split view's detail pane: the feed owns the header and toolbar. */
+  embedded?: boolean;
   onRefresh: () => void;
   isRefreshing: boolean;
 }
@@ -46,20 +61,27 @@ export function StoryDetail({
   story,
   commentId,
   isInsidePreview,
+  embedded = false,
   onRefresh,
   isRefreshing,
 }: StoryDetailProps) {
   const listRef = useRef<FlashListRef<FlatComment>>(null);
   const headerInset = useHeaderOverlapInset();
+  const scrollOffset = embedded ? 8 : headerInset + 8;
   const bottomInset = useScreenBottomInset();
+  const readableGutter = useReadableGutter(0);
   const analytics = useAnalytics();
   const { isAuthenticated } = useHNAuth();
   const { isBlocked } = useBlockedUsers();
-  const actions = useStoryActions(story);
+  const actions = useStoryActions(story, "story_detail");
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
   // Story title shows in the nav bar once the hero title scrolls under it.
   const titleBottom = useRef(Infinity);
   const [titleInHeader, setTitleInHeader] = useState(false);
+  const previousVisit = useStoryVisit(story, isInsidePreview);
+  const lastNewCommentId = useRef<number | null>(null);
+  // First comment row on screen, from the list's viewability callback (-1: none).
+  const firstVisibleRow = useRef(-1);
   const [composer, setComposer] = useState<Composer | null>(null);
   const openCommentActions = useCommentActions({
     storyId: story.id,
@@ -77,6 +99,13 @@ export function StoryDetail({
     });
   }, [story, isInsidePreview, analytics]);
 
+  // Count the read, and ask for a rating (rarely) once the reader leaves.
+  useEffect(() => {
+    if (isInsidePreview) return;
+    void noteStoryRead();
+    return () => void maybeRequestStoreReview();
+  }, [story.id, isInsidePreview]);
+
   // Deleted/dead comments have no text: drop the row but keep its replies.
   const flatComments = flattenComments(story.comments, 0, collapsedIds).filter(
     (item) => !!item.comment.text && !isBlocked(item.comment.by)
@@ -88,8 +117,53 @@ export function StoryDetail({
     index: commentId
       ? flatComments.findIndex((item) => item.comment.id === Number(commentId))
       : -1,
-    topOffset: headerInset + 8,
+    topOffset: scrollOffset,
   });
+
+  const newRowIndexes = flatComments.flatMap((item, index) =>
+    isNewComment(item.comment.id, previousVisit) ? [index] : []
+  );
+
+  const scrollToNextNewComment = () => {
+    // The next new comment below the last one jumped to, wrapping round.
+    const lastIndex = flatComments.findIndex(
+      (item) => item.comment.id === lastNewCommentId.current
+    );
+    const nextIndex =
+      newRowIndexes.find((index) => index > lastIndex) ?? newRowIndexes[0];
+    lastNewCommentId.current = flatComments[nextIndex].comment.id;
+    analytics.track(AnalyticsEvent.NEXT_NEW_COMMENT_TAPPED, {
+      [AnalyticsProperty.STORY_ID]: story.id,
+      [AnalyticsProperty.NEW_COMMENT_COUNT]: newRowIndexes.length,
+    });
+    scrollToCommentRow(listRef, nextIndex, scrollOffset);
+  };
+
+  const depths = flatComments.map((item) => item.depth);
+
+  const jumpToThread = (direction: "next" | "previous") => {
+    // While the hero title is still on screen we are at the top of the page,
+    // even though the first comment row already counts as visible.
+    const current = titleInHeader ? firstVisibleRow.current : -1;
+    const target =
+      direction === "next"
+        ? nextTopLevelIndex(depths, current)
+        : previousTopLevelIndex(depths, current);
+    if (target !== undefined) {
+      scrollToCommentRow(listRef, target, scrollOffset);
+    }
+  };
+
+  const collapseAllThreads = () =>
+    setCollapsedIds(
+      new Set(
+        story.comments
+          .filter((comment) => (comment.children?.length ?? 0) > 0)
+          .map((comment) => comment.id)
+      )
+    );
+
+  const expandAllThreads = () => setCollapsedIds(new Set());
 
   const toggleCollapse = (comment: Comment) => {
     if (!collapsedIds.has(comment.id)) {
@@ -107,12 +181,20 @@ export function StoryDetail({
 
   return (
     <>
-      {isInsidePreview ? null : (
+      {isInsidePreview || embedded ? null : (
         <>
           <Stack.Screen
             options={{ title: titleInHeader ? (story.title ?? "") : "" }}
           />
-          <StoryToolbar story={story} actions={actions} />
+          <StoryToolbar
+            story={story}
+            actions={actions}
+            hasThreads={story.comments.some(
+              (comment) => (comment.children?.length ?? 0) > 0
+            )}
+            onCollapseAll={collapseAllThreads}
+            onExpandAll={expandAllThreads}
+          />
         </>
       )}
       <FlashList
@@ -125,6 +207,7 @@ export function StoryDetail({
             replyCount={item.replyCount}
             isCollapsed={collapsedIds.has(item.comment.id)}
             isOP={!!story.by && item.comment.by === story.by}
+            isNew={isNewComment(item.comment.id, previousVisit)}
             isHighlighted={highlightedId === item.comment.id}
             onToggleCollapse={toggleCollapse}
             onOpenActions={openCommentActions}
@@ -159,6 +242,14 @@ export function StoryDetail({
           const past = y + headerInset > titleBottom.current;
           if (past !== titleInHeader) setTitleInHeader(past);
         }}
+        onViewableItemsChanged={({ viewableItems }) => {
+          firstVisibleRow.current = viewableItems.reduce(
+            (first, token) => Math.min(first, token.index ?? first),
+            Infinity
+          );
+          if (firstVisibleRow.current === Infinity)
+            firstVisibleRow.current = -1;
+        }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={
@@ -173,9 +264,21 @@ export function StoryDetail({
           />
         }
         contentContainerStyle={{
+          paddingHorizontal: readableGutter,
           paddingBottom: bottomInset + (isAuthenticated ? 72 : 0),
         }}
       />
+
+      {isInsidePreview ? null : (
+        <ThreadControls
+          newCommentCount={newRowIndexes.length}
+          showThreadNav={hasThreadsToJump(depths)}
+          reserveComposeButton={isAuthenticated && composer === null}
+          onNextNewComment={scrollToNextNewComment}
+          onNextThread={() => jumpToThread("next")}
+          onPreviousThread={() => jumpToThread("previous")}
+        />
+      )}
 
       <StoryCommentInput
         storyId={story.id}

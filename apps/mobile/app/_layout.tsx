@@ -15,6 +15,7 @@ import { useHeaderOptions } from "@/components/navigation/header-options";
 import { useNavigationTheme } from "@/components/navigation/navigation-theme";
 import { ColorSchemeProvider } from "@/contexts/color-scheme-context";
 import { HNAuthProvider, useHNAuth } from "@/contexts/hn-auth-context";
+import { TextSizeProvider } from "@/contexts/text-size-context";
 import { useAppPrefetch } from "@/hooks/use-app-prefetch";
 import { useTheme } from "@/hooks/use-theme";
 import { useWidgetAnalytics } from "@/hooks/use-widget-analytics";
@@ -102,6 +103,7 @@ function RootLayoutContent() {
       >
         <Stack.Screen name="(tabs)" options={{ title: "Hacker Reader" }} />
         <Stack.Screen name="story/[id]" options={detailHeader} />
+        <Stack.Screen name="front/[day]" options={detailHeader} />
         <Stack.Screen name="user/[id]" options={detailHeader} />
         <Stack.Screen name="user/[id]/submissions" options={detailHeader} />
         <Stack.Screen
@@ -112,6 +114,24 @@ function RootLayoutContent() {
             headerTitle: "Sign in to Hacker News",
           }}
         />
+        <Stack.Screen
+          name="submit"
+          options={{
+            ...sheetHeader,
+            sheetAllowedDetents: [0.9],
+            headerTitle: "Submit a Story",
+          }}
+        />
+        <Stack.Screen
+          name="discuss"
+          options={{
+            ...sheetHeader,
+            sheetAllowedDetents: [0.9],
+            headerTitle: "Discussions on HN",
+          }}
+        />
+        {/* Landing route of the share extension; renders nothing. */}
+        <Stack.Screen name="expo-sharing" />
       </Stack>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
     </ThemeProvider>
@@ -137,9 +157,11 @@ export default Sentry.wrap(function RootLayout() {
     >
       <QueryClientProvider client={queryClient}>
         <ColorSchemeProvider>
-          <HNAuthProvider>
-            <RootLayoutContent />
-          </HNAuthProvider>
+          <TextSizeProvider>
+            <HNAuthProvider>
+              <RootLayoutContent />
+            </HNAuthProvider>
+          </TextSizeProvider>
         </ColorSchemeProvider>
       </QueryClientProvider>
     </PostHogProvider>

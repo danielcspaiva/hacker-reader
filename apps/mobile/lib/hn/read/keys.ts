@@ -1,4 +1,5 @@
 import type { StoryCategory } from "../constants";
+import type { SearchOptions } from "./search-params";
 
 /**
  * Query-key factory: the only place query-key literals live. Return types are
@@ -23,20 +24,32 @@ export const hnKeys = {
   ogMetadata: (
     url: string | undefined
   ): ["og-metadata", string | undefined] => ["og-metadata", url],
-  search: (query: string): ["algolia-search", string] => [
+  /** Every param that changes the results is part of the key. */
+  search: (
+    query: string,
+    options: SearchOptions
+  ): ["algolia-search", string, SearchOptions] => [
     "algolia-search",
     query,
+    options,
   ],
+  /** One UTC day's front page (`YYYY-MM-DD`). */
+  frontPage: (day: string): ["front-page", string] => ["front-page", day],
   /** Parent story id resolved for a comment (submissions screen). */
   commentStory: (commentId: number): ["comment-story-id", number] => [
     "comment-story-id",
     commentId,
   ],
+  /** Stories already submitted for a link (the share / "Discuss on HN" lookup). */
+  discussions: (url: string): ["discussions", string] => ["discussions", url],
   votes: (): ["votes"] => ["votes"],
   /** Bookmarked story ids; also the prefix of every bookmark query. */
   bookmarks: (): ["bookmarks"] => ["bookmarks"],
   bookmarkedStories: (): ["bookmarks", "stories"] => ["bookmarks", "stories"],
   hidden: (): ["hidden-stories"] => ["hidden-stories"],
+  readStories: (): ["read-stories"] => ["read-stories"],
   blockedUsers: (): ["blockedUsers"] => ["blockedUsers"],
+  searchOptions: (): ["search-options"] => ["search-options"],
+  mutes: (): ["mutes"] => ["mutes"],
   recentSearches: (): ["recent-searches"] => ["recent-searches"],
 };
