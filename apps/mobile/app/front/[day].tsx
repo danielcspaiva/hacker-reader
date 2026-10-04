@@ -15,6 +15,10 @@ import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useFrontPage } from "@/hooks/use-front-page";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
+import {
+  usePrefetchVisibleStories,
+  visibleStoryId,
+} from "@/hooks/use-prefetch-visible-stories";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import {
@@ -47,6 +51,7 @@ export default function FrontPageScreen() {
 
   const goToDay = (next: string) => router.setParams({ day: next });
 
+  const prefetchVisibleStories = usePrefetchVisibleStories(visibleStoryId);
   const stories = (data ?? []).filter(
     (story) => !isHidden(story.id) && (!story.by || !isBlocked(story.by))
   );
@@ -68,6 +73,7 @@ export default function FrontPageScreen() {
         />
       </Stack.Toolbar>
       <ListScreen<HNItem>
+        {...prefetchVisibleStories}
         data={stories}
         isLoading={isPending}
         skeleton={<StoryCardSkeleton />}

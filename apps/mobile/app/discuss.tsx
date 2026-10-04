@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef } from "react";
 import { View } from "react-native";
@@ -14,6 +15,8 @@ import {
 } from "@/components/ui";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useDiscussions } from "@/hooks/use-discussions";
+import { visibleStoryId } from "@/hooks/use-prefetch-visible-stories";
+import { prefetchStory } from "@/hooks/use-story";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
 import { AnalyticsProperty } from "@/lib/analytics/posthog-properties";
 import { normalizeUrl } from "@/lib/format/url";
@@ -29,6 +32,7 @@ export default function DiscussScreen() {
     title?: string;
   }>();
   const analytics = useAnalytics();
+  const queryClient = useQueryClient();
   const valid = !!url && normalizeUrl(url) !== null;
   const { data, isPending, isError, refetch } = useDiscussions(
     valid ? url : undefined
@@ -36,6 +40,14 @@ export default function DiscussScreen() {
   const handled = useRef(false);
 
   const submitParams = { url, title, source: "share" } as const;
+
+  useEffect(() => {
+    if (!data) return;
+    for (const story of data) {
+      const id = visibleStoryId(story);
+      if (id !== undefined) void prefetchStory(queryClient, id);
+    }
+  }, [data, queryClient]);
 
   useEffect(() => {
     if (!data || handled.current) return;

@@ -19,6 +19,10 @@ import {
   Text,
 } from "@/components/ui";
 import { useAnalytics } from "@/hooks/use-analytics";
+import {
+  usePrefetchVisibleStories,
+  visibleStoryId,
+} from "@/hooks/use-prefetch-visible-stories";
 import { useRecentSearches } from "@/hooks/use-recent-searches";
 import { useSearchOptions } from "@/hooks/use-search-options";
 import { useSearchStories } from "@/hooks/use-search-stories";
@@ -96,8 +100,11 @@ export default function SearchScreen() {
   } = useSearchStories(trimmedQuery, options, isLoaded);
 
   const stories = data?.pages.flatMap((page) => page.hits) ?? [];
-
   const commentHits = data?.pages.flatMap((page) => page.commentHits) ?? [];
+  const prefetchVisibleStories = usePrefetchVisibleStories(visibleStoryId);
+  const prefetchVisibleCommentStories = usePrefetchVisibleStories(
+    (hit: SearchCommentHit) => hit.storyId
+  );
 
   const firstPage = data?.pages[0];
   const firstPageCount = firstPage
@@ -315,6 +322,7 @@ export default function SearchScreen() {
   } else if (isComments) {
     content = (
       <ListScreen<SearchCommentHit>
+        {...prefetchVisibleCommentStories}
         data={commentHits}
         isLoading={isLoading}
         skeleton={<StoryCardSkeleton />}
@@ -341,6 +349,7 @@ export default function SearchScreen() {
   } else {
     content = (
       <ListScreen<HNItem>
+        {...prefetchVisibleStories}
         data={stories}
         isLoading={isLoading}
         skeleton={<StoryCardSkeleton />}

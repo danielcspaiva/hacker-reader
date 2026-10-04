@@ -18,6 +18,10 @@ import { useAnalytics } from "@/hooks/use-analytics";
 import { useBlockedUsers } from "@/hooks/use-blocked-users";
 import { useHiddenStories } from "@/hooks/use-hidden-items";
 import { useMutes } from "@/hooks/use-mutes";
+import {
+  usePrefetchVisibleStories,
+  visibleStoryId,
+} from "@/hooks/use-prefetch-visible-stories";
 import { useStories } from "@/hooks/use-stories";
 import { useWideLayout } from "@/hooks/use-wide-layout";
 import { AnalyticsEvent } from "@/lib/analytics/posthog-events";
@@ -55,6 +59,7 @@ export default function FeedScreen() {
   );
 
   const listRef = useRef<FlashListRef<HNItem>>(null);
+  const prefetchVisibleStories = usePrefetchVisibleStories(visibleStoryId);
 
   // With automatic content insets the resting top is a negative offset.
   const restingTop = useRef(0);
@@ -218,6 +223,7 @@ export default function FeedScreen() {
       >
         <ListScreen<HNItem>
           listRef={listRef}
+          {...prefetchVisibleStories}
           data={stories}
           isLoading={isPending}
           skeleton={<StoryCardSkeleton />}

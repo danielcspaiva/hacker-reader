@@ -1,4 +1,5 @@
 import {
+  queryOptions,
   useQuery,
   useQueryClient,
   type InfiniteData,
@@ -49,12 +50,18 @@ function syncStoryIntoCaches(queryClient: QueryClient, hnItem: HNItem): void {
   queryClient.setQueryData<HNItem>(hnKeys.item(hnItem.id), hnItem);
 }
 
-export function useStory(id: number) {
-  const queryClient = useQueryClient();
+/** Matches the root QueryClient default so a prefetch and an open share one cache entry. */
+const STORY_STALE_TIME = 2 * 60 * 1000;
 
-  return useQuery<StoryWithComments, Error>({
+/**
+ * The story-detail query: Firebase item plus the Algolia thread. `useStory`
+ * and `prefetchStory` both use this so a warm prefetch is a cache hit, not a
+ * second request under a different key.
+ */
+export function storyQueryOptions(queryClient: QueryClient, id: number) {
+  return queryOptions({
     queryKey: hnKeys.story(id),
-    queryFn: async ({ signal }) => {
+    queryFn: async ({ signal }): Promise<StoryWithComments> => {
       const [hnItem, algoliaData] = await Promise.all([
         getItem(id, signal),
         getStoryWithComments(id, signal),
@@ -93,8 +100,24 @@ export function useStory(id: number) {
 
       return story;
     },
-    enabled: !!id,
-    staleTime: 2 * 60 * 1000,
+    staleTime: STORY_STALE_TIME,
     refetchOnWindowFocus: true,
   });
+}
+
+export function useStory(id: number) {
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    ...storyQueryOptions(queryClient, id),
+    enabled: !!id,
+  });
+}
+
+/** Warm `hnKeys.story(id)`. No-ops while that entry is still fresh. Errors stay in the cache and are not thrown. */
+export function prefetchStory(
+  queryClient: QueryClient,
+  id: number
+): Promise<void> {
+  return queryClient.prefetchQuery(storyQueryOptions(queryClient, id));
 }

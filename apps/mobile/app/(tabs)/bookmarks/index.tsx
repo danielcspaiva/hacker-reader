@@ -13,6 +13,10 @@ import { StorySplitView } from "@/components/story/story-split-view";
 import { EmptyState, ICON_GLYPHS, ListScreen } from "@/components/ui";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useClearBookmarks } from "@/hooks/use-clear-bookmarks";
+import {
+  usePrefetchVisibleStories,
+  visibleStoryId,
+} from "@/hooks/use-prefetch-visible-stories";
 import { useWideLayout } from "@/hooks/use-wide-layout";
 import { confirmDestructive } from "@/lib/confirm-destructive";
 import { type HNItem } from "@/lib/hn";
@@ -27,6 +31,7 @@ export default function BookmarksScreen() {
   } = useBookmarks();
   const { bookmarkCount, isClearing, clearAll } = useClearBookmarks();
   const listRef = useRef<FlashListRef<HNItem>>(null);
+  const prefetchVisibleStories = usePrefetchVisibleStories(visibleStoryId);
   const previousCountRef = useRef(stories.length);
 
   useEffect(() => {
@@ -99,6 +104,7 @@ export default function BookmarksScreen() {
       >
         <ListScreen<HNItem>
           listRef={listRef}
+          {...prefetchVisibleStories}
           data={stories}
           isLoading={isLoading}
           skeleton={<StoryCardSkeleton />}
